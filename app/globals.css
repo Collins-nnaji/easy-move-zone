@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-space), ui-monospace, SFMono-Regular, monospace;
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+}
+
+/* Base Styles */
+@layer base {
+  :root {
+    /* Light Mode - Tech Light */
+    --background: oklch(0.98 0 0);
+    --foreground: oklch(0.15 0.05 240);
+
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.15 0.05 240);
+
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.15 0.05 240);
+
+    /* Primary: Electric Blue/Cyan */
+    --primary: oklch(0.55 0.2 250);
+    --primary-foreground: oklch(1 0 0);
+
+    /* Secondary: cool grey/blue */
+    --secondary: oklch(0.95 0.02 240);
+    --secondary-foreground: oklch(0.3 0.05 240);
+
+    --muted: oklch(0.95 0.01 240);
+    --muted-foreground: oklch(0.5 0.05 240);
+
+    --accent: oklch(0.92 0.05 250);
+    --accent-foreground: oklch(0.3 0.1 250);
+
+    --destructive: oklch(0.6 0.2 20);
+    --destructive-foreground: oklch(0.98 0 0);
+
+    --border: oklch(0.9 0.02 240);
+    --input: oklch(0.9 0.02 240);
+    --ring: oklch(0.55 0.2 250);
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Dark Mode - Deep Space Tech */
+    /* Background: Deep Blue-Black */
+    --background: oklch(0.1 0.02 250);
+    --foreground: oklch(0.98 0.01 240);
+
+    /* Card: Slightly lighter blue-black with tint */
+    --card: oklch(0.13 0.03 250);
+    --card-foreground: oklch(0.98 0.01 240);
+
+    --popover: oklch(0.13 0.03 250);
+    --popover-foreground: oklch(0.98 0.01 240);
+
+    /* Primary: Neon Cyan */
+    --primary: oklch(0.7 0.18 220);
+    --primary-foreground: oklch(0.1 0.05 250);
+
+    /* Secondary: Deep Indigo */
+    --secondary: oklch(0.2 0.05 260);
+    --secondary-foreground: oklch(0.9 0.05 240);
+
+    --muted: oklch(0.15 0.03 250);
+    --muted-foreground: oklch(0.7 0.05 240);
+
+    --accent: oklch(0.2 0.08 260);
+    --accent-foreground: oklch(0.95 0.05 220);
+
+    --destructive: oklch(0.4 0.15 20);
+    --destructive-foreground: oklch(0.98 0 0);
+
+    --border: oklch(0.2 0.05 250);
+    --input: oklch(0.2 0.05 250);
+    --ring: oklch(0.7 0.18 220);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-mono tracking-tight;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass {
+    @apply bg-white/70 dark:bg-[#0a0a15]/70 backdrop-blur-xl border-b border-white/20 dark:border-white/5;
+  }
+
+  .tech-card {
+    @apply bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-300 shadow-lg hover:shadow-primary/10 hover:-translate-y-1;
+  }
+
+  .glow-text {
+    @apply text-primary font-bold;
+  }
+
+  .grid-bg {
+    background-size: 50px 50px;
+    background-image:
+      linear-gradient(to right, rgba(100, 100, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(100, 100, 255, 0.05) 1px, transparent 1px);
+    mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+  }
+}
