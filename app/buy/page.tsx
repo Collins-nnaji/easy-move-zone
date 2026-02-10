@@ -55,22 +55,22 @@ export default function BuyPage() {
                     </div>
 
                     {/* Search Bar - Sleek */}
-                    <div className="bg-white dark:bg-zinc-950 p-2 rounded-xl border border-border shadow-sm flex gap-2 max-w-4xl">
+                    <div className="bg-white dark:bg-zinc-950 p-2 rounded-xl border border-border shadow-sm flex flex-col md:flex-row gap-2 max-w-4xl">
                         <div className="flex-1 relative">
                             <Search className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
                             <input
                                 type="text"
-                                placeholder="Search by location, keyword, or Property ID..."
+                                placeholder="Search by location..."
                                 className="w-full pl-10 pr-4 py-3 rounded-lg bg-transparent focus:outline-none"
                             />
                         </div>
-                        <div className="h-auto w-px bg-border mx-2"></div>
+                        <div className="h-px w-full md:h-auto md:w-px bg-border mx-0 md:mx-2 my-2 md:my-0"></div>
                         <input
                             type="text"
                             placeholder="Max Price (₦)"
-                            className="w-32 md:w-48 px-4 py-3 rounded-lg bg-transparent focus:outline-none border-none"
+                            className="w-full md:w-48 px-4 py-3 rounded-lg bg-transparent focus:outline-none border-none"
                         />
-                        <Button size="lg" className="px-8">Search</Button>
+                        <Button size="lg" className="w-full md:w-auto px-8">Search</Button>
                     </div>
                 </div>
             </section>
