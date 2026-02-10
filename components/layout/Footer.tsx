@@ -1,33 +1,32 @@
 import Link from "next/link"
-import { Globe } from "lucide-react"
+import { Shield } from "lucide-react"
 
 export function Footer() {
     const navigation = {
-        solutions: [
-            { name: 'Migration', href: '/services' },
-            { name: 'Relocation', href: '/services' },
-            { name: 'Corporate', href: '/services' },
-            { name: 'Families', href: '/services' },
+        marketplace: [
+            { name: 'Buy Property', href: '#' },
+            { name: 'Rent Apartment', href: '#' },
+            { name: 'Shortlet Stays', href: '#' },
+            { name: 'Commercial', href: '#' },
         ],
-        support: [
-            { name: 'Guides', href: '/resources' },
-            { name: 'API Status', href: '#' },
-            { name: 'Contact', href: '/contact' },
+        trust: [
+            { name: 'Verification Process', href: '#' },
+            { name: 'Escrow Service', href: '#' },
+            { name: 'Agent Vetting', href: '#' },
         ],
         company: [
-            { name: 'About', href: '/about' },
-            { name: 'Blog', href: '#' },
-            { name: 'Jobs', href: '#' },
-            { name: 'Partners', href: '#' },
+            { name: 'About Us', href: '#' },
+            { name: 'Careers', href: '#' },
+            { name: 'Press', href: '#' },
         ],
         legal: [
-            { name: 'Privacy', href: '#' },
-            { name: 'Terms', href: '#' },
+            { name: 'Privacy Policy', href: '#' },
+            { name: 'Terms of Service', href: '#' },
         ],
     }
 
     return (
-        <footer className="bg-muted/30 border-t border-border" aria-labelledby="footer-heading">
+        <footer className="bg-muted/20 border-t border-border" aria-labelledby="footer-heading">
             <h2 id="footer-heading" className="sr-only">
                 Footer
             </h2>
@@ -35,36 +34,21 @@ export function Footer() {
                 <div className="xl:grid xl:grid-cols-3 xl:gap-8">
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
-                            <Globe className="h-6 w-6 text-primary" />
+                            <Shield className="h-6 w-6 text-primary" />
                             <span className="text-xl font-bold tracking-tight text-foreground">
                                 EasyMoveZone
                             </span>
                         </div>
                         <p className="text-sm leading-6 text-muted-foreground max-w-sm">
-                            Helping people move countries with clarity, transparency, and long-term support. Your trusted partner in global mobility.
+                            The trust-first real estate platform. We verify every listing so you can move with confidence.
                         </p>
-                        <div className="flex space-x-6">
-                            {/* Social placeholders */}
-                            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                                <span className="sr-only">Facebook</span>
-                                <span className="h-6 w-6">FB</span>
-                            </a>
-                            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                                <span className="sr-only">Twitter</span>
-                                <span className="h-6 w-6">TW</span>
-                            </a>
-                            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                                <span className="sr-only">LinkedIn</span>
-                                <span className="h-6 w-6">LI</span>
-                            </a>
-                        </div>
                     </div>
                     <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
                         <div className="md:grid md:grid-cols-2 md:gap-8">
                             <div>
-                                <h3 className="text-sm font-semibold leading-6 text-foreground">Solutions</h3>
+                                <h3 className="text-sm font-semibold leading-6 text-foreground">Marketplace</h3>
                                 <ul role="list" className="mt-6 space-y-4">
-                                    {navigation.solutions.map((item) => (
+                                    {navigation.marketplace.map((item) => (
                                         <li key={item.name}>
                                             <a href={item.href} className="text-sm leading-6 text-muted-foreground hover:text-primary transition-colors">
                                                 {item.name}
@@ -74,9 +58,9 @@ export function Footer() {
                                 </ul>
                             </div>
                             <div className="mt-10 md:mt-0">
-                                <h3 className="text-sm font-semibold leading-6 text-foreground">Support</h3>
+                                <h3 className="text-sm font-semibold leading-6 text-foreground">Trust & Safety</h3>
                                 <ul role="list" className="mt-6 space-y-4">
-                                    {navigation.support.map((item) => (
+                                    {navigation.trust.map((item) => (
                                         <li key={item.name}>
                                             <a href={item.href} className="text-sm leading-6 text-muted-foreground hover:text-primary transition-colors">
                                                 {item.name}

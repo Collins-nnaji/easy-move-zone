@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { Menu, X, Globe } from "lucide-react"
+import { Menu, X, Shield } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
@@ -20,10 +20,10 @@ export function Header() {
     }, [])
 
     const navigation = [
-        { name: "How it Works", href: "/#how-it-works" },
-        { name: "Services", href: "/services" },
-        { name: "Destinations", href: "/countries" },
-        { name: "Resources", href: "/resources" },
+        { name: "Buy", href: "/buy" },
+        { name: "Rent", href: "/rent" },
+        { name: "Shortlets", href: "/properties?type=shortlet" },
+        { name: "Mortgage", href: "/mortgage" },
     ]
 
     return (
@@ -31,23 +31,17 @@ export function Header() {
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             className={cn(
-                "fixed top-0 z-50 w-full transition-all duration-300",
-                scrolled
-                    ? "glass"
-                    : "bg-transparent py-4"
+                "fixed top-0 z-50 w-full transition-all duration-300 border-b border-border shadow-sm",
+                "bg-background/95 backdrop-blur-md"
             )}
         >
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group" onClick={() => setIsMenuOpen(false)}>
-                        {/* Using Next.js Image for the logo. Ensure 'public/logo.png' exists. */}
-                        <div className="relative h-10 w-40 overflow-hidden">
-                            <img
-                                src="/EMZ_1 1.png"
-                                alt="EasyMoveZone"
-                                className="object-contain h-full w-full"
-                            />
+                        <div className="flex items-center gap-2">
+                            <Shield className="w-8 h-8 text-primary" />
+                            <span className="font-bold text-xl tracking-tight">EasyMove<span className="text-primary">Zone</span></span>
                         </div>
                     </Link>
 
@@ -57,14 +51,11 @@ export function Header() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="text-sm font-bold text-foreground/80 transition-colors hover:text-primary"
+                                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                             >
                                 {item.name}
                             </Link>
                         ))}
-                        <Link href="/tools" className="text-sm font-bold text-foreground/80 transition-colors hover:text-primary">
-                            Tools
-                        </Link>
                     </nav>
 
                     {/* Desktop CTA */}
@@ -75,7 +66,7 @@ export function Header() {
                             </span>
                         </Link>
                         <Link href="/register">
-                            <Button size="sm">Get Started</Button>
+                            <Button size="sm">List Property</Button>
                         </Link>
                     </div>
 
@@ -104,7 +95,7 @@ export function Header() {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="md:hidden glass border-b border-border"
+                        className="md:hidden bg-background border-b border-border"
                     >
                         <div className="space-y-1 px-4 pb-4 pt-2">
                             {navigation.map((item) => (
@@ -119,7 +110,7 @@ export function Header() {
                             ))}
                             <div className="mt-4 flex flex-col gap-2 pt-4 border-t border-border">
                                 <Button variant="ghost" className="w-full justify-start">Log in</Button>
-                                <Button className="w-full">Get Started</Button>
+                                <Button className="w-full">List Property</Button>
                             </div>
                         </div>
                     </motion.div>
