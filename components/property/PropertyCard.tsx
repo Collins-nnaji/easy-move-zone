@@ -20,7 +20,10 @@ export function PropertyCard({ property }: PropertyCardProps) {
         <div className="group rounded-2xl overflow-hidden border border-border bg-card hover:shadow-xl transition-all duration-300 flex flex-col h-full">
             <div className="aspect-[4/3] bg-muted relative overflow-hidden">
                 {/* Image Placeholder - In real app use Next/Image with valid src */}
-                <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-800 transition-transform duration-700 group-hover:scale-105"></div>
+                <div
+                    className="absolute inset-0 bg-zinc-200 dark:bg-zinc-800 transition-transform duration-700 group-hover:scale-105 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${property.images[0] || '/placeholder.jpg'})` }}
+                ></div>
 
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
                     {property.verified && (

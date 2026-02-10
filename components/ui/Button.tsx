@@ -10,7 +10,7 @@ import { motion, HTMLMotionProps } from "framer-motion"
 // Combining React Button props with Framer Motion props
 type ButtonProps = HTMLMotionProps<"button"> & {
     variant?: "primary" | "secondary" | "outline" | "ghost"
-    size?: "default" | "sm" | "lg"
+    size?: "default" | "sm" | "lg" | "xl"
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -30,6 +30,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                         "h-10 px-4 py-2": size === "default",
                         "h-9 rounded-md px-3": size === "sm",
                         "h-11 rounded-md px-8": size === "lg",
+                        "h-12 rounded-lg px-8 text-lg": size === "xl",
                     },
                     className
                 )}
