@@ -20,17 +20,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 ref={ref}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                transition={{ type: "tween", duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 className={cn(
-                    "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+                    "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-xl",
                     {
-                        "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20": variant === "primary",
-                        "bg-secondary text-secondary-foreground hover:bg-secondary/80": variant === "secondary",
-                        "border border-input bg-background hover:bg-accent hover:text-accent-foreground": variant === "outline",
-                        "hover:bg-accent hover:text-accent-foreground": variant === "ghost",
+                        "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30": variant === "primary",
+                        "bg-secondary text-secondary-foreground hover:bg-secondary/85 shadow-sm hover:shadow-md": variant === "secondary",
+                        "border-2 border-input bg-background hover:border-primary/40 hover:bg-muted/50": variant === "outline",
+                        "hover:bg-muted/60": variant === "ghost",
                         "h-10 px-4 py-2": size === "default",
-                        "h-9 rounded-md px-3": size === "sm",
-                        "h-11 rounded-md px-8": size === "lg",
-                        "h-12 rounded-lg px-8 text-lg": size === "xl",
+                        "h-9 rounded-lg px-3": size === "sm",
+                        "h-12 rounded-xl px-8": size === "lg",
+                        "h-14 rounded-xl px-8 text-base": size === "xl",
                     },
                     className
                 )}

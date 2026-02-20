@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 
-export default function PropertiesRedirect() {
+export default function RSARedirect() {
   const router = useRouter()
   useEffect(() => {
     router.replace("/destinations")

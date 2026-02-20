@@ -17,8 +17,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone | Global Migration Platform",
-  description: "Move countries with clarity, transparency, and long-term support.",
+  title: "EasyMoveZone — Relocation consultancy from Nigeria | Start to finish",
+  description: "Service-based relocation consultancy. We assess candidates, guide you from start to finish, and support your move to UK, Canada, US, UAE. Transparent process and fees.",
 };
 
 export default function RootLayout({
@@ -27,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${outfit.variable} ${spaceGrotesk.variable} min-h-screen bg-background text-foreground antialiased flex flex-col font-sans`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${outfit.variable} ${spaceGrotesk.variable} min-h-screen flex flex-col`}>
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
