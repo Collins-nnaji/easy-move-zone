@@ -7,6 +7,7 @@ import {
   Shield, CheckCircle2, ArrowRight, Star,
   Users, BadgeCheck, Calculator, Globe, MapPin,
   ListOrdered, Banknote, Sparkles, FileText, GraduationCap, Home,
+  Map, Send, Heart, Quote, Zap, TrendingUp,
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 
@@ -124,11 +125,15 @@ function TrustStrip() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.05, duration: 0.35 }}
-            className="flex items-center gap-2"
+            className="flex items-center gap-3"
           >
-            <Shield className="w-4 h-4 text-primary/80" />
-            <span className="text-sm font-semibold text-foreground">{label}</span>
-            <span className="text-xs text-muted-foreground">{sub}</span>
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Shield className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <span className="text-sm font-bold text-foreground block leading-tight">{label}</span>
+              <span className="text-[10px] text-muted-foreground">{sub}</span>
+            </div>
           </motion.div>
         ))}
       </div>
@@ -176,13 +181,16 @@ function ServicesSection() {
             >
               <Link
                 href={href}
-                className="block fintech-card p-6 h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
+                className={`group block rounded-2xl border border-border/60 bg-card p-6 h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-primary/40 ${color === "secondary" ? "border-l-4 border-l-secondary/40" : "border-l-4 border-l-primary/40"}`}
               >
                 <div className={`w-11 h-11 rounded-xl ${color === "secondary" ? "bg-secondary/10" : "bg-primary/10"} flex items-center justify-center mb-4`}>
                   <Icon className={`w-5 h-5 ${color === "secondary" ? "text-secondary" : "text-primary"}`} />
                 </div>
-                <h3 className="text-base font-bold text-foreground mb-1">{title}</h3>
+                <h3 className="text-base font-bold text-foreground mb-1 group-hover:text-primary transition-colors">{title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                <div className="mt-3 flex items-center gap-1 text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                  Learn more <ArrowRight className="w-3 h-3" />
+                </div>
               </Link>
             </motion.div>
           ))}
@@ -206,6 +214,7 @@ const DESTINATIONS = [
 ]
 
 function DestinationsSection() {
+  const flags: Record<string, string> = { "United Kingdom": "🇬🇧", "Canada": "🇨🇦", "Europe": "🇪🇺" }
   return (
     <section className="py-24 md:py-32 section-flow-bg relative">
       <div className="section-inner">
@@ -224,7 +233,7 @@ function DestinationsSection() {
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {DESTINATIONS.map(({ icon: Icon, title, tag, desc, href, color }, i) => (
             <motion.div
               key={title}
@@ -235,13 +244,18 @@ function DestinationsSection() {
             >
               <Link
                 href={href}
-                className={`block rounded-2xl border bg-gradient-to-br ${color} p-6 h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2`}
+                className={`group block rounded-2xl border bg-gradient-to-br ${color} p-7 h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 focus-visible:ring-2 focus-visible:ring-primary/40`}
               >
-                <div className="w-11 h-11 rounded-xl bg-background/80 flex items-center justify-center mb-4 shadow-sm">
-                  <Icon className="w-5 h-5 text-primary" />
+                <div className="flex items-center justify-between mb-5">
+                  <div className="w-12 h-12 rounded-2xl bg-background/90 flex items-center justify-center shadow-sm text-2xl">
+                    {flags[title] || "🌍"}
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-background/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
+                    <ArrowRight className="w-4 h-4 text-primary" />
+                  </div>
                 </div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{tag}</span>
-                <h3 className="text-lg font-bold text-foreground mt-1 mb-1">{title}</h3>
+                <h3 className="text-xl font-bold text-foreground mt-1 mb-2">{title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
               </Link>
             </motion.div>
@@ -254,10 +268,10 @@ function DestinationsSection() {
 
 /* ── Our process ──────────────────────────────────────── */
 const PROCESS_STEPS = [
-  { step: "01", title: "Migration assessment", desc: "AI-powered scoring across UK, Canada, and Europe. Know your best-fit visa and route." },
-  { step: "02", title: "Strategy & planning", desc: "Personalised roadmap, document review, and visa application strategy." },
-  { step: "03", title: "Application & placement", desc: "Visa application support, school placement, and financial planning." },
-  { step: "04", title: "Settlement support", desc: "Accommodation, bank setup, healthcare registration — we settle you in." },
+  { step: "01", title: "Migration assessment", desc: "AI-powered scoring across UK, Canada, and Europe. Know your best-fit visa and route.", icon: Sparkles, accent: "primary" },
+  { step: "02", title: "Strategy & planning", desc: "Personalised roadmap, document review, and visa application strategy.", icon: Map, accent: "secondary" },
+  { step: "03", title: "Application & placement", desc: "Visa application support, school placement, and financial planning.", icon: Send, accent: "primary" },
+  { step: "04", title: "Settlement support", desc: "Accommodation, bank setup, healthcare registration — we settle you in.", icon: Heart, accent: "secondary" },
 ]
 
 function ProcessSection() {
@@ -279,19 +293,27 @@ function ProcessSection() {
             A structured, four-stage process — from initial assessment through to your new life abroad.
           </p>
         </motion.div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {PROCESS_STEPS.map(({ step, title, desc }, i) => (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {PROCESS_STEPS.map(({ step, title, desc, icon: Icon, accent }, i) => (
             <motion.div
               key={step}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
-              className="fintech-card p-6"
+              className="relative rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
             >
-              <div className="text-3xl font-bold text-primary/20 mb-3">{step}</div>
-              <h3 className="font-bold text-sm mb-2">{title}</h3>
-              <p className="text-xs text-muted-foreground">{desc}</p>
+              <div className={`h-1 ${accent === "secondary" ? "bg-secondary" : "bg-primary"}`} />
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={`w-10 h-10 rounded-xl ${accent === "secondary" ? "bg-secondary/10" : "bg-primary/10"} flex items-center justify-center`}>
+                    <Icon className={`w-5 h-5 ${accent === "secondary" ? "text-secondary" : "text-primary"}`} />
+                  </div>
+                  <span className={`text-2xl font-bold ${accent === "secondary" ? "text-secondary/20" : "text-primary/20"}`}>{step}</span>
+                </div>
+                <h3 className="font-bold text-sm mb-2">{title}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -308,16 +330,18 @@ function ProcessSection() {
 /* ── Our fees (teaser) ─────────────────────────────────── */
 function FeesSection() {
   const TIERS = [
-    { label: "Assessment Portal", price: "₦25,000 – ₦75,000", note: "AI migration simulation + downloadable report", color: "primary" },
-    { label: "Migration Strategy", price: "₦800K – ₦2.5M", note: "Strategy call, visa roadmap, documentation review, application prep", color: "secondary" },
-    { label: "Full Concierge", price: "₦4M – ₦15M+", note: "Visa strategy, school placement, accommodation, settlement support", color: "primary" },
-    { label: "Education Placement", price: "Commission-based", note: "Referral commission from UK, Canadian & European institutions", color: "secondary" },
-    { label: "Forex & Loan Partnerships", price: "Commission-based", note: "Referral commission from loan providers, FX & insurance partners", color: "primary" },
+    { label: "Assessment Portal", price: "₦25,000 – ₦75,000", note: "AI migration simulation + downloadable report", icon: Sparkles, recommended: false },
+    { label: "Migration Strategy", price: "₦800K – ₦2.5M", note: "Strategy call, visa roadmap, documentation review, application prep", icon: Map, recommended: true },
+    { label: "Full Concierge", price: "₦4M – ₦15M+", note: "Visa strategy, school placement, accommodation, settlement support", icon: Shield, recommended: false },
+    { label: "Education Placement", price: "Commission-based", note: "Referral commission from UK, Canadian & European institutions", icon: GraduationCap, recommended: false },
+    { label: "Forex & Loan Partnerships", price: "Commission-based", note: "Referral commission from loan providers, FX & insurance partners", icon: Banknote, recommended: false },
   ]
 
   return (
-    <section className="py-24 md:py-32 section-flow-bg relative">
-      <div className="section-inner">
+    <section className="py-24 md:py-32 relative overflow-hidden">
+      {/* Subtle background accent */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/[0.03] to-background pointer-events-none" />
+      <div className="section-inner relative">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -339,14 +363,34 @@ function FeesSection() {
           className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto"
         >
           {TIERS.map((tier, i) => (
-            <div key={tier.label} className={`fintech-card p-6 border-${tier.color}/20`}>
-              <div className={`text-xs font-bold text-${tier.color} uppercase tracking-wider mb-2`}>{tier.label}</div>
-              <div className="text-xl font-bold tabular-nums mb-1">{tier.price}</div>
-              <p className="text-sm text-muted-foreground">{tier.note}</p>
-            </div>
+            <motion.div
+              key={tier.label}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.07 }}
+              className={`relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 ${tier.recommended
+                  ? "bg-gradient-to-br from-primary to-primary/80 text-white shadow-xl shadow-primary/20 ring-2 ring-primary/30"
+                  : "bg-card border border-border/60 shadow-sm hover:shadow-md"
+                }`}
+            >
+              {tier.recommended && (
+                <div className="absolute top-0 right-0 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-bl-xl text-[10px] font-bold uppercase tracking-wider">
+                  Recommended
+                </div>
+              )}
+              <div className="p-6">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${tier.recommended ? "bg-white/15" : "bg-primary/10"}`}>
+                  <tier.icon className={`w-5 h-5 ${tier.recommended ? "text-white" : "text-primary"}`} />
+                </div>
+                <div className={`text-xs font-bold uppercase tracking-wider mb-2 ${tier.recommended ? "text-white/80" : "text-muted-foreground"}`}>{tier.label}</div>
+                <div className={`text-2xl font-bold tabular-nums mb-2 ${tier.recommended ? "text-white" : "text-foreground"}`}>{tier.price}</div>
+                <p className={`text-sm leading-relaxed ${tier.recommended ? "text-white/80" : "text-muted-foreground"}`}>{tier.note}</p>
+              </div>
+            </motion.div>
           ))}
         </motion.div>
-        <div className="text-center mt-8">
+        <div className="text-center mt-10">
           <Link href="/fees">
             <Button className="gap-2">See full fees <ArrowRight className="w-4 h-4" /></Button>
           </Link>
@@ -358,28 +402,31 @@ function FeesSection() {
 
 /* ── Stats ─────────────────────────────────────────────── */
 const STATS = [
-  { value: "AI", label: "Powered scoring" },
-  { value: "3", label: "Focus markets" },
-  { value: "5", label: "Service pillars" },
-  { value: "₦", label: "Naira pricing" },
+  { value: "AI", label: "Powered scoring", icon: Sparkles },
+  { value: "3", label: "Focus markets", icon: Globe },
+  { value: "5", label: "Service pillars", icon: Shield },
+  { value: "₦", label: "Naira pricing", icon: Banknote },
 ]
 
 function StatsSection() {
   return (
-    <section className="py-20 bg-primary">
+    <section className="py-20 bg-gradient-to-r from-primary via-primary/95 to-primary">
       <div className="section-inner">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {STATS.map(({ value, label }, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {STATS.map(({ value, label, icon: Icon }, i) => (
             <motion.div
               key={label}
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.06, duration: 0.4 }}
-              className="text-center"
+              className="text-center relative"
             >
+              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-3">
+                <Icon className="w-5 h-5 text-white" />
+              </div>
               <div className="text-3xl md:text-4xl font-bold text-white tracking-tight">{value}</div>
-              <div className="text-sm text-white/80 mt-1">{label}</div>
+              <div className="text-sm text-white/70 mt-1 font-medium">{label}</div>
             </motion.div>
           ))}
         </div>
@@ -421,17 +468,25 @@ function TestimonialsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08, duration: 0.45, ease: EASE }}
-              className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm hover:shadow-md transition-all duration-300"
+              className="relative rounded-2xl border border-border/60 bg-card p-7 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
             >
+              {/* Large quote accent */}
+              <Quote className="w-8 h-8 text-primary/10 mb-4" />
+
               <div className="flex gap-0.5 mb-4">
                 {[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />)}
               </div>
-              <p className="text-foreground leading-relaxed mb-5">&ldquo;{quote}&rdquo;</p>
-              <div className="text-xs font-semibold text-primary mb-2">{amount}</div>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">{initials}</div>
+              <p className="text-foreground leading-relaxed mb-5 text-sm">&ldquo;{quote}&rdquo;</p>
+
+              {/* Tag badge */}
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider mb-4">
+                <CheckCircle2 className="w-3 h-3" /> {amount}
+              </div>
+
+              <div className="flex items-center gap-3 pt-4 border-t border-border/40">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-sm font-bold text-white shadow-sm">{initials}</div>
                 <div>
-                  <div className="font-semibold text-foreground">{name}</div>
+                  <div className="font-bold text-sm text-foreground">{name}</div>
                   <div className="text-xs text-muted-foreground">{location}</div>
                 </div>
               </div>

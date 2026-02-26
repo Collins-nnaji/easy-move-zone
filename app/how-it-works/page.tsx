@@ -5,7 +5,8 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import {
   CheckCircle2, ArrowRight, Shield, Zap, BadgeCheck,
-  ChevronDown, Star, FileText, TrendingUp,
+  ChevronDown, Star, FileText, TrendingUp, Sparkles,
+  GraduationCap, Banknote, Map,
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 
@@ -158,19 +159,41 @@ export default function HowItWorksPage() {
         {/* Fees teaser */}
         <section className="mb-16">
           <h2 className="text-2xl font-bold text-center mb-6">Fees</h2>
-          <div className="fintech-card p-6 max-w-3xl mx-auto">
-            <div className="grid sm:grid-cols-2 gap-4 text-sm text-muted-foreground mb-5">
-              <div><strong className="text-foreground">Assessment Portal:</strong> ₦25,000 – ₦75,000</div>
-              <div><strong className="text-foreground">Migration Strategy:</strong> ₦800K – ₦2.5M</div>
-              <div><strong className="text-foreground">Full Concierge:</strong> ₦4M – ₦15M+</div>
-              <div><strong className="text-foreground">Education Placement:</strong> Commission-based</div>
-              <div className="sm:col-span-2"><strong className="text-foreground">Forex & Loan Partnerships:</strong> Commission-based</div>
-            </div>
-            <div className="text-center">
-              <Link href="/fees">
-                <Button variant="outline" className="gap-2">See full fees</Button>
-              </Link>
-            </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+            {[
+              { label: "Assessment Portal", price: "₦25K – ₦75K", icon: Sparkles, highlighted: false },
+              { label: "Migration Strategy", price: "₦800K – ₦2.5M", icon: Map, highlighted: true },
+              { label: "Full Concierge", price: "₦4M – ₦15M+", icon: Shield, highlighted: false },
+              { label: "Education Placement", price: "Commission", icon: GraduationCap, highlighted: false },
+              { label: "Forex & Loans", price: "Commission", icon: Banknote, highlighted: false },
+            ].map(({ label, price, icon: TierIcon, highlighted }) => (
+              <div
+                key={label}
+                className={`relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-0.5 ${highlighted
+                    ? "bg-gradient-to-br from-primary to-primary/80 text-white shadow-lg shadow-primary/20 ring-1 ring-primary/30 sm:col-span-2 lg:col-span-1"
+                    : "bg-card border border-border/60 shadow-sm hover:shadow-md"
+                  }`}
+              >
+                {highlighted && (
+                  <div className="absolute top-0 right-0 bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-bl-xl text-[9px] font-bold uppercase tracking-wider">
+                    <Star className="w-2.5 h-2.5 inline -mt-0.5 mr-0.5 fill-white" /> Recommended
+                  </div>
+                )}
+                {!highlighted && <div className="h-0.5 bg-primary/30" />}
+                <div className="p-5">
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${highlighted ? "bg-white/15" : "bg-primary/10"}`}>
+                    <TierIcon className={`w-4 h-4 ${highlighted ? "text-white" : "text-primary"}`} />
+                  </div>
+                  <div className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${highlighted ? "text-white/70" : "text-muted-foreground"}`}>{label}</div>
+                  <div className={`text-lg font-bold tabular-nums ${highlighted ? "text-white" : "text-foreground"}`}>{price}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-6">
+            <Link href="/fees">
+              <Button variant="outline" className="gap-2">See full fees <ArrowRight className="w-4 h-4" /></Button>
+            </Link>
           </div>
         </section>
 
