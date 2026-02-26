@@ -101,7 +101,7 @@ function AuthPageContent() {
           <div className="bg-gradient-to-r from-primary to-secondary p-6 text-white text-center">
             <Link href="/" className="inline-block mb-4">
               <Image
-                src="/emz.png"
+                src="/emz.svg"
                 alt="EasyMoveZone"
                 width={140}
                 height={50}

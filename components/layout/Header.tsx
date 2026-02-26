@@ -107,7 +107,7 @@ export function Header() {
             {/* Logo + tagline */}
             <Link href="/" className="flex items-center gap-2 shrink-0" onClick={() => setIsMenuOpen(false)}>
               <Image
-                src="/emz.png"
+                src="/emz.svg"
                 alt="EasyMoveZone"
                 width={160}
                 height={56}
