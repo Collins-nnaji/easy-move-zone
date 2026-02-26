@@ -17,8 +17,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Relocation consultancy from Nigeria | Start to finish",
-  description: "Service-based relocation consultancy. We assess candidates, guide you from start to finish, and support your move to UK, Canada, US, UAE. Transparent process and fees.",
+  title: "EasyMoveZone — Migration Intelligence & Relocation Strategy | Nigeria",
+  description: "Your smart migration & relocation partner. Data-driven migration intelligence, visa strategy, school placement, and settlement support for Nigerian professionals, students, and families moving to UK, Canada, or Europe.",
 };
 
 export default function RootLayout({

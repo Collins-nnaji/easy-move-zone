@@ -5,8 +5,8 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import {
   Shield, CheckCircle2, ArrowRight, Star,
-  Users, BadgeCheck, Calculator, Globe, MapPin, Plane,
-  ListOrdered, Banknote,
+  Users, BadgeCheck, Calculator, Globe, MapPin,
+  ListOrdered, Banknote, Sparkles, FileText, GraduationCap, Home,
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 
@@ -29,7 +29,7 @@ function HeroSection() {
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide mb-6"
             >
               <BadgeCheck className="w-3.5 h-3.5" />
-              Relocation consultancy · Transparent process & fees
+              Migration intelligence · Relocation strategy · Nigeria
             </motion.div>
 
             <motion.h1
@@ -38,9 +38,9 @@ function HeroSection() {
               transition={{ duration: 0.55, delay: 0.06, ease: EASE }}
               className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-foreground mb-5 leading-[1.08]"
             >
-              We guide you
+              Your smart migration
               <br />
-              <span className="gradient-text">from start to finish.</span>
+              <span className="gradient-text">&amp; relocation partner.</span>
             </motion.h1>
 
             <motion.p
@@ -49,7 +49,7 @@ function HeroSection() {
               transition={{ duration: 0.5, delay: 0.12, ease: EASE }}
               className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
             >
-              We assess candidates and support your move to UK, Canada, US, or UAE. Clear process, clear fees — no surprises.
+              Data-driven migration intelligence and end-to-end relocation strategy for Nigerian professionals, students, healthcare workers, and families moving to UK, Canada, or Europe.
             </motion.p>
 
             <motion.div
@@ -84,10 +84,10 @@ function HeroSection() {
               className="w-full max-w-[380px] glass-card rounded-3xl p-6 lg:p-7 shadow-2xl"
             >
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-                Start your journey
+                Migration assessment
               </p>
               <p className="text-sm text-muted-foreground mb-4">
-                Submit your profile. We assess your fit and guide you from start to finish.
+                Get your personalised migration score, visa match, and cost estimate — powered by AI.
               </p>
               <Link href="/qualify" className="block">
                 <Button className="w-full gap-2">
@@ -95,8 +95,8 @@ function HeroSection() {
                 </Button>
               </Link>
               <div className="mt-4 pt-4 border-t border-border flex justify-between text-xs text-muted-foreground">
-                <span>Clear process</span>
-                <span>Transparent fees</span>
+                <span>Data-driven</span>
+                <span>Structured process</span>
               </div>
             </motion.div>
           </div>
@@ -110,8 +110,7 @@ function HeroSection() {
 const TRUST = [
   { label: "UK", sub: "Skilled Worker" },
   { label: "Canada", sub: "Express Entry" },
-  { label: "USA", sub: "Work / Study" },
-  { label: "UAE", sub: "Residency" },
+  { label: "Europe", sub: "Blue Card · D7" },
 ]
 
 function TrustStrip() {
@@ -137,12 +136,73 @@ function TrustStrip() {
   )
 }
 
+/* ── Our services ────────────────────────────────────── */
+const SERVICES_HOME = [
+  { icon: Sparkles, title: "Migration Intelligence", desc: "AI-powered assessment, country match scoring, visa eligibility, and cost simulation in ₦.", href: "/qualify", color: "primary" as const },
+  { icon: FileText, title: "Visa Planning & Application", desc: "Documentation checklist, eligibility review, strategy positioning, and interview prep.", href: "/qualify", color: "secondary" as const },
+  { icon: GraduationCap, title: "School & University Placement", desc: "School comparison, tuition breakdown, admission support, and scholarship advisory.", href: "/qualify", color: "primary" as const },
+  { icon: Home, title: "Accommodation & Settlement", desc: "Housing sourcing, city selection, cost of living, bank & healthcare setup.", href: "/qualify", color: "secondary" as const },
+  { icon: Banknote, title: "Funding & Financial Planning", desc: "Tuition financing, education loans, proof of funds, budget planning, cost calculator.", href: "/calculator", color: "primary" as const },
+]
+
+function ServicesSection() {
+  return (
+    <section className="py-24 md:py-32 section-flow-bg relative">
+      <div className="section-inner">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, ease: EASE }}
+          className="text-center max-w-2xl mx-auto mb-14"
+        >
+          <span className="text-xs font-semibold text-primary uppercase tracking-wider">Our services</span>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mt-2 mb-3">
+            Everything you need to relocate
+          </h2>
+          <p className="text-muted-foreground text-lg">
+            Five core offerings that cover every stage — from your first assessment to settling into your new home.
+          </p>
+        </motion.div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {SERVICES_HOME.map(({ icon: Icon, title, desc, href, color }, i) => (
+            <motion.div
+              key={title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ delay: i * 0.06, duration: 0.45, ease: EASE }}
+            >
+              <Link
+                href={href}
+                className="block fintech-card p-6 h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
+              >
+                <div className={`w-11 h-11 rounded-xl ${color === "secondary" ? "bg-secondary/10" : "bg-primary/10"} flex items-center justify-center mb-4`}>
+                  <Icon className={`w-5 h-5 ${color === "secondary" ? "text-secondary" : "text-primary"}`} />
+                </div>
+                <h3 className="text-base font-bold text-foreground mb-1">{title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="text-center mt-10">
+          <Link href="/services">
+            <Button variant="outline" className="gap-2">All services <ArrowRight className="w-4 h-4" /></Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 /* ── Destinations grid ─────────────────────────────────── */
 const DESTINATIONS = [
-  { icon: MapPin, title: "United Kingdom", tag: "Work · Study", desc: "Skilled Worker, Student, and family routes.", href: "/destinations?country=uk", color: "from-secondary/20 to-secondary/5 border-secondary/20" },
-  { icon: MapPin, title: "Canada", tag: "Express Entry", desc: "Federal and provincial programs.", href: "/destinations?country=canada", color: "from-primary/20 to-primary/5 border-primary/20" },
-  { icon: Plane, title: "United States", tag: "Work · H1B · Study", desc: "Employment and student visa overview.", href: "/destinations?country=us", color: "from-muted to-muted/50 border-border" },
-  { icon: Globe, title: "UAE", tag: "Residency · Work", desc: "Dubai, Abu Dhabi — visas and costs.", href: "/destinations?country=uae", color: "from-primary/20 to-primary/5 border-primary/20" },
+  { icon: MapPin, title: "United Kingdom", tag: "Work · Study", desc: "Skilled Worker, Student, Health & Care Worker, Global Talent, Innovator Founder.", href: "/destinations?country=uk", color: "from-secondary/20 to-secondary/5 border-secondary/20" },
+  { icon: MapPin, title: "Canada", tag: "Express Entry", desc: "Express Entry, PNP, Study Permit, Spousal Sponsorship.", href: "/destinations?country=canada", color: "from-primary/20 to-primary/5 border-primary/20" },
+  { icon: Globe, title: "Europe", tag: "Blue Card · D7 · HSM", desc: "Germany, Portugal, Netherlands, Ireland — skilled migration routes.", href: "/destinations?country=europe", color: "from-muted to-muted/50 border-border" },
 ]
 
 function DestinationsSection() {
@@ -157,14 +217,14 @@ function DestinationsSection() {
           className="text-center max-w-2xl mx-auto mb-14"
         >
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-3">
-            We help you relocate to
+            Focus markets
           </h2>
           <p className="text-muted-foreground text-lg">
-            UK, Canada, US, UAE — we assess your profile and guide you through the process from start to finish.
+            We specialise in three high-demand migration corridors for Nigerian professionals, students, and families.
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {DESTINATIONS.map(({ icon: Icon, title, tag, desc, href, color }, i) => (
             <motion.div
               key={title}
@@ -194,10 +254,10 @@ function DestinationsSection() {
 
 /* ── Our process ──────────────────────────────────────── */
 const PROCESS_STEPS = [
-  { step: "01", title: "Apply & get assessed", desc: "Submit your profile. We assess your fit for UK, Canada, US, UAE." },
-  { step: "02", title: "Strategy call", desc: "We discuss your goals and recommend the best route." },
-  { step: "03", title: "We guide you", desc: "Document prep, application support, and step-by-step guidance." },
-  { step: "04", title: "Support to finish", desc: "We stay with you until you relocate." },
+  { step: "01", title: "Migration assessment", desc: "AI-powered scoring across UK, Canada, and Europe. Know your best-fit visa and route." },
+  { step: "02", title: "Strategy & planning", desc: "Personalised roadmap, document review, and visa application strategy." },
+  { step: "03", title: "Application & placement", desc: "Visa application support, school placement, and financial planning." },
+  { step: "04", title: "Settlement support", desc: "Accommodation, bank setup, healthcare registration — we settle you in." },
 ]
 
 function ProcessSection() {
@@ -213,10 +273,10 @@ function ProcessSection() {
         >
           <span className="text-xs font-semibold text-primary uppercase tracking-wider">Our process</span>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mt-2 mb-3">
-            From start to finish
+            From decision to settlement
           </h2>
           <p className="text-muted-foreground text-lg">
-            Clear steps. We assess candidates and guide you through every stage.
+            A structured, four-stage process — from initial assessment through to your new life abroad.
           </p>
         </motion.div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -247,6 +307,14 @@ function ProcessSection() {
 
 /* ── Our fees (teaser) ─────────────────────────────────── */
 function FeesSection() {
+  const TIERS = [
+    { label: "Assessment Portal", price: "₦25,000 – ₦75,000", note: "AI migration simulation + downloadable report", color: "primary" },
+    { label: "Migration Strategy", price: "₦800K – ₦2.5M", note: "Strategy call, visa roadmap, documentation review, application prep", color: "secondary" },
+    { label: "Full Concierge", price: "₦4M – ₦15M+", note: "Visa strategy, school placement, accommodation, settlement support", color: "primary" },
+    { label: "Education Placement", price: "Commission-based", note: "Referral commission from UK, Canadian & European institutions", color: "secondary" },
+    { label: "Forex & Loan Partnerships", price: "Commission-based", note: "Referral commission from loan providers, FX & insurance partners", color: "primary" },
+  ]
+
   return (
     <section className="py-24 md:py-32 section-flow-bg relative">
       <div className="section-inner">
@@ -261,25 +329,22 @@ function FeesSection() {
             Clear pricing
           </h2>
           <p className="text-muted-foreground text-lg">
-            Assessment fee and full-service package — no hidden costs.
+            Five service tiers — no hidden costs.
           </p>
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto"
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto"
         >
-          <div className="fintech-card p-6 border-primary/20">
-            <div className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Assessment</div>
-            <div className="text-2xl font-bold tabular-nums mb-1">From ₦50,000</div>
-            <p className="text-sm text-muted-foreground">One-time. We assess your profile and recommend routes.</p>
-          </div>
-          <div className="fintech-card p-6 border-secondary/20">
-            <div className="text-xs font-bold text-secondary uppercase tracking-wider mb-2">Full guidance</div>
-            <div className="text-2xl font-bold tabular-nums mb-1">Package on request</div>
-            <p className="text-sm text-muted-foreground">Start-to-finish support. Fee depends on destination and route.</p>
-          </div>
+          {TIERS.map((tier, i) => (
+            <div key={tier.label} className={`fintech-card p-6 border-${tier.color}/20`}>
+              <div className={`text-xs font-bold text-${tier.color} uppercase tracking-wider mb-2`}>{tier.label}</div>
+              <div className="text-xl font-bold tabular-nums mb-1">{tier.price}</div>
+              <p className="text-sm text-muted-foreground">{tier.note}</p>
+            </div>
+          ))}
         </motion.div>
         <div className="text-center mt-8">
           <Link href="/fees">
@@ -293,10 +358,10 @@ function FeesSection() {
 
 /* ── Stats ─────────────────────────────────────────────── */
 const STATS = [
-  { value: "Assessed", label: "Candidates" },
-  { value: "4", label: "Destinations" },
-  { value: "Start", label: "To finish" },
-  { value: "Clear", label: "Fees" },
+  { value: "AI", label: "Powered scoring" },
+  { value: "3", label: "Focus markets" },
+  { value: "5", label: "Service pillars" },
+  { value: "₦", label: "Naira pricing" },
 ]
 
 function StatsSection() {
@@ -383,6 +448,7 @@ export default function HomePage() {
     <div className="min-h-screen">
       <HeroSection />
       <TrustStrip />
+      <ServicesSection />
       <ProcessSection />
       <FeesSection />
       <DestinationsSection />

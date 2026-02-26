@@ -9,10 +9,9 @@ import { MapPin, ArrowRight, CheckCircle2, Shield } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 
 const DESTINATIONS = [
-  { id: "uk", name: "United Kingdom", tag: "Work · Study · Family", visaTypes: "Skilled Worker, Student, Family", costRange: "£2K–£10K+", href: "/destinations?country=uk" },
-  { id: "canada", name: "Canada", tag: "Express Entry · PNP", visaTypes: "Federal, Provincial, Study", costRange: "CAD 3K–15K+", href: "/destinations?country=canada" },
-  { id: "us", name: "United States", tag: "Work · H1B · Study", visaTypes: "H-1B, F-1, Family", costRange: "$3K–$12K+", href: "/destinations?country=us" },
-  { id: "uae", name: "UAE", tag: "Residency · Work", visaTypes: "Employment, Golden Visa, Freelance", costRange: "AED 5K–30K+", href: "/destinations?country=uae" },
+  { id: "uk", name: "United Kingdom", tag: "Work · Study · Health & Care", visaTypes: "Skilled Worker, Student, Health & Care Worker, Global Talent, Innovator Founder", costRange: "₦2M–₦15M+", href: "/destinations?country=uk" },
+  { id: "canada", name: "Canada", tag: "Express Entry · PNP", visaTypes: "Express Entry, Provincial Nominee Program (PNP), Study Permit, Spousal Sponsorship", costRange: "CAD 3K–15K+", href: "/destinations?country=canada" },
+  { id: "europe", name: "Europe", tag: "Blue Card · D7 · HSM", visaTypes: "Germany Blue Card, Portugal D7 Visa, Netherlands HSM, Ireland Critical Skills", costRange: "€3K–€15K+", href: "/destinations?country=europe" },
 ]
 
 function DestinationCard({ dest }: { dest: (typeof DESTINATIONS)[0] }) {
@@ -60,7 +59,7 @@ function DestinationsContent() {
             Global relocation from <span className="gradient-text">Nigeria</span>
           </h1>
           <p className="text-muted-foreground text-sm max-w-md mx-auto">
-            We assess candidates and guide you to UK, Canada, US, and UAE. Clear process and fees — get assessed to start.
+            We specialise in three high-demand migration corridors. Explore visa pathways, costs, and timelines for each market.
           </p>
         </div>
 

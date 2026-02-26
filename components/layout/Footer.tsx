@@ -5,10 +5,10 @@ export function Footer() {
   const navigation = {
     product: [
       { name: "Get assessed", href: "/qualify" },
+      { name: "Services", href: "/services" },
       { name: "Process", href: "/how-it-works" },
       { name: "Fees", href: "/fees" },
       { name: "Destinations", href: "/destinations" },
-      { name: "Dashboard", href: "/dashboard" },
     ],
     markets: [
       { name: "Lagos", href: "#" },
@@ -24,7 +24,6 @@ export function Footer() {
     legal: [
       { name: "Privacy Policy", href: "#" },
       { name: "Terms of Service", href: "#" },
-      { name: "FMBN Licensing", href: "#" },
     ],
   }
 
@@ -42,7 +41,7 @@ export function Footer() {
               <span className="text-lg font-bold tracking-tight">EasyMoveZone</span>
             </div>
             <p className="text-sm leading-6 text-muted-foreground max-w-xs">
-              Relocation consultancy from Nigeria. We assess candidates and guide you from start to finish. Transparent process and fees.
+              Migration Intelligence & Relocation Strategy Firm. Data-driven migration scoring, visa strategy, and settlement support for Nigerian professionals, students, and families.
             </p>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <MapPin className="w-3.5 h-3.5 text-primary" />
@@ -50,7 +49,7 @@ export function Footer() {
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="w-2 h-2 rounded-full bg-secondary inline-block" />
-              FMBN Licensed · PENCOM Registered · SEC Compliant · CBN Regulated Partner
+              From decision to settlement
             </div>
           </div>
 
@@ -112,7 +111,14 @@ export function Footer() {
             &copy; {new Date().getFullYear()} EasyMoveZone Nigeria Ltd. RC 1234567. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground max-w-sm text-right">
-            We assess candidates and provide start-to-finish guidance. Fees are transparent and confirmed before you commit.
+            Migration intelligence and relocation strategy. Structured process, transparent fees, and data-driven advisory.
+          </p>
+        </div>
+
+        {/* Compliance disclaimer */}
+        <div className="mt-8 border-t border-border/50 pt-6">
+          <p className="text-[11px] leading-relaxed text-muted-foreground/70 max-w-4xl">
+            <strong className="text-muted-foreground">Disclaimer:</strong> EasyMoveZone provides migration advisory, strategic planning, and relocation support services. We do not provide regulated immigration legal advice or act as direct visa representatives. For UK immigration matters regulated by the Office of the Immigration Services Commissioner (OISC), and Canadian applications requiring a licensed Regulated Canadian Immigration Consultant (RCIC), we refer clients to our licensed partner professionals. All visa and immigration decisions are made solely by the relevant government immigration authorities.
           </p>
         </div>
       </div>

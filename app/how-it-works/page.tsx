@@ -13,55 +13,55 @@ import { Button } from "@/components/ui/Button"
 const PILLARS = [
   {
     icon: Star,
-    title: "We assess candidates",
-    desc: "You submit your profile. We assess your fit for UK, Canada, US, and UAE and recommend the best route.",
+    title: "Migration intelligence",
+    desc: "AI-powered assessment scores your profile across UK, Canada, and Europe. Data-driven clarity before you commit.",
     color: "bg-primary/10 text-primary",
   },
   {
     icon: Zap,
-    title: "We guide you",
-    desc: "From document prep to application support — we guide you step by step. No guesswork.",
+    title: "Structured strategy",
+    desc: "Personalised visa roadmap, document review, and application positioning — no guesswork.",
     color: "bg-secondary/10 text-secondary",
   },
   {
     icon: FileText,
-    title: "Start to finish",
-    desc: "We stay with you until you relocate. Clear process and transparent fees at every stage.",
+    title: "End-to-end support",
+    desc: "From initial assessment through visa application, school placement, and settlement — we cover every stage.",
     color: "bg-accent/10 text-accent-foreground",
   },
   {
     icon: Shield,
     title: "Transparent fees",
-    desc: "Assessment fee and full-guidance package. We confirm all costs before you commit.",
+    desc: "Five clear tiers from Assessment Portal to Full Concierge Relocation. All costs confirmed before you commit.",
     color: "bg-secondary/10 text-secondary",
   },
 ]
 
 /* ── Process: start to finish ───────────────────────── */
 const PROCESS = [
-  { step: "01", title: "Apply & get assessed", desc: "Submit your profile. We assess your fit and recommend routes.", href: "/qualify" },
-  { step: "02", title: "Strategy call", desc: "We discuss your goals and confirm next steps and fees.", href: "/qualify" },
-  { step: "03", title: "We guide you", desc: "Document prep, application support, step-by-step guidance.", href: "/how-it-works" },
-  { step: "04", title: "Support to finish", desc: "We stay with you until you relocate.", href: "/fees" },
+  { step: "01", title: "Migration assessment", desc: "AI-powered scoring across UK, Canada, and Europe. Know your best-fit visa.", href: "/qualify" },
+  { step: "02", title: "Strategy & planning", desc: "Personalised roadmap, document review, and visa application strategy.", href: "/qualify" },
+  { step: "03", title: "Application & placement", desc: "Visa application support, school placement, and financial planning.", href: "/how-it-works" },
+  { step: "04", title: "Settlement support", desc: "Accommodation, bank setup, healthcare registration — we settle you in.", href: "/fees" },
 ]
 
 /* ── FAQs ───────────────────────────────────────────── */
 const FAQS = [
   {
     q: "How does assessment work?",
-    a: "You submit your profile via our form. We review your background, goals, and finances and assess your fit for UK, Canada, US, and UAE. We then contact you with our recommendation and next steps. An assessment fee applies — see our Fees page.",
+    a: "You submit your profile via our form. Our AI scores your background, goals, and finances across UK, Canada, and Europe visa pathways. We then contact you with a personalised recommendation and next steps. An assessment fee applies — see our Fees page.",
   },
   {
     q: "What does full guidance include?",
-    a: "Start-to-finish support: strategy call, document preparation, application guidance, and ongoing support until you relocate. The package fee depends on destination and route — we confirm it before you commit.",
+    a: "End-to-end support: strategy call, personalised visa roadmap, document preparation, application review, school placement, and settlement support. The package fee depends on destination and route — we confirm it before you commit.",
   },
   {
     q: "What are the fees?",
-    a: "Assessment: from ₦50,000 (one-time). Full guidance: package on request, depending on destination and route. All fees are transparent and confirmed before you pay. See the Fees page for details.",
+    a: "Assessment Portal: ₦25,000–₦75,000. Migration Strategy Package: ₦800,000–₦2,500,000. Full Concierge Relocation: ₦4,000,000–₦15,000,000+ depending on route. Education Placement and Forex & Loan Partnerships are commission-based. All fees are transparent and confirmed before you pay. See the Fees page for details.",
   },
   {
     q: "Which destinations do you support?",
-    a: "We assess and guide candidates for the United Kingdom, Canada, United States, and UAE. We recommend the best route based on your profile.",
+    a: "We assess and guide candidates for the United Kingdom, Canada, and Europe (Germany, Portugal, Netherlands, Ireland). We recommend the best route based on your profile.",
   },
 ]
 
@@ -89,16 +89,16 @@ export default function HowItWorksPage() {
             <BadgeCheck className="w-3.5 h-3.5" /> Process & fees
           </div>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-            How we work — <span className="gradient-text">start to finish</span>
+            How we work — <span className="gradient-text">decision to settlement</span>
           </h1>
           <p className="text-muted-foreground text-sm max-w-md mx-auto">
-            We assess candidates and guide you through every step. Clear process, transparent fees.
+            A structured, data-driven process. From your first migration assessment to settling into your new home.
           </p>
         </div>
 
         {/* Service pillars */}
         <section className="mb-16">
-          <h2 className="text-2xl font-bold text-center mb-8">Our service</h2>
+          <h2 className="text-2xl font-bold text-center mb-8">What sets us apart</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {PILLARS.map(({ icon: Icon, title, desc, color }, i) => (
               <motion.div
@@ -158,21 +158,27 @@ export default function HowItWorksPage() {
         {/* Fees teaser */}
         <section className="mb-16">
           <h2 className="text-2xl font-bold text-center mb-6">Fees</h2>
-          <div className="fintech-card p-6 max-w-2xl mx-auto text-center">
-            <p className="text-sm text-muted-foreground mb-4">
-              <strong className="text-foreground">Assessment:</strong> from ₦50,000 · <strong className="text-foreground">Full guidance:</strong> package on request
-            </p>
-            <Link href="/fees">
-              <Button variant="outline" className="gap-2">See full fees</Button>
-            </Link>
+          <div className="fintech-card p-6 max-w-3xl mx-auto">
+            <div className="grid sm:grid-cols-2 gap-4 text-sm text-muted-foreground mb-5">
+              <div><strong className="text-foreground">Assessment Portal:</strong> ₦25,000 – ₦75,000</div>
+              <div><strong className="text-foreground">Migration Strategy:</strong> ₦800K – ₦2.5M</div>
+              <div><strong className="text-foreground">Full Concierge:</strong> ₦4M – ₦15M+</div>
+              <div><strong className="text-foreground">Education Placement:</strong> Commission-based</div>
+              <div className="sm:col-span-2"><strong className="text-foreground">Forex & Loan Partnerships:</strong> Commission-based</div>
+            </div>
+            <div className="text-center">
+              <Link href="/fees">
+                <Button variant="outline" className="gap-2">See full fees</Button>
+              </Link>
+            </div>
           </div>
         </section>
 
         {/* CTA */}
         <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-10 text-center">
           <TrendingUp className="w-10 h-10 text-white mx-auto mb-4" />
-          <h3 className="text-2xl font-bold text-white mb-3">Get assessed</h3>
-          <p className="text-white/80 text-sm mb-6">Submit your profile. We assess your fit and guide you from start to finish.</p>
+          <h3 className="text-2xl font-bold text-white mb-3">Start your migration assessment</h3>
+          <p className="text-white/80 text-sm mb-6">Get your personalised migration score, visa match, and cost estimate — powered by AI.</p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/qualify">
               <Button className="bg-white text-primary hover:bg-white/90 gap-2 font-bold">
@@ -185,6 +191,13 @@ export default function HowItWorksPage() {
               </Button>
             </Link>
           </div>
+        </div>
+
+        {/* Compliance disclaimer */}
+        <div className="mt-10 border-t border-border/40 pt-6">
+          <p className="text-[11px] leading-relaxed text-muted-foreground/70">
+            <strong className="text-muted-foreground">Disclaimer:</strong> EasyMoveZone provides migration advisory, strategic planning, and relocation support services. We do not provide regulated immigration legal advice or act as direct visa representatives. For UK immigration matters regulated by the OISC, and Canadian applications requiring a licensed RCIC, we refer clients to our licensed partner professionals. All visa and immigration decisions are made solely by the relevant government immigration authorities.
+          </p>
         </div>
       </div>
     </div>

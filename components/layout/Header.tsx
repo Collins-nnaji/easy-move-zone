@@ -11,9 +11,9 @@ import { motion, AnimatePresence } from "framer-motion"
 import { authClient } from "@/lib/auth/client"
 
 const TICKER_ITEMS = [
-  "Relocation consultancy from Nigeria · We guide you start to finish · ",
-  "We assess candidates · Transparent process & fees · UK · Canada · US · UAE · ",
-  "Get assessed · EasyMoveZone — start to finish guidance · ",
+  "Migration Intelligence & Relocation Strategy · Lagos · Abuja · Port Harcourt · ",
+  "AI-powered migration scoring · Visa strategy · UK · Canada · Europe · ",
+  "From decision to settlement · EasyMoveZone — your smart migration partner · ",
 ]
 
 function AnnouncementTicker() {
@@ -33,6 +33,7 @@ function AnnouncementTicker() {
 }
 
 const NAV_LINKS = [
+  { name: "Services", href: "/services" },
   { name: "Process", href: "/how-it-works" },
   { name: "Fees", href: "/fees" },
   { name: "Destinations", href: "/destinations" },
@@ -103,108 +104,108 @@ export function Header() {
         <div className="max-w-7xl mx-auto px-6 md:px-10">
           <div className="flex items-center justify-between h-16">
 
-          {/* Logo + tagline */}
-          <Link href="/" className="flex items-center gap-2 shrink-0" onClick={() => setIsMenuOpen(false)}>
-            <Image
-              src="/emz.png"
-              alt="EasyMoveZone"
-              width={160}
-              height={56}
-              className="h-10 w-auto mix-blend-multiply"
-              priority
-            />
-            <span className="hidden sm:inline text-xs font-medium text-muted-foreground border-l border-border pl-2 ml-1">
-              Relocation · Nigeria
-            </span>
-          </Link>
+            {/* Logo + tagline */}
+            <Link href="/" className="flex items-center gap-2 shrink-0" onClick={() => setIsMenuOpen(false)}>
+              <Image
+                src="/emz.png"
+                alt="EasyMoveZone"
+                width={160}
+                height={56}
+                className="h-10 w-auto mix-blend-multiply"
+                priority
+              />
+              <span className="hidden sm:inline text-xs font-medium text-muted-foreground border-l border-border pl-2 ml-1">
+                Migration Intelligence · Nigeria
+              </span>
+            </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ease-out",
-                  pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/"))
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
-                )}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Desktop CTA / User menu */}
-          <div className="hidden md:flex items-center gap-3 shrink-0">
-            {sessionPending ? (
-              <div className="h-9 w-20 bg-muted rounded-lg animate-pulse" aria-hidden />
-            ) : user ? (
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setUserMenuOpen((o) => !o)}
-                  className="flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-3 py-2 text-sm font-medium hover:bg-muted transition-all duration-200 ease-out"
-                  aria-expanded={userMenuOpen}
-                  aria-haspopup="true"
-                >
-                  <span className="max-w-[120px] truncate">{user.name || user.email}</span>
-                  <ChevronDown className={cn("w-4 h-4 transition-transform", userMenuOpen && "rotate-180")} />
-                </button>
-                <AnimatePresence>
-                  {userMenuOpen && (
-                    <>
-                      <div className="fixed inset-0 z-40" aria-hidden onClick={() => setUserMenuOpen(false)} />
-                      <motion.div
-                        initial={{ opacity: 0, y: -6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
-                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                        className="absolute right-0 top-full mt-1 z-50 min-w-[180px] rounded-xl border border-border bg-card shadow-lg py-1"
-                      >
-                        <Link
-                          href="/dashboard"
-                          className="block px-4 py-2 text-sm hover:bg-muted rounded-t-xl transition-colors duration-150"
-                          onClick={() => setUserMenuOpen(false)}
-                        >
-                          Dashboard
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={handleSignOut}
-                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-left hover:bg-muted text-muted-foreground rounded-b-xl transition-colors duration-150"
-                        >
-                          <LogOut className="w-4 h-4" /> Sign out
-                        </button>
-                      </motion.div>
-                    </>
+            {/* Desktop nav */}
+            <nav className="hidden md:flex items-center gap-1">
+              {NAV_LINKS.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ease-out",
+                    pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/"))
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
                   )}
-                </AnimatePresence>
-              </div>
-            ) : (
-              <>
-                <Link href="/auth">
-                  <Button size="sm" variant="outline">Log in</Button>
+                >
+                  {item.name}
                 </Link>
-                <Link href="/qualify">
-                  <Button size="sm" className="gap-1.5">
-                    <Zap className="w-3.5 h-3.5" /> Get assessed
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
+              ))}
+            </nav>
 
-          {/* Mobile toggle */}
-          <button
-            type="button"
-            className="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-foreground hover:bg-muted transition-colors"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+            {/* Desktop CTA / User menu */}
+            <div className="hidden md:flex items-center gap-3 shrink-0">
+              {sessionPending ? (
+                <div className="h-9 w-20 bg-muted rounded-lg animate-pulse" aria-hidden />
+              ) : user ? (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setUserMenuOpen((o) => !o)}
+                    className="flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-3 py-2 text-sm font-medium hover:bg-muted transition-all duration-200 ease-out"
+                    aria-expanded={userMenuOpen}
+                    aria-haspopup="true"
+                  >
+                    <span className="max-w-[120px] truncate">{user.name || user.email}</span>
+                    <ChevronDown className={cn("w-4 h-4 transition-transform", userMenuOpen && "rotate-180")} />
+                  </button>
+                  <AnimatePresence>
+                    {userMenuOpen && (
+                      <>
+                        <div className="fixed inset-0 z-40" aria-hidden onClick={() => setUserMenuOpen(false)} />
+                        <motion.div
+                          initial={{ opacity: 0, y: -6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                          className="absolute right-0 top-full mt-1 z-50 min-w-[180px] rounded-xl border border-border bg-card shadow-lg py-1"
+                        >
+                          <Link
+                            href="/dashboard"
+                            className="block px-4 py-2 text-sm hover:bg-muted rounded-t-xl transition-colors duration-150"
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            Dashboard
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={handleSignOut}
+                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-left hover:bg-muted text-muted-foreground rounded-b-xl transition-colors duration-150"
+                          >
+                            <LogOut className="w-4 h-4" /> Sign out
+                          </button>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <>
+                  <Link href="/auth">
+                    <Button size="sm" variant="outline">Log in</Button>
+                  </Link>
+                  <Link href="/qualify">
+                    <Button size="sm" className="gap-1.5">
+                      <Zap className="w-3.5 h-3.5" /> Get assessed
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* Mobile toggle */}
+            <button
+              type="button"
+              className="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-foreground hover:bg-muted transition-colors"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
         </div>
       </div>
