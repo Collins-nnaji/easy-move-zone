@@ -2,21 +2,23 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import {
   Shield, CheckCircle2, ArrowRight, Star,
-  Users, BadgeCheck, Calculator, Globe, MapPin,
+  BadgeCheck, Globe, MapPin, Plane,
   ListOrdered, Banknote, Sparkles, FileText, GraduationCap, Home,
-  Map, Send, Heart, Quote, Zap, TrendingUp,
+  Map, Send, Heart, Quote, Clock3, ScanSearch,
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 
 const EASE = [0.16, 1, 0.3, 1] as const
+const STAGGER = 0.07
 
 /* ── Hero ─────────────────────────────────────────────── */
 function HeroSection() {
   return (
-    <section className="relative hero-premium section-orb-bg min-h-[90vh] flex flex-col justify-center pt-32 pb-24 px-6 overflow-hidden">
+    <section className="relative hero-premium section-orb-bg min-h-[88vh] flex flex-col justify-center pt-28 pb-16 px-6 overflow-hidden">
       <div className="flow-orb flow-orb-1" aria-hidden />
       <div className="flow-orb flow-orb-2" aria-hidden />
       <div className="flow-orb flow-orb-3" aria-hidden />
@@ -30,7 +32,7 @@ function HeroSection() {
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide mb-6"
             >
               <BadgeCheck className="w-3.5 h-3.5" />
-              Migration intelligence · Relocation strategy · Nigeria
+              Immigration strategy · Relocation planning · Nigeria
             </motion.div>
 
             <motion.h1
@@ -39,19 +41,38 @@ function HeroSection() {
               transition={{ duration: 0.55, delay: 0.06, ease: EASE }}
               className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-foreground mb-5 leading-[1.08]"
             >
-              Your smart migration
+              Move across borders
               <br />
-              <span className="gradient-text">&amp; relocation partner.</span>
+              <span className="gradient-text">with confidence.</span>
             </motion.h1>
 
             <motion.p
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.12, ease: EASE }}
-              className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
+              className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-7 leading-relaxed"
             >
-              Data-driven migration intelligence and end-to-end relocation strategy for Nigerian professionals, students, healthcare workers, and families moving to UK, Canada, or Europe.
+              EasyMoveZone helps Nigerian professionals, students, and families choose the right route to the UK, Canada, or Europe with structured assessments, visa planning, and settlement support.
             </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.16, ease: EASE }}
+              className="grid sm:grid-cols-2 gap-2.5 mb-8 text-sm"
+            >
+              {[
+                "Country-fit scoring before you commit",
+                "Document strategy and interview preparation",
+                "Transparent service fees in Naira",
+                "Support from first assessment to landing",
+              ].map((item) => (
+                <div key={item} className="flex items-center gap-2 rounded-xl bg-background/70 px-3 py-2 border border-border/50 backdrop-blur-sm">
+                  <CheckCircle2 className="w-4 h-4 text-secondary shrink-0" />
+                  <span className="text-foreground/90">{item}</span>
+                </div>
+              ))}
+            </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -82,22 +103,48 @@ function HeroSection() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2, ease: EASE }}
-              className="w-full max-w-[380px] glass-card rounded-3xl p-6 lg:p-7 shadow-2xl"
+              className="w-full max-w-[430px] relative"
             >
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-                Migration assessment
-              </p>
-              <p className="text-sm text-muted-foreground mb-4">
-                Get your personalised migration score, visa match, and cost estimate — powered by AI.
-              </p>
-              <Link href="/qualify" className="block">
-                <Button className="w-full gap-2">
-                  Get assessed <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-              <div className="mt-4 pt-4 border-t border-border flex justify-between text-xs text-muted-foreground">
-                <span>Data-driven</span>
-                <span>Structured process</span>
+              <div className="relative rounded-3xl overflow-hidden border border-white/40 shadow-2xl">
+                <div className="aspect-[4/5] relative">
+                  <Image
+                    src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80"
+                    alt="Traveler planning international relocation journey"
+                    fill
+                    sizes="(min-width: 1024px) 420px, 90vw"
+                    className="object-cover"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <p className="text-[11px] font-bold text-white/80 uppercase tracking-widest mb-2">
+                    Migration readiness
+                  </p>
+                  <h3 className="text-white text-lg font-bold mb-3 leading-tight">
+                    Build a route that fits your profile, timeline, and budget.
+                  </h3>
+                  <Link href="/qualify" className="block">
+                    <Button className="w-full gap-2 bg-white text-primary hover:bg-white/90">
+                      Start assessment <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="absolute -left-6 top-6 hidden sm:flex items-center gap-3 rounded-xl glass-card px-3 py-2 shadow-xl float-card">
+                <ScanSearch className="w-4 h-4 text-primary" />
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Assessment</div>
+                  <div className="text-xs font-semibold">Profile-fit scoring</div>
+                </div>
+              </div>
+              <div className="absolute -right-6 bottom-8 hidden sm:flex items-center gap-3 rounded-xl glass-card px-3 py-2 shadow-xl float-card float-card-delay">
+                <Clock3 className="w-4 h-4 text-secondary" />
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Planning</div>
+                  <div className="text-xs font-semibold">Step-by-step roadmap</div>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -116,7 +163,7 @@ const TRUST = [
 
 function TrustStrip() {
   return (
-    <section className="py-8 border-y border-border/60 bg-background/50">
+    <section className="py-6 border-y border-border/60 bg-gradient-to-r from-background/80 via-primary/[0.03] to-background/80">
       <div className="section-inner flex flex-wrap justify-center gap-x-10 gap-y-4">
         {TRUST.map(({ label, sub }, i) => (
           <motion.div
@@ -143,16 +190,16 @@ function TrustStrip() {
 
 /* ── Our services ────────────────────────────────────── */
 const SERVICES_HOME = [
-  { icon: Sparkles, title: "Migration Intelligence", desc: "AI-powered assessment, country match scoring, visa eligibility, and cost simulation in ₦.", href: "/qualify", color: "primary" as const },
-  { icon: FileText, title: "Visa Planning & Application", desc: "Documentation checklist, eligibility review, strategy positioning, and interview prep.", href: "/qualify", color: "secondary" as const },
-  { icon: GraduationCap, title: "School & University Placement", desc: "School comparison, tuition breakdown, admission support, and scholarship advisory.", href: "/qualify", color: "primary" as const },
-  { icon: Home, title: "Accommodation & Settlement", desc: "Housing sourcing, city selection, cost of living, bank & healthcare setup.", href: "/qualify", color: "secondary" as const },
-  { icon: Banknote, title: "Funding & Financial Planning", desc: "Tuition financing, education loans, proof of funds, budget planning, cost calculator.", href: "/calculator", color: "primary" as const },
+  { icon: Sparkles, title: "Migration Intelligence", desc: "Assess eligibility, destination fit, and cost implications before starting a visa pathway.", href: "/qualify", color: "primary" as const },
+  { icon: FileText, title: "Visa Planning & Application", desc: "Document checklists, profile positioning, and practical interview preparation support.", href: "/qualify", color: "secondary" as const },
+  { icon: GraduationCap, title: "School & University Placement", desc: "Institution shortlist, tuition comparison, admission guidance, and scholarship advisory.", href: "/qualify", color: "primary" as const },
+  { icon: Home, title: "Accommodation & Settlement", desc: "City and housing support, plus practical setup guidance after arrival.", href: "/qualify", color: "secondary" as const },
+  { icon: Banknote, title: "Funding & Financial Planning", desc: "Budget planning, proof-of-funds guidance, and calculator support in Naira.", href: "/calculator", color: "primary" as const },
 ]
 
 function ServicesSection() {
   return (
-    <section className="py-24 md:py-32 section-flow-bg relative">
+    <section className="py-20 md:py-24 section-flow-bg relative">
       <div className="section-inner">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -166,7 +213,7 @@ function ServicesSection() {
             Everything you need to relocate
           </h2>
           <p className="text-muted-foreground text-lg">
-            Five core offerings that cover every stage — from your first assessment to settling into your new home.
+            Five connected service pillars covering every stage from first assessment to post-arrival setup.
           </p>
         </motion.div>
 
@@ -177,11 +224,12 @@ function ServicesSection() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
-              transition={{ delay: i * 0.06, duration: 0.45, ease: EASE }}
+              transition={{ delay: i * STAGGER, duration: 0.45, ease: EASE }}
+              whileHover={{ y: -6 }}
             >
               <Link
                 href={href}
-                className={`group block rounded-2xl border border-border/60 bg-card p-6 h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-primary/40 ${color === "secondary" ? "border-l-4 border-l-secondary/40" : "border-l-4 border-l-primary/40"}`}
+                className={`group block rounded-2xl border border-border/60 bg-card/95 p-6 h-full transition-all duration-300 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-primary/40 ${color === "secondary" ? "border-l-4 border-l-secondary/40" : "border-l-4 border-l-primary/40"}`}
               >
                 <div className={`w-11 h-11 rounded-xl ${color === "secondary" ? "bg-secondary/10" : "bg-primary/10"} flex items-center justify-center mb-4`}>
                   <Icon className={`w-5 h-5 ${color === "secondary" ? "text-secondary" : "text-primary"}`} />
@@ -208,15 +256,39 @@ function ServicesSection() {
 
 /* ── Destinations grid ─────────────────────────────────── */
 const DESTINATIONS = [
-  { icon: MapPin, title: "United Kingdom", tag: "Work · Study", desc: "Skilled Worker, Student, Health & Care Worker, Global Talent, Innovator Founder.", href: "/destinations?country=uk", color: "from-secondary/20 to-secondary/5 border-secondary/20" },
-  { icon: MapPin, title: "Canada", tag: "Express Entry", desc: "Express Entry, PNP, Study Permit, Spousal Sponsorship.", href: "/destinations?country=canada", color: "from-primary/20 to-primary/5 border-primary/20" },
-  { icon: Globe, title: "Europe", tag: "Blue Card · D7 · HSM", desc: "Germany, Portugal, Netherlands, Ireland — skilled migration routes.", href: "/destinations?country=europe", color: "from-muted to-muted/50 border-border" },
+  {
+    icon: MapPin,
+    title: "United Kingdom",
+    tag: "Work · Study",
+    desc: "Skilled Worker, Student, Health and Care Worker, Global Talent, and founder pathways.",
+    href: "/destinations?country=uk",
+    color: "from-secondary/20 to-secondary/5 border-secondary/20",
+    image: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1400&q=80",
+  },
+  {
+    icon: MapPin,
+    title: "Canada",
+    tag: "Express Entry",
+    desc: "Express Entry, PNP, study options, and family pathways based on profile fit.",
+    href: "/destinations?country=canada",
+    color: "from-primary/20 to-primary/5 border-primary/20",
+    image: "https://images.unsplash.com/photo-1503614472-8c93d56e92ce?auto=format&fit=crop&w=1400&q=80",
+  },
+  {
+    icon: Globe,
+    title: "Europe",
+    tag: "Blue Card · D7 · HSM",
+    desc: "Route planning for Germany, Portugal, Netherlands, and Ireland migration programs.",
+    href: "/destinations?country=europe",
+    color: "from-muted to-muted/50 border-border",
+    image: "https://images.unsplash.com/photo-1471623817296-aa07ae5c9f47?auto=format&fit=crop&w=1400&q=80",
+  },
 ]
 
 function DestinationsSection() {
   const flags: Record<string, string> = { "United Kingdom": "🇬🇧", "Canada": "🇨🇦", "Europe": "🇪🇺" }
   return (
-    <section className="py-24 md:py-32 section-flow-bg relative">
+    <section className="py-20 md:py-24 section-flow-bg relative">
       <div className="section-inner">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -234,29 +306,46 @@ function DestinationsSection() {
         </motion.div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {DESTINATIONS.map(({ icon: Icon, title, tag, desc, href, color }, i) => (
+          {DESTINATIONS.map(({ icon: Icon, title, tag, desc, href, color, image }, i) => (
             <motion.div
               key={title}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
-              transition={{ delay: i * 0.06, duration: 0.45, ease: EASE }}
+              transition={{ delay: i * STAGGER, duration: 0.45, ease: EASE }}
+              whileHover={{ y: -6 }}
             >
               <Link
                 href={href}
-                className={`group block rounded-2xl border bg-gradient-to-br ${color} p-7 h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 focus-visible:ring-2 focus-visible:ring-primary/40`}
+                className={`group block rounded-2xl overflow-hidden border bg-gradient-to-br ${color} h-full transition-all duration-300 hover:shadow-xl focus-visible:ring-2 focus-visible:ring-primary/40`}
               >
-                <div className="flex items-center justify-between mb-5">
-                  <div className="w-12 h-12 rounded-2xl bg-background/90 flex items-center justify-center shadow-sm text-2xl">
-                    {flags[title] || "🌍"}
+                <div className="relative h-44 overflow-hidden">
+                  <Image
+                    src={image}
+                    alt={`${title} skyline for migration destination guidance`}
+                    fill
+                    sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 95vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
+                  <div className="absolute left-4 bottom-4 w-12 h-12 rounded-2xl bg-background/90 flex items-center justify-center shadow-sm text-2xl">
+                    {flags[title] ?? "🌍"}
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-background/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
+                  <div className="absolute right-4 bottom-4 w-8 h-8 rounded-full bg-background/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
                     <ArrowRight className="w-4 h-4 text-primary" />
                   </div>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{tag}</span>
-                <h3 className="text-xl font-bold text-foreground mt-1 mb-2">{title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{tag}</span>
+                    <Icon className="w-3.5 h-3.5 text-primary/70" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground mt-1 mb-2">{title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-3">{desc}</p>
+                  <div className="inline-flex items-center gap-2 text-xs font-semibold text-primary">
+                    Explore routes <Plane className="w-3.5 h-3.5" />
+                  </div>
+                </div>
               </Link>
             </motion.div>
           ))}
@@ -268,15 +357,15 @@ function DestinationsSection() {
 
 /* ── Our process ──────────────────────────────────────── */
 const PROCESS_STEPS = [
-  { step: "01", title: "Migration assessment", desc: "AI-powered scoring across UK, Canada, and Europe. Know your best-fit visa and route.", icon: Sparkles, accent: "primary" },
-  { step: "02", title: "Strategy & planning", desc: "Personalised roadmap, document review, and visa application strategy.", icon: Map, accent: "secondary" },
-  { step: "03", title: "Application & placement", desc: "Visa application support, school placement, and financial planning.", icon: Send, accent: "primary" },
-  { step: "04", title: "Settlement support", desc: "Accommodation, bank setup, healthcare registration — we settle you in.", icon: Heart, accent: "secondary" },
+  { step: "01", title: "Migration assessment", desc: "Profile scoring across UK, Canada, and Europe routes to identify your strongest options.", icon: Sparkles, accent: "primary" },
+  { step: "02", title: "Strategy & planning", desc: "Personalised roadmap, timeline, required documents, and route-specific preparation.", icon: Map, accent: "secondary" },
+  { step: "03", title: "Application & placement", desc: "Application packaging, school placement support, and funding planning where relevant.", icon: Send, accent: "primary" },
+  { step: "04", title: "Settlement support", desc: "Accommodation and practical setup guidance so your transition is smoother on arrival.", icon: Heart, accent: "secondary" },
 ]
 
 function ProcessSection() {
   return (
-    <section className="py-24 md:py-32 bg-muted/20 section-orb-bg relative">
+    <section className="py-20 md:py-24 bg-muted/20 section-orb-bg relative">
       <div className="flow-orb flow-orb-1" aria-hidden />
       <div className="section-inner">
         <motion.div
@@ -300,7 +389,8 @@ function ProcessSection() {
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
+              transition={{ delay: i * STAGGER }}
+              whileHover={{ y: -4 }}
               className="relative rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
             >
               <div className={`h-1 ${accent === "secondary" ? "bg-secondary" : "bg-primary"}`} />
@@ -330,15 +420,15 @@ function ProcessSection() {
 /* ── Our fees (teaser) ─────────────────────────────────── */
 function FeesSection() {
   const TIERS = [
-    { label: "Assessment Portal", price: "₦25,000 – ₦75,000", note: "AI migration simulation + downloadable report", icon: Sparkles, recommended: false },
-    { label: "Migration Strategy", price: "₦800K – ₦2.5M", note: "Strategy call, visa roadmap, documentation review, application prep", icon: Map, recommended: true },
-    { label: "Full Concierge", price: "₦4M – ₦15M+", note: "Visa strategy, school placement, accommodation, settlement support", icon: Shield, recommended: false },
-    { label: "Education Placement", price: "Commission-based", note: "Referral commission from UK, Canadian & European institutions", icon: GraduationCap, recommended: false },
-    { label: "Forex & Loan Partnerships", price: "Commission-based", note: "Referral commission from loan providers, FX & insurance partners", icon: Banknote, recommended: false },
+    { label: "Assessment Portal", price: "₦25,000 – ₦75,000", note: "AI route simulation and downloadable report", icon: Sparkles, recommended: false },
+    { label: "Migration Strategy", price: "₦800K – ₦2.5M", note: "Roadmap, document review, and application preparation", icon: Map, recommended: true },
+    { label: "Full Concierge", price: "₦4M – ₦15M+", note: "End-to-end migration, education, housing, and landing support", icon: Shield, recommended: false },
+    { label: "Education Placement", price: "Commission-based", note: "Commission earned from partner institutions", icon: GraduationCap, recommended: false },
+    { label: "Forex & Loan Partnerships", price: "Commission-based", note: "Commission earned from vetted finance partners", icon: Banknote, recommended: false },
   ]
 
   return (
-    <section className="py-24 md:py-32 relative overflow-hidden">
+    <section className="py-20 md:py-24 relative overflow-hidden">
       {/* Subtle background accent */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/[0.03] to-background pointer-events-none" />
       <div className="section-inner relative">
@@ -369,7 +459,8 @@ function FeesSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.07 }}
-              className={`relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 ${tier.recommended
+              whileHover={{ y: -5 }}
+              className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${tier.recommended
                   ? "bg-gradient-to-br from-primary to-primary/80 text-white shadow-xl shadow-primary/20 ring-2 ring-primary/30"
                   : "bg-card border border-border/60 shadow-sm hover:shadow-md"
                 }`}
@@ -402,15 +493,15 @@ function FeesSection() {
 
 /* ── Stats ─────────────────────────────────────────────── */
 const STATS = [
-  { value: "AI", label: "Powered scoring", icon: Sparkles },
+  { value: "AI", label: "Eligibility scoring", icon: Sparkles },
   { value: "3", label: "Focus markets", icon: Globe },
   { value: "5", label: "Service pillars", icon: Shield },
-  { value: "₦", label: "Naira pricing", icon: Banknote },
+  { value: "24/7", label: "Digital access", icon: Clock3 },
 ]
 
 function StatsSection() {
   return (
-    <section className="py-20 bg-gradient-to-r from-primary via-primary/95 to-primary">
+    <section className="py-16 md:py-20 bg-gradient-to-r from-primary via-primary/95 to-primary">
       <div className="section-inner">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {STATS.map(({ value, label, icon: Icon }, i) => (
@@ -437,14 +528,14 @@ function StatsSection() {
 
 /* ── Testimonials ──────────────────────────────────────── */
 const TESTIMONIALS = [
-  { quote: "They assessed my profile and guided me step by step. From document prep to landing in the UK — no guesswork.", name: "Emeka O.", location: "Lagos → UK", amount: "Full guidance", initials: "EO" },
-  { quote: "Clear process and clear fees. I knew what I was paying and what to expect at every stage.", name: "Fatima A.", location: "Abuja → Canada", amount: "Assessment + package", initials: "FA" },
-  { quote: "EasyMoveZone assessed me, recommended the right route, and supported me from start to finish.", name: "Adaeze N.", location: "Lagos → UK", amount: "Consultancy client", initials: "AN" },
+  { quote: "The assessment explained exactly which route I should prioritize and what documents mattered most for my UK application.", name: "Emeka O.", location: "Lagos → UK", amount: "Strategy package", initials: "EO" },
+  { quote: "I appreciated the fee clarity and the timeline planning. Every stage was explained before we moved forward.", name: "Fatima A.", location: "Abuja → Canada", amount: "Assessment + support", initials: "FA" },
+  { quote: "From school shortlist to visa preparation and settling guidance, the process felt coordinated and realistic.", name: "Adaeze N.", location: "Port Harcourt → Europe", amount: "Education route", initials: "AN" },
 ]
 
 function TestimonialsSection() {
   return (
-    <section className="py-24 md:py-32 section-flow-bg relative">
+    <section className="py-20 md:py-24 section-flow-bg relative">
       <div className="section-inner">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -467,8 +558,9 @@ function TestimonialsSection() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.45, ease: EASE }}
-              className="relative rounded-2xl border border-border/60 bg-card p-7 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              transition={{ delay: i * STAGGER, duration: 0.45, ease: EASE }}
+              whileHover={{ y: -6 }}
+              className="relative rounded-2xl border border-border/60 bg-card p-7 shadow-sm hover:shadow-lg transition-all duration-300"
             >
               {/* Large quote accent */}
               <Quote className="w-8 h-8 text-primary/10 mb-4" />
