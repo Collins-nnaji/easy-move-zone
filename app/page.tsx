@@ -417,6 +417,112 @@ function ProcessSection() {
   )
 }
 
+/* ── EMZ suite showcase ───────────────────────────────── */
+const SUITE_MODULES = [
+  {
+    title: "Eligibility Review & Application Checklist",
+    stage: "1. Intelligence + Visa",
+    desc: "Profile-fit scoring, route probability, and document checklist in one workflow so clients know exactly what to prepare.",
+    image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1400&q=80",
+    icon: ScanSearch,
+    points: ["Eligibility scoring", "Checklist tracking", "Route recommendation"],
+  },
+  {
+    title: "Funding & Financial Planner",
+    stage: "2. Budget + Proof of Funds",
+    desc: "Plan tuition, relocation costs, and proof-of-funds requirements with a clear currency view and transparent assumptions.",
+    image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1400&q=80",
+    icon: Banknote,
+    points: ["Budget simulator", "Funding plan", "Cost visibility"],
+  },
+  {
+    title: "Migration Portfolio & Global Intelligence",
+    stage: "3. Country Comparison",
+    desc: "Visual route comparison across UK, Canada, and Europe with profile matching and practical pathway insights.",
+    image: "https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1400&q=80",
+    icon: Globe,
+    points: ["Route comparison", "Country matching", "Strategic insights"],
+  },
+  {
+    title: "End-to-End Journey Suite",
+    stage: "4. From decision to settlement",
+    desc: "One coordinated flow for Intelligence, Visa, School, Accommodation, and Funding until clients settle successfully.",
+    image: "https://images.unsplash.com/photo-1493666438817-866a91353ca9?auto=format&fit=crop&w=1400&q=80",
+    icon: Home,
+    points: ["Intelligence", "Visa + School", "Accommodation + Funding"],
+  },
+]
+
+function SuiteSection() {
+  return (
+    <section className="py-20 md:py-24 section-flow-bg relative">
+      <div className="section-inner">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, ease: EASE }}
+          className="text-center max-w-3xl mx-auto mb-12"
+        >
+          <span className="text-xs font-semibold text-primary uppercase tracking-wider">EMZ suite</span>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mt-2 mb-3">
+            Built around the core migration workflow
+          </h2>
+          <p className="text-muted-foreground text-lg">
+            Intelligence, visa planning, school placement, accommodation, and funding presented as one integrated client journey.
+          </p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {SUITE_MODULES.map(({ title, stage, desc, image, icon: Icon, points }, i) => (
+            <motion.article
+              key={title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ delay: i * STAGGER, duration: 0.45, ease: EASE }}
+              whileHover={{ y: -6 }}
+              className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+            >
+              <div className="relative h-52 overflow-hidden">
+                <Image
+                  src={image}
+                  alt={title}
+                  fill
+                  sizes="(min-width: 768px) 45vw, 95vw"
+                  className="object-cover transition-transform duration-700 hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent" />
+                <div className="absolute left-4 bottom-4 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5">
+                  <Icon className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-foreground">{stage}</span>
+                </div>
+              </div>
+              <div className="p-5">
+                <h3 className="text-lg font-bold text-foreground mb-2">{title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-3">{desc}</p>
+                <div className="flex flex-wrap gap-2">
+                  {points.map((point) => (
+                    <span key={point} className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                      {point}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.article>
+          ))}
+        </div>
+
+        <div className="text-center mt-10">
+          <Link href="/suite">
+            <Button className="gap-2">Open full EMZ Suite <ArrowRight className="w-4 h-4" /></Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 /* ── Our fees (teaser) ─────────────────────────────────── */
 function FeesSection() {
   const TIERS = [
@@ -597,6 +703,7 @@ export default function HomePage() {
       <TrustStrip />
       <ServicesSection />
       <ProcessSection />
+      <SuiteSection />
       <FeesSection />
       <DestinationsSection />
       <StatsSection />

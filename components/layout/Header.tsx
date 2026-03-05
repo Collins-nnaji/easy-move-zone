@@ -33,6 +33,7 @@ function AnnouncementTicker() {
 }
 
 const NAV_LINKS = [
+  { name: "Suite", href: "/suite" },
   { name: "Services", href: "/services" },
   { name: "Process", href: "/how-it-works" },
   { name: "Fees", href: "/fees" },
