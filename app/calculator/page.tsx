@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { Calculator, ArrowRight, Info } from "lucide-react"
+import { Calculator, ArrowRight, ArrowLeft, Info } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { fmtN } from "@/lib/mortgage"
 
@@ -37,6 +37,12 @@ export default function CalculatorPage() {
   return (
     <div className="min-h-screen pt-28 pb-24 px-6">
       <div className="max-w-2xl mx-auto">
+        <div className="mb-5">
+          <Link href="/suite" className="inline-flex items-center gap-1.5 text-xs font-semibold text-black/70 hover:text-black transition-colors">
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to Suite
+          </Link>
+        </div>
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold mb-4">
             <Calculator className="w-3.5 h-3.5" /> Cost of moving

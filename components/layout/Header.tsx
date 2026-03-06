@@ -34,8 +34,6 @@ function AnnouncementTicker() {
 
 const NAV_LINKS = [
   { name: "Suite", href: "/suite" },
-  { name: "Assessment", href: "/qualify" },
-  { name: "Calculator", href: "/calculator" },
   { name: "Fees", href: "/fees" },
   { name: "Destinations", href: "/destinations" },
 ]
