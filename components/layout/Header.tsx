@@ -19,7 +19,7 @@ const TICKER_ITEMS = [
 function AnnouncementTicker() {
   const doubled = [...TICKER_ITEMS, ...TICKER_ITEMS]
   return (
-    <div className="w-full bg-primary text-primary-foreground py-1.5 overflow-hidden shrink-0">
+    <div className="w-full bg-black/85 text-white py-1.5 overflow-hidden shrink-0 border-b border-white/10">
       <div className="flex gap-10 animate-ticker whitespace-nowrap" style={{ width: "max-content" }}>
         {doubled.map((item, i) => (
           <span key={i} className="text-[11px] font-medium flex items-center gap-2 shrink-0 opacity-90">

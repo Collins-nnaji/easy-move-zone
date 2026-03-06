@@ -523,12 +523,12 @@ export default function QualifyPage() {
                   </motion.div>
 
                   {/* CTA buttons */}
-                  <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-6 text-center">
+                  <div className="bg-gradient-to-br from-zinc-900 to-zinc-700 rounded-2xl p-6 text-center">
                     <h3 className="text-lg font-bold text-white mb-2">Ready to take the next step?</h3>
                     <p className="text-white/80 text-xs mb-5">Book a strategy call or explore our fees to get started.</p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                       <Link href="/fees">
-                        <Button className="bg-white text-primary hover:bg-white/90 gap-2 font-bold w-full sm:w-auto">
+                        <Button className="bg-white text-black hover:bg-white/90 gap-2 font-bold w-full sm:w-auto">
                           View fees & packages <ArrowRight className="w-4 h-4" />
                         </Button>
                       </Link>

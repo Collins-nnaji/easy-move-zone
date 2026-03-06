@@ -102,7 +102,7 @@ export default function FeesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08, ease: EASE }}
                 className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${isRecommended
-                    ? "bg-gradient-to-br from-primary via-primary/95 to-primary/80 text-white shadow-xl shadow-primary/15 ring-1 ring-primary/30"
+                    ? "bg-gradient-to-br from-zinc-800 via-zinc-700 to-zinc-700 text-white shadow-xl shadow-black/40 ring-1 ring-white/20"
                     : "bg-card border border-border/60 shadow-sm hover:shadow-md"
                   }`}
               >

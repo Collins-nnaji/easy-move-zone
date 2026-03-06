@@ -125,7 +125,7 @@ function HeroSection() {
                     Build a route that fits your profile, timeline, and budget.
                   </h3>
                   <Link href="/qualify" className="block">
-                    <Button className="w-full gap-2 bg-white text-primary hover:bg-white/90">
+                    <Button className="w-full gap-2 bg-white text-black hover:bg-white/90">
                       Start assessment <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
@@ -163,7 +163,7 @@ const TRUST = [
 
 function TrustStrip() {
   return (
-    <section className="py-6 border-y border-border/60 bg-gradient-to-r from-background/80 via-primary/[0.03] to-background/80">
+    <section className="py-7 border-y border-black/10 bg-white">
       <div className="section-inner flex flex-wrap justify-center gap-x-10 gap-y-4">
         {TRUST.map(({ label, sub }, i) => (
           <motion.div
@@ -174,12 +174,12 @@ function TrustStrip() {
             transition={{ delay: i * 0.05, duration: 0.35 }}
             className="flex items-center gap-3"
           >
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Shield className="w-4 h-4 text-primary" />
+            <div className="w-8 h-8 rounded-lg bg-black/10 flex items-center justify-center">
+              <Shield className="w-4 h-4 text-black" />
             </div>
             <div>
-              <span className="text-sm font-bold text-foreground block leading-tight">{label}</span>
-              <span className="text-[10px] text-muted-foreground">{sub}</span>
+              <span className="text-sm font-bold text-black block leading-tight">{label}</span>
+              <span className="text-[10px] text-black/60">{sub}</span>
             </div>
           </motion.div>
         ))}
@@ -209,7 +209,7 @@ function ServicesSection() {
           className="text-center max-w-2xl mx-auto mb-14"
         >
           <span className="text-xs font-semibold text-primary uppercase tracking-wider">Our services</span>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mt-2 mb-3">
+          <h2 className="display-title text-4xl md:text-5xl font-bold text-foreground mt-2 mb-3">
             Everything you need to relocate
           </h2>
           <p className="text-muted-foreground text-lg">
@@ -297,7 +297,7 @@ function DestinationsSection() {
           transition={{ duration: 0.5, ease: EASE }}
           className="text-center max-w-2xl mx-auto mb-14"
         >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-3">
+          <h2 className="display-title text-4xl md:text-5xl font-bold text-foreground mb-3">
             Focus markets
           </h2>
           <p className="text-muted-foreground text-lg">
@@ -375,7 +375,7 @@ function ProcessSection() {
           className="text-center max-w-2xl mx-auto mb-14"
         >
           <span className="text-xs font-semibold text-primary uppercase tracking-wider">Our process</span>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mt-2 mb-3">
+          <h2 className="display-title text-4xl md:text-5xl font-bold text-foreground mt-2 mb-3">
             From decision to settlement
           </h2>
           <p className="text-muted-foreground text-lg">
@@ -465,7 +465,7 @@ function SuiteSection() {
           className="text-center max-w-3xl mx-auto mb-12"
         >
           <span className="text-xs font-semibold text-primary uppercase tracking-wider">EMZ suite</span>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mt-2 mb-3">
+          <h2 className="display-title text-4xl md:text-5xl font-bold text-foreground mt-2 mb-3">
             Built around the core migration workflow
           </h2>
           <p className="text-muted-foreground text-lg">
@@ -545,7 +545,7 @@ function FeesSection() {
           className="text-center max-w-2xl mx-auto mb-12"
         >
           <span className="text-xs font-semibold text-primary uppercase tracking-wider">Transparent fees</span>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mt-2 mb-3">
+          <h2 className="display-title text-4xl md:text-5xl font-bold text-foreground mt-2 mb-3">
             Clear pricing
           </h2>
           <p className="text-muted-foreground text-lg">
@@ -567,7 +567,7 @@ function FeesSection() {
               transition={{ delay: i * 0.07 }}
               whileHover={{ y: -5 }}
               className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${tier.recommended
-                  ? "bg-gradient-to-br from-primary to-primary/80 text-white shadow-xl shadow-primary/20 ring-2 ring-primary/30"
+                  ? "bg-gradient-to-br from-zinc-800 to-zinc-700 text-white shadow-xl shadow-black/40 ring-2 ring-white/20"
                   : "bg-card border border-border/60 shadow-sm hover:shadow-md"
                 }`}
             >
@@ -607,7 +607,7 @@ const STATS = [
 
 function StatsSection() {
   return (
-    <section className="py-16 md:py-20 bg-gradient-to-r from-primary via-primary/95 to-primary">
+    <section className="py-16 md:py-20 bg-white border-y border-black/10">
       <div className="section-inner">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {STATS.map(({ value, label, icon: Icon }, i) => (
@@ -619,11 +619,11 @@ function StatsSection() {
               transition={{ delay: i * 0.06, duration: 0.4 }}
               className="text-center relative"
             >
-              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-3">
-                <Icon className="w-5 h-5 text-white" />
+              <div className="w-12 h-12 rounded-2xl bg-black/[0.08] flex items-center justify-center mx-auto mb-3">
+                <Icon className="w-5 h-5 text-black" />
               </div>
-              <div className="text-3xl md:text-4xl font-bold text-white tracking-tight">{value}</div>
-              <div className="text-sm text-white/70 mt-1 font-medium">{label}</div>
+              <div className="text-3xl md:text-4xl font-bold text-black tracking-tight">{value}</div>
+              <div className="text-sm text-black/65 mt-1 font-medium">{label}</div>
             </motion.div>
           ))}
         </div>
@@ -649,7 +649,7 @@ function TestimonialsSection() {
           viewport={{ once: true }}
           className="text-center max-w-2xl mx-auto mb-14"
         >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-3">
+          <h2 className="display-title text-4xl md:text-5xl font-bold text-foreground mb-3">
             Clients we&apos;ve guided
           </h2>
           <p className="text-muted-foreground text-lg">
@@ -672,7 +672,7 @@ function TestimonialsSection() {
               <Quote className="w-8 h-8 text-primary/10 mb-4" />
 
               <div className="flex gap-0.5 mb-4">
-                {[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />)}
+                {[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 fill-white text-white/85" />)}
               </div>
               <p className="text-foreground leading-relaxed mb-5 text-sm">&ldquo;{quote}&rdquo;</p>
 

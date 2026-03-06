@@ -155,12 +155,12 @@ export default function SuitePage() {
           </div>
         </section>
 
-        <section id="process" className="mb-16">
+        <section id="process" className="mb-16 rounded-3xl bg-white text-black border border-black/10 p-6 md:p-8">
           <div className="text-center mb-8">
-            <h2 className="display-title text-3xl md:text-5xl font-bold text-foreground mb-3">
-              The suite <span className="gradient-text">workflow</span>
+            <h2 className="display-title text-3xl md:text-5xl font-bold text-black mb-3">
+              The suite <span className="text-black/80">workflow</span>
             </h2>
-            <p className="text-muted-foreground">One flow from intelligence to funded relocation.</p>
+            <p className="text-black/70">One flow from intelligence to funded relocation.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {PROCESS_STEPS.map(({ step, title, note, icon: Icon }, index) => (
@@ -171,14 +171,14 @@ export default function SuitePage() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.07, duration: 0.4, ease: EASE }}
                 whileHover={{ y: -6, scale: 1.015 }}
-                className="premium-animated-card rounded-xl p-4 text-center"
+                className="rounded-xl p-4 text-center border border-black/10 bg-white shadow-[0_14px_28px_-18px_rgba(0,0,0,0.45)] hover:-translate-y-1.5 transition-all duration-300"
               >
-                <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/15 text-primary mb-3">
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-black/10 text-black mb-3">
                   <Icon className="w-5 h-5" />
                 </div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-primary/80 mb-1">{step}</div>
-                <h3 className="text-sm font-bold text-foreground mb-1">{title}</h3>
-                <p className="text-xs text-muted-foreground">{note}</p>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-black/65 mb-1">{step}</div>
+                <h3 className="text-sm font-bold text-black mb-1">{title}</h3>
+                <p className="text-xs text-black/65">{note}</p>
               </motion.div>
             ))}
           </div>
@@ -224,7 +224,7 @@ export default function SuitePage() {
           </div>
         </section>
 
-        <div className="rounded-2xl bg-gradient-to-r from-primary/95 via-secondary/90 to-primary/95 p-8 md:p-10 text-center border border-primary/35">
+        <div className="rounded-2xl bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 p-8 md:p-10 text-center border border-white/15">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/15 text-white mb-4">
             <Plane className="w-6 h-6" />
           </div>
@@ -236,7 +236,7 @@ export default function SuitePage() {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link href="/qualify">
-              <Button className="bg-white text-primary hover:bg-white/90 gap-2">Get assessed <ArrowRight className="w-4 h-4" /></Button>
+              <Button className="bg-white text-black hover:bg-white/90 gap-2">Get assessed <ArrowRight className="w-4 h-4" /></Button>
             </Link>
             <Link href="/destinations">
               <Button variant="outline" className="border-white/35 text-white hover:bg-white/10">Explore destinations</Button>
