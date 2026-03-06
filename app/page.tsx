@@ -39,7 +39,7 @@ function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.06, ease: EASE }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-foreground mb-5 leading-[1.08]"
+              className="display-title text-5xl sm:text-6xl md:text-7xl lg:text-7xl xl:text-8xl font-bold text-foreground mb-5"
             >
               Move across borders
               <br />
@@ -85,9 +85,9 @@ function HeroSection() {
                   Get assessed <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
-              <Link href="/how-it-works">
+              <Link href="/suite">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 rounded-xl border-2">
-                  <ListOrdered className="w-4 h-4" /> Our process
+                  <ListOrdered className="w-4 h-4" /> Suite flow
                 </Button>
               </Link>
               <Link href="/fees">
@@ -245,8 +245,8 @@ function ServicesSection() {
         </div>
 
         <div className="text-center mt-10">
-          <Link href="/services">
-            <Button variant="outline" className="gap-2">All services <ArrowRight className="w-4 h-4" /></Button>
+          <Link href="/suite">
+            <Button variant="outline" className="gap-2">Open full suite <ArrowRight className="w-4 h-4" /></Button>
           </Link>
         </div>
       </div>
@@ -408,8 +408,8 @@ function ProcessSection() {
           ))}
         </div>
         <div className="text-center mt-10">
-          <Link href="/how-it-works">
-            <Button variant="outline" className="gap-2">Full process & fees <ArrowRight className="w-4 h-4" /></Button>
+          <Link href="/suite">
+            <Button variant="outline" className="gap-2">See complete suite flow <ArrowRight className="w-4 h-4" /></Button>
           </Link>
         </div>
       </div>

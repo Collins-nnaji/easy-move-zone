@@ -532,9 +532,9 @@ export default function QualifyPage() {
                           View fees & packages <ArrowRight className="w-4 h-4" />
                         </Button>
                       </Link>
-                      <Link href="/how-it-works">
+                      <Link href="/suite">
                         <Button variant="outline" className="border-white/30 text-white hover:bg-white/10 gap-2 w-full sm:w-auto">
-                          Our process
+                          Suite overview
                         </Button>
                       </Link>
                     </div>
