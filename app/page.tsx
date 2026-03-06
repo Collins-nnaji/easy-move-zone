@@ -18,138 +18,97 @@ const STAGGER = 0.07
 /* ── Hero ─────────────────────────────────────────────── */
 function HeroSection() {
   return (
-    <section className="relative hero-premium section-orb-bg min-h-[88vh] flex flex-col justify-center pt-28 pb-16 px-6 overflow-hidden">
-      <div className="flow-orb flow-orb-1" aria-hidden />
-      <div className="flow-orb flow-orb-2" aria-hidden />
-      <div className="flow-orb flow-orb-3" aria-hidden />
+    <section className="relative pt-32 pb-6 px-6">
       <div className="section-inner mx-auto w-full max-w-6xl">
-        <div className="grid lg:grid-cols-12 lg:gap-12 items-center">
-          <div className="lg:col-span-7 text-center lg:text-left">
+        <div className="relative rounded-[2rem] overflow-hidden border border-black/10 shadow-[0_35px_70px_-35px_rgba(0,0,0,0.35)] min-h-[510px]">
+          <Image
+            src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1800&q=80"
+            alt="Airplane crossing over sea during migration journey"
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-black/10 to-transparent" />
+          <div className="relative z-10 p-8 md:p-10 lg:p-12 max-w-2xl">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: EASE }}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide mb-6"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 text-black text-xs font-semibold tracking-wide mb-6 border border-black/10"
             >
               <BadgeCheck className="w-3.5 h-3.5" />
-              Immigration strategy · Relocation planning · Nigeria
+              Migration intelligence · Relocation planning · Nigeria
             </motion.div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.06, ease: EASE }}
-              className="display-title text-5xl sm:text-6xl md:text-7xl lg:text-7xl xl:text-8xl font-bold text-foreground mb-5"
+              className="bg-white/92 backdrop-blur-sm rounded-2xl p-6 md:p-7 border border-black/12"
             >
-              Move across borders
-              <br />
-              <span className="gradient-text">with confidence.</span>
-            </motion.h1>
+              <h1 className="display-title text-4xl sm:text-5xl md:text-6xl font-bold text-black mb-3">
+                Flexible options for
+                <br />
+                <span className="gradient-text">cross-border migration.</span>
+              </h1>
+              <p className="text-base md:text-lg text-black/70 mb-5 leading-relaxed">
+                Clear route matching, practical document strategy, and transparent execution — from first assessment to settlement.
+              </p>
+              <div className="flex flex-wrap gap-2.5 mb-5 text-sm">
+                {["Country-fit scoring", "Visa strategy", "Funding planning", "Settlement support"].map((item) => (
+                  <div key={item} className="flex items-center gap-2 rounded-full bg-black/[0.05] px-3 py-1.5 border border-black/8">
+                    <CheckCircle2 className="w-4 h-4 text-black" />
+                    <span className="text-black/85">{item}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/qualify">
+                  <Button size="lg" className="gap-2">
+                    Start assessment <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <Link href="/suite">
+                  <Button size="lg" variant="outline" className="gap-2">
+                    <ListOrdered className="w-4 h-4" /> Open suite
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+          </div>
 
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.12, ease: EASE }}
-              className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-7 leading-relaxed"
-            >
-              EasyMoveZone helps Nigerian professionals, students, and families choose the right route to the UK, Canada, or Europe with structured assessments, visa planning, and settlement support.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: 0.16, ease: EASE }}
-              className="grid sm:grid-cols-2 gap-2.5 mb-8 text-sm"
-            >
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.18, ease: EASE }}
+            className="absolute left-1/2 -translate-x-1/2 -bottom-16 w-[calc(100%-2rem)] md:w-[calc(100%-5rem)] lg:w-[88%] bg-white rounded-2xl border border-black/10 shadow-[0_25px_60px_-30px_rgba(0,0,0,0.45)] p-4 md:p-5"
+          >
+            <div className="flex flex-wrap gap-2 mb-3">
               {[
-                "Country-fit scoring before you commit",
-                "Document strategy and interview preparation",
-                "Transparent service fees in Naira",
-                "Support from first assessment to landing",
-              ].map((item) => (
-                <div key={item} className="flex items-center gap-2 rounded-xl bg-background/70 px-3 py-2 border border-border/50 backdrop-blur-sm">
-                  <CheckCircle2 className="w-4 h-4 text-secondary shrink-0" />
-                  <span className="text-foreground/90">{item}</span>
+                { icon: ScanSearch, label: "Eligibility review" },
+                { icon: Map, label: "Route planning" },
+                { icon: Banknote, label: "Funding plan" },
+                { icon: Home, label: "Settlement support" },
+              ].map(({ icon: Icon, label }) => (
+                <span key={label} className="inline-flex items-center gap-1.5 rounded-full bg-black/[0.04] border border-black/10 px-3 py-1.5 text-xs font-semibold text-black/80">
+                  <Icon className="w-3.5 h-3.5" />
+                  {label}
+                </span>
+              ))}
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
+              {["Profile type", "Destination", "Timeline", "Budget"].map((field) => (
+                <div key={field} className="rounded-xl border border-black/12 bg-white px-3 py-2">
+                  <div className="text-[11px] text-black/55">{field}</div>
+                  <div className="text-sm font-semibold text-black/85">Select</div>
                 </div>
               ))}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: 0.2, ease: EASE }}
-              className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-3"
-            >
-              <Link href="/qualify">
-                <Button size="xl" className="w-full sm:w-auto gap-2 text-base px-8 rounded-xl">
-                  Get assessed <ArrowRight className="w-4 h-4" />
-                </Button>
+              <Link href="/qualify" className="sm:col-span-2 lg:col-span-1">
+                <Button className="w-full h-full min-h-11 gap-2">Get started <ArrowRight className="w-4 h-4" /></Button>
               </Link>
-              <Link href="/suite">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 rounded-xl border-2">
-                  <ListOrdered className="w-4 h-4" /> Suite flow
-                </Button>
-              </Link>
-              <Link href="/fees">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 rounded-xl border-2">
-                  <Banknote className="w-4 h-4" /> Fees
-                </Button>
-              </Link>
-            </motion.div>
-          </div>
-
-          <div className="lg:col-span-5 mt-12 lg:mt-0 flex justify-center lg:justify-end">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2, ease: EASE }}
-              className="w-full max-w-[430px] relative"
-            >
-              <div className="relative rounded-3xl overflow-hidden border border-white/40 shadow-2xl">
-                <div className="aspect-[4/5] relative">
-                  <Image
-                    src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80"
-                    alt="Traveler planning international relocation journey"
-                    fill
-                    sizes="(min-width: 1024px) 420px, 90vw"
-                    className="object-cover"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <div className="rounded-2xl bg-white/88 backdrop-blur-md border border-black/10 p-4">
-                  <p className="text-[11px] font-bold text-black/75 uppercase tracking-widest mb-2">
-                    Migration readiness
-                  </p>
-                  <h3 className="text-black text-lg font-bold mb-3 leading-tight">
-                    Build a route that fits your profile, timeline, and budget.
-                  </h3>
-                  <Link href="/qualify" className="block">
-                    <Button className="w-full gap-2 bg-white text-black hover:bg-white/90">
-                      Start assessment <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute -left-6 top-6 hidden sm:flex items-center gap-3 rounded-xl glass-card px-3 py-2 shadow-xl float-card">
-                <ScanSearch className="w-4 h-4 text-primary" />
-                <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Assessment</div>
-                  <div className="text-xs font-semibold">Profile-fit scoring</div>
-                </div>
-              </div>
-              <div className="absolute -right-6 bottom-8 hidden sm:flex items-center gap-3 rounded-xl glass-card px-3 py-2 shadow-xl float-card float-card-delay">
-                <Clock3 className="w-4 h-4 text-secondary" />
-                <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Planning</div>
-                  <div className="text-xs font-semibold">Step-by-step roadmap</div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>
@@ -165,7 +124,7 @@ const TRUST = [
 
 function TrustStrip() {
   return (
-    <section className="py-7 border-y border-black/10 bg-white">
+    <section className="pt-24 pb-7 border-y border-black/10 bg-white">
       <div className="section-inner flex flex-wrap justify-center gap-x-10 gap-y-4">
         {TRUST.map(({ label, sub }, i) => (
           <motion.div

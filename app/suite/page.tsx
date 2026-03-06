@@ -9,6 +9,7 @@ import {
   Banknote,
   CheckCircle2,
   FileCheck2,
+  Globe,
   GraduationCap,
   Home,
   Plane,
@@ -18,71 +19,52 @@ import { Button } from "@/components/ui/Button"
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
-const SERVICE_PILLARS = [
+const HELP_CARDS = [
   {
-    title: "Migration Intelligence",
-    desc: "Profile scoring, route-fit analysis, and destination match clarity before any expensive step.",
+    title: "Get accurate eligibility guidance",
+    cta: "Open assessment",
+    image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1400&q=80",
+    href: "/qualify",
+  },
+  {
+    title: "Track route and destination options",
+    cta: "Explore destinations",
+    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1400&q=80",
+    href: "/destinations",
+  },
+  {
+    title: "Use funding and settlement support",
+    cta: "View fee options",
+    image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1400&q=80",
+    href: "/fees",
+  },
+]
+
+const FLOW = [
+  {
+    title: "Intelligence",
+    detail: "Profile scoring, route matching, and early risk visibility.",
     icon: ScanSearch,
-    bullets: ["Eligibility review", "Country-fit score", "Risk visibility"],
   },
   {
-    title: "Visa Strategy & Application",
-    desc: "Structured documentation planning, submission readiness, and interview positioning support.",
+    title: "Visa",
+    detail: "Checklist logic, document quality, and application readiness.",
     icon: FileCheck2,
-    bullets: ["Checklist workflow", "File review", "Submission preparation"],
   },
   {
-    title: "School & Study Placement",
-    desc: "Institution selection with tuition comparison and practical admission guidance.",
+    title: "School",
+    detail: "Shortlisting, tuition planning, and admission pathway support.",
     icon: GraduationCap,
-    bullets: ["School shortlisting", "Tuition mapping", "Admission support"],
   },
   {
-    title: "Accommodation & Settlement",
-    desc: "Landing-city guidance, pre-arrival housing support, and setup planning after arrival.",
+    title: "Accommodation",
+    detail: "City decision and pre-arrival housing coordination.",
     icon: Home,
-    bullets: ["City selection", "Housing planning", "Settlement setup"],
   },
   {
-    title: "Funding & Financial Planning",
-    desc: "Transparent cost planning and proof-of-funds strategy for smarter migration decisions.",
+    title: "Funding",
+    detail: "Budget simulation, proof-of-funds strategy, and execution.",
     icon: Banknote,
-    bullets: ["Budget simulation", "Proof-of-funds planning", "Funding options"],
-  },
-]
-
-const PROCESS_STEPS = [
-  { step: "01", title: "Intelligence", note: "Assess profile and route-fit confidence.", icon: ScanSearch },
-  { step: "02", title: "Visa", note: "Prepare documents and application strategy.", icon: FileCheck2 },
-  { step: "03", title: "School", note: "Shortlist institutions and map tuition impact.", icon: GraduationCap },
-  { step: "04", title: "Accommodation", note: "Plan city and home setup before landing.", icon: Home },
-  { step: "05", title: "Funding", note: "Finalize financial strategy and execution.", icon: Banknote },
-]
-
-const MODULE_VISUALS = [
-  {
-    title: "Eligibility Review & Application Checklist",
-    tag: "Intelligence + Visa",
-    image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1600&q=80",
-    text: "A single screen that tells clients what they qualify for and exactly what to prepare next.",
-  },
-  {
-    title: "Funding & Financial Planner",
-    tag: "Budget confidence",
-    image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1600&q=80",
-    text: "Clear cost visibility across tuition, relocation, and proof-of-funds requirements.",
-  },
-  {
-    title: "Migration Portfolio & Global Route View",
-    tag: "Country strategy",
-    image: "https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1600&q=80",
-    text: "A practical portfolio view of UK, Canada, and Europe options against client profiles.",
-  },
-  {
-    title: "End-to-End Journey Flow",
-    tag: "All-in-one suite",
-    image: "https://images.unsplash.com/photo-1493666438817-866a91353ca9?auto=format&fit=crop&w=1600&q=80",
-    text: "The full Intelligence → Visa → School → Accommodation → Funding pipeline in one experience.",
   },
 ]
 
@@ -91,157 +73,163 @@ export default function SuitePage() {
     <div className="min-h-screen pt-28 pb-24 px-6">
       <div className="max-w-6xl mx-auto">
         <motion.section
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: EASE }}
-          className="text-center max-w-4xl mx-auto mb-14"
+          transition={{ duration: 0.45, ease: EASE }}
+          className="mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-xs font-semibold tracking-wide mb-5">
-            <BadgeCheck className="w-3.5 h-3.5" />
-            One unified EMZ Suite
-          </div>
-          <h1 className="display-title text-5xl md:text-7xl font-bold text-foreground mb-4">
-            Services + process
-            <br />
-            <span className="gradient-text">in one mature platform page.</span>
-          </h1>
-          <p className="text-base md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            We collapsed the experience into one suite page so clients can understand what you offer, how it works,
-            and what to do next without bouncing through too many pages.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/qualify">
-              <Button className="gap-2">Start assessment <ArrowRight className="w-4 h-4" /></Button>
-            </Link>
-            <Link href="/fees">
-              <Button variant="outline" className="gap-2">View pricing</Button>
-            </Link>
+          <div className="relative rounded-[2rem] overflow-hidden border border-black/10 min-h-[430px] shadow-[0_35px_70px_-35px_rgba(0,0,0,0.35)]">
+            <Image
+              src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1800&q=80"
+              alt="Migration support hero"
+              fill
+              sizes="100vw"
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-black/10 to-transparent" />
+
+            <div className="relative z-10 p-8 md:p-10">
+              <div className="max-w-2xl bg-white/93 border border-black/10 rounded-2xl p-6 md:p-7 backdrop-blur-sm">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/[0.04] text-black text-xs font-semibold mb-5 border border-black/10">
+                  <BadgeCheck className="w-3.5 h-3.5" />
+                  Unified EMZ Suite
+                </div>
+                <h1 className="display-title text-4xl sm:text-5xl md:text-6xl font-bold text-black mb-3">
+                  Clear migration tools
+                  <br />
+                  <span className="gradient-text">in one modern experience.</span>
+                </h1>
+                <p className="text-black/70 text-base md:text-lg mb-6">
+                  Services and process are collapsed here: clear cards, clear actions, and a visible flow from intelligence to settlement.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Link href="/qualify">
+                    <Button size="lg" className="gap-2">
+                      Start assessment <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                  <Link href="/fees">
+                    <Button size="lg" variant="outline">See fees</Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </motion.section>
 
-        <section id="services" className="mb-16">
-          <div className="text-center mb-8">
-            <h2 className="display-title text-3xl md:text-5xl font-bold text-foreground mb-3">
-              Core <span className="gradient-text">service pillars</span>
-            </h2>
-            <p className="text-muted-foreground">Everything clients need in one clear structure.</p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {SERVICE_PILLARS.map(({ title, desc, icon: Icon, bullets }, index) => (
+        <section className="mb-16">
+          <h2 className="display-title text-4xl md:text-5xl text-black mb-2">We&apos;re here to help</h2>
+          <p className="text-black/70 mb-6">Everything is organized as practical options clients can act on immediately.</p>
+          <div className="grid md:grid-cols-3 gap-5">
+            {HELP_CARDS.map((card, index) => (
               <motion.article
-                key={title}
-                initial={{ opacity: 0, y: 16 }}
+                key={card.title}
+                initial={{ opacity: 0, y: 14 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-30px" }}
-                transition={{ delay: index * 0.06, duration: 0.45, ease: EASE }}
-                whileHover={{ y: -8, scale: 1.015, rotateX: 1.8 }}
-                className="premium-animated-card rounded-2xl p-5 perspective-1000"
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.08, duration: 0.4, ease: EASE }}
+                whileHover={{ y: -7, scale: 1.01 }}
+                className="premium-animated-card rounded-2xl overflow-hidden"
               >
-                <div className="w-11 h-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center mb-4">
-                  <Icon className="w-5 h-5" />
+                <div className="relative h-44">
+                  <Image
+                    src={card.image}
+                    alt={card.title}
+                    fill
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    className="object-cover"
+                  />
                 </div>
-                <h3 className="text-lg font-bold text-foreground mb-2">{title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-3">{desc}</p>
-                <div className="space-y-1.5">
-                  {bullets.map((bullet) => (
-                    <div key={bullet} className="flex items-center gap-2 text-xs">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
-                      <span className="text-foreground/90">{bullet}</span>
-                    </div>
-                  ))}
+                <div className="p-4 border-t border-black/10">
+                  <h3 className="text-xl font-bold text-black mb-3">{card.title}</h3>
+                  <Link href={card.href} className="inline-flex items-center gap-1 text-sm font-semibold text-black/75 hover:text-black transition-colors">
+                    {card.cta} <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </div>
               </motion.article>
             ))}
           </div>
         </section>
 
-        <section id="process" className="mb-16 rounded-3xl bg-white text-black border border-black/10 p-6 md:p-8">
-          <div className="text-center mb-8">
-            <h2 className="display-title text-3xl md:text-5xl font-bold text-black mb-3">
-              The suite <span className="text-black/80">workflow</span>
-            </h2>
-            <p className="text-black/70">One flow from intelligence to funded relocation.</p>
+        <section className="mb-16 rounded-3xl bg-white border border-black/10 p-6 md:p-8 shadow-[0_24px_50px_-34px_rgba(0,0,0,0.35)]">
+          <div className="flex items-start justify-between gap-4 flex-wrap mb-6">
+            <div>
+              <h2 className="display-title text-3xl md:text-5xl text-black mb-2">Suite process flow</h2>
+              <p className="text-black/70">A single operating model for the full cross-border journey.</p>
+            </div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-black/12 bg-black/[0.03] px-3 py-1.5 text-xs font-semibold text-black/70">
+              <Globe className="w-3.5 h-3.5" />
+              UK · Canada · Europe
+            </span>
           </div>
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {PROCESS_STEPS.map(({ step, title, note, icon: Icon }, index) => (
+            {FLOW.map(({ title, detail, icon: Icon }, index) => (
               <motion.div
-                key={step}
+                key={title}
                 initial={{ opacity: 0, y: 14 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.07, duration: 0.4, ease: EASE }}
-                whileHover={{ y: -6, scale: 1.015 }}
-                className="rounded-xl p-4 text-center border border-black/10 bg-white shadow-[0_14px_28px_-18px_rgba(0,0,0,0.45)] hover:-translate-y-1.5 transition-all duration-300"
+                transition={{ delay: index * 0.06, duration: 0.35, ease: EASE }}
+                whileHover={{ y: -6 }}
+                className="rounded-xl border border-black/10 bg-white p-4"
               >
-                <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-black/10 text-black mb-3">
-                  <Icon className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-xl bg-black/[0.06] flex items-center justify-center mb-3">
+                  <Icon className="w-5 h-5 text-black" />
                 </div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-black/65 mb-1">{step}</div>
-                <h3 className="text-sm font-bold text-black mb-1">{title}</h3>
-                <p className="text-xs text-black/65">{note}</p>
+                <h3 className="font-bold text-black mb-1">{title}</h3>
+                <p className="text-xs text-black/65 leading-relaxed">{detail}</p>
               </motion.div>
             ))}
           </div>
         </section>
 
-        <section id="modules" className="mb-16">
-          <div className="text-center mb-8">
-            <h2 className="display-title text-3xl md:text-5xl font-bold text-foreground mb-3">
-              Visual suite <span className="gradient-text">modules</span>
-            </h2>
-            <p className="text-muted-foreground">The core views that should appear in your product narrative.</p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            {MODULE_VISUALS.map(({ title, tag, image, text }, index) => (
-              <motion.article
-                key={title}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-30px" }}
-                transition={{ delay: index * 0.08, duration: 0.45, ease: EASE }}
-                whileHover={{ y: -8, scale: 1.01 }}
-                className="premium-animated-card rounded-2xl overflow-hidden"
-              >
-                <div className="relative h-56">
-                  <Image
-                    src={image}
-                    alt={title}
-                    fill
-                    sizes="(min-width: 768px) 45vw, 95vw"
-                    className="object-cover transition-transform duration-700 hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent" />
-                  <span className="absolute left-4 bottom-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full bg-white/90 text-foreground">
-                    {tag}
-                  </span>
-                </div>
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-foreground mb-2">{title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{text}</p>
-                </div>
-              </motion.article>
-            ))}
+        <section className="rounded-3xl bg-white border border-black/12 p-7 md:p-9 shadow-[0_26px_56px_-34px_rgba(0,0,0,0.4)]">
+          <div className="grid md:grid-cols-2 gap-6 items-center">
+            <div className="relative h-56 rounded-2xl overflow-hidden">
+              <Image
+                src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1600&q=80"
+                alt="Global route map visual"
+                fill
+                sizes="(min-width: 768px) 45vw, 100vw"
+                className="object-cover"
+              />
+            </div>
+            <div>
+              <h3 className="display-title text-3xl md:text-4xl text-black mb-3">
+                Never miss the right migration route.
+              </h3>
+              <p className="text-black/70 mb-5">
+                Use the suite to keep your journey clear, measurable, and decision-ready at every stage.
+              </p>
+              <div className="grid sm:grid-cols-2 gap-2 mb-4">
+                <div className="rounded-xl border border-black/12 px-3 py-2 text-sm text-black/65">Email address</div>
+                <div className="rounded-xl border border-black/12 px-3 py-2 text-sm text-black/65">Preferred destination</div>
+              </div>
+              <label className="flex items-center gap-2 text-xs text-black/60 mb-5">
+                <input type="checkbox" className="rounded border-black/25" />
+                I agree to receive updates and migration insights.
+              </label>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/qualify">
+                  <Button className="gap-2">Get assessed <ArrowRight className="w-4 h-4" /></Button>
+                </Link>
+                <Link href="/destinations">
+                  <Button variant="outline" className="gap-2">
+                    Explore routes <Plane className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
 
-        <div className="rounded-2xl bg-white p-8 md:p-10 text-center border border-black/12 shadow-[0_24px_50px_-28px_rgba(0,0,0,0.28)]">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-black/10 text-black mb-4">
-            <Plane className="w-6 h-6" />
-          </div>
-          <h3 className="display-title text-3xl md:text-4xl font-bold text-black mb-3">
-            Ready to run the full migration suite?
-          </h3>
-          <p className="text-black/75 mb-6 max-w-2xl mx-auto">
-            Start from eligibility intelligence, move through visa and school planning, and finish with accommodation and funding execution.
-          </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Link href="/qualify">
-              <Button className="bg-white text-black hover:bg-white/90 gap-2">Get assessed <ArrowRight className="w-4 h-4" /></Button>
-            </Link>
-            <Link href="/destinations">
-              <Button variant="outline" className="border-black/25 text-black hover:bg-black/5">Explore destinations</Button>
-            </Link>
-          </div>
+        <div className="mt-8 text-xs text-black/55 text-center">
+          <span className="inline-flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-black" />
+            Modern interface · clear cards · clear migration messaging
+          </span>
         </div>
       </div>
     </div>
