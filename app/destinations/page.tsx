@@ -34,7 +34,7 @@ const DESTINATIONS = [
     visaTypes: "Germany Blue Card, Portugal D7 Visa, Netherlands HSM, Ireland Critical Skills",
     costRange: "€3K–€15K+",
     href: "/destinations?country=europe",
-    image: "https://images.unsplash.com/photo-1471623817296-aa07ae5c9f47?auto=format&fit=crop&w=1200&q=80",
+    image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80",
   },
 ]
 

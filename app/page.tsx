@@ -281,7 +281,7 @@ const DESTINATIONS = [
     desc: "Route planning for Germany, Portugal, Netherlands, and Ireland migration programs.",
     href: "/destinations?country=europe",
     color: "from-muted to-muted/50 border-border",
-    image: "https://images.unsplash.com/photo-1471623817296-aa07ae5c9f47?auto=format&fit=crop&w=1400&q=80",
+    image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1400&q=80",
   },
 ]
 

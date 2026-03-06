@@ -112,7 +112,7 @@ export function Header() {
                 alt="EasyMoveZone"
                 width={160}
                 height={56}
-                className="h-10 w-auto mix-blend-multiply"
+                className="h-10 w-auto mix-blend-multiply dark:mix-blend-normal dark:brightness-110"
                 priority
               />
               <span className="hidden sm:inline text-xs font-medium text-muted-foreground border-l border-border pl-2 ml-1">

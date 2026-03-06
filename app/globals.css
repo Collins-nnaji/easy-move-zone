@@ -89,23 +89,23 @@
 
   .dark {
     /* Fintech Dark — deep charcoal, electric accents */
-    --background: oklch(0.09 0.015 265);
+    --background: oklch(0.085 0.018 265);
     --foreground: oklch(0.97 0 0);
 
-    --card: oklch(0.13 0.02 265);
+    --card: oklch(0.13 0.022 265);
     --card-foreground: oklch(0.97 0 0);
 
-    --popover: oklch(0.13 0.02 265);
+    --popover: oklch(0.13 0.022 265);
     --popover-foreground: oklch(0.97 0 0);
 
-    --primary: oklch(0.62 0.22 264);
+    --primary: oklch(0.66 0.16 264);
     --primary-foreground: oklch(0.99 0 0);
 
-    --secondary: oklch(0.60 0.18 158);
+    --secondary: oklch(0.64 0.13 158);
     --secondary-foreground: oklch(0.99 0 0);
 
-    --muted: oklch(0.18 0.025 265);
-    --muted-foreground: oklch(0.65 0.04 260);
+    --muted: oklch(0.19 0.024 265);
+    --muted-foreground: oklch(0.72 0.03 260);
 
     --accent: oklch(0.72 0.16 68);
     --accent-foreground: oklch(0.1 0.04 68);
@@ -113,9 +113,9 @@
     --destructive: oklch(0.50 0.17 24);
     --destructive-foreground: oklch(0.99 0 0);
 
-    --border: oklch(0.22 0.025 265);
-    --input: oklch(0.22 0.025 265);
-    --ring: oklch(0.62 0.22 264);
+    --border: oklch(0.28 0.022 265);
+    --input: oklch(0.28 0.022 265);
+    --ring: oklch(0.66 0.16 264);
   }
 }
 
@@ -204,6 +204,13 @@
       radial-gradient(ellipse 60% 50% at 50% 100%, oklch(0.48 0.12 264 / 0.08) 0%, transparent 50%),
       oklch(0.975 0.008 255);
   }
+  .dark .hero-premium {
+    background:
+      radial-gradient(ellipse 100% 80% at 20% -20%, oklch(0.66 0.16 264 / 0.22) 0%, transparent 52%),
+      radial-gradient(ellipse 80% 60% at 80% 0%, oklch(0.64 0.13 158 / 0.16) 0%, transparent 48%),
+      radial-gradient(ellipse 60% 50% at 50% 100%, oklch(0.66 0.12 264 / 0.12) 0%, transparent 55%),
+      oklch(0.11 0.02 265);
+  }
 
   /* Glass card for floating hero widget */
   .glass-card {
@@ -212,6 +219,11 @@
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid oklch(0.08 0.02 260 / 0.08);
     box-shadow: 0 24px 48px -12px oklch(0.08 0.02 260 / 0.12), 0 0 0 1px oklch(0.08 0.02 260 / 0.04);
+  }
+  .dark .glass-card {
+    background: oklch(0.16 0.022 265 / 0.8);
+    border: 1px solid oklch(0.95 0 0 / 0.1);
+    box-shadow: 0 24px 48px -12px oklch(0.02 0 0 / 0.55), 0 0 0 1px oklch(0.95 0 0 / 0.04);
   }
 
   /* Section container — consistent max-width and vertical rhythm */
@@ -257,6 +269,11 @@
     animation: gradient-flow 18s ease-in-out infinite;
     pointer-events: none;
     z-index: 0;
+  }
+  .dark .section-flow-bg::before {
+    background: radial-gradient(ellipse 80% 60% at 20% 20%, oklch(0.66 0.16 264 / 0.18) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 80% at 80% 80%, oklch(0.64 0.13 158 / 0.14) 0%, transparent 50%),
+      radial-gradient(ellipse 70% 50% at 50% 50%, oklch(0.66 0.12 264 / 0.1) 0%, transparent 55%);
   }
   .section-flow-bg > * {
     position: relative;
