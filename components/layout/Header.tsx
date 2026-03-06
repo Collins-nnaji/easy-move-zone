@@ -34,8 +34,6 @@ function AnnouncementTicker() {
 
 const NAV_LINKS = [
   { name: "Suite", href: "/suite" },
-  { name: "Fees", href: "/#fees" },
-  { name: "Routes", href: "/#routes" },
 ]
 
 export function Header() {
