@@ -98,21 +98,21 @@ function AuthPageContent() {
         <div className="bg-card border border-border/60 rounded-2xl shadow-xl overflow-hidden transition-shadow duration-300 hover:shadow-2xl">
 
           {/* Header strip */}
-          <div className="bg-gradient-to-r from-primary to-secondary p-6 text-white text-center">
+          <div className="bg-white border-b border-black/10 p-6 text-black text-center">
             <Link href="/" className="inline-block mb-4">
               <Image
                 src="/emz.svg"
                 alt="EasyMoveZone"
                 width={140}
                 height={50}
-                className="h-10 w-auto brightness-0 invert mx-auto"
+                className="h-10 w-auto mx-auto"
                 priority
               />
             </Link>
             <h1 className="text-xl font-bold">
               {mode === "sign-in" ? "Welcome back" : "Create your account"}
             </h1>
-            <p className="text-white/80 text-xs mt-1">
+            <p className="text-black/70 text-xs mt-1">
               {mode === "sign-in"
                 ? "Sign in to access your assessment and journey"
                 : "Sign up to access your assessment and journey"}

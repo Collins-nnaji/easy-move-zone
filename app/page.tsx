@@ -115,13 +115,14 @@ function HeroSection() {
                     className="object-cover"
                     priority
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <p className="text-[11px] font-bold text-white/80 uppercase tracking-widest mb-2">
+                  <div className="rounded-2xl bg-white/88 backdrop-blur-md border border-black/10 p-4">
+                  <p className="text-[11px] font-bold text-black/75 uppercase tracking-widest mb-2">
                     Migration readiness
                   </p>
-                  <h3 className="text-white text-lg font-bold mb-3 leading-tight">
+                  <h3 className="text-black text-lg font-bold mb-3 leading-tight">
                     Build a route that fits your profile, timeline, and budget.
                   </h3>
                   <Link href="/qualify" className="block">
@@ -129,6 +130,7 @@ function HeroSection() {
                       Start assessment <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
+                  </div>
                 </div>
               </div>
 
@@ -567,22 +569,22 @@ function FeesSection() {
               transition={{ delay: i * 0.07 }}
               whileHover={{ y: -5 }}
               className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${tier.recommended
-                  ? "bg-gradient-to-br from-zinc-800 to-zinc-700 text-white shadow-xl shadow-black/40 ring-2 ring-white/20"
+                  ? "bg-card border border-black/15 text-foreground shadow-xl shadow-black/15 ring-2 ring-black/10"
                   : "bg-card border border-border/60 shadow-sm hover:shadow-md"
                 }`}
             >
               {tier.recommended && (
-                <div className="absolute top-0 right-0 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-bl-xl text-[10px] font-bold uppercase tracking-wider">
+                <div className="absolute top-0 right-0 bg-white border-l border-b border-black/15 text-black px-3 py-1 rounded-bl-xl text-[10px] font-bold uppercase tracking-wider">
                   Recommended
                 </div>
               )}
               <div className="p-6">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${tier.recommended ? "bg-white/15" : "bg-primary/10"}`}>
-                  <tier.icon className={`w-5 h-5 ${tier.recommended ? "text-white" : "text-primary"}`} />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${tier.recommended ? "bg-black/10" : "bg-primary/10"}`}>
+                  <tier.icon className={`w-5 h-5 ${tier.recommended ? "text-black" : "text-primary"}`} />
                 </div>
-                <div className={`text-xs font-bold uppercase tracking-wider mb-2 ${tier.recommended ? "text-white/80" : "text-muted-foreground"}`}>{tier.label}</div>
-                <div className={`text-2xl font-bold tabular-nums mb-2 ${tier.recommended ? "text-white" : "text-foreground"}`}>{tier.price}</div>
-                <p className={`text-sm leading-relaxed ${tier.recommended ? "text-white/80" : "text-muted-foreground"}`}>{tier.note}</p>
+                <div className={`text-xs font-bold uppercase tracking-wider mb-2 ${tier.recommended ? "text-black/65" : "text-muted-foreground"}`}>{tier.label}</div>
+                <div className={`text-2xl font-bold tabular-nums mb-2 ${tier.recommended ? "text-black" : "text-foreground"}`}>{tier.price}</div>
+                <p className={`text-sm leading-relaxed ${tier.recommended ? "text-black/75" : "text-muted-foreground"}`}>{tier.note}</p>
               </div>
             </motion.div>
           ))}
@@ -672,7 +674,7 @@ function TestimonialsSection() {
               <Quote className="w-8 h-8 text-primary/10 mb-4" />
 
               <div className="flex gap-0.5 mb-4">
-                {[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 fill-white text-white/85" />)}
+                {[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 fill-black text-black/80" />)}
               </div>
               <p className="text-foreground leading-relaxed mb-5 text-sm">&ldquo;{quote}&rdquo;</p>
 
@@ -682,7 +684,7 @@ function TestimonialsSection() {
               </div>
 
               <div className="flex items-center gap-3 pt-4 border-t border-border/40">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-sm font-bold text-white shadow-sm">{initials}</div>
+                <div className="w-10 h-10 rounded-full bg-white border border-black/20 flex items-center justify-center text-sm font-bold text-black shadow-sm">{initials}</div>
                 <div>
                   <div className="font-bold text-sm text-foreground">{name}</div>
                   <div className="text-xs text-muted-foreground">{location}</div>

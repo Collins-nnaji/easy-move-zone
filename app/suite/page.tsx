@@ -224,14 +224,14 @@ export default function SuitePage() {
           </div>
         </section>
 
-        <div className="rounded-2xl bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 p-8 md:p-10 text-center border border-white/15">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/15 text-white mb-4">
+        <div className="rounded-2xl bg-white p-8 md:p-10 text-center border border-black/12 shadow-[0_24px_50px_-28px_rgba(0,0,0,0.28)]">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-black/10 text-black mb-4">
             <Plane className="w-6 h-6" />
           </div>
-          <h3 className="display-title text-3xl md:text-4xl font-bold text-white mb-3">
+          <h3 className="display-title text-3xl md:text-4xl font-bold text-black mb-3">
             Ready to run the full migration suite?
           </h3>
-          <p className="text-white/85 mb-6 max-w-2xl mx-auto">
+          <p className="text-black/75 mb-6 max-w-2xl mx-auto">
             Start from eligibility intelligence, move through visa and school planning, and finish with accommodation and funding execution.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
@@ -239,7 +239,7 @@ export default function SuitePage() {
               <Button className="bg-white text-black hover:bg-white/90 gap-2">Get assessed <ArrowRight className="w-4 h-4" /></Button>
             </Link>
             <Link href="/destinations">
-              <Button variant="outline" className="border-white/35 text-white hover:bg-white/10">Explore destinations</Button>
+              <Button variant="outline" className="border-black/25 text-black hover:bg-black/5">Explore destinations</Button>
             </Link>
           </div>
         </div>

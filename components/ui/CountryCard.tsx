@@ -38,7 +38,7 @@ export function CountryCard({ name, slug, image, description, index = 0 }: Count
                     <p className="mt-2 text-sm text-muted-foreground flex-1 leading-relaxed">{description}</p>
                     <div className="mt-6 pt-4 border-t border-border/50">
                         <Link href={`/countries/${slug}`} className="w-full" tabIndex={-1}>
-                            <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all duration-300">
+                            <Button variant="outline" className="w-full group-hover:bg-primary/10 group-hover:text-black group-hover:border-primary transition-all duration-300">
                                 Explore {name}
                             </Button>
                         </Link>

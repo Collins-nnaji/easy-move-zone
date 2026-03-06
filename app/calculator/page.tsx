@@ -62,7 +62,7 @@ export default function CalculatorPage() {
                   key={d || "none"}
                   onClick={() => setDestination(d)}
                   className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
-                    destination === d ? "bg-primary text-white border-primary" : "border-border text-muted-foreground hover:border-primary/40"
+                    destination === d ? "bg-primary text-black border-primary" : "border-border text-muted-foreground hover:border-primary/40"
                   }`}
                 >
                   {d === "" ? "Custom" : d.toUpperCase()}

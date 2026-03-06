@@ -34,8 +34,8 @@ export function Footer() {
           {/* Brand column */}
           <div className="xl:col-span-2 space-y-4">
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary">
-                <Zap className="w-3.5 h-3.5 text-white" />
+              <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/15 border border-black/15">
+                <Zap className="w-3.5 h-3.5 text-black" />
               </div>
               <span className="text-lg font-bold tracking-tight">EasyMoveZone</span>
             </div>

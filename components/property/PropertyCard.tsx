@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
@@ -37,7 +36,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
                 </div>
 
                 <div className="absolute bottom-4 right-4">
-                    <div className="inline-flex items-center gap-1 px-2 py-1 bg-black/50 backdrop-blur rounded-md text-xs font-bold text-white shadow-sm">
+                    <div className="inline-flex items-center gap-1 px-2 py-1 bg-white/90 backdrop-blur rounded-md text-xs font-bold text-black shadow-sm border border-black/10">
                         <Shield className="w-3 h-3 text-primary" /> {property.trustScore}% Trust Score
                     </div>
                 </div>
@@ -70,7 +69,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
                         {property.period && <span className="text-xs text-muted-foreground font-normal">/{property.period}</span>}
                     </div>
                     <Link href={`/properties/${property.id}`}>
-                        <Button variant="outline" size="sm" className="hover:bg-primary hover:text-white border-primary/20">Details</Button>
+                        <Button variant="outline" size="sm" className="hover:bg-primary/10 hover:text-black border-primary/20">Details</Button>
                     </Link>
                 </div>
             </div>

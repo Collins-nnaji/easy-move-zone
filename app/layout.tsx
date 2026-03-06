@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${outfit.variable} ${spaceGrotesk.variable} min-h-screen flex flex-col`}>
         <Header />
         <main className="flex-1">{children}</main>

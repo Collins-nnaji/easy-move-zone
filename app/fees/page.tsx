@@ -102,15 +102,15 @@ export default function FeesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08, ease: EASE }}
                 className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${isRecommended
-                    ? "bg-gradient-to-br from-zinc-800 via-zinc-700 to-zinc-700 text-white shadow-xl shadow-black/40 ring-1 ring-white/20"
+                    ? "bg-card border border-black/15 text-foreground shadow-xl shadow-black/15 ring-1 ring-black/10"
                     : "bg-card border border-border/60 shadow-sm hover:shadow-md"
                   }`}
               >
                 {/* Recommended badge */}
                 {isRecommended && (
-                  <div className="absolute top-0 right-0 bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-bl-2xl flex items-center gap-1.5">
-                    <Star className="w-3 h-3 fill-white text-white" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-white">Recommended</span>
+                  <div className="absolute top-0 right-0 bg-white border-l border-b border-black/15 px-4 py-1.5 rounded-bl-2xl flex items-center gap-1.5">
+                    <Star className="w-3 h-3 fill-black text-black" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-black">Recommended</span>
                   </div>
                 )}
 
@@ -122,14 +122,14 @@ export default function FeesPage() {
                 <div className="p-6 md:p-7">
                   <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                     <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${isRecommended ? "bg-white/15" : item.accent === "secondary" ? "bg-secondary/10" : "bg-primary/10"
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${isRecommended ? "bg-black/10" : item.accent === "secondary" ? "bg-secondary/10" : "bg-primary/10"
                         }`}>
-                        <Icon className={`w-6 h-6 ${isRecommended ? "text-white" : item.accent === "secondary" ? "text-secondary" : "text-primary"
+                        <Icon className={`w-6 h-6 ${isRecommended ? "text-black" : item.accent === "secondary" ? "text-secondary" : "text-primary"
                           }`} />
                       </div>
                       <div>
-                        <h2 className={`font-bold text-lg ${isRecommended ? "text-white" : "text-foreground"}`}>{item.title}</h2>
-                        <span className={`text-2xl font-bold tabular-nums ${isRecommended ? "text-white" : item.accent === "secondary" ? "text-secondary" : "text-primary"
+                        <h2 className={`font-bold text-lg ${isRecommended ? "text-black" : "text-foreground"}`}>{item.title}</h2>
+                        <span className={`text-2xl font-bold tabular-nums ${isRecommended ? "text-black" : item.accent === "secondary" ? "text-secondary" : "text-primary"
                           }`}>
                           {item.amount}
                         </span>
@@ -137,16 +137,16 @@ export default function FeesPage() {
                     </div>
                   </div>
 
-                  <p className={`text-sm mb-5 leading-relaxed ${isRecommended ? "text-white/85" : "text-muted-foreground"}`}>
+                  <p className={`text-sm mb-5 leading-relaxed ${isRecommended ? "text-black/75" : "text-muted-foreground"}`}>
                     {item.desc}
                   </p>
 
                   <div className={`grid grid-cols-2 gap-2 ${isRecommended ? "" : ""}`}>
                     {item.features.map((f) => (
                       <div key={f} className="flex items-center gap-2 text-xs">
-                        <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${isRecommended ? "text-white/70" : "text-secondary"
+                        <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${isRecommended ? "text-black/65" : "text-secondary"
                           }`} />
-                        <span className={isRecommended ? "text-white/90 font-medium" : "text-foreground font-medium"}>{f}</span>
+                        <span className={isRecommended ? "text-black/90 font-medium" : "text-foreground font-medium"}>{f}</span>
                       </div>
                     ))}
                   </div>

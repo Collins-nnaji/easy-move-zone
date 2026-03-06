@@ -20,7 +20,7 @@ function StepBar({ step }: { step: number }) {
       {STEPS.map((s, i) => (
         <React.Fragment key={s}>
           <div className="flex flex-col items-center shrink-0">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${i < step ? "bg-secondary text-white" : i === step ? "bg-primary text-white" : "bg-muted text-muted-foreground"
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${i < step ? "bg-secondary text-black" : i === step ? "bg-primary text-black" : "bg-muted text-muted-foreground"
               }`}>
               {i < step ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
             </div>
@@ -52,7 +52,7 @@ function PillGroup<T extends string>({
           key={v}
           type="button"
           onClick={() => onChange(v)}
-          className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${isSelected(v) ? "bg-primary text-white border-primary" : "border-border text-muted-foreground hover:border-primary/40"
+          className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${isSelected(v) ? "bg-primary text-black border-primary" : "border-border text-muted-foreground hover:border-primary/40"
             }`}
         >
           {label}
@@ -342,7 +342,7 @@ export default function QualifyPage() {
                         key={v}
                         type="button"
                         onClick={() => toggleGoal(v)}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${goals.includes(v) ? "bg-primary text-white border-primary" : "border-border text-muted-foreground hover:border-primary/40"
+                        className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${goals.includes(v) ? "bg-primary text-black border-primary" : "border-border text-muted-foreground hover:border-primary/40"
                           }`}
                       >
                         {label}
@@ -523,9 +523,9 @@ export default function QualifyPage() {
                   </motion.div>
 
                   {/* CTA buttons */}
-                  <div className="bg-gradient-to-br from-zinc-900 to-zinc-700 rounded-2xl p-6 text-center">
-                    <h3 className="text-lg font-bold text-white mb-2">Ready to take the next step?</h3>
-                    <p className="text-white/80 text-xs mb-5">Book a strategy call or explore our fees to get started.</p>
+                  <div className="bg-white border border-black/12 rounded-2xl p-6 text-center shadow-[0_18px_44px_-26px_rgba(0,0,0,0.35)]">
+                    <h3 className="text-lg font-bold text-black mb-2">Ready to take the next step?</h3>
+                    <p className="text-black/70 text-xs mb-5">Book a strategy call or explore our fees to get started.</p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                       <Link href="/fees">
                         <Button className="bg-white text-black hover:bg-white/90 gap-2 font-bold w-full sm:w-auto">
@@ -533,7 +533,7 @@ export default function QualifyPage() {
                         </Button>
                       </Link>
                       <Link href="/suite">
-                        <Button variant="outline" className="border-white/30 text-white hover:bg-white/10 gap-2 w-full sm:w-auto">
+                        <Button variant="outline" className="border-black/20 text-black hover:bg-black/5 gap-2 w-full sm:w-auto">
                           Suite overview
                         </Button>
                       </Link>
