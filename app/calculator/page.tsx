@@ -172,9 +172,9 @@ export default function CalculatorPage() {
                 Check destination fit <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
-            <Link href="/destinations">
+            <Link href="/#routes">
               <Button variant="outline" className="gap-2">
-                Destination guides
+                Route strategies
               </Button>
             </Link>
           </div>

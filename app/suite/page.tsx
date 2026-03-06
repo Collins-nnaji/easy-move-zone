@@ -34,11 +34,11 @@ const TOOL_CARDS = [
     cta: "Open calculator",
   },
   {
-    title: "Destination guides",
-    desc: "Review routes, costs, and pathways by destination market.",
-    href: "/destinations",
+    title: "Route strategies",
+    desc: "Review migration strategies for UK, Canada, and Europe routes on homepage.",
+    href: "/#routes",
     icon: MapPinned,
-    cta: "Explore destinations",
+    cta: "View route strategies",
   },
 ]
 
@@ -70,7 +70,7 @@ export default function SuitePage() {
             from one organised suite.
           </h1>
           <p className="text-black/70 text-base md:text-lg max-w-3xl">
-            The tools are now centralised here so users can start assessment, calculate costs, and review destinations without jumping around the navbar.
+            The tools are now centralised here so users can start assessment, calculate costs, and review route strategies without jumping around the navbar.
           </p>
         </motion.section>
 

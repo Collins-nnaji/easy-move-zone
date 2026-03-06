@@ -13,7 +13,7 @@ const TOOL_LINKS = [
   { href: "/qualify", label: "Get assessed", desc: "Submit your profile for assessment", icon: CheckCircle2, color: "bg-primary/10 text-primary" },
   { href: "/suite", label: "EMZ Suite", desc: "Services + process in one place", icon: FileText, color: "bg-secondary/10 text-secondary" },
   { href: "/#fees", label: "Fees", desc: "Transparent pricing", icon: Calculator, color: "bg-accent/10 text-accent-foreground" },
-  { href: "/destinations", label: "Destinations", desc: "UK, Canada, Europe", icon: Globe, color: "bg-muted" },
+  { href: "/#routes", label: "Route strategies", desc: "UK, Canada, Europe", icon: Globe, color: "bg-muted" },
 ]
 
 export default function DashboardPage() {

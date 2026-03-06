@@ -560,8 +560,8 @@ export default function QualifyPage() {
                     <Button variant="outline" onClick={handleReset} className="flex-1 gap-2">
                       <RotateCcw className="w-4 h-4" /> Start new assessment
                     </Button>
-                    <Link href="/destinations" className="flex-1">
-                      <Button className="w-full gap-1.5">Explore destinations <ArrowRight className="w-4 h-4" /></Button>
+                    <Link href="/#routes" className="flex-1">
+                      <Button className="w-full gap-1.5">View route strategies <ArrowRight className="w-4 h-4" /></Button>
                     </Link>
                   </div>
                 </>

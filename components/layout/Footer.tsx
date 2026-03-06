@@ -7,7 +7,7 @@ export function Footer() {
       { name: "Get assessed", href: "/qualify" },
       { name: "EMZ Suite (All-in-one)", href: "/suite" },
       { name: "Fees", href: "/#fees" },
-      { name: "Destinations", href: "/destinations" },
+      { name: "Route strategies", href: "/#routes" },
     ],
     markets: [
       { name: "Lagos", href: "#" },
