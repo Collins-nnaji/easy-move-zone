@@ -18,7 +18,7 @@ const STAGGER = 0.07
 /* ── Hero ─────────────────────────────────────────────── */
 function HeroSection() {
   return (
-    <section className="relative pt-32 pb-6 px-6">
+    <section className="relative pt-32 pb-12 px-6">
       <div className="section-inner mx-auto w-full max-w-6xl">
         <div className="relative rounded-[2rem] overflow-hidden border border-black/10 shadow-[0_35px_70px_-35px_rgba(0,0,0,0.35)] min-h-[510px]">
           <Image
@@ -78,37 +78,6 @@ function HeroSection() {
             </motion.div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.18, ease: EASE }}
-            className="absolute left-1/2 -translate-x-1/2 -bottom-16 w-[calc(100%-2rem)] md:w-[calc(100%-5rem)] lg:w-[88%] bg-white rounded-2xl border border-black/10 shadow-[0_25px_60px_-30px_rgba(0,0,0,0.45)] p-4 md:p-5"
-          >
-            <div className="flex flex-wrap gap-2 mb-3">
-              {[
-                { icon: ScanSearch, label: "Eligibility review" },
-                { icon: Map, label: "Route planning" },
-                { icon: Banknote, label: "Funding plan" },
-                { icon: Home, label: "Settlement support" },
-              ].map(({ icon: Icon, label }) => (
-                <span key={label} className="inline-flex items-center gap-1.5 rounded-full bg-black/[0.04] border border-black/10 px-3 py-1.5 text-xs font-semibold text-black/80">
-                  <Icon className="w-3.5 h-3.5" />
-                  {label}
-                </span>
-              ))}
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
-              {["Profile type", "Destination", "Timeline", "Budget"].map((field) => (
-                <div key={field} className="rounded-xl border border-black/12 bg-white px-3 py-2">
-                  <div className="text-[11px] text-black/55">{field}</div>
-                  <div className="text-sm font-semibold text-black/85">Select</div>
-                </div>
-              ))}
-              <Link href="/qualify" className="sm:col-span-2 lg:col-span-1">
-                <Button className="w-full h-full min-h-11 gap-2">Get started <ArrowRight className="w-4 h-4" /></Button>
-              </Link>
-            </div>
-          </motion.div>
         </div>
       </div>
     </section>
@@ -124,7 +93,7 @@ const TRUST = [
 
 function TrustStrip() {
   return (
-    <section className="pt-24 pb-7 border-y border-black/10 bg-white">
+    <section className="py-8 border-y border-black/10 bg-white">
       <div className="section-inner flex flex-wrap justify-center gap-x-10 gap-y-4">
         {TRUST.map(({ label, sub }, i) => (
           <motion.div

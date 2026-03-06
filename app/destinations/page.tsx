@@ -51,7 +51,7 @@ function DestinationCard({ dest }: { dest: (typeof DESTINATIONS)[0] }) {
           src={dest.image}
           alt={`${dest.name} destination guidance`}
           fill
-          sizes="(min-width: 768px) 45vw, 95vw"
+          sizes="(min-width: 1024px) 30vw, (min-width: 768px) 33vw, 95vw"
           className="object-cover transition-transform duration-700 hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/15 to-transparent" />
@@ -91,7 +91,7 @@ function DestinationsContent() {
 
   return (
     <div className="min-h-screen pt-28 pb-24 px-6">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold mb-4">
             <Shield className="w-3.5 h-3.5" /> Destination guides
@@ -109,7 +109,7 @@ function DestinationsContent() {
           )}
         </div>
 
-        <div className="grid md:grid-cols-2 gap-5">
+        <div className="grid md:grid-cols-3 gap-5">
           {DESTINATIONS.map((dest) => (
             <DestinationCard key={dest.id} dest={dest} />
           ))}
