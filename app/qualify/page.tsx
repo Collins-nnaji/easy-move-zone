@@ -533,7 +533,7 @@ export default function QualifyPage() {
                     <h3 className="text-lg font-bold text-black mb-2">Ready to take the next step?</h3>
                     <p className="text-black/70 text-xs mb-5">Book a strategy call or explore our fees to get started.</p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                      <Link href="/fees">
+                      <Link href="/#fees">
                         <Button className="bg-white text-black hover:bg-white/90 gap-2 font-bold w-full sm:w-auto">
                           View fees & packages <ArrowRight className="w-4 h-4" />
                         </Button>

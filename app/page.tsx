@@ -3,12 +3,12 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   Shield, CheckCircle2, ArrowRight, Star,
   BadgeCheck, Globe, MapPin, Plane,
   ListOrdered, Banknote, Sparkles, FileText, GraduationCap, Home,
-  Map, Send, Heart, Quote, Clock3, ScanSearch,
+  Map, Send, Heart, Quote, Clock3, ScanSearch, ChevronDown,
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 
@@ -455,16 +455,72 @@ function SuiteSection() {
 
 /* ── Our fees (teaser) ─────────────────────────────────── */
 function FeesSection() {
+  const [openIndex, setOpenIndex] = React.useState<number>(1)
   const TIERS = [
-    { label: "Assessment Portal", price: "₦25,000 – ₦75,000", note: "AI route simulation and downloadable report", icon: Sparkles, recommended: false },
-    { label: "Migration Strategy", price: "₦800K – ₦2.5M", note: "Roadmap, document review, and application preparation", icon: Map, recommended: true },
-    { label: "Full Concierge", price: "₦4M – ₦15M+", note: "End-to-end migration, education, housing, and landing support", icon: Shield, recommended: false },
-    { label: "Education Placement", price: "Commission-based", note: "Commission earned from partner institutions", icon: GraduationCap, recommended: false },
-    { label: "Forex & Loan Partnerships", price: "Commission-based", note: "Commission earned from vetted finance partners", icon: Banknote, recommended: false },
+    {
+      label: "Assessment Portal",
+      price: "₦25,000 – ₦75,000",
+      summary: "AI route simulation and downloadable report.",
+      icon: Sparkles,
+      recommended: false,
+      details: [
+        "AI migration simulation across UK, Canada, and Europe routes.",
+        "Structured profile review and suitability scoring.",
+        "Downloadable report with route recommendations and next actions.",
+      ],
+    },
+    {
+      label: "Migration Strategy",
+      price: "₦800K – ₦2.5M",
+      summary: "Roadmap, document review, and application preparation.",
+      icon: Map,
+      recommended: true,
+      details: [
+        "Personalised strategy call and migration roadmap.",
+        "Documentation audit and quality improvement guidance.",
+        "Application packaging support and interview preparation.",
+      ],
+    },
+    {
+      label: "Full Concierge",
+      price: "₦4M – ₦15M+",
+      summary: "End-to-end migration, education, housing, and landing support.",
+      icon: Shield,
+      recommended: false,
+      details: [
+        "Hands-on support from eligibility through settlement.",
+        "School placement, accommodation coordination, and onboarding support.",
+        "Integrated execution for clients with complex cross-border needs.",
+      ],
+    },
+    {
+      label: "Education Placement",
+      price: "Commission-based",
+      summary: "Commission earned from partner institutions.",
+      icon: GraduationCap,
+      recommended: false,
+      details: [
+        "Institution matching and admission support for eligible candidates.",
+        "We are paid by partner institutions where applicable.",
+        "No hidden processing fees outside agreed service scope.",
+      ],
+    },
+    {
+      label: "Forex & Loan Partnerships",
+      price: "Commission-based",
+      summary: "Commission earned from vetted finance partners.",
+      icon: Banknote,
+      recommended: false,
+      details: [
+        "Referrals to education loan, FX, and selected insurance partners.",
+        "Funding pathways aligned with destination and profile constraints.",
+        "Partner compensation is commission-based and disclosed.",
+      ],
+    },
   ]
 
   return (
-    <section className="py-20 md:py-24 relative overflow-hidden">
+    <section id="fees" className="py-20 md:py-24 relative overflow-hidden">
       {/* Subtle background accent */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/[0.03] to-background pointer-events-none" />
       <div className="section-inner relative">
@@ -486,41 +542,76 @@ function FeesSection() {
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto"
+          className="max-w-5xl mx-auto space-y-3"
         >
-          {TIERS.map((tier, i) => (
-            <motion.div
-              key={tier.label}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.07 }}
-              whileHover={{ y: -5 }}
-              className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${tier.recommended
-                  ? "bg-card border border-black/15 text-foreground shadow-xl shadow-black/15 ring-2 ring-black/10"
-                  : "bg-card border border-border/60 shadow-sm hover:shadow-md"
-                }`}
-            >
-              {tier.recommended && (
-                <div className="absolute top-0 right-0 bg-white border-l border-b border-black/15 text-black px-3 py-1 rounded-bl-xl text-[10px] font-bold uppercase tracking-wider">
-                  Recommended
-                </div>
-              )}
-              <div className="p-6">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${tier.recommended ? "bg-black/10" : "bg-primary/10"}`}>
-                  <tier.icon className={`w-5 h-5 ${tier.recommended ? "text-black" : "text-primary"}`} />
-                </div>
-                <div className={`text-xs font-bold uppercase tracking-wider mb-2 ${tier.recommended ? "text-black/65" : "text-muted-foreground"}`}>{tier.label}</div>
-                <div className={`text-2xl font-bold tabular-nums mb-2 ${tier.recommended ? "text-black" : "text-foreground"}`}>{tier.price}</div>
-                <p className={`text-sm leading-relaxed ${tier.recommended ? "text-black/75" : "text-muted-foreground"}`}>{tier.note}</p>
-              </div>
-            </motion.div>
-          ))}
+          {TIERS.map((tier, i) => {
+            const isOpen = openIndex === i
+            return (
+              <motion.div
+                key={tier.label}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.06 }}
+                className={`relative rounded-2xl overflow-hidden border transition-all duration-300 ${tier.recommended
+                  ? "border-black/20 shadow-lg shadow-black/10 bg-card"
+                  : "border-border/70 bg-card hover:border-black/20"
+                  }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenIndex(isOpen ? -1 : i)}
+                  className="w-full text-left p-5 md:p-6"
+                  aria-expanded={isOpen}
+                >
+                  {tier.recommended && (
+                    <span className="absolute top-0 right-0 bg-black text-white px-3 py-1 rounded-bl-xl text-[10px] font-bold uppercase tracking-wider">
+                      Recommended
+                    </span>
+                  )}
+                  <div className="flex items-center justify-between gap-4 pr-10">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-black/[0.06] flex items-center justify-center shrink-0">
+                        <tier.icon className="w-5 h-5 text-black" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold uppercase tracking-wider text-black/55 mb-1">{tier.label}</div>
+                        <div className="text-2xl font-bold tabular-nums text-black mb-1">{tier.price}</div>
+                        <p className="text-sm text-black/65">{tier.summary}</p>
+                      </div>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 text-black/60 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                  </div>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: EASE }}
+                      className="overflow-hidden border-t border-black/10"
+                    >
+                      <div className="p-5 md:p-6 pt-4 space-y-2">
+                        {tier.details.map((item) => (
+                          <div key={item} className="flex items-start gap-2 text-sm text-black/70">
+                            <CheckCircle2 className="w-4 h-4 mt-0.5 text-black shrink-0" />
+                            <span>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )
+          })}
         </motion.div>
-        <div className="text-center mt-10">
-          <Link href="/fees">
-            <Button className="gap-2">See full fees <ArrowRight className="w-4 h-4" /></Button>
-          </Link>
+        <div className="text-center mt-8">
+          <p className="text-xs text-muted-foreground">
+            Government visa fees and third-party costs (e.g. flights) are separate and explained before execution.
+          </p>
         </div>
       </div>
     </section>
