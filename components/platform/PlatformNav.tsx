@@ -1,0 +1,91 @@
+"use client"
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { Menu, X } from "lucide-react"
+import { useState } from "react"
+
+const navItems = [
+  { href: "/", label: "Home" },
+  { href: "/services", label: "Services" },
+  { href: "/intelligence", label: "Intelligence" },
+  { href: "/markets", label: "Markets" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+]
+
+export function PlatformNav() {
+  const pathname = usePathname()
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <header className="sticky top-0 z-50 border-b border-black/10 bg-[#f5f0e8]/95 backdrop-blur">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="font-[var(--font-playfair)] text-lg font-black tracking-tight text-[#0d0d0d]">
+          Easy<span className="text-[#c9a84c]">Move</span>Zone
+        </Link>
+
+        <nav className="hidden items-center gap-2 md:flex">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`rounded-full px-3 py-1.5 text-sm transition ${
+                  isActive ? "bg-[#ede8de] text-[#0d0d0d]" : "text-[#6b6560] hover:bg-[#ede8de] hover:text-[#0d0d0d]"
+                }`}
+              >
+                {item.label}
+              </Link>
+            )
+          })}
+          <Link
+            href="/contact?direction=inbound"
+            className="ml-2 rounded-full bg-[#0d0d0d] px-4 py-2 text-sm font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a]"
+          >
+            Start Your Move
+          </Link>
+        </nav>
+
+        <button
+          type="button"
+          className="inline-flex items-center justify-center rounded-lg p-2 text-[#0d0d0d] md:hidden"
+          onClick={() => setIsOpen((prev) => !prev)}
+          aria-label="Toggle menu"
+        >
+          {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+      </div>
+
+      {isOpen ? (
+        <div className="border-t border-black/10 bg-[#f5f0e8] px-4 py-3 md:hidden">
+          <div className="flex flex-col gap-2">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`rounded-lg px-3 py-2 text-sm ${
+                    isActive ? "bg-[#ede8de] text-[#0d0d0d]" : "text-[#6b6560]"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              )
+            })}
+            <Link
+              href="/contact?direction=inbound"
+              onClick={() => setIsOpen(false)}
+              className="mt-1 rounded-full bg-[#0d0d0d] px-4 py-2 text-center text-sm font-medium text-[#f5f0e8]"
+            >
+              Start Your Move
+            </Link>
+          </div>
+        </div>
+      ) : null}
+    </header>
+  )
+}
