@@ -13,6 +13,22 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      { source: "/auth", destination: "/contact#account", permanent: true },
+      { source: "/suite", destination: "/", permanent: true },
+      { source: "/fees", destination: "/services", permanent: true },
+      { source: "/rsa", destination: "/services", permanent: true },
+      { source: "/destinations", destination: "/markets", permanent: true },
+      { source: "/properties", destination: "/", permanent: true },
+      { source: "/how-it-works", destination: "/", permanent: true },
+      { source: "/qualify", destination: "/contact", permanent: true },
+      { source: "/products", destination: "/services", permanent: true },
+      { source: "/nhf", destination: "/services", permanent: true },
+      { source: "/document-support", destination: "/contact", permanent: true },
+      { source: "/calculator", destination: "/contact", permanent: true },
+    ]
+  },
 };
 
 export default nextConfig;

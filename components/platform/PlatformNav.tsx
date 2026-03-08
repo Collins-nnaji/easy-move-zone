@@ -21,7 +21,7 @@ export function PlatformNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-black/10 bg-[#f5f0e8]/95 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="font-[var(--font-playfair)] text-lg font-black tracking-tight text-[#0d0d0d]">
+        <Link href="/" className="font-[var(--font-playfair)] text-xl font-black tracking-tight text-[#0d0d0d]">
           Easy<span className="text-[#c9a84c]">Move</span>Zone
         </Link>
 
@@ -32,7 +32,7 @@ export function PlatformNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-full px-3 py-1.5 text-sm transition ${
+                className={`rounded-full px-3 py-1.5 text-[15px] transition ${
                   isActive ? "bg-[#ede8de] text-[#0d0d0d]" : "text-[#6b6560] hover:bg-[#ede8de] hover:text-[#0d0d0d]"
                 }`}
               >
@@ -41,8 +41,14 @@ export function PlatformNav() {
             )
           })}
           <Link
+            href="/contact#account"
+            className="ml-2 rounded-full border border-black/15 px-4 py-2 text-[15px] font-medium text-[#0d0d0d]"
+          >
+            Sign in
+          </Link>
+          <Link
             href="/contact?direction=inbound"
-            className="ml-2 rounded-full bg-[#0d0d0d] px-4 py-2 text-sm font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a]"
+            className="rounded-full bg-[#0d0d0d] px-4 py-2 text-[15px] font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a]"
           >
             Start Your Move
           </Link>
@@ -68,7 +74,7 @@ export function PlatformNav() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsOpen(false)}
-                  className={`rounded-lg px-3 py-2 text-sm ${
+                  className={`rounded-lg px-3 py-2 text-base ${
                     isActive ? "bg-[#ede8de] text-[#0d0d0d]" : "text-[#6b6560]"
                   }`}
                 >
@@ -77,9 +83,16 @@ export function PlatformNav() {
               )
             })}
             <Link
+              href="/contact#account"
+              onClick={() => setIsOpen(false)}
+              className="rounded-full border border-black/15 px-4 py-2 text-center text-base text-[#0d0d0d]"
+            >
+              Sign in
+            </Link>
+            <Link
               href="/contact?direction=inbound"
               onClick={() => setIsOpen(false)}
-              className="mt-1 rounded-full bg-[#0d0d0d] px-4 py-2 text-center text-sm font-medium text-[#f5f0e8]"
+              className="rounded-full bg-[#0d0d0d] px-4 py-2 text-center text-base font-medium text-[#f5f0e8]"
             >
               Start Your Move
             </Link>

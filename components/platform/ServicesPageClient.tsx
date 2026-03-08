@@ -20,13 +20,13 @@ export function ServicesPageClient({ services, faqs }: ServicesPageClientProps) 
 
   return (
     <>
-      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-black/10 bg-white p-6">
-          <h1 className="font-[var(--font-playfair)] text-5xl font-black leading-tight text-[#0d0d0d]">
+          <h1 className="font-[var(--font-playfair)] text-6xl font-black leading-[0.95] text-[#0d0d0d]">
             Every service built to remove one thing — friction.
           </h1>
-          <p className="mt-3 max-w-2xl text-sm text-[#6b6560]">
-            Pick your direction and we will surface the services, timelines, and price ranges most relevant to your move.
+          <p className="mt-3 max-w-2xl text-base text-[#6b6560]">
+            Pick your direction. We will show the exact services, timelines, and pricing bands that fit your move.
           </p>
           <div className="mt-6 inline-flex rounded-full border border-black/10 bg-[#ede8de] p-1">
             <button
@@ -47,11 +47,11 @@ export function ServicesPageClient({ services, faqs }: ServicesPageClientProps) 
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <ServiceRecommender />
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((service) => (
             <article key={service.id} className="rounded-2xl border border-black/10 bg-white p-5">
@@ -79,8 +79,8 @@ export function ServicesPageClient({ services, faqs }: ServicesPageClientProps) 
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
-        <h2 className="font-[var(--font-playfair)] text-4xl font-black text-[#0d0d0d]">Pricing</h2>
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
+        <h2 className="font-[var(--font-playfair)] text-5xl font-black text-[#0d0d0d]">Pricing</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-black/10 bg-white p-5">
             <p className="text-xs uppercase tracking-wider text-[#6b6560]">Explorer</p>
@@ -103,8 +103,8 @@ export function ServicesPageClient({ services, faqs }: ServicesPageClientProps) 
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        <h2 className="font-[var(--font-playfair)] text-4xl font-black text-[#0d0d0d]">FAQ</h2>
+      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+        <h2 className="font-[var(--font-playfair)] text-5xl font-black text-[#0d0d0d]">FAQ</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {faqs.map((faq) => (
             <details key={faq.id} className="rounded-xl border border-black/10 bg-white p-4">

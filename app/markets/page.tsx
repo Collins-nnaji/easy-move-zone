@@ -10,21 +10,21 @@ export default async function MarketsPage() {
 
   return (
     <PublicShell>
-      <section className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a84c]">Markets</p>
-        <h1 className="mt-2 font-[var(--font-playfair)] text-5xl font-black text-[#0d0d0d]">
+        <h1 className="mt-2 font-[var(--font-playfair)] text-6xl font-black text-[#0d0d0d]">
           We operate where the opportunity is.
         </h1>
-        <p className="mt-3 max-w-2xl text-sm text-[#6b6560]">
-          Explore active markets, corridor dynamics, and current intelligence coverage with live data from the platform.
+        <p className="mt-3 max-w-2xl text-base text-[#6b6560]">
+          See where we are active, what is moving, and where new corridors are opening.
         </p>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <MarketsMap markets={markets} corridors={corridors} reports={reports} />
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <MarketComparisonTool markets={markets.filter((market) => market.status === "active")} />
       </section>
 

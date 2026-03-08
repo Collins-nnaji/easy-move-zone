@@ -34,12 +34,12 @@ export function IntelligencePageClient({ markets, reports }: IntelligencePageCli
   return (
     <>
       <section className="border-b border-black/10 bg-[#ede8de]">
-        <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-          <h1 className="font-[var(--font-playfair)] text-5xl font-black leading-tight text-[#0d0d0d]">
+        <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <h1 className="font-[var(--font-playfair)] text-6xl font-black leading-[0.95] text-[#0d0d0d]">
             Know your terrain before you move.
           </h1>
-          <p className="mt-4 max-w-2xl text-sm text-[#6b6560]">
-            Intelligence reports designed to reduce blind spots and improve market entry decisions.
+          <p className="mt-3 max-w-2xl text-base text-[#6b6560]">
+            Use clear market intelligence before spending on expansion.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <a href="#reports" className="rounded-full bg-[#0d0d0d] px-5 py-2.5 text-sm text-[#f5f0e8]">Browse Reports</a>
@@ -48,7 +48,7 @@ export function IntelligencePageClient({ markets, reports }: IntelligencePageCli
         </div>
       </section>
 
-      <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+      <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
         <div>
           <div className="rounded-2xl border border-black/10 bg-white p-4">
             <h2 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">Search & Filter</h2>
@@ -107,7 +107,7 @@ export function IntelligencePageClient({ markets, reports }: IntelligencePageCli
         <IntelligenceChatbot />
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-black/10 bg-white p-5">
           <h3 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">Free sample download</h3>
           <p className="mt-2 text-sm text-[#6b6560]">

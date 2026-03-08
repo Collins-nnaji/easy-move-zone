@@ -24,23 +24,23 @@ export default async function HomePage() {
   return (
     <PublicShell>
       <section className="border-b border-black/10 bg-[#f5f0e8]">
-        <div className="mx-auto grid w-full max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
+        <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-16">
           <div>
             <span className="inline-flex items-center rounded-full border border-[#c9a84c]/40 bg-[#ede8de] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#6b6560]">
               Trade Bridge · Africa & World
             </span>
-            <h1 className="mt-6 font-[var(--font-playfair)] text-5xl font-black leading-[0.95] tracking-tight text-[#0d0d0d] md:text-7xl">
+            <h1 className="mt-5 font-[var(--font-playfair)] text-6xl font-black leading-[0.92] tracking-tight text-[#0d0d0d] md:text-8xl">
               Your market move, <em className="text-[#c9a84c]">guided.</em>
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-[#6b6560]">
-              EasyMoveZone helps foreign businesses enter African markets and helps African businesses
-              expand globally. One platform for intelligence, execution, and growth advisory.
+            <p className="mt-4 max-w-xl text-lg leading-8 text-[#6b6560]">
+              One platform for two moves: entering Africa, or taking African businesses global.
+              We provide market intelligence, local execution, and ongoing advisory.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/contact?direction=inbound" className="rounded-full bg-[#0d0d0d] px-6 py-3 text-sm font-medium text-[#f5f0e8]">
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href="/contact?direction=inbound" className="rounded-full bg-[#0d0d0d] px-6 py-3 text-base font-medium text-[#f5f0e8]">
                 I want to enter Africa
               </Link>
-              <Link href="/contact?direction=outbound" className="rounded-full border border-black/15 px-6 py-3 text-sm font-medium text-[#0d0d0d]">
+              <Link href="/contact?direction=outbound" className="rounded-full border border-black/15 px-6 py-3 text-base font-medium text-[#0d0d0d]">
                 I want to go global
               </Link>
             </div>
@@ -76,7 +76,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <DirectionDetector />
       </section>
 
@@ -103,10 +103,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="mb-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a84c]">Live Corridor Feed</p>
-          <h2 className="mt-2 font-[var(--font-playfair)] text-4xl font-black text-[#0d0d0d]">Active trade momentum</h2>
+          <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-black text-[#0d0d0d]">Active trade momentum</h2>
         </div>
         <div className="overflow-hidden rounded-2xl border border-black/10 bg-white">
           <table className="w-full text-left text-sm">
@@ -140,7 +140,7 @@ export default async function HomePage() {
         <div className="mb-6 flex items-end justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a84c]">Featured Markets</p>
-            <h2 className="mt-2 font-[var(--font-playfair)] text-4xl font-black text-[#0d0d0d]">Where we are active</h2>
+            <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-black text-[#0d0d0d]">Where we are active</h2>
           </div>
           <Link href="/markets" className="text-sm font-medium text-[#0d0d0d] underline">
             View all market intelligence
@@ -166,7 +166,7 @@ export default async function HomePage() {
         <TestimonialsRotator testimonials={testimonials.slice(0, 3)} corridors={corridors} />
         <div className="rounded-2xl border border-black/10 bg-white p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a84c]">Newsletter Signup</p>
-          <h3 className="mt-2 font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">Monthly intelligence on African markets. No noise.</h3>
+          <h3 className="mt-2 font-[var(--font-playfair)] text-4xl font-bold text-[#0d0d0d]">Monthly intelligence on African markets. No noise.</h3>
           <p className="mt-2 text-sm text-[#6b6560]">One field. One click. Insight, not inbox clutter.</p>
           <div className="mt-5">
             <NewsletterSignupForm />

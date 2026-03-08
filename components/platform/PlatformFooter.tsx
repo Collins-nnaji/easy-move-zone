@@ -26,8 +26,7 @@ export function PlatformFooter() {
           <h4 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#f5f0e8]/45">Company</h4>
           <ul className="space-y-2 text-sm text-[#f5f0e8]/70">
             <li><Link href="/contact">Contact</Link></li>
-            <li><Link href="/auth">Client Portal</Link></li>
-            <li><Link href="/dashboard/admin">Admin Dashboard</Link></li>
+            <li><Link href="/contact#account">Sign up / Sign in</Link></li>
             <li><Link href="/dashboard/client">Client Dashboard</Link></li>
           </ul>
         </div>

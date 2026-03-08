@@ -13,18 +13,18 @@ export default async function AboutPage() {
   return (
     <PublicShell>
       <section className="bg-[#0d0d0d]">
-        <div className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e8c96a]">Our Story</p>
-          <h1 className="mt-3 font-[var(--font-playfair)] text-5xl font-black leading-tight text-[#f5f0e8] md:text-7xl">
+          <h1 className="mt-3 font-[var(--font-playfair)] text-6xl font-black leading-[0.95] text-[#f5f0e8] md:text-8xl">
             Built on the belief that every great move changes everything.
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-[#f5f0e8]/70">
-            EasyMoveZone was born from a conviction: bold movement, guided by wisdom, can become a blessing across markets and families.
+          <p className="mt-3 max-w-2xl text-base leading-8 text-[#f5f0e8]/70">
+            EasyMoveZone exists for businesses that know they should move, but want to move wisely.
           </p>
         </div>
       </section>
 
-      <section className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8">
+      <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:px-8">
         <article className="rounded-2xl border border-black/10 bg-[#1a3a2a] p-6 text-[#f5f0e8]">
           <blockquote className="font-[var(--font-playfair)] text-3xl italic leading-relaxed">
             “Go from your country, your people and your father&apos;s household to the land I will show you.”
@@ -42,7 +42,7 @@ export default async function AboutPage() {
         </article>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-black/10 bg-white p-7 text-center">
           <p className="font-[var(--font-playfair)] text-4xl font-black text-[#0d0d0d]">
             “To be the most trusted crossing point between African markets and the world.”
@@ -50,7 +50,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 pb-12 sm:px-6 lg:grid-cols-2 lg:px-8">
+      <section className="mx-auto grid w-full max-w-7xl gap-4 px-4 pb-8 sm:px-6 lg:grid-cols-2 lg:px-8">
         <article className="rounded-2xl border border-black/10 bg-white p-6">
           <h3 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">Why inbound matters</h3>
           <p className="mt-3 text-sm leading-7 text-[#6b6560]">
@@ -65,7 +65,7 @@ export default async function AboutPage() {
         </article>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <h2 className="font-[var(--font-playfair)] text-4xl font-black text-[#0d0d0d]">Team</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {team.map((member) => (
@@ -81,7 +81,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <h2 className="font-[var(--font-playfair)] text-4xl font-black text-[#0d0d0d]">Advisors</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {advisors.map((advisor) => (
@@ -94,7 +94,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <h2 className="font-[var(--font-playfair)] text-4xl font-black text-[#0d0d0d]">Values</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {values.map((value) => (
@@ -107,7 +107,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <h2 className="font-[var(--font-playfair)] text-4xl font-black text-[#0d0d0d]">Press & recognition</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           {press.map((item) => (

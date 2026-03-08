@@ -182,7 +182,7 @@ export function Header() {
                 </div>
               ) : (
                 <>
-                  <Link href="/auth">
+                  <Link href="/contact#account">
                     <Button size="sm" variant="outline">Log in</Button>
                   </Link>
                   <Link href="/suite">
@@ -250,7 +250,7 @@ export function Header() {
                   </>
                 ) : (
                   <>
-                    <Link href="/auth" onClick={() => setIsMenuOpen(false)}>
+                    <Link href="/contact#account" onClick={() => setIsMenuOpen(false)}>
                       <Button variant="outline" className="w-full">Log in</Button>
                     </Link>
                     <Link href="/suite" onClick={() => setIsMenuOpen(false)}>
