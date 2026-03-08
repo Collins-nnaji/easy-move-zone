@@ -57,6 +57,30 @@ const JOURNEY = [
   { title: "Funding", detail: "Budget structure and proof-of-funds planning.", icon: Compass },
 ]
 
+const USE_CASE_PATHWAYS = [
+  {
+    title: "For work relocation",
+    summary: "Screen route fit, align sponsor/employer evidence, and sequence timeline-critical documents first.",
+    steps: ["Run assessment", "Open document support", "Validate total costs"],
+    href: "/qualify",
+    cta: "Start work route check",
+  },
+  {
+    title: "For study relocation",
+    summary: "Track admission evidence, tuition/funding readiness, and study-route supporting documents in one space.",
+    steps: ["Check eligibility", "Plan funds", "Prepare study dossier"],
+    href: "/document-support",
+    cta: "Start study document prep",
+  },
+  {
+    title: "For business mobility",
+    summary: "Coordinate business profile evidence, compliance records, and destination-specific investment documents.",
+    steps: ["Match business pathway", "Structure documents", "Review route strategy"],
+    href: "/#routes",
+    cta: "See business route strategies",
+  },
+]
+
 export default function SuitePage() {
   return (
     <div className="min-h-screen pt-28 pb-24 px-6">
@@ -80,6 +104,18 @@ export default function SuitePage() {
             Positioning EMZ Suite as a practical platform for anybody planning international travel or relocation for work, study, or business.
             Use tools, document support, and strategy guidance in one flow.
           </p>
+          <div className="mt-6 grid sm:grid-cols-3 gap-3">
+            {[
+              { label: "Core tools", value: "4" },
+              { label: "Journey stages covered", value: "5" },
+              { label: "Use cases", value: "Work · Study · Business" },
+            ].map((item) => (
+              <div key={item.label} className="rounded-xl border border-black/10 bg-white p-3">
+                <div className="text-[11px] uppercase tracking-wider text-black/55 font-semibold">{item.label}</div>
+                <div className="text-sm font-bold text-black mt-0.5">{item.value}</div>
+              </div>
+            ))}
+          </div>
         </motion.section>
 
         <section className="mb-14">
@@ -132,6 +168,32 @@ export default function SuitePage() {
                 <div className="font-bold text-black text-sm mb-1">{title}</div>
                 <p className="text-xs text-black/60">{detail}</p>
               </motion.div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-12 rounded-3xl border border-black/10 bg-white p-6 md:p-8 shadow-[0_24px_54px_-38px_rgba(0,0,0,0.45)]">
+          <h2 className="display-title text-3xl md:text-5xl text-black mb-3">Use-case pathways</h2>
+          <p className="text-black/70 mb-6">
+            Choose a pathway by intent and follow a structured sequence instead of navigating tools randomly.
+          </p>
+          <div className="grid md:grid-cols-3 gap-4">
+            {USE_CASE_PATHWAYS.map(({ title, summary, steps, href, cta }) => (
+              <article key={title} className="rounded-2xl border border-black/10 bg-white p-5">
+                <h3 className="text-lg font-bold text-black mb-2">{title}</h3>
+                <p className="text-sm text-black/65 leading-relaxed mb-4">{summary}</p>
+                <ul className="space-y-1.5 mb-4">
+                  {steps.map((step) => (
+                    <li key={step} className="text-xs text-black/70 inline-flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-black/70" />
+                      {step}
+                    </li>
+                  ))}
+                </ul>
+                <Link href={href} className="inline-flex items-center gap-1 text-sm font-semibold text-black hover:text-black/80">
+                  {cta} <ArrowRight className="w-4 h-4" />
+                </Link>
+              </article>
             ))}
           </div>
         </section>

@@ -9,6 +9,9 @@ import {
   FileText,
   FolderPlus,
   Info,
+  RotateCcw,
+  Search,
+  Trash2,
   UploadCloud,
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
@@ -28,6 +31,9 @@ interface DocItem {
 }
 
 const EASE = [0.16, 1, 0.3, 1] as const
+const STORAGE_PREFIX = "emz-doc-workspace"
+const PREFERENCES_KEY = `${STORAGE_PREFIX}:preferences`
+type DocFilter = "all" | "required" | DocStatus
 
 const ROUTE_LABELS: Record<RouteKey, string> = {
   uk: "United Kingdom",
@@ -91,6 +97,33 @@ function buildChecklist(route: RouteKey, purpose: PurposeKey): DocItem[] {
   }))
 }
 
+function storageKey(route: RouteKey, purpose: PurposeKey) {
+  return `${STORAGE_PREFIX}:${route}:${purpose}`
+}
+
+function sanitizeStoredItems(payload: unknown): DocItem[] | null {
+  if (!Array.isArray(payload)) return null
+  const valid: DocStatus[] = ["missing", "uploaded", "needs_fix", "approved"]
+  const normalized = payload
+    .map((item): DocItem | null => {
+      if (!item || typeof item !== "object") return null
+      const source = item as Partial<DocItem>
+      if (!source.id || !source.name || !source.reason) return null
+      if (!source.status || !valid.includes(source.status)) return null
+      return {
+        id: String(source.id),
+        name: String(source.name),
+        reason: String(source.reason),
+        status: source.status,
+        notes: typeof source.notes === "string" ? source.notes : "",
+        files: Array.isArray(source.files) ? source.files.map(String) : [],
+        required: Boolean(source.required),
+      }
+    })
+    .filter((item): item is DocItem => item !== null)
+  return normalized.length ? normalized : null
+}
+
 function statusPill(status: DocStatus) {
   if (status === "approved") return "bg-black text-white"
   if (status === "uploaded") return "bg-black/[0.08] text-black"
@@ -103,14 +136,69 @@ export default function DocumentSupportPage() {
   const [purpose, setPurpose] = React.useState<PurposeKey>("work")
   const [items, setItems] = React.useState<DocItem[]>(() => buildChecklist("uk", "work"))
   const [customDoc, setCustomDoc] = React.useState("")
+  const [query, setQuery] = React.useState("")
+  const [filter, setFilter] = React.useState<DocFilter>("all")
 
   React.useEffect(() => {
-    setItems(buildChecklist(route, purpose))
+    try {
+      const cachedPreferences = window.localStorage.getItem(PREFERENCES_KEY)
+      if (!cachedPreferences) return
+      const parsed = JSON.parse(cachedPreferences) as { route?: RouteKey; purpose?: PurposeKey }
+      if (parsed.route) setRoute(parsed.route)
+      if (parsed.purpose) setPurpose(parsed.purpose)
+    } catch {
+      // Ignore localStorage parsing errors and continue with defaults.
+    }
+  }, [])
+
+  React.useEffect(() => {
+    try {
+      window.localStorage.setItem(PREFERENCES_KEY, JSON.stringify({ route, purpose }))
+    } catch {
+      // Ignore localStorage write issues in restricted browsers.
+    }
   }, [route, purpose])
+
+  React.useEffect(() => {
+    try {
+      const cached = window.localStorage.getItem(storageKey(route, purpose))
+      if (!cached) {
+        setItems(buildChecklist(route, purpose))
+        return
+      }
+      const parsed = sanitizeStoredItems(JSON.parse(cached))
+      setItems(parsed ?? buildChecklist(route, purpose))
+    } catch {
+      setItems(buildChecklist(route, purpose))
+    }
+    setQuery("")
+    setFilter("all")
+  }, [route, purpose])
+
+  React.useEffect(() => {
+    try {
+      window.localStorage.setItem(storageKey(route, purpose), JSON.stringify(items))
+    } catch {
+      // Ignore localStorage write issues in restricted browsers.
+    }
+  }, [items, route, purpose])
 
   const uploaded = items.filter((x) => x.status === "uploaded" || x.status === "approved").length
   const approved = items.filter((x) => x.status === "approved").length
+  const needsFix = items.filter((x) => x.status === "needs_fix").length
+  const requiredMissing = items.filter((x) => x.required && x.status === "missing").length
   const progress = items.length ? Math.round((uploaded / items.length) * 100) : 0
+  const filteredItems = React.useMemo(() => {
+    return items.filter((item) => {
+      const matchesText = query.trim()
+        ? `${item.name} ${item.reason} ${item.notes}`.toLowerCase().includes(query.trim().toLowerCase())
+        : true
+      if (!matchesText) return false
+      if (filter === "all") return true
+      if (filter === "required") return item.required
+      return item.status === filter
+    })
+  }, [items, query, filter])
 
   function updateItem(id: string, patch: Partial<DocItem>) {
     setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...patch } : item)))
@@ -137,6 +225,10 @@ export default function DocumentSupportPage() {
       },
     ])
     setCustomDoc("")
+  }
+
+  function resetCurrentChecklist() {
+    setItems(buildChecklist(route, purpose))
   }
 
   return (
@@ -197,6 +289,14 @@ export default function DocumentSupportPage() {
               <div className="text-xs text-black/60 mb-1">Fully approved</div>
               <div className="text-xl font-bold text-black">{approved}</div>
             </div>
+            <div className="rounded-xl border border-black/10 p-4 bg-white">
+              <div className="text-xs text-black/60 mb-1">Required still missing</div>
+              <div className="text-xl font-bold text-black">{requiredMissing}</div>
+            </div>
+            <div className="rounded-xl border border-black/10 p-4 bg-white">
+              <div className="text-xs text-black/60 mb-1">Needs fix</div>
+              <div className="text-xl font-bold text-black">{needsFix}</div>
+            </div>
           </div>
 
           <div className="mt-4 rounded-xl border border-black/10 p-3">
@@ -211,12 +311,62 @@ export default function DocumentSupportPage() {
         </motion.section>
 
         <section className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <FolderPlus className="w-4 h-4 text-black" />
-            <h2 className="text-lg font-bold text-black">Checklist</h2>
+          <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+            <div className="flex items-center gap-2">
+              <FolderPlus className="w-4 h-4 text-black" />
+              <h2 className="text-lg font-bold text-black">Checklist</h2>
+              <span className="text-xs text-black/60">Showing {filteredItems.length} of {items.length}</span>
+            </div>
+            <button
+              type="button"
+              onClick={resetCurrentChecklist}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-black/70 hover:text-black transition-colors rounded-lg border border-black/15 px-2.5 py-1.5"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset current checklist
+            </button>
           </div>
+
+          <div className="rounded-xl border border-black/10 bg-white p-3 mb-3">
+            <div className="grid md:grid-cols-[1fr_auto] gap-3">
+              <label className="relative">
+                <Search className="w-4 h-4 text-black/45 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search documents, notes, or reasons"
+                  className="w-full rounded-lg border border-black/15 bg-white pl-9 pr-3 py-2 text-sm text-black"
+                />
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { value: "all", label: "All" },
+                  { value: "required", label: "Required" },
+                  { value: "missing", label: "Missing" },
+                  { value: "uploaded", label: "Uploaded" },
+                  { value: "needs_fix", label: "Needs fix" },
+                  { value: "approved", label: "Approved" },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setFilter(option.value as DocFilter)}
+                    className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold border transition-colors ${
+                      filter === option.value
+                        ? "bg-black text-white border-black"
+                        : "bg-white text-black/70 border-black/15 hover:text-black"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-3">
-            {items.map((item, index) => (
+            {filteredItems.map((item, index) => (
               <motion.article
                 key={item.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -231,9 +381,21 @@ export default function DocumentSupportPage() {
                     <h3 className="font-semibold text-black">{item.name}</h3>
                     {item.required && <span className="text-[10px] font-bold uppercase tracking-wider rounded-full bg-black text-white px-2 py-0.5">Required</span>}
                   </div>
-                  <span className={`text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 ${statusPill(item.status)}`}>
-                    {item.status.replace("_", " ")}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 ${statusPill(item.status)}`}>
+                      {item.status.replace("_", " ")}
+                    </span>
+                    {item.id.startsWith("custom-") && (
+                      <button
+                        type="button"
+                        onClick={() => setItems((prev) => prev.filter((doc) => doc.id !== item.id))}
+                        className="inline-flex items-center justify-center rounded-md border border-black/15 text-black/60 hover:text-black w-7 h-7"
+                        aria-label={`Remove ${item.name}`}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <p className="text-xs text-black/60 mb-3">{item.reason}</p>
@@ -282,6 +444,11 @@ export default function DocumentSupportPage() {
               </motion.article>
             ))}
           </div>
+          {filteredItems.length === 0 && (
+            <div className="rounded-xl border border-dashed border-black/20 bg-white p-6 text-center text-sm text-black/60">
+              No checklist items match this filter.
+            </div>
+          )}
         </section>
 
         <section className="rounded-2xl border border-black/10 bg-white p-5">

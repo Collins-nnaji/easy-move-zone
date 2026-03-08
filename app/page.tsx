@@ -74,6 +74,11 @@ function HeroSection() {
                     <ListOrdered className="w-4 h-4" /> Open suite
                   </Button>
                 </Link>
+                <Link href="/document-support">
+                  <Button size="lg" variant="outline" className="gap-2">
+                    <FileText className="w-4 h-4" /> Document workspace
+                  </Button>
+                </Link>
               </div>
             </motion.div>
           </div>
@@ -427,10 +432,10 @@ function SuiteSection() {
         >
           <span className="text-xs font-semibold text-primary uppercase tracking-wider">EMZ suite</span>
           <h2 className="display-title text-4xl md:text-5xl font-bold text-foreground mt-2 mb-3">
-            Built around the core migration workflow
+            Tools + document support in one operating flow
           </h2>
           <p className="text-muted-foreground text-lg">
-            Intelligence, visa planning, school placement, accommodation, and funding presented as one integrated client journey.
+            Start with eligibility, organize documents, map route strategy, and validate costs without leaving the same workflow.
           </p>
         </motion.div>
 
@@ -475,9 +480,14 @@ function SuiteSection() {
         </div>
 
         <div className="text-center mt-10">
-          <Link href="/suite">
-            <Button className="gap-2">Open full EMZ Suite <ArrowRight className="w-4 h-4" /></Button>
-          </Link>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link href="/suite">
+              <Button className="gap-2">Open full EMZ Suite <ArrowRight className="w-4 h-4" /></Button>
+            </Link>
+            <Link href="/document-support">
+              <Button variant="outline" className="gap-2">Open document workspace</Button>
+            </Link>
+          </div>
         </div>
       </div>
     </section>
