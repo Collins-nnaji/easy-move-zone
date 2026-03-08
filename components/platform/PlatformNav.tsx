@@ -41,7 +41,7 @@ export function PlatformNav() {
             )
           })}
           <Link
-            href="/contact#account"
+            href="/auth"
             className="ml-2 rounded-full border border-black/15 px-4 py-2 text-[15px] font-medium text-[#0d0d0d]"
           >
             Sign in
@@ -83,7 +83,7 @@ export function PlatformNav() {
               )
             })}
             <Link
-              href="/contact#account"
+              href="/auth"
               onClick={() => setIsOpen(false)}
               className="rounded-full border border-black/15 px-4 py-2 text-center text-base text-[#0d0d0d]"
             >

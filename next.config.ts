@@ -15,7 +15,6 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      { source: "/auth", destination: "/contact#account", permanent: true },
       { source: "/suite", destination: "/", permanent: true },
       { source: "/fees", destination: "/services", permanent: true },
       { source: "/rsa", destination: "/services", permanent: true },

@@ -7,6 +7,6 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const { session, user } = await neonAuth()
-  if (!session || !user) redirect("/contact?view=account&redirect=/dashboard/client")
+  if (!session || !user) redirect("/auth?redirect=/dashboard/client")
   return <>{children}</>
 }
