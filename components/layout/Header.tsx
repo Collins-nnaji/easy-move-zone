@@ -11,9 +11,9 @@ import { motion, AnimatePresence } from "framer-motion"
 import { authClient } from "@/lib/auth/client"
 
 const TICKER_ITEMS = [
-  "Migration Intelligence & Relocation Strategy · Lagos · Abuja · Port Harcourt · ",
-  "AI-powered migration scoring · Visa strategy · UK · Canada · Europe · ",
-  "Tool + document support for work, study, business & travel · From decision to settlement · ",
+  "EasyMoveZone · AI-powered document support + tools platform · ",
+  "Travel and relocation workflow for work, study, business, and global movement · ",
+  "Start on landing page · Continue in EMZ Suite workspace · ",
 ]
 
 function AnnouncementTicker() {
@@ -185,9 +185,9 @@ export function Header() {
                   <Link href="/auth">
                     <Button size="sm" variant="outline">Log in</Button>
                   </Link>
-                  <Link href="/qualify">
+                  <Link href="/suite">
                     <Button size="sm" className="gap-1.5">
-                      <Zap className="w-3.5 h-3.5" /> Get assessed
+                      <Zap className="w-3.5 h-3.5" /> Open Suite
                     </Button>
                   </Link>
                 </>
@@ -253,9 +253,9 @@ export function Header() {
                     <Link href="/auth" onClick={() => setIsMenuOpen(false)}>
                       <Button variant="outline" className="w-full">Log in</Button>
                     </Link>
-                    <Link href="/qualify" onClick={() => setIsMenuOpen(false)}>
+                    <Link href="/suite" onClick={() => setIsMenuOpen(false)}>
                       <Button className="w-full gap-1.5">
-                        <Zap className="w-3.5 h-3.5" /> Get assessed
+                        <Zap className="w-3.5 h-3.5" /> Open Suite
                       </Button>
                     </Link>
                   </>

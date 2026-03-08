@@ -10,11 +10,11 @@ import { Button } from "@/components/ui/Button"
 
 /* ── Tool links ─────────────────────────────────────── */
 const TOOL_LINKS = [
-  { href: "/qualify", label: "Get assessed", desc: "Submit your profile for assessment", icon: CheckCircle2, color: "bg-primary/10 text-primary" },
+  { href: "/suite", label: "EMZ Suite", desc: "Main workspace for all tools", icon: FileText, color: "bg-secondary/10 text-secondary" },
+  { href: "/qualify", label: "Get assessed", desc: "Submit your profile for AI route assessment", icon: CheckCircle2, color: "bg-primary/10 text-primary" },
   { href: "/document-support", label: "Document support", desc: "Checklist, uploads, and status tracking", icon: FolderOpen, color: "bg-primary/10 text-primary" },
-  { href: "/suite", label: "EMZ Suite", desc: "Services + process in one place", icon: FileText, color: "bg-secondary/10 text-secondary" },
-  { href: "/#fees", label: "Fees", desc: "Transparent pricing", icon: Calculator, color: "bg-accent/10 text-accent-foreground" },
-  { href: "/#routes", label: "Route strategies", desc: "UK, Canada, Europe", icon: Globe, color: "bg-muted" },
+  { href: "/calculator", label: "Budget calculator", desc: "Plan relocation costs and funding readiness", icon: Calculator, color: "bg-accent/10 text-accent-foreground" },
+  { href: "/qualify", label: "Route intelligence", desc: "Compare likely UK, Canada, and Europe pathways", icon: Globe, color: "bg-muted" },
 ]
 
 export default function DashboardPage() {

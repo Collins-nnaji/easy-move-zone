@@ -172,9 +172,9 @@ export default function CalculatorPage() {
                 Check destination fit <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
-            <Link href="/#routes">
+            <Link href="/suite">
               <Button variant="outline" className="gap-2">
-                Route strategies
+                Open suite workspace
               </Button>
             </Link>
           </div>

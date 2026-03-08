@@ -4,11 +4,10 @@ import { Zap, MapPin } from "lucide-react"
 export function Footer() {
   const navigation = {
     product: [
+      { name: "Open EMZ Suite", href: "/suite" },
       { name: "Get assessed", href: "/qualify" },
+      { name: "Budget calculator", href: "/calculator" },
       { name: "Document support", href: "/document-support" },
-      { name: "EMZ Suite (All-in-one)", href: "/suite" },
-      { name: "Fees", href: "/#fees" },
-      { name: "Route strategies", href: "/#routes" },
     ],
     markets: [
       { name: "Lagos", href: "#" },
@@ -41,7 +40,7 @@ export function Footer() {
               <span className="text-lg font-bold tracking-tight">EasyMoveZone</span>
             </div>
             <p className="text-sm leading-6 text-muted-foreground max-w-xs">
-              Migration Intelligence & Relocation Strategy Firm. Data-driven migration scoring, visa strategy, and settlement support for Nigerian professionals, students, and families.
+              AI-powered document processing support and travel/relocation tools platform for work, study, business, and global movement planning.
             </p>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <MapPin className="w-3.5 h-3.5 text-primary" />
@@ -111,7 +110,7 @@ export function Footer() {
             &copy; {new Date().getFullYear()} EasyMoveZone Nigeria Ltd. RC 1234567. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground max-w-sm text-right">
-            Migration intelligence and relocation strategy. Structured process, transparent fees, and data-driven advisory.
+            Landing page intro plus a practical suite workspace for assessment, document support, and relocation planning.
           </p>
         </div>
 

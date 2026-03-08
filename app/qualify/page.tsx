@@ -37,12 +37,11 @@ function StepBar({ step }: { step: number }) {
 
 /* ── Pill selector ─────────────────────────────────────── */
 function PillGroup<T extends string>({
-  options, value, onChange, multi = false,
+  options, value, onChange,
 }: {
   options: { label: string; value: T }[]
   value: T | T[]
   onChange: (v: T) => void
-  multi?: boolean
 }) {
   const isSelected = (v: T) => Array.isArray(value) ? value.includes(v) : value === v
   return (
@@ -531,16 +530,16 @@ export default function QualifyPage() {
                   {/* CTA buttons */}
                   <div className="bg-white border border-black/12 rounded-2xl p-6 text-center shadow-[0_18px_44px_-26px_rgba(0,0,0,0.35)]">
                     <h3 className="text-lg font-bold text-black mb-2">Ready to take the next step?</h3>
-                    <p className="text-black/70 text-xs mb-5">Book a strategy call or explore our fees to get started.</p>
+                    <p className="text-black/70 text-xs mb-5">Move into the Suite workspace to organize documents and execute your route plan.</p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                      <Link href="/#fees">
+                      <Link href="/suite">
                         <Button className="bg-white text-black hover:bg-white/90 gap-2 font-bold w-full sm:w-auto">
-                          View fees & packages <ArrowRight className="w-4 h-4" />
+                          Open EMZ Suite <ArrowRight className="w-4 h-4" />
                         </Button>
                       </Link>
-                      <Link href="/suite">
+                      <Link href="/document-support">
                         <Button variant="outline" className="border-black/20 text-black hover:bg-black/5 gap-2 w-full sm:w-auto">
-                          Suite overview
+                          Open document support
                         </Button>
                       </Link>
                     </div>
@@ -548,7 +547,7 @@ export default function QualifyPage() {
 
                   {/* Trust strip */}
                   <div className="text-center text-xs text-muted-foreground py-4 flex flex-wrap justify-center gap-4">
-                    {["AI-powered results", "Transparent fees", "Start to finish", "We guide you"].map((t) => (
+                    {["AI-powered results", "Document support", "Start to finish", "Suite workflow"].map((t) => (
                       <span key={t} className="flex items-center gap-1">
                         <Star className="w-3 h-3 text-accent" /> {t}
                       </span>
@@ -560,8 +559,8 @@ export default function QualifyPage() {
                     <Button variant="outline" onClick={handleReset} className="flex-1 gap-2">
                       <RotateCcw className="w-4 h-4" /> Start new assessment
                     </Button>
-                    <Link href="/#routes" className="flex-1">
-                      <Button className="w-full gap-1.5">View route strategies <ArrowRight className="w-4 h-4" /></Button>
+                    <Link href="/suite" className="flex-1">
+                      <Button className="w-full gap-1.5">Go to Suite <ArrowRight className="w-4 h-4" /></Button>
                     </Link>
                   </div>
                 </>

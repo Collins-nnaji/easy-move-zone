@@ -41,11 +41,11 @@ const TOOL_CARDS = [
     cta: "Open calculator",
   },
   {
-    title: "Route strategies",
-    desc: "Review migration strategies for UK, Canada, and Europe routes on homepage.",
-    href: "/#routes",
+    title: "Route intelligence",
+    desc: "Use assessment insights to compare likely pathways and strengthen your next move.",
+    href: "/qualify",
     icon: MapPinned,
-    cta: "View route strategies",
+    cta: "Review route intelligence",
   },
 ]
 
@@ -76,8 +76,8 @@ const USE_CASE_PATHWAYS = [
     title: "For business mobility",
     summary: "Coordinate business profile evidence, compliance records, and destination-specific investment documents.",
     steps: ["Match business pathway", "Structure documents", "Review route strategy"],
-    href: "/#routes",
-    cta: "See business route strategies",
+    href: "/qualify",
+    cta: "Assess business pathway",
   },
 ]
 
