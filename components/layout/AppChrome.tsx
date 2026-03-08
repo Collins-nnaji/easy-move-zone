@@ -1,29 +1,30 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { Header } from "@/components/layout/Header"
-import { Footer } from "@/components/layout/Footer"
+import { PlatformNav } from "@/components/platform/PlatformNav"
+import { PlatformFooter } from "@/components/platform/PlatformFooter"
 
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const hideLegacyChrome =
+  const pageHasOwnChrome =
     pathname === "/" ||
     pathname === "/services" ||
     pathname === "/intelligence" ||
     pathname.startsWith("/intelligence/") ||
     pathname === "/markets" ||
     pathname === "/about" ||
-    pathname === "/contact"
+    pathname === "/contact" ||
+    pathname === "/auth"
 
-  if (hideLegacyChrome) {
+  if (pageHasOwnChrome) {
     return <main className="flex-1">{children}</main>
   }
 
   return (
     <>
-      <Header />
+      <PlatformNav />
       <main className="flex-1">{children}</main>
-      <Footer />
+      <PlatformFooter />
     </>
   )
 }
