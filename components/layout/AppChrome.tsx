@@ -13,9 +13,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
     pathname.startsWith("/intelligence/") ||
     pathname === "/markets" ||
     pathname === "/about" ||
-    pathname === "/contact" ||
-    pathname === "/dashboard/client" ||
-    pathname === "/dashboard/admin"
+    pathname === "/contact"
 
   if (hideLegacyChrome) {
     return <main className="flex-1">{children}</main>
