@@ -37,7 +37,7 @@ export function MarketsMap({
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-      <div className="relative h-[460px] overflow-hidden rounded-2xl border border-black/10 bg-[#0d0d0d]">
+      <div className="relative h-[460px] overflow-hidden rounded-2xl border border-black/10 bg-[#0d0d0d] shadow-[0_24px_54px_-34px_rgba(13,13,13,0.8)]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(201,168,76,0.18),transparent_40%),radial-gradient(circle_at_80%_70%,rgba(245,240,232,0.14),transparent_42%)]" />
         <div className="absolute inset-0">
           {markets.map((market) => {
@@ -63,7 +63,7 @@ export function MarketsMap({
       </div>
 
       {activeMarket ? (
-        <aside className="rounded-2xl border border-black/10 bg-white p-5">
+        <aside className="emz-gloss-card rounded-2xl bg-white p-5">
           <h3 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">{activeMarket.flagEmoji} {activeMarket.name}</h3>
           <p className="mt-1 text-xs uppercase tracking-wider text-[#6b6560]">{activeMarket.status.replace("_", " ")}</p>
 
@@ -105,7 +105,7 @@ export function MarketsMap({
 
           <Link
             href={`/contact?market=${encodeURIComponent(activeMarket.name)}&direction=Entering%20an%20African%20market`}
-            className="mt-5 inline-block rounded-full bg-[#0d0d0d] px-4 py-2 text-sm text-[#f5f0e8]"
+            className="emz-pill-cta mt-5 inline-block rounded-full bg-[#0d0d0d] px-4 py-2 text-sm text-[#f5f0e8]"
           >
             Ready to move into {activeMarket.name}? Let&apos;s talk.
           </Link>

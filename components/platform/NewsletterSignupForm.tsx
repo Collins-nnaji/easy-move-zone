@@ -41,7 +41,7 @@ export function NewsletterSignupForm() {
       <button
         type="submit"
         disabled={loading}
-        className="rounded-xl bg-[#0d0d0d] px-5 py-3 text-sm font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a] disabled:opacity-60"
+        className="emz-pill-cta rounded-xl bg-[#0d0d0d] px-5 py-3 text-sm font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a] disabled:opacity-60"
       >
         {loading ? "Submitting..." : "Subscribe"}
       </button>

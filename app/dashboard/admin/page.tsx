@@ -11,15 +11,15 @@ export default async function AdminDashboardPage() {
   ])
 
   return (
-    <div className="min-h-screen bg-[#f5f0e8] px-4 py-10 sm:px-6 lg:px-8">
+    <div className="emz-surface min-h-screen px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-7xl space-y-6">
-        <section className="rounded-2xl border border-black/10 bg-white p-6">
+        <section className="emz-gloss-card rounded-2xl p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-[#c9a84c]">Admin Dashboard</p>
-          <h1 className="mt-2 font-[var(--font-playfair)] text-4xl font-black text-[#0d0d0d]">Platform operations</h1>
+          <h1 className="mt-2 font-[var(--font-playfair)] text-5xl font-black text-[#0d0d0d]">Platform operations</h1>
           <p className="mt-2 text-sm text-[#6b6560]">Manage leads, clients, content, reports, corridors, and AI tooling in one place.</p>
         </section>
 
-        <section className="rounded-2xl border border-black/10 bg-white p-5">
+        <section className="emz-gloss-card rounded-2xl p-5">
           <h2 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">Lead management</h2>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -48,7 +48,7 @@ export default async function AdminDashboardPage() {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
-          <article className="rounded-2xl border border-black/10 bg-white p-5">
+          <article className="emz-gloss-card rounded-2xl p-5">
             <h2 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">Content management</h2>
             <ul className="mt-4 space-y-2 text-sm text-[#6b6560]">
               <li>Services available: {services.length}</li>
@@ -57,7 +57,7 @@ export default async function AdminDashboardPage() {
               <li>FAQ and values managed from database tables.</li>
             </ul>
           </article>
-          <article className="rounded-2xl border border-black/10 bg-white p-5">
+          <article className="emz-gloss-card rounded-2xl p-5">
             <h2 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">Corridor management</h2>
             <ul className="mt-4 space-y-2 text-sm text-[#6b6560]">
               {corridors.map((corridor) => (

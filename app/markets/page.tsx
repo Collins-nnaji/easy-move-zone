@@ -29,7 +29,7 @@ export default async function MarketsPage() {
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        <div className="rounded-2xl border border-black/10 bg-white p-6">
+        <div className="emz-gloss-card rounded-2xl p-6">
           <h2 className="font-[var(--font-playfair)] text-4xl font-black text-[#0d0d0d]">Coming soon markets</h2>
           <p className="mt-2 text-sm text-[#6b6560]">
             We are expanding intelligence coverage in these markets. Register your interest and get notified at launch.

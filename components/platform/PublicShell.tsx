@@ -4,9 +4,9 @@ import { PlatformFooter } from "@/components/platform/PlatformFooter"
 
 export function PublicShell({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#f5f0e8] text-[#1a1a1a]">
+    <div className="emz-surface min-h-screen text-[#1a1a1a]">
       <PlatformNav />
-      <main>{children}</main>
+      <main className="emz-soft-enter">{children}</main>
       <PlatformFooter />
     </div>
   )

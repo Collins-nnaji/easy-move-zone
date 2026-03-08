@@ -51,7 +51,7 @@ export function IntelligenceChatbot() {
   }
 
   return (
-    <aside className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
+    <aside className="emz-gloss-card rounded-2xl p-4 shadow-sm">
       <h3 className="font-[var(--font-playfair)] text-xl font-bold text-[#0d0d0d]">Intelligence Chatbot</h3>
       <div className="mt-3 max-h-80 space-y-2 overflow-y-auto rounded-xl border border-black/10 bg-[#f5f0e8] p-3">
         {messages.map((message, index) => (

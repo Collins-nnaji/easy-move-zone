@@ -28,7 +28,7 @@ export function TestimonialsRotator({ testimonials, corridors }: TestimonialsRot
   if (!active) return null
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+    <div className="emz-gloss-card rounded-2xl p-6 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a84c]">Case study spotlight</p>
       <h3 className="mt-2 font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">{active.clientType}</h3>
       <p className="mt-2 text-sm text-[#6b6560]">

@@ -32,7 +32,7 @@ export function ServiceRecommender() {
   }
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+    <div className="emz-gloss-card rounded-2xl p-5 shadow-sm">
       <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">AI Service Recommender</h3>
       <p className="mt-2 text-sm text-[#6b6560]">
         Answer three quick questions and get a package recommendation with rationale.
@@ -63,7 +63,7 @@ export function ServiceRecommender() {
           <button
             type="submit"
             disabled={loading}
-            className="rounded-xl bg-[#0d0d0d] px-4 py-3 text-sm font-medium text-[#f5f0e8] hover:bg-[#1a3a2a] disabled:opacity-60"
+            className="emz-pill-cta rounded-xl bg-[#0d0d0d] px-4 py-3 text-sm font-medium text-[#f5f0e8] hover:bg-[#1a3a2a] disabled:opacity-60"
           >
             {loading ? "Analyzing..." : "Recommend Package"}
           </button>

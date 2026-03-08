@@ -2,8 +2,8 @@ import Link from "next/link"
 
 export function PlatformFooter() {
   return (
-    <footer className="mt-16 border-t border-[#f5f0e8]/10 bg-[#0d0d0d] text-[#f5f0e8]">
-      <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-4 lg:px-8">
+    <footer className="mt-12 border-t border-[#f5f0e8]/10 bg-[#0d0d0d] text-[#f5f0e8]">
+      <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-4 lg:px-8">
         <div className="lg:col-span-2">
           <div className="font-[var(--font-playfair)] text-2xl font-black">
             Easy<span className="text-[#c9a84c]">Move</span>Zone

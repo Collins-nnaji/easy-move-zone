@@ -37,7 +37,7 @@ export function MarketComparisonTool({ markets }: { markets: Market[] }) {
   }
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+    <div className="emz-gloss-card rounded-2xl p-5 shadow-sm">
       <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">AI Market Comparison Tool</h3>
       <form onSubmit={onCompare} className="mt-3 grid gap-3 md:grid-cols-3">
         <select
@@ -61,7 +61,7 @@ export function MarketComparisonTool({ markets }: { markets: Market[] }) {
         <button
           type="submit"
           disabled={loading}
-          className="rounded-xl bg-[#0d0d0d] px-4 py-2 text-sm font-medium text-[#f5f0e8] disabled:opacity-60"
+          className="emz-pill-cta rounded-xl bg-[#0d0d0d] px-4 py-2 text-sm font-medium text-[#f5f0e8] disabled:opacity-60"
         >
           {loading ? "Comparing..." : "Compare"}
         </button>

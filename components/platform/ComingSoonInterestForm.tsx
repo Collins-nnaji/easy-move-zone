@@ -33,7 +33,7 @@ export function ComingSoonInterestForm({ markets }: { markets: Market[] }) {
         ))}
       </select>
       <input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@company.com" className="rounded-xl border border-black/15 bg-white px-3 py-2 text-sm" />
-      <button type="submit" className="rounded-xl bg-[#0d0d0d] px-4 py-2 text-sm text-[#f5f0e8]">
+      <button type="submit" className="emz-pill-cta rounded-xl bg-[#0d0d0d] px-4 py-2 text-sm text-[#f5f0e8]">
         Register interest
       </button>
       {message ? <p className="text-sm text-[#6b6560] md:col-span-3">{message}</p> : null}

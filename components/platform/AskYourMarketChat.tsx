@@ -41,7 +41,7 @@ export function AskYourMarketChat({ corridorId }: { corridorId: string }) {
   }
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-5">
+    <div className="emz-gloss-card rounded-2xl p-5">
       <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">Ask Your Market</h3>
       <div className="mt-3 max-h-72 space-y-2 overflow-y-auto rounded-xl border border-black/10 bg-[#f5f0e8] p-3">
         {messages.map((message, index) => (
@@ -57,7 +57,7 @@ export function AskYourMarketChat({ corridorId }: { corridorId: string }) {
       </div>
       <form onSubmit={onSubmit} className="mt-3 flex gap-2">
         <input value={input} onChange={(event) => setInput(event.target.value)} className="flex-1 rounded-xl border border-black/15 px-3 py-2 text-sm" placeholder="Ask a corridor question..." />
-        <button type="submit" disabled={loading} className="rounded-xl bg-[#0d0d0d] px-3 py-2 text-sm text-[#f5f0e8]">
+        <button type="submit" disabled={loading} className="emz-pill-cta rounded-xl bg-[#0d0d0d] px-3 py-2 text-sm text-[#f5f0e8]">
           {loading ? "..." : "Send"}
         </button>
       </form>

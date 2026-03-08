@@ -26,7 +26,7 @@ export function MonthlyDigestGenerator() {
   }
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-5">
+    <div className="emz-gloss-card rounded-2xl p-5">
       <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">Monthly Intelligence Digest Generator</h3>
       <p className="mt-2 text-sm text-[#6b6560]">
         Generate a first draft newsletter from corridor data, report changes, and recent market context.
@@ -35,7 +35,7 @@ export function MonthlyDigestGenerator() {
         type="button"
         onClick={generateDigest}
         disabled={loading}
-        className="mt-4 rounded-full bg-[#0d0d0d] px-4 py-2 text-sm text-[#f5f0e8] disabled:opacity-60"
+        className="emz-pill-cta mt-4 rounded-full bg-[#0d0d0d] px-4 py-2 text-sm text-[#f5f0e8] disabled:opacity-60"
       >
         {loading ? "Generating..." : "Generate draft digest"}
       </button>

@@ -67,7 +67,7 @@ export function AuthInlineCard() {
   }
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-5" id="account">
+    <div className="emz-gloss-card rounded-2xl p-5" id="account">
       <div className="flex items-center justify-between gap-3">
         <h3 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">Account access</h3>
         <div className="inline-flex rounded-full border border-black/10 bg-[#ede8de] p-1">
@@ -95,7 +95,7 @@ export function AuthInlineCard() {
         type="button"
         onClick={handleGoogle}
         disabled={loading !== null}
-        className="mt-4 w-full rounded-xl border border-black/15 bg-[#f5f0e8] px-4 py-2.5 text-sm font-medium text-[#0d0d0d]"
+        className="mt-4 w-full rounded-xl border border-black/15 bg-[#f5f0e8] px-4 py-2.5 text-sm font-medium text-[#0d0d0d] transition hover:bg-[#ede8de]"
       >
         {loading === "google" ? "Connecting..." : "Continue with Google"}
       </button>
@@ -130,7 +130,7 @@ export function AuthInlineCard() {
         <button
           type="submit"
           disabled={loading !== null}
-          className="w-full rounded-full bg-[#0d0d0d] px-4 py-2.5 text-sm font-medium text-[#f5f0e8] hover:bg-[#1a3a2a]"
+          className="emz-pill-cta w-full rounded-full bg-[#0d0d0d] px-4 py-2.5 text-sm font-medium text-[#f5f0e8] hover:bg-[#1a3a2a]"
         >
           {loading === "email" ? "Please wait..." : mode === "sign-up" ? "Create account" : "Sign in"}
         </button>

@@ -54,7 +54,7 @@ export function CustomReportForm({ markets }: { markets: Market[] }) {
         <input value={form.timeline} onChange={(event) => setForm((prev) => ({ ...prev, timeline: event.target.value }))} placeholder="Timeline" className="rounded-xl border border-black/15 bg-white px-4 py-3 text-sm" />
         <input value={form.budgetRange} onChange={(event) => setForm((prev) => ({ ...prev, budgetRange: event.target.value }))} placeholder="Budget range" className="rounded-xl border border-black/15 bg-white px-4 py-3 text-sm" />
       </div>
-      <button type="submit" disabled={loading} className="rounded-full bg-[#0d0d0d] px-5 py-2.5 text-sm font-medium text-[#f5f0e8]">
+      <button type="submit" disabled={loading} className="emz-pill-cta rounded-full bg-[#0d0d0d] px-5 py-2.5 text-sm font-medium text-[#f5f0e8]">
         {loading ? "Submitting..." : "Commission Custom Report"}
       </button>
       {message ? <p className="text-sm text-[#6b6560]">{message}</p> : null}

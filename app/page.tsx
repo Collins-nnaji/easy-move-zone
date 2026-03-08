@@ -37,15 +37,15 @@ export default async function HomePage() {
               We provide market intelligence, local execution, and ongoing advisory.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/contact?direction=inbound" className="rounded-full bg-[#0d0d0d] px-6 py-3 text-base font-medium text-[#f5f0e8]">
+              <Link href="/contact?direction=inbound" className="emz-pill-cta rounded-full bg-[#0d0d0d] px-6 py-3 text-base font-medium text-[#f5f0e8]">
                 I want to enter Africa
               </Link>
-              <Link href="/contact?direction=outbound" className="rounded-full border border-black/15 px-6 py-3 text-base font-medium text-[#0d0d0d]">
+              <Link href="/contact?direction=outbound" className="emz-pill-cta rounded-full border border-black/15 px-6 py-3 text-base font-medium text-[#0d0d0d]">
                 I want to go global
               </Link>
             </div>
           </div>
-          <div className="space-y-4 rounded-3xl bg-[#1a3a2a] p-6 text-[#f5f0e8]">
+          <div className="emz-hero-float space-y-4 rounded-3xl bg-[#1a3a2a] p-6 text-[#f5f0e8]">
             {corridors.slice(0, 4).map((corridor) => {
               const origin = corridor.originMarket ?? marketMap.get(corridor.originMarketId)
               const destination = corridor.destinationMarket ?? marketMap.get(corridor.destinationMarketId)
@@ -54,7 +54,7 @@ export default async function HomePage() {
                   ? "Inbound"
                   : "Outbound"
               return (
-                <div key={corridor.id} className="rounded-2xl border border-white/15 bg-white/5 p-4">
+                <div key={corridor.id} className="rounded-2xl border border-white/15 bg-white/5 p-4 transition hover:bg-white/10">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold">
                       {origin?.flagEmoji} {origin?.name} → {destination?.flagEmoji} {destination?.name}
@@ -81,7 +81,7 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-        <div className="rounded-2xl border border-black/10 bg-white p-6">
+        <div className="emz-gloss-card rounded-2xl p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#1a4a6b]">Inbound · World → Africa</p>
           <h2 className="mt-2 font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">How it works</h2>
           <ol className="mt-4 space-y-3 text-sm text-[#6b6560]">
@@ -91,7 +91,7 @@ export default async function HomePage() {
             <li><strong className="text-[#0d0d0d]">4. Ongoing intelligence:</strong> monthly updates and strategic support.</li>
           </ol>
         </div>
-        <div className="rounded-2xl border border-black/10 bg-[#1a3a2a] p-6 text-[#f5f0e8]">
+        <div className="rounded-2xl border border-black/10 bg-[#1a3a2a] p-6 text-[#f5f0e8] shadow-[0_18px_40px_-26px_rgba(13,13,13,0.6)]">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e8c96a]">Outbound · Africa → World</p>
           <h2 className="mt-2 font-[var(--font-playfair)] text-3xl font-bold">How it works</h2>
           <ol className="mt-4 space-y-3 text-sm text-[#f5f0e8]/75">
@@ -108,7 +108,7 @@ export default async function HomePage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a84c]">Live Corridor Feed</p>
           <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-black text-[#0d0d0d]">Active trade momentum</h2>
         </div>
-        <div className="overflow-hidden rounded-2xl border border-black/10 bg-white">
+        <div className="emz-gloss-card overflow-hidden rounded-2xl bg-white">
           <table className="w-full text-left text-sm">
             <thead className="bg-[#ede8de] text-[#0d0d0d]">
               <tr>
@@ -148,7 +148,7 @@ export default async function HomePage() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {markets.slice(0, 8).map((market) => (
-            <Link key={market.id} href={`/intelligence/${market.slug}`} className="rounded-2xl border border-black/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm">
+            <Link key={market.id} href={`/intelligence/${market.slug}`} className="emz-gloss-card rounded-2xl p-4">
               <div className="text-3xl">{market.flagEmoji}</div>
               <h3 className="mt-2 text-lg font-semibold text-[#0d0d0d]">{market.name}</h3>
               <p className="mt-1 text-xs uppercase tracking-wider text-[#6b6560]">{market.status.replace("_", " ")}</p>
@@ -164,7 +164,7 @@ export default async function HomePage() {
 
       <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 pb-16 sm:px-6 lg:grid-cols-2 lg:px-8">
         <TestimonialsRotator testimonials={testimonials.slice(0, 3)} corridors={corridors} />
-        <div className="rounded-2xl border border-black/10 bg-white p-6">
+        <div className="emz-gloss-card rounded-2xl p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a84c]">Newsletter Signup</p>
           <h3 className="mt-2 font-[var(--font-playfair)] text-4xl font-bold text-[#0d0d0d]">Monthly intelligence on African markets. No noise.</h3>
           <p className="mt-2 text-sm text-[#6b6560]">One field. One click. Insight, not inbox clutter.</p>

@@ -9,7 +9,7 @@ export default async function ContactPage() {
 
   return (
     <PublicShell>
-      <section className="mx-auto grid w-full max-w-7xl gap-0 overflow-hidden border border-black/10 bg-white sm:my-8 sm:rounded-3xl lg:grid-cols-2">
+      <section className="mx-auto grid w-full max-w-7xl gap-0 overflow-hidden border border-black/10 bg-white sm:my-8 sm:rounded-3xl lg:grid-cols-2 shadow-[0_26px_58px_-38px_rgba(13,13,13,0.5)]">
         <div className="bg-[#1a3a2a] p-7 text-[#f5f0e8] md:p-9">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e8c96a]">Get Started</p>
           <h1 className="mt-3 font-[var(--font-playfair)] text-6xl font-black leading-[0.95]">

@@ -19,7 +19,7 @@ export function PlatformNav() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black/10 bg-[#f5f0e8]/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-black/10 bg-[#f5f0e8]/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="font-[var(--font-playfair)] text-xl font-black tracking-tight text-[#0d0d0d]">
           Easy<span className="text-[#c9a84c]">Move</span>Zone
@@ -48,7 +48,7 @@ export function PlatformNav() {
           </Link>
           <Link
             href="/contact?direction=inbound"
-            className="rounded-full bg-[#0d0d0d] px-4 py-2 text-[15px] font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a]"
+            className="emz-pill-cta rounded-full bg-[#0d0d0d] px-4 py-2 text-[15px] font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a]"
           >
             Start Your Move
           </Link>

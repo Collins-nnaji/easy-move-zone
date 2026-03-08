@@ -50,7 +50,7 @@ export function IntelligencePageClient({ markets, reports }: IntelligencePageCli
 
       <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
         <div>
-          <div className="rounded-2xl border border-black/10 bg-white p-4">
+          <div className="emz-gloss-card rounded-2xl p-4">
             <h2 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">Search & Filter</h2>
             <div className="mt-3 grid gap-3 md:grid-cols-4">
               <select value={marketId} onChange={(event) => setMarketId(event.target.value)} className="rounded-xl border border-black/15 bg-[#f5f0e8] px-3 py-2 text-sm">
@@ -82,7 +82,7 @@ export function IntelligencePageClient({ markets, reports }: IntelligencePageCli
             {filteredReports.map((report) => {
               const market = marketMap.get(report.marketId)
               return (
-                <article key={report.id} className="rounded-2xl border border-black/10 bg-white p-4">
+                <article key={report.id} className="emz-gloss-card rounded-2xl p-4">
                   <p className="text-3xl">{market?.flagEmoji ?? "🌍"}</p>
                   <p className="mt-1 text-xs uppercase tracking-wider text-[#c9a84c]">{market?.name ?? "Market"} · {report.direction}</p>
                   <h3 className="mt-1 font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">{report.title}</h3>
@@ -96,7 +96,7 @@ export function IntelligencePageClient({ markets, reports }: IntelligencePageCli
                   </div>
                   <div className="mt-3 flex gap-2">
                     <button type="button" onClick={() => setPreviewId(report.id)} className="rounded-full border border-black/15 px-3 py-1.5 text-sm">Preview</button>
-                    <Link href="/contact?direction=Commissioning%20a%20report" className="rounded-full bg-[#0d0d0d] px-3 py-1.5 text-sm text-[#f5f0e8]">Purchase</Link>
+                    <Link href="/contact?direction=Commissioning%20a%20report" className="emz-pill-cta rounded-full bg-[#0d0d0d] px-3 py-1.5 text-sm text-[#f5f0e8]">Purchase</Link>
                   </div>
                 </article>
               )
@@ -108,7 +108,7 @@ export function IntelligencePageClient({ markets, reports }: IntelligencePageCli
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
-        <div className="rounded-2xl border border-black/10 bg-white p-5">
+        <div className="emz-gloss-card rounded-2xl p-5">
           <h3 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">Free sample download</h3>
           <p className="mt-2 text-sm text-[#6b6560]">
             Get one free report excerpt in exchange for your email.
@@ -121,7 +121,7 @@ export function IntelligencePageClient({ markets, reports }: IntelligencePageCli
 
       {preview ? (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4">
-          <div className="w-full max-w-xl rounded-2xl border border-black/10 bg-white p-6 shadow-xl">
+          <div className="emz-gloss-card w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
             <h4 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">{preview.title}</h4>
             <p className="mt-2 text-sm text-[#6b6560]">{preview.previewExcerpt}</p>
             <p className="mt-4 text-sm text-[#6b6560]">{preview.summary}</p>

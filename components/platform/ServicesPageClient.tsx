@@ -21,7 +21,7 @@ export function ServicesPageClient({ services, faqs }: ServicesPageClientProps) 
   return (
     <>
       <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="rounded-2xl border border-black/10 bg-white p-6">
+        <div className="emz-gloss-card rounded-2xl p-6">
           <h1 className="font-[var(--font-playfair)] text-6xl font-black leading-[0.95] text-[#0d0d0d]">
             Every service built to remove one thing — friction.
           </h1>
@@ -54,7 +54,7 @@ export function ServicesPageClient({ services, faqs }: ServicesPageClientProps) 
       <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((service) => (
-            <article key={service.id} className="rounded-2xl border border-black/10 bg-white p-5">
+            <article key={service.id} className="emz-gloss-card rounded-2xl p-5">
               <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">{service.name}</h3>
               <p className="mt-2 text-sm text-[#6b6560]">{service.description}</p>
               <div className="mt-3 space-y-1 text-sm text-[#1a1a1a]">
@@ -82,7 +82,7 @@ export function ServicesPageClient({ services, faqs }: ServicesPageClientProps) 
       <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <h2 className="font-[var(--font-playfair)] text-5xl font-black text-[#0d0d0d]">Pricing</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-black/10 bg-white p-5">
+          <div className="emz-gloss-card rounded-2xl p-5">
             <p className="text-xs uppercase tracking-wider text-[#6b6560]">Explorer</p>
             <h3 className="mt-1 font-[var(--font-playfair)] text-2xl font-bold">Intelligence</h3>
             <p className="mt-1 text-4xl font-black">$2K</p>
@@ -94,7 +94,7 @@ export function ServicesPageClient({ services, faqs }: ServicesPageClientProps) 
             <p className="mt-1 text-4xl font-black">$2.5K</p>
             <p className="mt-2 text-sm text-[#f5f0e8]/70">Monthly retainer</p>
           </div>
-          <div className="rounded-2xl border border-black/10 bg-[#0d0d0d] p-5 text-[#f5f0e8]">
+          <div className="rounded-2xl border border-black/10 bg-[#0d0d0d] p-5 text-[#f5f0e8] shadow-[0_18px_40px_-26px_rgba(13,13,13,0.6)]">
             <p className="text-xs uppercase tracking-wider text-[#f5f0e8]/60">Full Service</p>
             <h3 className="mt-1 font-[var(--font-playfair)] text-2xl font-bold">Full Entry</h3>
             <p className="mt-1 text-4xl font-black">$15K+</p>
@@ -107,7 +107,7 @@ export function ServicesPageClient({ services, faqs }: ServicesPageClientProps) 
         <h2 className="font-[var(--font-playfair)] text-5xl font-black text-[#0d0d0d]">FAQ</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {faqs.map((faq) => (
-            <details key={faq.id} className="rounded-xl border border-black/10 bg-white p-4">
+            <details key={faq.id} className="emz-gloss-card rounded-xl p-4">
               <summary className="cursor-pointer text-sm font-medium text-[#0d0d0d]">{faq.question}</summary>
               <p className="mt-2 text-sm text-[#6b6560]">{faq.answer}</p>
             </details>
