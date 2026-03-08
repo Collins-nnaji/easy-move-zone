@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Outfit, Space_Grotesk } from "next/font/google";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import { Outfit, Playfair_Display, Space_Grotesk } from "next/font/google";
+import { AppChrome } from "@/components/layout/AppChrome";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -16,9 +15,16 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Migration Intelligence & Relocation Strategy | Nigeria",
-  description: "Your smart migration & relocation partner. Data-driven migration intelligence, visa strategy, school placement, and settlement support for Nigerian professionals, students, and families moving to UK, Canada, or Europe.",
+  title: "EasyMoveZone — Platform Blueprint",
+  description:
+    "EasyMoveZone connects businesses to African markets — and African businesses to the world through intelligence, execution, and advisory.",
 };
 
 export default function RootLayout({
@@ -28,10 +34,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${outfit.variable} ${spaceGrotesk.variable} min-h-screen flex flex-col`}>
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+      <body className={`${outfit.variable} ${spaceGrotesk.variable} ${playfairDisplay.variable} min-h-screen flex flex-col`}>
+        <AppChrome>{children}</AppChrome>
       </body>
     </html>
   );
