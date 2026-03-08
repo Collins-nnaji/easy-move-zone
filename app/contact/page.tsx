@@ -31,7 +31,9 @@ export default async function ContactPage() {
           <p className="mt-2 text-sm text-[#6b6560]">
             Share the essentials. We will reply with a clear next step.
           </p>
-          <AuthInlineCard />
+          <Suspense fallback={<div className="rounded-2xl border border-black/10 bg-white p-6 text-sm text-[#6b6560]">Loading account form...</div>}>
+            <AuthInlineCard />
+          </Suspense>
           <div className="mt-4">
             <Suspense fallback={<p className="text-sm text-[#6b6560]">Loading form...</p>}>
               <ContactInquiryForm markets={markets} />
