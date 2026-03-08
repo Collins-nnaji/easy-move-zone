@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import {
-  CheckCircle2, Calculator, FileText, ArrowRight, BadgeCheck, Globe, FolderOpen,
+  Bot, Building2, Calculator, CheckCircle2, FileText, ArrowRight, BadgeCheck, Globe, FolderOpen, Home, BookOpenText, Users,
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 
@@ -13,8 +13,13 @@ const TOOL_LINKS = [
   { href: "/suite", label: "EMZ Suite", desc: "Main workspace for all tools", icon: FileText, color: "bg-secondary/10 text-secondary" },
   { href: "/qualify", label: "Get assessed", desc: "Submit your profile for AI route assessment", icon: CheckCircle2, color: "bg-primary/10 text-primary" },
   { href: "/document-support", label: "Document support", desc: "Checklist, uploads, and status tracking", icon: FolderOpen, color: "bg-primary/10 text-primary" },
+  { href: "/relocation-assistant", label: "AI assistant", desc: "Get practical relocation action plans", icon: Bot, color: "bg-primary/10 text-primary" },
+  { href: "/moving-companies", label: "Compare movers", desc: "Find moving partners by route and budget", icon: Building2, color: "bg-muted" },
+  { href: "/housing-search", label: "Housing search", desc: "Shortlist destination housing opportunities", icon: Home, color: "bg-muted" },
+  { href: "/relocation-guides", label: "Relocation guides", desc: "Visa and move playbooks by route", icon: BookOpenText, color: "bg-muted" },
+  { href: "/cost-of-living", label: "Cost of living", desc: "Compare monthly city expense baskets", icon: Globe, color: "bg-muted" },
+  { href: "/communities", label: "Expat communities", desc: "Join groups for onboarding support", icon: Users, color: "bg-muted" },
   { href: "/calculator", label: "Budget calculator", desc: "Plan relocation costs and funding readiness", icon: Calculator, color: "bg-accent/10 text-accent-foreground" },
-  { href: "/qualify", label: "Route intelligence", desc: "Compare likely UK, Canada, and Europe pathways", icon: Globe, color: "bg-muted" },
 ]
 
 export default function DashboardPage() {
@@ -31,7 +36,7 @@ export default function DashboardPage() {
             Your <span className="gradient-text">journey</span>
           </h1>
           <p className="text-muted-foreground text-sm">
-            Your assessment status and next steps will appear here. Use the tools below to access our migration intelligence platform.
+            Your assessments and relocation actions will appear here. Use the modules below to run end-to-end move planning.
           </p>
         </div>
 

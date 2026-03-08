@@ -6,6 +6,12 @@ export function Footer() {
     product: [
       { name: "Open EMZ Suite", href: "/suite" },
       { name: "Get assessed", href: "/qualify" },
+      { name: "AI assistant", href: "/relocation-assistant" },
+      { name: "Compare movers", href: "/moving-companies" },
+      { name: "Housing search", href: "/housing-search" },
+      { name: "Relocation guides", href: "/relocation-guides" },
+      { name: "Cost of living", href: "/cost-of-living" },
+      { name: "Expat communities", href: "/communities" },
       { name: "Budget calculator", href: "/calculator" },
       { name: "Document support", href: "/document-support" },
     ],
@@ -40,7 +46,7 @@ export function Footer() {
               <span className="text-lg font-bold tracking-tight">EasyMoveZone</span>
             </div>
             <p className="text-sm leading-6 text-muted-foreground max-w-xs">
-              AI-powered document processing support and travel/relocation tools platform for work, study, business, and global movement planning.
+              Relocation super-app for moving city-to-city or country-to-country with AI guidance, movers, housing, cost intelligence, and community support.
             </p>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <MapPin className="w-3.5 h-3.5 text-primary" />
@@ -110,7 +116,7 @@ export function Footer() {
             &copy; {new Date().getFullYear()} EasyMoveZone Nigeria Ltd. RC 1234567. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground max-w-sm text-right">
-            Landing page intro plus a practical suite workspace for assessment, document support, and relocation planning.
+            Platform modules connected across assessment, moving partners, guides, housing leads, and settlement execution.
           </p>
         </div>
 

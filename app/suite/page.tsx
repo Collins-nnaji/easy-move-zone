@@ -6,17 +6,19 @@ import {
   Activity,
   ArrowRight,
   BadgeCheck,
-  BrainCircuit,
+  BookOpenText,
+  Bot,
+  Building2,
   Calculator,
   CheckCircle2,
   Clock3,
   Compass,
   FileCheck2,
   FolderOpen,
-  GraduationCap,
+  Home,
   LayoutDashboard,
-  MapPinned,
   ScanSearch,
+  Users,
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 
@@ -24,101 +26,118 @@ const EASE = [0.16, 1, 0.3, 1] as const
 
 const QUICK_LINKS = [
   { label: "Dashboard", href: "#dashboard" },
-  { label: "Tools", href: "#tools" },
+  { label: "Core tools", href: "#tools" },
+  { label: "Marketplace", href: "#marketplace" },
   { label: "Flow board", href: "#flow" },
-  { label: "Pathways", href: "#pathways" },
 ]
 
 const DASHBOARD_STATS = [
-  { label: "Workspace readiness", value: "74%", delta: "+8% this week" },
-  { label: "Active tools", value: "4", delta: "Assessment + Docs + Cost + Route" },
-  { label: "Open document items", value: "12", delta: "4 marked high-priority" },
-  { label: "Next deadline window", value: "6 days", delta: "Based on selected route timeline" },
+  { label: "Platform modules", value: "10", delta: "Guides + Housing + Movers + AI + Core tools" },
+  { label: "Countries covered", value: "30+", delta: "Route and housing intelligence coverage" },
+  { label: "Partner channels", value: "42", delta: "Movers, housing leads, and service providers" },
+  { label: "Assistant uptime", value: "99.9%", delta: "AI relocation assistant always available" },
 ]
 
 const ACTIVITY_FEED = [
-  "Assessment score refreshed for UK and Canada routes.",
-  "Document workspace synced with latest required checklist.",
-  "Cost planning baseline updated using current travel assumptions.",
-  "Pathway recommendation re-ranked after profile edits.",
+  "Moving company comparison refreshed with partner quote lanes.",
+  "Housing inventory and city rent snapshots synchronized.",
+  "Cost-of-living comparator recalculated for latest city baskets.",
+  "AI relocation assistant generated a new action plan.",
 ]
 
-const TOOL_CARDS = [
+const CORE_TOOLS = [
   {
-    title: "Assessment workspace",
-    desc: "Run AI profile scoring and compare likely routes before spending on full processing.",
+    title: "AI assessment workspace",
+    desc: "Score profile fit and route viability for work, study, business, or travel migration.",
     href: "/qualify",
     icon: ScanSearch,
     cta: "Open assessment",
     status: "Core",
   },
   {
-    title: "Document support workspace",
-    desc: "Track required documents, upload evidence, and monitor missing or high-risk items.",
+    title: "Document processing workspace",
+    desc: "Track required files, upload evidence, and resolve quality flags before submission.",
     href: "/document-support",
     icon: FolderOpen,
-    cta: "Open document support",
+    cta: "Open documents",
     status: "Core",
   },
   {
-    title: "Budget calculator",
-    desc: "Model relocation costs, proof-of-funds assumptions, and first-month settlement exposure.",
+    title: "Relocation budget planner",
+    desc: "Model visa, flights, housing setup, and proof-of-funds exposure in one budget flow.",
     href: "/calculator",
     icon: Calculator,
     cta: "Open calculator",
     status: "Planning",
   },
   {
-    title: "Route intelligence",
-    desc: "Use scored output to pressure-test work, study, and business movement strategies.",
-    href: "/qualify",
-    icon: MapPinned,
-    cta: "Review route intelligence",
-    status: "Analysis",
+    title: "AI relocation assistant",
+    desc: "Ask relocation questions and get actionable step plans linked to platform modules.",
+    href: "/relocation-assistant",
+    icon: Bot,
+    cta: "Open assistant",
+    status: "AI",
+  },
+]
+
+const MARKETPLACE_MODULES = [
+  {
+    title: "Compare moving companies",
+    desc: "Review movers by route, service quality, insurance, and partner quote potential.",
+    href: "/moving-companies",
+    icon: Building2,
+    revenue: "Affiliate commissions",
+  },
+  {
+    title: "Relocation guides",
+    desc: "Structured visa and relocation playbooks with checklists and route-specific recommendations.",
+    href: "/relocation-guides",
+    icon: BookOpenText,
+    revenue: "Premium guide packs",
+  },
+  {
+    title: "Housing search",
+    desc: "Partner-backed listings, city filters, and lead routing for relocation-ready homes.",
+    href: "/housing-search",
+    icon: Home,
+    revenue: "Real estate lead fees",
+  },
+  {
+    title: "Cost of living comparator",
+    desc: "Compare monthly expense baskets between source and destination cities before moving.",
+    href: "/cost-of-living",
+    icon: Compass,
+    revenue: "Premium analytics",
+  },
+  {
+    title: "Expat communities",
+    desc: "Join verified groups and events for students, families, and digital nomads abroad.",
+    href: "/communities",
+    icon: Users,
+    revenue: "Community subscriptions",
   },
 ]
 
 const FLOW_COLUMNS = [
   {
-    title: "Intelligence",
-    icon: BrainCircuit,
-    points: ["Collect profile signals", "Score route probability", "Rank best-fit pathways"],
+    title: "Assess",
+    icon: ScanSearch,
+    points: ["Capture profile signals", "Score route fit", "Prioritize strongest options"],
   },
   {
-    title: "Visa + documents",
+    title: "Prepare",
     icon: FileCheck2,
-    points: ["Generate checklist", "Track missing files", "Resolve quality flags"],
+    points: ["Generate document checklist", "Resolve missing evidence", "Package submission-ready files"],
   },
   {
-    title: "School / accommodation",
-    icon: GraduationCap,
-    points: ["Map school options", "Coordinate city decision", "Prepare landing setup"],
+    title: "Plan move",
+    icon: Building2,
+    points: ["Compare movers", "Run cost-of-living checks", "Finalize relocation budget"],
   },
   {
-    title: "Funding + execution",
-    icon: Compass,
-    points: ["Model budget", "Validate proof-of-funds", "Execute timeline plan"],
-  },
-]
-
-const USE_CASE_PATHWAYS = [
-  {
-    title: "Work relocation lane",
-    summary: "For professionals optimizing sponsor alignment, role-fit evidence, and time-bound submissions.",
-    bullets: ["Run skill and role-fit assessment", "Prioritize sponsor/offer documents", "Confirm funds and execution timeline"],
-    href: "/qualify",
-  },
-  {
-    title: "Study relocation lane",
-    summary: "For applicants managing admission readiness, tuition exposure, and dependent document quality.",
-    bullets: ["Assess study-route viability", "Prepare admission and academic files", "Model tuition plus settlement costs"],
-    href: "/document-support",
-  },
-  {
-    title: "Business mobility lane",
-    summary: "For founders and operators aligning business evidence with route-specific compliance demands.",
-    bullets: ["Score business pathway options", "Structure company and tax records", "Validate destination execution plan"],
-    href: "/qualify",
+    title: "Settle",
+    icon: Users,
+    points: ["Find housing", "Join expat communities", "Track first 90-day setup"],
   },
 ]
 
@@ -136,19 +155,19 @@ export default function SuitePage() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/[0.04] border border-black/10 text-xs font-semibold text-black mb-4">
                 <BadgeCheck className="w-3.5 h-3.5" />
-                EMZ Suite Platform
+                EasyMoveZone Relocation Platform
               </div>
               <h1 className="display-title text-4xl md:text-6xl font-bold text-black mb-3">
-                Dashboard + tools + flow
+                Relocation super-app
                 <br />
-                in one platform workspace.
+                for moving city to city, country to country.
               </h1>
               <p className="text-black/70 text-base md:text-lg max-w-3xl">
-                EasyMoveZone Suite is the main operating platform for AI-powered assessment, document processing support,
-                and relocation execution planning.
+                One platform for assessment, visa guides, moving companies, housing search, cost-of-living intelligence,
+                expat communities, and an AI relocation assistant.
               </p>
               <div className="mt-5 flex flex-wrap gap-2.5 text-sm">
-                {["Platform dashboard", "Animated workflow", "Route intelligence", "Document control"].map((item) => (
+                {["Compare movers", "Housing leads", "Visa guides", "AI assistant"].map((item) => (
                   <div key={item} className="flex items-center gap-2 rounded-full bg-black/[0.05] px-3 py-1.5 border border-black/8">
                     <CheckCircle2 className="w-4 h-4 text-black" />
                     <span className="text-black/85">{item}</span>
@@ -161,15 +180,15 @@ export default function SuitePage() {
                 <LayoutDashboard className="w-3.5 h-3.5" />
                 Platform health
               </div>
-              <div className="text-3xl font-bold mb-1">Operational</div>
+              <div className="text-3xl font-bold mb-1">Live</div>
               <p className="text-xs text-white/70 mb-4">
-                Workspace modules are synced and ready for decision-making flow.
+                Core platform modules connected for decision-to-settlement execution.
               </p>
               <div className="space-y-2.5">
                 {[
-                  { label: "Assessment engine", value: "Active" },
-                  { label: "Document workspace", value: "Synced" },
-                  { label: "Flow board", value: "Ready" },
+                  { label: "Assessment + docs", value: "Active" },
+                  { label: "Marketplace lanes", value: "Running" },
+                  { label: "AI assistant", value: "Online" },
                 ].map((row) => (
                   <div key={row.label} className="rounded-lg border border-white/15 bg-white/[0.06] px-3 py-2 flex items-center justify-between">
                     <span className="text-xs text-white/75">{row.label}</span>
@@ -244,10 +263,10 @@ export default function SuitePage() {
                 Recommended next
               </div>
               <p className="text-sm text-white/85 mb-3">
-                Open Assessment first, then immediately continue into Document Support to reduce timeline slippage.
+                Use the AI assistant to generate your move plan, then execute each lane inside platform modules.
               </p>
-              <Link href="/qualify" className="inline-flex items-center gap-1 text-sm font-semibold text-white hover:text-white/80">
-                Start assessment <ArrowRight className="w-4 h-4" />
+              <Link href="/relocation-assistant" className="inline-flex items-center gap-1 text-sm font-semibold text-white hover:text-white/80">
+                Open assistant <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
@@ -255,13 +274,13 @@ export default function SuitePage() {
 
         <section id="tools" className="mb-12 rounded-3xl border border-black/10 bg-white p-6 md:p-8 shadow-[0_24px_54px_-38px_rgba(0,0,0,0.45)]">
           <div className="flex items-center justify-between flex-wrap gap-3 mb-5">
-            <h2 className="display-title text-3xl md:text-5xl text-black">Core tool workspace</h2>
+            <h2 className="display-title text-3xl md:text-5xl text-black">Core relocation tools</h2>
             <span className="text-xs font-semibold text-black/60 rounded-full border border-black/12 bg-black/[0.03] px-3 py-1.5">
-              Platform modules
+              Mission-critical modules
             </span>
           </div>
           <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
-            {TOOL_CARDS.map(({ title, desc, href, icon: Icon, cta, status }, index) => (
+            {CORE_TOOLS.map(({ title, desc, href, icon: Icon, cta, status }, index) => (
               <motion.article
                 key={title}
                 initial={{ opacity: 0, y: 14 }}
@@ -289,11 +308,11 @@ export default function SuitePage() {
           </div>
         </section>
 
-        <section id="flow" className="mb-12 rounded-3xl border border-black/10 bg-black text-white p-6 md:p-8 shadow-[0_24px_54px_-38px_rgba(0,0,0,0.55)]">
-          <h2 className="display-title text-3xl md:text-5xl text-white mb-2">Flow board</h2>
-          <p className="text-white/70 mb-6">A stage-by-stage execution lane from profile intelligence to settlement action.</p>
-          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
-            {FLOW_COLUMNS.map(({ title, icon: Icon, points }, index) => (
+        <section id="marketplace" className="mb-12 rounded-3xl border border-black/10 bg-black text-white p-6 md:p-8 shadow-[0_24px_54px_-38px_rgba(0,0,0,0.55)]">
+          <h2 className="display-title text-3xl md:text-5xl text-white mb-2">Relocation marketplace</h2>
+          <p className="text-white/70 mb-6">High-value modules for partner integrations, lead generation, and premium relocation intelligence.</p>
+          <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-4">
+            {MARKETPLACE_MODULES.map(({ title, desc, href, icon: Icon, revenue }, index) => (
               <motion.article
                 key={title}
                 initial={{ opacity: 0, y: 14 }}
@@ -302,13 +321,40 @@ export default function SuitePage() {
                 transition={{ delay: index * 0.06, duration: 0.35 }}
                 className="rounded-2xl border border-white/15 bg-white/[0.06] p-4"
               >
-                <div className="w-9 h-9 rounded-lg bg-white/15 text-white flex items-center justify-center mb-3">
+                <div className="w-10 h-10 rounded-lg bg-white/15 text-white flex items-center justify-center mb-3">
+                  <Icon className="w-5 h-5" />
+                </div>
+                <h3 className="font-bold text-white text-base mb-2">{title}</h3>
+                <p className="text-xs text-white/75 mb-3 leading-relaxed">{desc}</p>
+                <div className="text-[10px] uppercase tracking-wider text-white/60 mb-3">{revenue}</div>
+                <Link href={href} className="inline-flex items-center gap-1 text-sm font-semibold text-white hover:text-white/80">
+                  Open module <ArrowRight className="w-4 h-4" />
+                </Link>
+              </motion.article>
+            ))}
+          </div>
+        </section>
+
+        <section id="flow" className="mb-12 rounded-3xl border border-black/10 bg-white p-6 md:p-8 shadow-[0_24px_54px_-38px_rgba(0,0,0,0.45)]">
+          <h2 className="display-title text-3xl md:text-5xl text-black mb-2">Execution flow board</h2>
+          <p className="text-black/70 mb-6">A stage-by-stage path from assessment to settlement with operational modules at each step.</p>
+          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {FLOW_COLUMNS.map(({ title, icon: Icon, points }, index) => (
+              <motion.article
+                key={title}
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.06, duration: 0.35 }}
+                className="rounded-2xl border border-black/10 bg-black/[0.02] p-4"
+              >
+                <div className="w-9 h-9 rounded-lg bg-black/[0.08] text-black flex items-center justify-center mb-3">
                   <Icon className="w-4.5 h-4.5" />
                 </div>
-                <h3 className="font-bold text-white text-base mb-3">{title}</h3>
+                <h3 className="font-bold text-black text-base mb-3">{title}</h3>
                 <ul className="space-y-2">
                   {points.map((point) => (
-                    <li key={point} className="text-sm text-white/80 inline-flex items-start gap-1.5">
+                    <li key={point} className="text-sm text-black/75 inline-flex items-start gap-1.5">
                       <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
                       {point}
                     </li>
@@ -319,58 +365,21 @@ export default function SuitePage() {
           </div>
         </section>
 
-        <section id="pathways" className="mb-12 rounded-3xl border border-black/10 bg-white p-6 md:p-8 shadow-[0_24px_54px_-38px_rgba(0,0,0,0.45)]">
-          <h2 className="display-title text-3xl md:text-5xl text-black mb-3">Execution pathways</h2>
-          <p className="text-black/70 mb-6">
-            Select a movement intent and follow a defined lane inside the Suite for faster decision quality.
-          </p>
-          <div className="grid md:grid-cols-3 gap-4">
-            {USE_CASE_PATHWAYS.map(({ title, summary, bullets, href }, index) => (
-              <motion.article
-                key={title}
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.06, duration: 0.35 }}
-                className="rounded-2xl border border-black/10 bg-black/[0.02] p-5"
-              >
-                <h3 className="text-lg font-bold text-black mb-2">{title}</h3>
-                <p className="text-sm text-black/65 leading-relaxed mb-4">{summary}</p>
-                <ul className="space-y-1.5 mb-4">
-                  {bullets.map((item) => (
-                    <li key={item} className="text-xs text-black/70 inline-flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-black/70" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <Link href={href} className="inline-flex items-center gap-1 text-sm font-semibold text-black hover:text-black/80">
-                  Open pathway <ArrowRight className="w-4 h-4" />
-                </Link>
-              </motion.article>
-            ))}
-          </div>
-        </section>
-
         <section className="rounded-2xl border border-black/10 bg-white p-6 text-center">
-          <h3 className="display-title text-3xl md:text-4xl text-black mb-2">Start in platform mode</h3>
+          <h3 className="display-title text-3xl md:text-4xl text-black mb-2">Launch your relocation plan</h3>
           <p className="text-black/65 mb-5">
-            Run assessment, continue with document support, then finalize funding plan in one operating sequence.
+            Start with AI assessment, then use marketplace modules to execute movers, housing, costs, and community support.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <Link href="/qualify">
-              <Button className="gap-2">Launch assessment <ArrowRight className="w-4 h-4" /></Button>
+            <Link href="/relocation-assistant">
+              <Button className="gap-2">Open AI assistant <ArrowRight className="w-4 h-4" /></Button>
             </Link>
-            <Link href="/document-support">
-              <Button variant="outline" className="gap-2">Open document support</Button>
+            <Link href="/moving-companies">
+              <Button variant="outline" className="gap-2">Compare movers</Button>
             </Link>
-            <Link href="/calculator">
-              <Button variant="outline" className="gap-2">Open calculator</Button>
+            <Link href="/housing-search">
+              <Button variant="outline" className="gap-2">Search housing</Button>
             </Link>
-          </div>
-          <div className="mt-4 inline-flex items-center gap-1 text-xs text-black/55">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            Designed as a real operating workspace, not a brochure page.
           </div>
         </section>
       </div>

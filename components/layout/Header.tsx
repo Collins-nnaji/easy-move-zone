@@ -11,9 +11,9 @@ import { motion, AnimatePresence } from "framer-motion"
 import { authClient } from "@/lib/auth/client"
 
 const TICKER_ITEMS = [
-  "EasyMoveZone · AI-powered document support + tools platform · ",
-  "Travel and relocation workflow for work, study, business, and global movement · ",
-  "Start on landing page · Continue in EMZ Suite workspace · ",
+  "EasyMoveZone Relocation Platform · Compare movers · Find housing · Join communities · ",
+  "Visa guides + cost-of-living intelligence + AI relocation assistant in one suite · ",
+  "Built for students, professionals, founders, and digital nomads moving globally · ",
 ]
 
 function AnnouncementTicker() {
@@ -112,7 +112,7 @@ export function Header() {
                 priority
               />
               <span className="hidden sm:inline text-xs font-medium text-muted-foreground border-l border-border pl-2 ml-1">
-                Migration Intelligence · Nigeria
+                Relocation Platform · Nigeria
               </span>
             </Link>
 
