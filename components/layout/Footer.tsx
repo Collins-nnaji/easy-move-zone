@@ -5,6 +5,7 @@ export function Footer() {
   const navigation = {
     product: [
       { name: "Get assessed", href: "/qualify" },
+      { name: "Document support", href: "/document-support" },
       { name: "EMZ Suite (All-in-one)", href: "/suite" },
       { name: "Fees", href: "/#fees" },
       { name: "Route strategies", href: "/#routes" },

@@ -4,13 +4,14 @@ import * as React from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import {
-  CheckCircle2, Calculator, FileText, ArrowRight, BadgeCheck, Globe,
+  CheckCircle2, Calculator, FileText, ArrowRight, BadgeCheck, Globe, FolderOpen,
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 
 /* ── Tool links ─────────────────────────────────────── */
 const TOOL_LINKS = [
   { href: "/qualify", label: "Get assessed", desc: "Submit your profile for assessment", icon: CheckCircle2, color: "bg-primary/10 text-primary" },
+  { href: "/document-support", label: "Document support", desc: "Checklist, uploads, and status tracking", icon: FolderOpen, color: "bg-primary/10 text-primary" },
   { href: "/suite", label: "EMZ Suite", desc: "Services + process in one place", icon: FileText, color: "bg-secondary/10 text-secondary" },
   { href: "/#fees", label: "Fees", desc: "Transparent pricing", icon: Calculator, color: "bg-accent/10 text-accent-foreground" },
   { href: "/#routes", label: "Route strategies", desc: "UK, Canada, Europe", icon: Globe, color: "bg-muted" },

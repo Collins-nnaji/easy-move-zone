@@ -20,6 +20,13 @@ const EASE = [0.16, 1, 0.3, 1] as const
 
 const TOOL_CARDS = [
   {
+    title: "Document support workspace",
+    desc: "Organize required documents, upload files, and track readiness by route and purpose.",
+    href: "/document-support",
+    icon: FileCheck2,
+    cta: "Open document support",
+  },
+  {
     title: "Assessment tool",
     desc: "Match your profile to routes across UK, Canada, and Europe.",
     href: "/qualify",
@@ -65,12 +72,13 @@ export default function SuitePage() {
             EMZ Suite Command Center
           </div>
           <h1 className="display-title text-4xl md:text-6xl font-bold text-black mb-3">
-            Run your migration workflow
+            Global travel & relocation
             <br />
-            from one organised suite.
+            tool + document support suite.
           </h1>
           <p className="text-black/70 text-base md:text-lg max-w-3xl">
-            The tools are now centralised here so users can start assessment, calculate costs, and review route strategies without jumping around the navbar.
+            Positioning EMZ Suite as a practical platform for anybody planning international travel or relocation for work, study, or business.
+            Use tools, document support, and strategy guidance in one flow.
           </p>
         </motion.section>
 
@@ -81,7 +89,7 @@ export default function SuitePage() {
               Start with assessment, then calculate costs
             </span>
           </div>
-          <div className="grid md:grid-cols-3 gap-5">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
             {TOOL_CARDS.map(({ title, desc, href, icon: Icon, cta }, index) => (
               <motion.article
                 key={title}
@@ -130,10 +138,13 @@ export default function SuitePage() {
 
         <section className="rounded-2xl border border-black/10 bg-white p-6 text-center">
           <h3 className="display-title text-3xl md:text-4xl text-black mb-2">Need a quick start?</h3>
-          <p className="text-black/65 mb-5">Begin with the assessment tool and then confirm your budget in calculator.</p>
+          <p className="text-black/65 mb-5">Start with assessment, organise documents, then validate your budget.</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link href="/qualify">
               <Button className="gap-2">Start assessment <ArrowRight className="w-4 h-4" /></Button>
+            </Link>
+            <Link href="/document-support">
+              <Button variant="outline" className="gap-2">Open document support</Button>
             </Link>
             <Link href="/calculator">
               <Button variant="outline" className="gap-2">Run calculator</Button>

@@ -13,7 +13,7 @@ import { authClient } from "@/lib/auth/client"
 const TICKER_ITEMS = [
   "Migration Intelligence & Relocation Strategy · Lagos · Abuja · Port Harcourt · ",
   "AI-powered migration scoring · Visa strategy · UK · Canada · Europe · ",
-  "From decision to settlement · EasyMoveZone — your smart migration partner · ",
+  "Tool + document support for work, study, business & travel · From decision to settlement · ",
 ]
 
 function AnnouncementTicker() {
