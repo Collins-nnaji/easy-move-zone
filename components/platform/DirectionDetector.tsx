@@ -40,8 +40,8 @@ export function DirectionDetector() {
 
   return (
     <div className="emz-gloss-card rounded-2xl p-5 shadow-sm">
-      <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">Smart Move Profile Detector</h3>
-      <p className="mt-2 text-sm text-[#6b6560]">
+      <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0f172a]">Smart Move Profile Detector</h3>
+      <p className="mt-2 text-sm text-[#64748b]">
         Describe your move in one sentence. We suggest your mover journey, best-fit cities, and support plan.
       </p>
       <form onSubmit={onSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row">
@@ -49,12 +49,12 @@ export function DirectionDetector() {
           value={description}
           onChange={(event) => setDescription(event.target.value)}
           placeholder="Example: Returning from London with family, need a secure 3-bed near good schools in Lagos."
-          className="flex-1 rounded-xl border border-black/15 bg-[#f5f0e8] px-4 py-3 text-sm outline-none focus:border-[#c9a84c]"
+          className="flex-1 rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-sm outline-none focus:border-[#155eef]"
         />
         <button
           type="submit"
           disabled={loading}
-          className="emz-pill-cta rounded-xl bg-[#0d0d0d] px-4 py-3 text-sm font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a] disabled:opacity-60"
+          className="emz-pill-cta rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
         >
           {loading ? "Analyzing..." : "Detect Journey"}
         </button>
@@ -62,11 +62,11 @@ export function DirectionDetector() {
 
       {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
       {result ? (
-        <div className="mt-4 rounded-xl border border-[#c9a84c]/40 bg-[#ede8de] p-4">
+        <div className="mt-4 rounded-xl border border-[#b9cef0] bg-[#eef4ff] p-4">
           <p className="text-sm"><strong>Mover journey:</strong> {result.moverJourney.replace("_", " ")}</p>
           <p className="mt-1 text-sm"><strong>Suggested cities:</strong> {result.suggestedCities.join(", ")}</p>
           <p className="mt-1 text-sm"><strong>Suggested plan:</strong> {result.suggestedPlan}</p>
-          <p className="mt-2 text-sm text-[#6b6560]">{result.reasoning}</p>
+          <p className="mt-2 text-sm text-[#64748b]">{result.reasoning}</p>
         </div>
       ) : null}
     </div>

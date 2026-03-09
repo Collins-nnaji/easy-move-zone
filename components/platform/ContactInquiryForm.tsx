@@ -2,9 +2,9 @@
 
 import { FormEvent, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import type { Market } from "@/lib/platform/types"
+import type { CityMarket } from "@/lib/property/types"
 
-export function ContactInquiryForm({ markets }: { markets: Market[] }) {
+export function ContactInquiryForm({ markets }: { markets: CityMarket[] }) {
   const searchParams = useSearchParams()
   const initialDirection = searchParams.get("direction") ?? ""
   const initialMarket = searchParams.get("market") ?? ""
@@ -58,37 +58,37 @@ export function ContactInquiryForm({ markets }: { markets: Market[] }) {
   return (
     <form onSubmit={onSubmit} className="space-y-2.5">
       <div className="grid gap-3 md:grid-cols-2">
-        <input required value={form.firstName} onChange={(event) => updateField("firstName", event.target.value)} placeholder="First name" className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base" />
-        <input required value={form.lastName} onChange={(event) => updateField("lastName", event.target.value)} placeholder="Last name" className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base" />
+        <input required value={form.firstName} onChange={(event) => updateField("firstName", event.target.value)} placeholder="First name" className="rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base" />
+        <input required value={form.lastName} onChange={(event) => updateField("lastName", event.target.value)} placeholder="Last name" className="rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base" />
       </div>
-      <input required value={form.company} onChange={(event) => updateField("company", event.target.value)} placeholder="Company name" className="w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-base" />
-      <input required type="email" value={form.email} onChange={(event) => updateField("email", event.target.value)} placeholder="Email address" className="w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-base" />
+      <input required value={form.company} onChange={(event) => updateField("company", event.target.value)} placeholder="Company name" className="w-full rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base" />
+      <input required type="email" value={form.email} onChange={(event) => updateField("email", event.target.value)} placeholder="Email address" className="w-full rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base" />
       <div className="grid gap-3 md:grid-cols-2">
-        <input value={form.phone} onChange={(event) => updateField("phone", event.target.value)} placeholder="Phone number (optional)" className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base" />
-        <input value={form.website} onChange={(event) => updateField("website", event.target.value)} placeholder="Website (optional)" className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base" />
+        <input value={form.phone} onChange={(event) => updateField("phone", event.target.value)} placeholder="Phone number (optional)" className="rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base" />
+        <input value={form.website} onChange={(event) => updateField("website", event.target.value)} placeholder="Website (optional)" className="rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base" />
       </div>
       <div className="grid gap-3 md:grid-cols-2">
-        <select value={form.direction} onChange={(event) => updateField("direction", event.target.value)} className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base">
+        <select value={form.direction} onChange={(event) => updateField("direction", event.target.value)} className="rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base">
           <option>Domestic move within Nigeria</option>
           <option>Diaspora move into Nigeria</option>
           <option>Pan-African move</option>
           <option>Commercial property search</option>
           <option>General inquiry</option>
         </select>
-        <select value={form.targetMarket} onChange={(event) => updateField("targetMarket", event.target.value)} className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base">
+        <select value={form.targetMarket} onChange={(event) => updateField("targetMarket", event.target.value)} className="rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base">
           <option>Not sure yet</option>
           {marketOptions.map((market) => <option key={market}>{market}</option>)}
         </select>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
-        <select value={form.businessSector} onChange={(event) => updateField("businessSector", event.target.value)} className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base">
+        <select value={form.businessSector} onChange={(event) => updateField("businessSector", event.target.value)} className="rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base">
           <option>Residential</option>
           <option>Commercial</option>
           <option>Mixed-use</option>
           <option>Short-let</option>
           <option>Corporate housing</option>
         </select>
-        <select value={form.timeline} onChange={(event) => updateField("timeline", event.target.value)} className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base">
+        <select value={form.timeline} onChange={(event) => updateField("timeline", event.target.value)} className="rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base">
           <option>Ready now</option>
           <option>Within 3 months</option>
           <option>Within 6 months</option>
@@ -96,14 +96,14 @@ export function ContactInquiryForm({ markets }: { markets: Market[] }) {
         </select>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
-        <select value={form.budgetRange} onChange={(event) => updateField("budgetRange", event.target.value)} className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base">
+        <select value={form.budgetRange} onChange={(event) => updateField("budgetRange", event.target.value)} className="rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base">
           <option>Under $5K</option>
           <option>$5K-$15K</option>
           <option>$15K-$50K</option>
           <option>$50K+</option>
           <option>Let&apos;s discuss</option>
         </select>
-        <select value={form.source} onChange={(event) => updateField("source", event.target.value)} className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base">
+        <select value={form.source} onChange={(event) => updateField("source", event.target.value)} className="rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base">
           <option>Website</option>
           <option>Referral</option>
           <option>LinkedIn</option>
@@ -112,7 +112,7 @@ export function ContactInquiryForm({ markets }: { markets: Market[] }) {
         </select>
       </div>
       {form.recommendedService ? (
-        <input value={form.recommendedService} onChange={(event) => updateField("recommendedService", event.target.value)} className="w-full rounded-xl border border-black/15 bg-[#f5f0e8] px-4 py-3 text-base" />
+        <input value={form.recommendedService} onChange={(event) => updateField("recommendedService", event.target.value)} className="w-full rounded-xl border border-[#c8d8f0] bg-[#f1f5f9] px-4 py-3 text-base" />
       ) : null}
       <textarea
         required
@@ -120,12 +120,12 @@ export function ContactInquiryForm({ markets }: { markets: Market[] }) {
         value={form.message}
         onChange={(event) => updateField("message", event.target.value)}
         placeholder="Tell us about your move (target city, budget, timeline, property type). 100+ characters recommended."
-        className="min-h-28 w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-base"
+        className="min-h-28 w-full rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base"
       />
-      <button type="submit" disabled={loading} className="w-full rounded-full bg-[#0d0d0d] px-4 py-3 text-base font-medium text-[#f5f0e8] hover:bg-[#1a3a2a] disabled:opacity-60">
+      <button type="submit" disabled={loading} className="emz-pill-cta w-full rounded-full px-4 py-3 text-base font-semibold disabled:opacity-60">
         {loading ? "Submitting..." : "Send & Request Strategy Call"}
       </button>
-      {responseMessage ? <p className="text-sm text-[#6b6560]">{responseMessage}</p> : null}
+      {responseMessage ? <p className="text-sm text-[#64748b]">{responseMessage}</p> : null}
     </form>
   )
 }

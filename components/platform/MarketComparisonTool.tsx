@@ -38,12 +38,12 @@ export function MarketComparisonTool({ markets }: { markets: CityMarket[] }) {
 
   return (
     <div className="emz-gloss-card rounded-2xl p-5 shadow-sm">
-      <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">AI City Comparison Tool</h3>
+      <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0f172a]">AI City Comparison Tool</h3>
       <form onSubmit={onCompare} className="mt-3 grid gap-3 md:grid-cols-3">
         <select
           value={marketA}
           onChange={(event) => setMarketA(event.target.value)}
-          className="rounded-xl border border-black/15 bg-[#f5f0e8] px-3 py-2 text-sm"
+          className="rounded-xl border border-[#c8d8f0] bg-white px-3 py-2 text-sm"
         >
           {markets.map((market) => (
             <option key={`a-${market.id}`} value={market.id}>{market.name}</option>
@@ -52,7 +52,7 @@ export function MarketComparisonTool({ markets }: { markets: CityMarket[] }) {
         <select
           value={marketB}
           onChange={(event) => setMarketB(event.target.value)}
-          className="rounded-xl border border-black/15 bg-[#f5f0e8] px-3 py-2 text-sm"
+          className="rounded-xl border border-[#c8d8f0] bg-white px-3 py-2 text-sm"
         >
           {markets.map((market) => (
             <option key={`b-${market.id}`} value={market.id}>{market.name}</option>
@@ -61,22 +61,22 @@ export function MarketComparisonTool({ markets }: { markets: CityMarket[] }) {
         <button
           type="submit"
           disabled={loading}
-          className="emz-pill-cta rounded-xl bg-[#0d0d0d] px-4 py-2 text-sm font-medium text-[#f5f0e8] disabled:opacity-60"
+          className="emz-pill-cta rounded-xl px-4 py-2 text-sm font-semibold disabled:opacity-60"
         >
           {loading ? "Comparing..." : "Compare"}
         </button>
       </form>
 
       {result ? (
-        <div className="mt-4 rounded-xl border border-[#c9a84c]/30 bg-[#ede8de] p-4 text-sm text-[#1a1a1a]">
+        <div className="mt-4 rounded-xl border border-[#b9cef0] bg-[#eef4ff] p-4 text-sm text-[#0f172a]">
           <p className="mb-2">{result.summary}</p>
-          <ul className="space-y-1 text-[#6b6560]">
-            <li><strong className="text-[#1a1a1a]">Pricing context:</strong> {result.marketSize}</li>
-            <li><strong className="text-[#1a1a1a]">Security & ease:</strong> {result.regulatoryEase}</li>
-            <li><strong className="text-[#1a1a1a]">Sector opportunity:</strong> {result.sectorOpportunity}</li>
-            <li><strong className="text-[#1a1a1a]">Competition:</strong> {result.competitionLevel}</li>
-            <li><strong className="text-[#1a1a1a]">Recommended approach:</strong> {result.recommendedApproach}</li>
-            <li><strong className="text-[#1a1a1a]">Timeline & cost:</strong> {result.estimatedTimelineAndCost}</li>
+          <ul className="space-y-1 text-[#475569]">
+            <li><strong className="text-[#0f172a]">Pricing context:</strong> {result.marketSize}</li>
+            <li><strong className="text-[#0f172a]">Security & ease:</strong> {result.regulatoryEase}</li>
+            <li><strong className="text-[#0f172a]">Sector opportunity:</strong> {result.sectorOpportunity}</li>
+            <li><strong className="text-[#0f172a]">Competition:</strong> {result.competitionLevel}</li>
+            <li><strong className="text-[#0f172a]">Recommended approach:</strong> {result.recommendedApproach}</li>
+            <li><strong className="text-[#0f172a]">Timeline & cost:</strong> {result.estimatedTimelineAndCost}</li>
           </ul>
         </div>
       ) : null}

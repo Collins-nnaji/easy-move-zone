@@ -10,14 +10,18 @@ export default async function MarketsPage() {
 
   return (
     <PublicShell>
-      <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a84c]">City Coverage</p>
-        <h1 className="mt-2 font-[var(--font-playfair)] text-6xl font-black text-[#0d0d0d]">
-          We operate where the opportunity is.
-        </h1>
-        <p className="mt-3 max-w-2xl text-base text-[#6b6560]">
-          Compare African cities for relocation using security, commute, lifestyle, and pricing signals.
-        </p>
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8">
+        <div className="property-hero-image p-6 md:p-8">
+          <div className="max-w-2xl rounded-2xl border border-white/30 bg-black/35 p-6 text-white backdrop-blur-sm">
+            <p className="text-xs uppercase tracking-[0.2em] text-sky-100">City coverage</p>
+            <h1 className="mt-2 font-[var(--font-playfair)] text-6xl font-bold leading-[0.95]">
+              Compare where your next chapter fits best
+            </h1>
+            <p className="mt-3 max-w-xl text-sm text-sky-100">
+              Explore city-level pricing, security signals, commute realities, and available verified inventory.
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
@@ -30,13 +34,13 @@ export default async function MarketsPage() {
 
       <section className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         <div className="emz-gloss-card rounded-2xl p-6">
-          <h2 className="font-[var(--font-playfair)] text-4xl font-black text-[#0d0d0d]">Coming soon cities</h2>
-          <p className="mt-2 text-sm text-[#6b6560]">
+          <h2 className="font-[var(--font-playfair)] text-4xl font-black text-[#0f172a]">Coming soon cities</h2>
+          <p className="mt-2 text-sm text-[#64748b]">
             We are expanding platform coverage in these cities. Register your interest and get notified at launch.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {comingSoon.map((market) => (
-              <span key={market.id} className="rounded-full bg-[#ede8de] px-3 py-1.5 text-sm text-[#6b6560]">
+              <span key={market.id} className="rounded-full bg-[#eef4ff] px-3 py-1.5 text-sm text-[#155eef]">
                 {market.flagEmoji} {market.name}
               </span>
             ))}

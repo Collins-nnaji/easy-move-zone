@@ -36,16 +36,16 @@ export function NewsletterSignupForm() {
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         placeholder="you@company.com"
-        className="flex-1 rounded-xl border border-black/15 bg-white px-4 py-3 text-sm outline-none focus:border-[#c9a84c]"
+        className="flex-1 rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-sm outline-none focus:border-[#155eef]"
       />
       <button
         type="submit"
         disabled={loading}
-        className="emz-pill-cta rounded-xl bg-[#0d0d0d] px-5 py-3 text-sm font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a] disabled:opacity-60"
+        className="emz-pill-cta rounded-xl px-5 py-3 text-sm font-semibold disabled:opacity-60"
       >
         {loading ? "Submitting..." : "Subscribe"}
       </button>
-      {message ? <p className="text-sm text-[#6b6560] sm:col-span-2">{message}</p> : null}
+      {message ? <p className="text-sm text-[#64748b] sm:col-span-2">{message}</p> : null}
     </form>
   )
 }

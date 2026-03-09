@@ -47,21 +47,26 @@ export function PlatformNav() {
   const user = sessionData?.user ?? null
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black/10 bg-[#f5f0e8]/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="font-[var(--font-playfair)] text-xl font-black tracking-tight text-[#0d0d0d]">
-          Easy<span className="text-[#c9a84c]">Move</span>Zone
+    <header className="sticky top-0 z-50 border-b border-[#d9e3f1]/80 bg-white/90 backdrop-blur-xl">
+      <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="leading-tight">
+          <p className="font-[var(--font-playfair)] text-2xl font-bold tracking-tight text-[#0f172a]">
+            EasyMoveZone
+          </p>
+          <p className="text-[11px] uppercase tracking-[0.22em] text-[#155eef]">Property Finder</p>
         </Link>
 
-        <nav className="hidden items-center gap-2 md:flex">
+        <nav className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-full px-3 py-1.5 text-[15px] transition ${
-                  isActive ? "bg-[#ede8de] text-[#0d0d0d]" : "text-[#6b6560] hover:bg-[#ede8de] hover:text-[#0d0d0d]"
+                className={`rounded-full px-3.5 py-2 text-[14px] font-medium transition ${
+                  isActive
+                    ? "bg-[#eaf1ff] text-[#155eef]"
+                    : "text-[#475569] hover:bg-[#eef4ff] hover:text-[#0f172a]"
                 }`}
               >
                 {item.label}
@@ -69,19 +74,19 @@ export function PlatformNav() {
             )
           })}
           {sessionPending ? (
-            <div className="h-9 w-20 animate-pulse rounded-full bg-[#ede8de]" />
+            <div className="h-10 w-24 animate-pulse rounded-full bg-[#eef4ff]" />
           ) : user ? (
             <>
               <Link
                 href="/dashboard/client"
-                className="ml-2 rounded-full border border-black/15 px-4 py-2 text-[15px] font-medium text-[#0d0d0d]"
+                className="ml-2 rounded-full border border-[#c8d8f0] px-4 py-2 text-[14px] font-semibold text-[#0f172a]"
               >
                 Dashboard
               </Link>
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="inline-flex items-center gap-1 rounded-full bg-[#0d0d0d] px-4 py-2 text-[15px] font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a]"
+                className="inline-flex items-center gap-1 rounded-full bg-[#0f172a] px-4 py-2 text-[14px] font-semibold text-white transition hover:bg-[#1e293b]"
               >
                 <LogOut className="h-4 w-4" />
                 Sign out
@@ -91,15 +96,15 @@ export function PlatformNav() {
             <>
               <Link
                 href="/auth"
-                className="ml-2 rounded-full border border-black/15 px-4 py-2 text-[15px] font-medium text-[#0d0d0d]"
+                className="ml-2 rounded-full border border-[#c8d8f0] px-4 py-2 text-[14px] font-semibold text-[#0f172a]"
               >
                 Sign in
               </Link>
               <Link
                 href="/contact?direction=Domestic%20move%20within%20Nigeria"
-                className="emz-pill-cta rounded-full bg-[#0d0d0d] px-4 py-2 text-[15px] font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a]"
+                className="emz-pill-cta rounded-full px-4 py-2 text-[14px] font-semibold"
               >
-                Find My Property
+                Start My Move
               </Link>
             </>
           )}
@@ -107,7 +112,7 @@ export function PlatformNav() {
 
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-lg p-2 text-[#0d0d0d] md:hidden"
+          className="inline-flex items-center justify-center rounded-lg p-2 text-[#0f172a] md:hidden"
           onClick={() => setIsOpen((prev) => !prev)}
           aria-label="Toggle menu"
         >
@@ -116,7 +121,7 @@ export function PlatformNav() {
       </div>
 
       {isOpen ? (
-        <div className="border-t border-black/10 bg-[#f5f0e8] px-4 py-3 md:hidden">
+        <div className="border-t border-[#d9e3f1] bg-white px-4 py-3 md:hidden">
           <div className="flex flex-col gap-2">
             {navItems.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
@@ -126,7 +131,7 @@ export function PlatformNav() {
                   href={item.href}
                   onClick={() => setIsOpen(false)}
                   className={`rounded-lg px-3 py-2 text-base ${
-                    isActive ? "bg-[#ede8de] text-[#0d0d0d]" : "text-[#6b6560]"
+                    isActive ? "bg-[#eaf1ff] text-[#155eef]" : "text-[#475569]"
                   }`}
                 >
                   {item.label}
@@ -134,20 +139,20 @@ export function PlatformNav() {
               )
             })}
             {sessionPending ? (
-              <div className="h-10 animate-pulse rounded-full bg-[#ede8de]" />
+              <div className="h-10 animate-pulse rounded-full bg-[#eef4ff]" />
             ) : user ? (
               <>
                 <Link
                   href="/dashboard/client"
                   onClick={() => setIsOpen(false)}
-                  className="rounded-full border border-black/15 px-4 py-2 text-center text-base text-[#0d0d0d]"
+                  className="rounded-full border border-[#c8d8f0] px-4 py-2 text-center text-base text-[#0f172a]"
                 >
                   Dashboard
                 </Link>
                 <button
                   type="button"
                   onClick={handleSignOut}
-                  className="inline-flex items-center justify-center gap-1 rounded-full bg-[#0d0d0d] px-4 py-2 text-center text-base font-medium text-[#f5f0e8]"
+                  className="inline-flex items-center justify-center gap-1 rounded-full bg-[#0f172a] px-4 py-2 text-center text-base font-medium text-white"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign out
@@ -158,16 +163,16 @@ export function PlatformNav() {
                 <Link
                   href="/auth"
                   onClick={() => setIsOpen(false)}
-                  className="rounded-full border border-black/15 px-4 py-2 text-center text-base text-[#0d0d0d]"
+                  className="rounded-full border border-[#c8d8f0] px-4 py-2 text-center text-base text-[#0f172a]"
                 >
                   Sign in
                 </Link>
                 <Link
-                    href="/contact?direction=Domestic%20move%20within%20Nigeria"
+                  href="/contact?direction=Domestic%20move%20within%20Nigeria"
                   onClick={() => setIsOpen(false)}
-                  className="rounded-full bg-[#0d0d0d] px-4 py-2 text-center text-base font-medium text-[#f5f0e8]"
+                  className="emz-pill-cta rounded-full px-4 py-2 text-center text-base font-semibold"
                 >
-                  Find My Property
+                  Start My Move
                 </Link>
               </>
             )}

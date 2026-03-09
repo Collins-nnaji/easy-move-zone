@@ -27,16 +27,16 @@ export function ComingSoonInterestForm({ markets }: { markets: CityMarket[] }) {
 
   return (
     <form onSubmit={onSubmit} className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-      <select value={market} onChange={(event) => setMarket(event.target.value)} className="rounded-xl border border-black/15 bg-white px-3 py-2 text-sm">
+      <select value={market} onChange={(event) => setMarket(event.target.value)} className="rounded-xl border border-[#c8d8f0] bg-white px-3 py-2 text-sm">
         {markets.map((item) => (
           <option key={item.id}>{item.name}</option>
         ))}
       </select>
-      <input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@company.com" className="rounded-xl border border-black/15 bg-white px-3 py-2 text-sm" />
-      <button type="submit" className="emz-pill-cta rounded-xl bg-[#0d0d0d] px-4 py-2 text-sm text-[#f5f0e8]">
+      <input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@company.com" className="rounded-xl border border-[#c8d8f0] bg-white px-3 py-2 text-sm" />
+      <button type="submit" className="emz-pill-cta rounded-xl px-4 py-2 text-sm font-semibold">
         Register interest
       </button>
-      {message ? <p className="text-sm text-[#6b6560] md:col-span-3">{message}</p> : null}
+      {message ? <p className="text-sm text-[#64748b] md:col-span-3">{message}</p> : null}
     </form>
   )
 }

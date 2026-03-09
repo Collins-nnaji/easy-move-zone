@@ -27,20 +27,20 @@ export function MonthlyDigestGenerator() {
 
   return (
     <div className="emz-gloss-card rounded-2xl p-5">
-      <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">Monthly Relocation Digest Generator</h3>
-      <p className="mt-2 text-sm text-[#6b6560]">
+      <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0f172a]">Monthly Relocation Digest Generator</h3>
+      <p className="mt-2 text-sm text-[#64748b]">
         Generate a first draft newsletter from city availability, pricing shifts, and neighbourhood insights.
       </p>
       <button
         type="button"
         onClick={generateDigest}
         disabled={loading}
-        className="emz-pill-cta mt-4 rounded-full bg-[#0d0d0d] px-4 py-2 text-sm text-[#f5f0e8] disabled:opacity-60"
+        className="emz-pill-cta mt-4 rounded-full px-4 py-2 text-sm font-semibold disabled:opacity-60"
       >
         {loading ? "Generating..." : "Generate draft digest"}
       </button>
       {result ? (
-        <div className="mt-4 rounded-xl border border-[#c9a84c]/30 bg-[#ede8de] p-4 text-sm text-[#1a1a1a] whitespace-pre-wrap">
+        <div className="mt-4 whitespace-pre-wrap rounded-xl border border-[#b9cef0] bg-[#eef4ff] p-4 text-sm text-[#0f172a]">
           {result}
         </div>
       ) : null}

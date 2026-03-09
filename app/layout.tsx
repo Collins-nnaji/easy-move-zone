@@ -1,30 +1,31 @@
 import type { Metadata } from "next";
-import { Outfit, Playfair_Display, Space_Grotesk } from "next/font/google";
+import { Manrope, Cormorant_Garamond, Sora } from "next/font/google";
 import { AppChrome } from "@/components/layout/AppChrome";
 import "./globals.css";
 
-const outfit = Outfit({
+const outfit = Manrope({
   subsets: ["latin"],
   variable: "--font-outfit",
   display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
+const spaceGrotesk = Sora({
   subsets: ["latin"],
   variable: "--font-space",
   display: "swap",
 });
 
-const playfairDisplay = Playfair_Display({
+const playfairDisplay = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-playfair",
+  weight: ["500", "600", "700"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone Property Finder — Nigeria & Africa",
+  title: "EasyMoveZone Homes — Relocation Property Platform",
   description:
-    "Find verified rental and purchase properties across Nigeria and major African cities with trusted agents, neighbourhood intelligence, and move support.",
+    "A modern property relocation platform for Nigeria and Africa: verified listings, neighbourhood intelligence, trusted agents, and move support.",
 };
 
 export default function RootLayout({
