@@ -6,6 +6,7 @@ import { TestimonialsRotator } from "@/components/platform/TestimonialsRotator"
 import {
   getCityMarkets,
   getFeaturedListings,
+  getPrimaryListingImage,
   getOpportunityRows,
   getPropertyTestimonials,
   getResourceGuides,
@@ -118,7 +119,7 @@ export default async function HomePage() {
           {listings.slice(0, 6).map((listing) => (
             <article key={listing.id} className="emz-gloss-card rounded-2xl p-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={listing.images[0]} alt={listing.title} className="h-44 w-full rounded-xl object-cover" />
+              <img src={getPrimaryListingImage(listing)} alt={listing.title} className="h-44 w-full rounded-xl object-cover" />
               <p className="mt-3 text-xs uppercase tracking-[0.15em] text-[#0f766e]">{listing.citySlug.replace("-", " ")} · {listing.type}</p>
               <h3 className="mt-1 text-2xl font-bold text-[#0f172a]">{listing.title}</h3>
               <p className="mt-1 text-sm text-[#64748b]">{listing.neighborhood}, {listing.country}</p>

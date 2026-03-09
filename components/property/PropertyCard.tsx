@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
+import { getImageOrFallback } from "@/lib/property/media"
 import { Property } from "@/lib/mockData"
 import { Bed, Bath, Move, MapPin, CheckCircle, Shield } from "lucide-react"
 
@@ -21,7 +22,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
                 {/* Image Placeholder - In real app use Next/Image with valid src */}
                 <div
                     className="absolute inset-0 bg-zinc-200 dark:bg-zinc-800 transition-transform duration-700 group-hover:scale-105 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${property.images[0] || '/placeholder.jpg'})` }}
+                    style={{ backgroundImage: `url(${getImageOrFallback(property.images)})` }}
                 ></div>
 
                 <div className="absolute top-4 left-4 flex flex-col gap-2">

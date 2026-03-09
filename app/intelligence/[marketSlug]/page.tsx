@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { PublicShell } from "@/components/platform/PublicShell"
-import { getCityMarkets, getPropertyListings } from "@/lib/property"
+import { getCityMarkets, getPrimaryListingImage, getPropertyListings } from "@/lib/property"
 
 export default async function IntelligenceMarketPage({
   params,
@@ -31,18 +31,25 @@ export default async function IntelligenceMarketPage({
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        <div className="grid gap-4 md:grid-cols-2">
-          {listings.map((listing) => (
-            <article key={listing.id} className="emz-gloss-card rounded-2xl p-5">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={listing.images[0]} alt={listing.title} className="h-40 w-full rounded-xl object-cover" />
-              <p className="mt-3 text-xs uppercase tracking-wider text-[#0f766e]">{listing.type}</p>
-              <h2 className="mt-1 font-[var(--font-playfair)] text-2xl font-bold text-[#0f172a]">{listing.title}</h2>
-              <p className="mt-2 text-sm text-[#64748b]">{listing.description}</p>
-              <p className="mt-3 text-sm"><strong>Price:</strong> ${listing.priceUsd.toLocaleString()}</p>
-            </article>
-          ))}
-        </div>
+        {listings.length === 0 ? (
+          <div className="emz-gloss-card rounded-2xl p-6 text-center">
+            <h2 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0f172a]">No listings yet in this city</h2>
+            <p className="mt-2 text-sm text-[#64748b]">Check back soon or contact us for manual sourcing support.</p>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {listings.map((listing) => (
+              <article key={listing.id} className="emz-gloss-card rounded-2xl p-5">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={getPrimaryListingImage(listing)} alt={listing.title} className="h-40 w-full rounded-xl object-cover" />
+                <p className="mt-3 text-xs uppercase tracking-wider text-[#0f766e]">{listing.type}</p>
+                <h2 className="mt-1 font-[var(--font-playfair)] text-2xl font-bold text-[#0f172a]">{listing.title}</h2>
+                <p className="mt-2 text-sm text-[#64748b]">{listing.description}</p>
+                <p className="mt-3 text-sm"><strong>Price:</strong> ${listing.priceUsd.toLocaleString()}</p>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </PublicShell>
   )
