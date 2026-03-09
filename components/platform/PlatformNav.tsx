@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Menu, X } from "lucide-react"
-import { useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { LogOut, Menu, X } from "lucide-react"
+import { useEffect, useState } from "react"
+import { authClient } from "@/lib/auth/client"
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -15,8 +16,35 @@ const navItems = [
 ]
 
 export function PlatformNav() {
+  const router = useRouter()
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
+  const { data: sessionData, isPending: sessionPending, refetch: refetchSession } = authClient.useSession()
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      void refetchSession()
+    }, 120)
+    return () => clearTimeout(timeout)
+  }, [pathname, refetchSession])
+
+  useEffect(() => {
+    const onFocus = () => {
+      void refetchSession()
+    }
+    window.addEventListener("focus", onFocus)
+    return () => window.removeEventListener("focus", onFocus)
+  }, [refetchSession])
+
+  async function handleSignOut() {
+    setIsOpen(false)
+    await authClient.signOut()
+    await refetchSession()
+    router.push("/")
+    router.refresh()
+  }
+
+  const user = sessionData?.user ?? null
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/10 bg-[#f5f0e8]/80 backdrop-blur-xl">
@@ -40,18 +68,41 @@ export function PlatformNav() {
               </Link>
             )
           })}
-          <Link
-            href="/auth"
-            className="ml-2 rounded-full border border-black/15 px-4 py-2 text-[15px] font-medium text-[#0d0d0d]"
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/contact?direction=inbound"
-            className="emz-pill-cta rounded-full bg-[#0d0d0d] px-4 py-2 text-[15px] font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a]"
-          >
-            Start Your Move
-          </Link>
+          {sessionPending ? (
+            <div className="h-9 w-20 animate-pulse rounded-full bg-[#ede8de]" />
+          ) : user ? (
+            <>
+              <Link
+                href="/dashboard/client"
+                className="ml-2 rounded-full border border-black/15 px-4 py-2 text-[15px] font-medium text-[#0d0d0d]"
+              >
+                Dashboard
+              </Link>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="inline-flex items-center gap-1 rounded-full bg-[#0d0d0d] px-4 py-2 text-[15px] font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a]"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/auth"
+                className="ml-2 rounded-full border border-black/15 px-4 py-2 text-[15px] font-medium text-[#0d0d0d]"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/contact?direction=inbound"
+                className="emz-pill-cta rounded-full bg-[#0d0d0d] px-4 py-2 text-[15px] font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a]"
+              >
+                Start Your Move
+              </Link>
+            </>
+          )}
         </nav>
 
         <button
@@ -82,20 +133,44 @@ export function PlatformNav() {
                 </Link>
               )
             })}
-            <Link
-              href="/auth"
-              onClick={() => setIsOpen(false)}
-              className="rounded-full border border-black/15 px-4 py-2 text-center text-base text-[#0d0d0d]"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/contact?direction=inbound"
-              onClick={() => setIsOpen(false)}
-              className="rounded-full bg-[#0d0d0d] px-4 py-2 text-center text-base font-medium text-[#f5f0e8]"
-            >
-              Start Your Move
-            </Link>
+            {sessionPending ? (
+              <div className="h-10 animate-pulse rounded-full bg-[#ede8de]" />
+            ) : user ? (
+              <>
+                <Link
+                  href="/dashboard/client"
+                  onClick={() => setIsOpen(false)}
+                  className="rounded-full border border-black/15 px-4 py-2 text-center text-base text-[#0d0d0d]"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="inline-flex items-center justify-center gap-1 rounded-full bg-[#0d0d0d] px-4 py-2 text-center text-base font-medium text-[#f5f0e8]"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/auth"
+                  onClick={() => setIsOpen(false)}
+                  className="rounded-full border border-black/15 px-4 py-2 text-center text-base text-[#0d0d0d]"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/contact?direction=inbound"
+                  onClick={() => setIsOpen(false)}
+                  className="rounded-full bg-[#0d0d0d] px-4 py-2 text-center text-base font-medium text-[#f5f0e8]"
+                >
+                  Start Your Move
+                </Link>
+              </>
+            )}
           </div>
         </div>
       ) : null}
