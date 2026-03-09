@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/Button"
+import { useMemo, useState } from "react"
 import { Calculator } from "lucide-react"
 
 interface MortgageCalculatorProps {
@@ -13,26 +12,19 @@ export function MortgageCalculator({ price, type }: MortgageCalculatorProps) {
     const [downPayment, setDownPayment] = useState(20); // percent
     const [interestRate, setInterestRate] = useState(15); // percent
     const [years, setYears] = useState(20);
-    const [monthlyPayment, setMonthlyPayment] = useState(0);
-
-    useEffect(() => {
-        calculate();
-    }, [downPayment, interestRate, years, price]);
-
-    const calculate = () => {
+    const monthlyPayment = useMemo(() => {
         if (type === 'rent') {
             // Simple rent divider for now, maybe add agency fees later
-            setMonthlyPayment(price / 12);
-            return;
+            return price / 12;
         }
 
         const principal = price * (1 - downPayment / 100);
         const monthlyInterest = interestRate / 100 / 12;
         const numberOfPayments = years * 12;
+        if (monthlyInterest === 0) return principal / numberOfPayments;
 
-        const payment = (principal * monthlyInterest * Math.pow(1 + monthlyInterest, numberOfPayments)) / (Math.pow(1 + monthlyInterest, numberOfPayments) - 1);
-        setMonthlyPayment(payment);
-    }
+        return (principal * monthlyInterest * Math.pow(1 + monthlyInterest, numberOfPayments)) / (Math.pow(1 + monthlyInterest, numberOfPayments) - 1);
+    }, [downPayment, interestRate, price, type, years]);
 
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(val);

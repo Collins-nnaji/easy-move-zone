@@ -1,5 +1,4 @@
 import { Skeleton } from "@/components/ui/Skeleton"
-import { Card } from "@/components/ui/Card"
 
 export function PropertyCardSkeleton() {
     return (
