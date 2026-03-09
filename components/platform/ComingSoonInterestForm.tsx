@@ -1,9 +1,9 @@
 "use client"
 
 import { FormEvent, useState } from "react"
-import type { Market } from "@/lib/platform/types"
+import type { CityMarket } from "@/lib/property/types"
 
-export function ComingSoonInterestForm({ markets }: { markets: Market[] }) {
+export function ComingSoonInterestForm({ markets }: { markets: CityMarket[] }) {
   const [market, setMarket] = useState(markets[0]?.name ?? "")
   const [email, setEmail] = useState("")
   const [message, setMessage] = useState<string | null>(null)

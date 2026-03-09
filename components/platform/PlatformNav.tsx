@@ -8,11 +8,11 @@ import { authClient } from "@/lib/auth/client"
 
 const navItems = [
   { href: "/", label: "Home" },
-  { href: "/services", label: "Services" },
-  { href: "/intelligence", label: "Intelligence" },
-  { href: "/markets", label: "Markets" },
+  { href: "/services", label: "Listings" },
+  { href: "/intelligence", label: "Neighbourhood Intel" },
+  { href: "/markets", label: "Cities" },
   { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  { href: "/contact", label: "Get Help" },
 ]
 
 export function PlatformNav() {
@@ -96,10 +96,10 @@ export function PlatformNav() {
                 Sign in
               </Link>
               <Link
-                href="/contact?direction=inbound"
+                href="/contact?direction=Domestic%20move%20within%20Nigeria"
                 className="emz-pill-cta rounded-full bg-[#0d0d0d] px-4 py-2 text-[15px] font-medium text-[#f5f0e8] transition hover:bg-[#1a3a2a]"
               >
-                Start Your Move
+                Find My Property
               </Link>
             </>
           )}
@@ -163,11 +163,11 @@ export function PlatformNav() {
                   Sign in
                 </Link>
                 <Link
-                  href="/contact?direction=inbound"
+                    href="/contact?direction=Domestic%20move%20within%20Nigeria"
                   onClick={() => setIsOpen(false)}
                   className="rounded-full bg-[#0d0d0d] px-4 py-2 text-center text-base font-medium text-[#f5f0e8]"
                 >
-                  Start Your Move
+                  Find My Property
                 </Link>
               </>
             )}

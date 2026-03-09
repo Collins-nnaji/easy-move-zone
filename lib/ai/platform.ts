@@ -1,6 +1,7 @@
 import OpenAI from "openai"
 import { getCorridors, getMarkets, getReports, getServices } from "@/lib/platform"
 import type { LeadInput } from "@/lib/platform/types"
+import { getCityMarkets, getPropertyListings } from "@/lib/property"
 
 const apiKey = process.env.OPENAI_API_KEY
 const openai = apiKey ? new OpenAI({ apiKey }) : null
@@ -26,21 +27,39 @@ async function chatJson<T>(systemPrompt: string, userPrompt: string, fallback: T
 }
 
 export async function detectDirection(description: string) {
+  const lower = description.toLowerCase()
+  const fallbackJourney =
+    lower.includes("uk") || lower.includes("canada") || lower.includes("diaspora")
+      ? "diaspora"
+      : lower.includes("accra") || lower.includes("nairobi") || lower.includes("johannesburg")
+        ? "pan_african"
+        : "domestic"
+
   return chatJson(
-    "You classify EasyMoveZone prospects. Always return JSON.",
-    `Business description: ${description}
+    "You classify EasyMoveZone Property Finder mover profiles. Always return JSON.",
+    `Move description: ${description}
 Return JSON with:
 {
-  "direction": "inbound" or "outbound",
-  "markets": ["market1","market2","market3"],
-  "serviceTier": "Explorer|Trade Bridge|Full Entry",
+  "moverJourney": "domestic" | "diaspora" | "pan_african",
+  "suggestedCities": ["city1","city2","city3"],
+  "suggestedPlan": "Essential Move Plan | Verified Move Plan | Concierge Move Plan",
   "reasoning": "short reason"
 }`,
     {
-      direction: description.toLowerCase().includes("export") ? "outbound" : "inbound",
-      markets: ["Nigeria", "Ghana", "United Kingdom"],
-      serviceTier: "Trade Bridge",
-      reasoning: "Initial recommendation based on your business description and expansion intent.",
+      moverJourney: fallbackJourney,
+      suggestedCities:
+        fallbackJourney === "diaspora"
+          ? ["Lagos", "Abuja", "Accra"]
+          : fallbackJourney === "pan_african"
+            ? ["Accra", "Nairobi", "Kigali"]
+            : ["Lagos", "Abuja", "Port Harcourt"],
+      suggestedPlan:
+        fallbackJourney === "diaspora"
+          ? "Concierge Move Plan"
+          : fallbackJourney === "pan_african"
+            ? "Verified Move Plan"
+            : "Essential Move Plan",
+      reasoning: "Recommendation based on route, urgency, and property verification needs.",
     }
   )
 }
@@ -82,38 +101,41 @@ Return:
 }
 
 export async function intelligenceChat(question: string) {
-  const reports = await getReports()
-  const reportSnippets = reports.map((report) => `${report.title} (${report.direction}): ${report.summary}`).join("\n")
+  const listings = await getPropertyListings()
+  const listingSnippets = listings
+    .slice(0, 20)
+    .map((listing) => `${listing.title} (${listing.citySlug}, ${listing.neighborhood}) - ${listing.description}`)
+    .join("\n")
 
   return chatJson(
-    "You are EasyMoveZone intelligence assistant. Use report context. Return JSON only.",
+    "You are EasyMoveZone Property Finder assistant. Use listing and city context. Return JSON only.",
     `Question: ${question}
-Report context:
-${reportSnippets}
+Listing context:
+${listingSnippets}
 
 Return:
 {
-  "answer":"Clear answer with recommendation of one report title if applicable."
+  "answer":"Clear answer with practical city/neighbourhood recommendation."
 }`,
     {
       answer:
-        "Based on current intelligence context, the best next step is to review the most relevant market report and validate regulatory sequencing before execution.",
+        "Based on available listings and city context, shortlist two verified neighbourhood options and compare commute and school access before booking viewings.",
     }
   )
 }
 
 export async function compareMarkets(marketAId: string, marketBId: string) {
-  const markets = await getMarkets()
+  const markets = await getCityMarkets()
   const a = markets.find((market) => market.id === marketAId)
   const b = markets.find((market) => market.id === marketBId)
   const fallback = {
     summary: `Comparison between ${a?.name ?? "Market A"} and ${b?.name ?? "Market B"}.`,
-    marketSize: `${a?.name ?? "A"} has ${a?.population ?? "n/a"} population vs ${b?.population ?? "n/a"} for ${b?.name ?? "B"}.`,
-    regulatoryEase: `${a?.name ?? "A"} rank: ${a?.easeOfDoingBusinessRank ?? "n/a"}, ${b?.name ?? "B"} rank: ${b?.easeOfDoingBusinessRank ?? "n/a"}.`,
+    marketSize: `${a?.name ?? "A"} average buy: $${a?.avgBuyUsd?.toLocaleString() ?? "n/a"} vs $${b?.avgBuyUsd?.toLocaleString() ?? "n/a"} in ${b?.name ?? "B"}.`,
+    regulatoryEase: `${a?.name ?? "A"} security ${a?.securityScore ?? "n/a"}/100 vs ${b?.name ?? "B"} security ${b?.securityScore ?? "n/a"}/100.`,
     sectorOpportunity: `${a?.topSectors.join(", ") ?? "n/a"} vs ${b?.topSectors.join(", ") ?? "n/a"}.`,
-    competitionLevel: "Moderate in both markets with corridor-dependent intensity.",
-    recommendedApproach: "Start with targeted pilot distribution and regulatory pre-work before full rollout.",
-    estimatedTimelineAndCost: "3-6 months for pilot entry and $15K-$50K depending on sector complexity.",
+    competitionLevel: "High-demand neighborhoods move faster and require early verification.",
+    recommendedApproach: "Start with verified shortlists and virtual tours before in-person final selection.",
+    estimatedTimelineAndCost: "2-6 weeks and $299-$1.5K service spend depending on support tier.",
   }
 
   return chatJson(

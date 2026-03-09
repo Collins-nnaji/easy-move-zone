@@ -1,14 +1,13 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
-import type { CorridorWithMarkets, Testimonial } from "@/lib/platform/types"
+import { useEffect, useState } from "react"
+import type { Testimonial } from "@/lib/property/types"
 
 interface TestimonialsRotatorProps {
   testimonials: Testimonial[]
-  corridors: CorridorWithMarkets[]
 }
 
-export function TestimonialsRotator({ testimonials, corridors }: TestimonialsRotatorProps) {
+export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) {
   const [activeIndex, setActiveIndex] = useState(0)
 
   useEffect(() => {
@@ -20,20 +19,13 @@ export function TestimonialsRotator({ testimonials, corridors }: TestimonialsRot
   }, [testimonials.length])
 
   const active = testimonials[activeIndex]
-  const corridor = useMemo(
-    () => corridors.find((item) => item.id === active?.corridorId),
-    [active?.corridorId, corridors]
-  )
-
   if (!active) return null
 
   return (
     <div className="emz-gloss-card rounded-2xl p-6 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a84c]">Case study spotlight</p>
-      <h3 className="mt-2 font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">{active.clientType}</h3>
-      <p className="mt-2 text-sm text-[#6b6560]">
-        Corridor: {corridor?.originMarket?.name ?? "Origin"} → {corridor?.destinationMarket?.name ?? "Destination"}
-      </p>
+      <h3 className="mt-2 font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">{active.moverType}</h3>
+      <p className="mt-2 text-sm text-[#6b6560]">Route: {active.route}</p>
       <p className="mt-2 text-sm font-medium text-[#1a1a1a]">Outcome: {active.outcome}</p>
       <blockquote className="mt-3 border-l-2 border-[#c9a84c] pl-3 text-sm italic text-[#6b6560]">
         “{active.quote}”

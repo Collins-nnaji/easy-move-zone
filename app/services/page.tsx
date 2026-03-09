@@ -1,13 +1,17 @@
 import { PublicShell } from "@/components/platform/PublicShell"
 import { ServicesPageClient } from "@/components/platform/ServicesPageClient"
-import { getFaqs, getServices } from "@/lib/platform"
+import { getAgents, getCityMarkets, getPropertyListings } from "@/lib/property"
 
 export default async function ServicesPage() {
-  const [services, faqs] = await Promise.all([getServices(), getFaqs()])
+  const [cities, listings, agents] = await Promise.all([
+    getCityMarkets(),
+    getPropertyListings(),
+    getAgents(),
+  ])
 
   return (
     <PublicShell>
-      <ServicesPageClient services={services} faqs={faqs} />
+      <ServicesPageClient cities={cities} listings={listings} agents={agents} />
     </PublicShell>
   )
 }

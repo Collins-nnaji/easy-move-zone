@@ -27,9 +27,9 @@ export function MonthlyDigestGenerator() {
 
   return (
     <div className="emz-gloss-card rounded-2xl p-5">
-      <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">Monthly Intelligence Digest Generator</h3>
+      <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">Monthly Relocation Digest Generator</h3>
       <p className="mt-2 text-sm text-[#6b6560]">
-        Generate a first draft newsletter from corridor data, report changes, and recent market context.
+        Generate a first draft newsletter from city availability, pricing shifts, and neighbourhood insights.
       </p>
       <button
         type="button"

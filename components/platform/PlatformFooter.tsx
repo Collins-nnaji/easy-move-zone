@@ -9,16 +9,16 @@ export function PlatformFooter() {
             Easy<span className="text-[#c9a84c]">Move</span>Zone
           </div>
           <p className="mt-3 max-w-md text-sm text-[#f5f0e8]/60">
-            The intelligence layer between African markets and the world. We guide businesses in both
-            directions with data, execution, and advisory.
+            Tech-enabled property search and acquisition for people on the move across Nigeria and
+            key African cities.
           </p>
         </div>
         <div>
           <h4 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#f5f0e8]/45">Pages</h4>
           <ul className="space-y-2 text-sm text-[#f5f0e8]/70">
-            <li><Link href="/services">Services</Link></li>
-            <li><Link href="/intelligence">Intelligence</Link></li>
-            <li><Link href="/markets">Markets</Link></li>
+            <li><Link href="/services">Listings</Link></li>
+            <li><Link href="/intelligence">Neighbourhood Intel</Link></li>
+            <li><Link href="/markets">Cities</Link></li>
             <li><Link href="/about">About</Link></li>
           </ul>
         </div>
@@ -33,8 +33,8 @@ export function PlatformFooter() {
       </div>
       <div className="border-t border-[#f5f0e8]/10 px-4 py-4 text-xs text-[#f5f0e8]/40 sm:px-6 lg:px-8">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between">
-          <p>© {new Date().getFullYear()} EasyMoveZone. All rights reserved.</p>
-          <p>Lagos · London · Dubai</p>
+          <p>© {new Date().getFullYear()} EasyMoveZone Property Finder. All rights reserved.</p>
+          <p>Lagos · Abuja · Accra · Nairobi</p>
         </div>
       </div>
     </footer>

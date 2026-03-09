@@ -17,9 +17,9 @@ export function ContactInquiryForm({ markets }: { markets: Market[] }) {
     email: "",
     phone: "",
     website: "",
-    direction: initialDirection || "Entering an African market",
+    direction: initialDirection || "Domestic move within Nigeria",
     targetMarket: initialMarket || "Not sure yet",
-    businessSector: "Technology",
+    businessSector: "Residential",
     timeline: "Within 3 months",
     budgetRange: "$5K-$15K",
     message: "",
@@ -69,9 +69,10 @@ export function ContactInquiryForm({ markets }: { markets: Market[] }) {
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         <select value={form.direction} onChange={(event) => updateField("direction", event.target.value)} className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base">
-          <option>Entering an African market</option>
-          <option>Expanding from Africa globally</option>
-          <option>Commissioning a report</option>
+          <option>Domestic move within Nigeria</option>
+          <option>Diaspora move into Nigeria</option>
+          <option>Pan-African move</option>
+          <option>Commercial property search</option>
           <option>General inquiry</option>
         </select>
         <select value={form.targetMarket} onChange={(event) => updateField("targetMarket", event.target.value)} className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base">
@@ -81,12 +82,11 @@ export function ContactInquiryForm({ markets }: { markets: Market[] }) {
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         <select value={form.businessSector} onChange={(event) => updateField("businessSector", event.target.value)} className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base">
-          <option>Technology</option>
-          <option>FMCG</option>
-          <option>Finance</option>
-          <option>Creative Industries</option>
-          <option>Logistics</option>
-          <option>Professional Services</option>
+          <option>Residential</option>
+          <option>Commercial</option>
+          <option>Mixed-use</option>
+          <option>Short-let</option>
+          <option>Corporate housing</option>
         </select>
         <select value={form.timeline} onChange={(event) => updateField("timeline", event.target.value)} className="rounded-xl border border-black/15 bg-white px-4 py-3 text-base">
           <option>Ready now</option>
@@ -116,10 +116,10 @@ export function ContactInquiryForm({ markets }: { markets: Market[] }) {
       ) : null}
       <textarea
         required
-        minLength={40}
+        minLength={60}
         value={form.message}
         onChange={(event) => updateField("message", event.target.value)}
-        placeholder="Tell us about your move (100+ characters recommended)"
+        placeholder="Tell us about your move (target city, budget, timeline, property type). 100+ characters recommended."
         className="min-h-28 w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-base"
       />
       <button type="submit" disabled={loading} className="w-full rounded-full bg-[#0d0d0d] px-4 py-3 text-base font-medium text-[#f5f0e8] hover:bg-[#1a3a2a] disabled:opacity-60">

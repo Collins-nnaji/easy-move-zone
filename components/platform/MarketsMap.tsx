@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import type { CorridorWithMarkets, Market, Report } from "@/lib/platform/types"
+import type { CityMarket, PropertyListing } from "@/lib/property/types"
 
 function projectPoint(latitude: number, longitude: number) {
   // Rough projection for simple SVG-less panel map
@@ -13,26 +13,17 @@ function projectPoint(latitude: number, longitude: number) {
 
 export function MarketsMap({
   markets,
-  corridors,
-  reports,
+  listings,
 }: {
-  markets: Market[]
-  corridors: CorridorWithMarkets[]
-  reports: Report[]
+  markets: CityMarket[]
+  listings: PropertyListing[]
 }) {
   const [activeMarketId, setActiveMarketId] = useState(markets[0]?.id ?? "")
 
   const activeMarket = markets.find((market) => market.id === activeMarketId) ?? markets[0]
-  const relatedCorridors = useMemo(
-    () =>
-      corridors.filter(
-        (corridor) => corridor.originMarketId === activeMarket?.id || corridor.destinationMarketId === activeMarket?.id
-      ),
-    [corridors, activeMarket?.id]
-  )
-  const relatedReports = useMemo(
-    () => reports.filter((report) => report.marketId === activeMarket?.id),
-    [reports, activeMarket?.id]
+  const relatedListings = useMemo(
+    () => listings.filter((listing) => listing.citySlug === activeMarket?.slug),
+    [listings, activeMarket?.slug]
   )
 
   return (
@@ -68,10 +59,10 @@ export function MarketsMap({
           <p className="mt-1 text-xs uppercase tracking-wider text-[#6b6560]">{activeMarket.status.replace("_", " ")}</p>
 
           <div className="mt-4 space-y-2 text-sm text-[#6b6560]">
-            <p><strong className="text-[#0d0d0d]">GDP:</strong> {activeMarket.gdp}</p>
-            <p><strong className="text-[#0d0d0d]">Population:</strong> {activeMarket.population}</p>
-            <p><strong className="text-[#0d0d0d]">Business score:</strong> {activeMarket.businessEnvironmentScore}</p>
-            <p><strong className="text-[#0d0d0d]">Ease rank:</strong> #{activeMarket.easeOfDoingBusinessRank}</p>
+            <p><strong className="text-[#0d0d0d]">Average rent:</strong> ${activeMarket.avgRentUsd.toLocaleString()}</p>
+            <p><strong className="text-[#0d0d0d]">Average buy:</strong> ${activeMarket.avgBuyUsd.toLocaleString()}</p>
+            <p><strong className="text-[#0d0d0d]">Security score:</strong> {activeMarket.securityScore}/100</p>
+            <p><strong className="text-[#0d0d0d]">Commute score:</strong> {activeMarket.commuteScore}/100</p>
           </div>
 
           <div className="mt-4">
@@ -84,27 +75,27 @@ export function MarketsMap({
           </div>
 
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#c9a84c]">Active corridors</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#c9a84c]">Available listings</p>
             <ul className="mt-2 space-y-1 text-sm text-[#6b6560]">
-              {relatedCorridors.slice(0, 4).map((corridor) => (
-                <li key={corridor.id}>
-                  {corridor.originMarket?.name ?? corridor.originMarketId} → {corridor.destinationMarket?.name ?? corridor.destinationMarketId}
+              {relatedListings.slice(0, 4).map((listing) => (
+                <li key={listing.id}>
+                  {listing.title} · {listing.neighborhood}
                 </li>
               ))}
             </ul>
           </div>
 
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#c9a84c]">Available reports</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#c9a84c]">Neighbourhood fit signals</p>
             <ul className="mt-2 space-y-1 text-sm text-[#6b6560]">
-              {relatedReports.slice(0, 3).map((report) => (
-                <li key={report.id}>{report.title}</li>
-              ))}
+              <li>{relatedListings.filter((item) => item.moveInReady).length} move-in ready listings</li>
+              <li>{relatedListings.filter((item) => item.verified).length} fully verified listings</li>
+              <li>Average lifestyle score: {activeMarket.lifestyleScore}/100</li>
             </ul>
           </div>
 
           <Link
-            href={`/contact?market=${encodeURIComponent(activeMarket.name)}&direction=Entering%20an%20African%20market`}
+            href={`/contact?market=${encodeURIComponent(activeMarket.name)}&direction=General%20inquiry`}
             className="emz-pill-cta mt-5 inline-block rounded-full bg-[#0d0d0d] px-4 py-2 text-sm text-[#f5f0e8]"
           >
             Ready to move into {activeMarket.name}? Let&apos;s talk.

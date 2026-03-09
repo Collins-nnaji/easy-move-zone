@@ -22,9 +22,9 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Platform Blueprint",
+  title: "EasyMoveZone Property Finder — Nigeria & Africa",
   description:
-    "EasyMoveZone connects businesses to African markets — and African businesses to the world through intelligence, execution, and advisory.",
+    "Find verified rental and purchase properties across Nigeria and major African cities with trusted agents, neighbourhood intelligence, and move support.",
 };
 
 export default function RootLayout({

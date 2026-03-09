@@ -12,7 +12,7 @@ export function IntelligenceChatbot() {
     {
       role: "assistant",
       content:
-        "Ask me anything about market entry risks, corridor opportunities, or which intelligence report is best for your move.",
+        "Ask about neighborhoods, commute trade-offs, school proximity, or what city best fits your move profile.",
     },
   ])
   const [input, setInput] = useState("")
@@ -52,7 +52,7 @@ export function IntelligenceChatbot() {
 
   return (
     <aside className="emz-gloss-card rounded-2xl p-4 shadow-sm">
-      <h3 className="font-[var(--font-playfair)] text-xl font-bold text-[#0d0d0d]">Intelligence Chatbot</h3>
+      <h3 className="font-[var(--font-playfair)] text-xl font-bold text-[#0d0d0d]">Neighbourhood AI Assistant</h3>
       <div className="mt-3 max-h-80 space-y-2 overflow-y-auto rounded-xl border border-black/10 bg-[#f5f0e8] p-3">
         {messages.map((message, index) => (
           <div
@@ -71,7 +71,7 @@ export function IntelligenceChatbot() {
         <input
           value={input}
           onChange={(event) => setInput(event.target.value)}
-          placeholder="Ask a market question..."
+          placeholder="Ask a neighborhood question..."
           className="flex-1 rounded-xl border border-black/15 px-3 py-2 text-sm outline-none focus:border-[#c9a84c]"
         />
         <button

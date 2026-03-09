@@ -16,7 +16,7 @@ export function NewsletterSignupForm() {
       const response = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, listType: "intelligence" }),
+        body: JSON.stringify({ email, listType: "relocation-intelligence" }),
       })
       if (!response.ok) throw new Error("failed")
       setEmail("")

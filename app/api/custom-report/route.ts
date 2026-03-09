@@ -26,13 +26,13 @@ export async function POST(req: NextRequest) {
       lastName,
       company: body.company,
       email: body.email,
-      direction: "Commissioning a report",
+      direction: "Custom move brief",
       targetMarket: body.targetMarket,
       businessSector: body.sector ?? "General",
       timeline: body.timeline ?? "Within 3 months",
       budgetRange: body.budgetRange ?? "Let's discuss",
       message: body.questions,
-      source: "Custom report form",
+      source: "Custom move brief form",
     }
 
     const ai = await leadPrequalification(leadInput)
@@ -40,6 +40,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, lead: created })
   } catch {
-    return NextResponse.json({ error: "Unable to submit custom report request." }, { status: 500 })
+    return NextResponse.json({ error: "Unable to submit custom move brief request." }, { status: 500 })
   }
 }

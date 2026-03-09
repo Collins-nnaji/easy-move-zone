@@ -1,7 +1,7 @@
 "use client"
 
 import { FormEvent, useState } from "react"
-import type { Market } from "@/lib/platform/types"
+import type { CityMarket } from "@/lib/property/types"
 
 interface ComparisonResult {
   summary: string
@@ -13,7 +13,7 @@ interface ComparisonResult {
   estimatedTimelineAndCost: string
 }
 
-export function MarketComparisonTool({ markets }: { markets: Market[] }) {
+export function MarketComparisonTool({ markets }: { markets: CityMarket[] }) {
   const [marketA, setMarketA] = useState(markets[0]?.id ?? "")
   const [marketB, setMarketB] = useState(markets[1]?.id ?? "")
   const [loading, setLoading] = useState(false)
@@ -38,7 +38,7 @@ export function MarketComparisonTool({ markets }: { markets: Market[] }) {
 
   return (
     <div className="emz-gloss-card rounded-2xl p-5 shadow-sm">
-      <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">AI Market Comparison Tool</h3>
+      <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0d0d0d]">AI City Comparison Tool</h3>
       <form onSubmit={onCompare} className="mt-3 grid gap-3 md:grid-cols-3">
         <select
           value={marketA}
@@ -71,8 +71,8 @@ export function MarketComparisonTool({ markets }: { markets: Market[] }) {
         <div className="mt-4 rounded-xl border border-[#c9a84c]/30 bg-[#ede8de] p-4 text-sm text-[#1a1a1a]">
           <p className="mb-2">{result.summary}</p>
           <ul className="space-y-1 text-[#6b6560]">
-            <li><strong className="text-[#1a1a1a]">Market size:</strong> {result.marketSize}</li>
-            <li><strong className="text-[#1a1a1a]">Regulatory ease:</strong> {result.regulatoryEase}</li>
+            <li><strong className="text-[#1a1a1a]">Pricing context:</strong> {result.marketSize}</li>
+            <li><strong className="text-[#1a1a1a]">Security & ease:</strong> {result.regulatoryEase}</li>
             <li><strong className="text-[#1a1a1a]">Sector opportunity:</strong> {result.sectorOpportunity}</li>
             <li><strong className="text-[#1a1a1a]">Competition:</strong> {result.competitionLevel}</li>
             <li><strong className="text-[#1a1a1a]">Recommended approach:</strong> {result.recommendedApproach}</li>

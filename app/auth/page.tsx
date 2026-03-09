@@ -12,7 +12,7 @@ export default function AuthPage() {
             Sign in or create your account
           </h1>
           <p className="mt-2 text-base text-[#6b6560]">
-            Access your client dashboard, deliverables, and market updates.
+            Access your relocation dashboard, saved listings, and support updates.
           </p>
         </div>
         <Suspense fallback={<div className="rounded-2xl border border-black/10 bg-white p-6 text-sm text-[#6b6560]">Loading account form...</div>}>

@@ -88,7 +88,7 @@ export function AuthInlineCard() {
         </div>
       </div>
       <p className="mt-2 text-sm text-[#6b6560]">
-        Create your account to track deliverables and advisor updates inside the new client dashboard.
+        Create your account to track saved listings, viewing status, and advisor updates inside your dashboard.
       </p>
 
       <button

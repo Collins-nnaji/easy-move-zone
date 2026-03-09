@@ -12,7 +12,7 @@ function validateLead(lead: LeadInput): string | null {
   if (!lead.businessSector) return "Business sector is required."
   if (!lead.timeline) return "Timeline is required."
   if (!lead.budgetRange) return "Budget range is required."
-  if (!lead.message || lead.message.length < 40) return "Message must be at least 40 characters."
+  if (!lead.message || lead.message.length < 60) return "Message must be at least 60 characters."
   if (!lead.source) return "Source is required."
   return null
 }

@@ -1,13 +1,13 @@
 import { MonthlyDigestGenerator } from "@/components/platform/MonthlyDigestGenerator"
-import { getCorridors, getLeadManagementRows, getMarkets, getReports, getServices } from "@/lib/platform"
+import { getLeadManagementRows } from "@/lib/platform"
+import { getAgents, getCityMarkets, getPropertyListings } from "@/lib/property"
 
 export default async function AdminDashboardPage() {
-  const [leads, services, reports, markets, corridors] = await Promise.all([
+  const [leads, listings, markets, agents] = await Promise.all([
     getLeadManagementRows(100),
-    getServices(),
-    getReports(),
-    getMarkets(),
-    getCorridors(),
+    getPropertyListings(),
+    getCityMarkets(),
+    getAgents(),
   ])
 
   return (
@@ -15,8 +15,8 @@ export default async function AdminDashboardPage() {
       <div className="mx-auto w-full max-w-7xl space-y-6">
         <section className="emz-gloss-card rounded-2xl p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-[#c9a84c]">Admin Dashboard</p>
-          <h1 className="mt-2 font-[var(--font-playfair)] text-5xl font-black text-[#0d0d0d]">Platform operations</h1>
-          <p className="mt-2 text-sm text-[#6b6560]">Manage leads, clients, content, reports, corridors, and AI tooling in one place.</p>
+          <h1 className="mt-2 font-[var(--font-playfair)] text-5xl font-black text-[#0d0d0d]">Property platform operations</h1>
+          <p className="mt-2 text-sm text-[#6b6560]">Manage mover leads, listings, cities, agents, and platform intelligence in one place.</p>
         </section>
 
         <section className="emz-gloss-card rounded-2xl p-5">
@@ -26,7 +26,7 @@ export default async function AdminDashboardPage() {
               <thead className="bg-[#ede8de] text-[#0d0d0d]">
                 <tr>
                   <th className="px-3 py-2">Name</th>
-                  <th className="px-3 py-2">Direction</th>
+                  <th className="px-3 py-2">Journey</th>
                   <th className="px-3 py-2">Market</th>
                   <th className="px-3 py-2">Status</th>
                   <th className="px-3 py-2">AI Summary</th>
@@ -51,20 +51,18 @@ export default async function AdminDashboardPage() {
           <article className="emz-gloss-card rounded-2xl p-5">
             <h2 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">Content management</h2>
             <ul className="mt-4 space-y-2 text-sm text-[#6b6560]">
-              <li>Services available: {services.length}</li>
+              <li>Listings available: {listings.length}</li>
               <li>Markets available: {markets.length}</li>
-              <li>Reports published: {reports.length}</li>
-              <li>FAQ and values managed from database tables.</li>
+              <li>Trusted agents: {agents.length}</li>
+              <li>Neighbourhood intelligence and pricing signals managed from database tables.</li>
             </ul>
           </article>
           <article className="emz-gloss-card rounded-2xl p-5">
-            <h2 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">Corridor management</h2>
+            <h2 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0d0d0d]">City inventory snapshot</h2>
             <ul className="mt-4 space-y-2 text-sm text-[#6b6560]">
-              {corridors.map((corridor) => (
-                <li key={corridor.id}>
-                  {corridor.originMarket?.name ?? corridor.originMarketId} → {corridor.destinationMarket?.name ?? corridor.destinationMarketId}
-                  {" · "}
-                  {corridor.activeClientCount} active clients
+              {markets.map((market) => (
+                <li key={market.id}>
+                  {market.flagEmoji} {market.name} · {listings.filter((listing) => listing.citySlug === market.slug).length} listings · security {market.securityScore}/100
                 </li>
               ))}
             </ul>

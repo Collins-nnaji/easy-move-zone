@@ -13,23 +13,24 @@ export default async function ContactPage() {
         <div className="bg-[#1a3a2a] p-7 text-[#f5f0e8] md:p-9">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e8c96a]">Get Started</p>
           <h1 className="mt-3 font-[var(--font-playfair)] text-6xl font-black leading-[0.95]">
-            Tell us about your move.
+            Tell us about your property move.
           </h1>
           <p className="mt-4 text-sm leading-7 text-[#f5f0e8]/70">
-            A real person reads every inquiry. You will hear from us within 24 hours on business days.
-            If there is fit, we schedule a free 30-minute strategy call.
+            A real person reviews every request. You will hear from us within 24 hours on business days.
+            If there is fit, we schedule a free 30-minute move strategy call.
           </p>
           <div className="mt-6 space-y-3 text-sm text-[#f5f0e8]/80">
             <p><strong className="text-[#f5f0e8]">Email:</strong> hello@easymovezone.com</p>
             <p><strong className="text-[#f5f0e8]">Lagos Office:</strong> Victoria Island, Lagos</p>
             <p><strong className="text-[#f5f0e8]">London Office:</strong> Canary Wharf, London</p>
+            <p><strong className="text-[#f5f0e8]">Coverage:</strong> Nigeria + selected African cities</p>
             <p><strong className="text-[#f5f0e8]">Response commitment:</strong> within 24 hours (business days)</p>
           </div>
         </div>
         <div className="space-y-4 bg-[#f5f0e8] p-7 md:p-9">
           <h2 className="font-[var(--font-playfair)] text-4xl font-bold text-[#0d0d0d]">Inquiry form</h2>
           <p className="mt-2 text-sm text-[#6b6560]">
-            Share the essentials. We will reply with a clear next step.
+            Share your move details. We will reply with clear options and next steps.
           </p>
           <Suspense fallback={<div className="rounded-2xl border border-black/10 bg-white p-6 text-sm text-[#6b6560]">Loading account form...</div>}>
             <AuthInlineCard />

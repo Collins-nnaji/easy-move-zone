@@ -11,6 +11,6 @@ export async function POST(req: NextRequest) {
     const result = await detectDirection(body.description)
     return NextResponse.json(result)
   } catch {
-    return NextResponse.json({ error: "Unable to detect direction." }, { status: 500 })
+    return NextResponse.json({ error: "Unable to detect move profile." }, { status: 500 })
   }
 }
