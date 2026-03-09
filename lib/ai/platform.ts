@@ -235,3 +235,87 @@ Return JSON:
   )
 }
 
+function collectUrls(value: unknown, out: Set<string>) {
+  if (!value) return
+  if (Array.isArray(value)) {
+    for (const item of value) collectUrls(item, out)
+    return
+  }
+  if (typeof value === "object") {
+    for (const [key, nested] of Object.entries(value)) {
+      if (key.toLowerCase().includes("url") && typeof nested === "string" && nested.startsWith("http")) {
+        out.add(nested)
+      } else {
+        collectUrls(nested, out)
+      }
+    }
+  }
+}
+
+export async function cityIntelWithWeb(cityId: string, question: string) {
+  const cities = await getCityMarkets()
+  const city = cities.find((item) => item.id === cityId || item.slug === cityId)
+
+  const fallback = {
+    answer:
+      city
+        ? `${city.name} currently shows security ${city.securityScore}/100, commute ${city.commuteScore}/100, and lifestyle ${city.lifestyleScore}/100. Use this as your baseline, then validate current infrastructure and policy updates before deciding.`
+        : "Pick a city first, then ask about commute reality, safety, sector fit, and cost exposure.",
+    sources: [] as string[],
+  }
+
+  if (!apiKey || !city) return fallback
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4.1-mini",
+        tools: [{ type: "web_search_preview" }],
+        temperature: 0.2,
+        input: [
+          {
+            role: "system",
+            content:
+              "You are a relocation city intelligence analyst. Use web search results plus given map context. Keep response practical, concise, and action-oriented for movers. Mention uncertainties where needed.",
+          },
+          {
+            role: "user",
+            content: `City map context:
+name: ${city.name}
+country: ${city.country}
+coordinates: ${city.latitude}, ${city.longitude}
+status: ${city.status}
+avgRentUsd: ${city.avgRentUsd}
+avgBuyUsd: ${city.avgBuyUsd}
+securityScore: ${city.securityScore}
+commuteScore: ${city.commuteScore}
+lifestyleScore: ${city.lifestyleScore}
+topSectors: ${city.topSectors.join(", ")}
+
+Question: ${question}
+
+Return a short practical recommendation and 3-5 bullet point findings.`,
+          },
+        ],
+      }),
+    })
+
+    if (!response.ok) return fallback
+    const payload = (await response.json()) as { output_text?: string }
+
+    const sourceSet = new Set<string>()
+    collectUrls(payload, sourceSet)
+    return {
+      answer: payload.output_text?.trim() || fallback.answer,
+      sources: Array.from(sourceSet).slice(0, 6),
+    }
+  } catch {
+    return fallback
+  }
+}
+

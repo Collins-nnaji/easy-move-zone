@@ -1,11 +1,16 @@
+import { CitiesIntelWorkbench } from "@/components/platform/CitiesIntelWorkbench"
 import { ComingSoonInterestForm } from "@/components/platform/ComingSoonInterestForm"
 import { MarketComparisonTool } from "@/components/platform/MarketComparisonTool"
-import { MarketsMap } from "@/components/platform/MarketsMap"
 import { PublicShell } from "@/components/platform/PublicShell"
-import { getCityMarkets, getPropertyListings } from "@/lib/property"
+import { getCityMarkets } from "@/lib/property"
 
-export default async function MarketsPage() {
-  const [markets, listings] = await Promise.all([getCityMarkets(), getPropertyListings()])
+export default async function MarketsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ city?: string }>
+}) {
+  const params = await searchParams
+  const markets = await getCityMarkets()
   const comingSoon = markets.filter((market) => market.status !== "active")
 
   return (
@@ -15,17 +20,17 @@ export default async function MarketsPage() {
           <div className="max-w-2xl rounded-2xl border border-white/30 bg-black/35 p-6 text-white backdrop-blur-sm">
             <p className="text-xs uppercase tracking-[0.2em] text-sky-100">City coverage</p>
             <h1 className="mt-2 font-[var(--font-playfair)] text-6xl font-bold leading-[0.95]">
-              Compare where your next chapter fits best
+              City intelligence for your next move
             </h1>
             <p className="mt-3 max-w-xl text-sm text-sky-100">
-              Explore city-level pricing, security signals, commute realities, and available verified inventory.
+              Explore map context, city dynamics, and AI-powered neighbourhood intel with live web-informed analysis.
             </p>
           </div>
         </div>
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
-        <MarketsMap markets={markets} listings={listings} />
+        <CitiesIntelWorkbench markets={markets} initialCitySlug={params.city} />
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">

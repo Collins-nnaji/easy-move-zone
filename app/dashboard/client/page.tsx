@@ -79,6 +79,28 @@ export default async function ClientDashboardPage() {
             </ul>
           </article>
         </section>
+
+        <section id="help-center" className="emz-gloss-card rounded-2xl p-6">
+          <p className="text-xs uppercase tracking-[0.2em] text-[#c9a84c]">Get Help</p>
+          <h2 className="mt-2 font-[var(--font-playfair)] text-4xl font-black text-[#0d0d0d]">Support inside your dashboard</h2>
+          <p className="mt-2 text-sm text-[#6b6560]">
+            Need quick assistance? Use these channels and we will respond based on your support SLA.
+          </p>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="rounded-xl border border-black/10 bg-white/70 p-4 text-sm">
+              <p className="font-semibold text-[#0d0d0d]">Priority chat</p>
+              <p className="mt-1 text-[#6b6560]">Ask your move question in the support thread above.</p>
+            </div>
+            <div className="rounded-xl border border-black/10 bg-white/70 p-4 text-sm">
+              <p className="font-semibold text-[#0d0d0d]">Email support</p>
+              <p className="mt-1 text-[#6b6560]">hello@easymovezone.com</p>
+            </div>
+            <div className="rounded-xl border border-black/10 bg-white/70 p-4 text-sm">
+              <p className="font-semibold text-[#0d0d0d]">Advisor callback</p>
+              <p className="mt-1 text-[#6b6560]">Book a call via contact form for complex move plans.</p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   )

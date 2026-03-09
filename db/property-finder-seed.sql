@@ -16,7 +16,7 @@ INSERT INTO resource_guides (id, title, summary, category, read_minutes, href)
 VALUES
   ('guide_1', 'Lagos Relocation Starter Checklist', 'A practical checklist covering budget, target areas, and key documentation before your move.', 'Relocation', 6, '/contact'),
   ('guide_2', 'How to Avoid Rental Fraud in Nigeria', 'Common fraud patterns and the verification steps every mover should follow.', 'Legal', 8, '/contact'),
-  ('guide_3', 'Choosing Between Ikoyi, VI, and Lekki', 'Compare commute patterns, pricing, and lifestyle fit across Lagos prime areas.', 'Neighbourhood', 7, '/intelligence'),
+  ('guide_3', 'Choosing Between Ikoyi, VI, and Lekki', 'Compare commute patterns, pricing, and lifestyle fit across Lagos prime areas.', 'Neighbourhood', 7, '/markets#intel-tool'),
   ('guide_4', 'Diaspora Move Budget Planning', 'How to structure housing budget, setup costs, and contingency for return moves.', 'Budgeting', 5, '/services')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title,

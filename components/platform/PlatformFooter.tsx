@@ -23,16 +23,16 @@ export function PlatformFooter() {
         <div>
           <h4 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#93c5fd]">Platform</h4>
           <ul className="space-y-2 text-sm text-[#cbd5e1]">
+            <li><Link href="/">Home</Link></li>
             <li><Link href="/services">Listings</Link></li>
-            <li><Link href="/intelligence">Neighbourhood Intel</Link></li>
-            <li><Link href="/markets">Cities</Link></li>
-            <li><Link href="/about">About</Link></li>
+            <li><Link href="/markets#intel-tool">Cities + AI Intel</Link></li>
+            <li><Link href="/#about">About</Link></li>
           </ul>
         </div>
         <div>
           <h4 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#93c5fd]">Account</h4>
           <ul className="space-y-2 text-sm text-[#cbd5e1]">
-            <li><Link href="/get-help">Get Help</Link></li>
+            <li><Link href="/dashboard/client#help-center">Get Help</Link></li>
             <li><Link href="/auth">Sign up / Sign in</Link></li>
             <li><Link href="/dashboard/client">Client Dashboard</Link></li>
           </ul>

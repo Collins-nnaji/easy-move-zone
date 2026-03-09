@@ -107,6 +107,33 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section id="about" className="mx-auto grid w-full max-w-7xl gap-6 px-4 pb-10 sm:px-6 lg:grid-cols-2 lg:px-8">
+        <article className="emz-gloss-card rounded-2xl p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">About EasyMoveZone</p>
+          <h2 className="mt-2 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Why we built this platform</h2>
+          <p className="mt-3 text-sm leading-7 text-[#475569]">
+            EasyMoveZone helps movers make better property decisions by combining verified inventory,
+            city-level intelligence, and practical human support in one flow.
+          </p>
+          <ul className="mt-3 space-y-2 text-sm text-[#475569]">
+            <li><strong className="text-[#0f172a]">Domestic movers:</strong> clearer options across major Nigerian cities.</li>
+            <li><strong className="text-[#0f172a]">Diaspora returnees:</strong> trusted support before and after arrival.</li>
+            <li><strong className="text-[#0f172a]">Pan-African professionals:</strong> better cross-city relocation confidence.</li>
+          </ul>
+        </article>
+        <article className="emz-gloss-card rounded-2xl p-6">
+          <h3 className="font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">What problem we solve</h3>
+          <ul className="mt-3 space-y-2 text-sm text-[#475569]">
+            <li><strong className="text-[#0f172a]">Fragmented listings:</strong> we centralize trusted options.</li>
+            <li><strong className="text-[#0f172a]">Weak neighbourhood context:</strong> we add city and area intelligence.</li>
+            <li><strong className="text-[#0f172a]">Decision pressure:</strong> we provide guided next steps and response support.</li>
+          </ul>
+          <Link href="/markets#intel-tool" className="emz-pill-cta mt-5 inline-block rounded-full px-5 py-2 text-sm font-semibold">
+            Explore city intelligence
+          </Link>
+        </article>
+      </section>
+
       <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-end justify-between">
           <div>
@@ -147,7 +174,7 @@ export default async function HomePage() {
       <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
         <div className="mb-4 flex items-end justify-between">
           <h3 className="font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Relocation guides</h3>
-          <Link href="/intelligence" className="text-sm font-semibold text-[#155eef]">See all intelligence</Link>
+          <Link href="/markets#intel-tool" className="text-sm font-semibold text-[#155eef]">See city intelligence</Link>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           {guides.map((guide) => (

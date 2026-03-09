@@ -9,10 +9,7 @@ import { authClient } from "@/lib/auth/client"
 const navItems = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Listings" },
-  { href: "/intelligence", label: "Neighbourhood Intel" },
   { href: "/markets", label: "Cities" },
-  { href: "/about", label: "About" },
-  { href: "/get-help", label: "Get Help" },
 ]
 
 export function PlatformNav() {
