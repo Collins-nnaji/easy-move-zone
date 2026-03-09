@@ -12,7 +12,7 @@ export default function AuthPage() {
             Sign in or create your account
           </h1>
           <p className="mt-2 text-base text-[#64748b]">
-            Access your relocation dashboard, saved listings, and support updates.
+            Access your buyer or seller profile, saved listings, and support updates.
           </p>
         </div>
         <Suspense fallback={<div className="rounded-2xl border border-[#dbe4f0] bg-white p-6 text-sm text-[#64748b]">Loading account form...</div>}>

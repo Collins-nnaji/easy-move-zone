@@ -75,10 +75,10 @@ export function PlatformNav() {
           ) : user ? (
             <>
               <Link
-                href="/dashboard/client"
+                href="/profile"
                 className="ml-2 rounded-full border border-[#c8d8f0] px-4 py-2 text-[14px] font-semibold text-[#0f172a]"
               >
-                Dashboard
+                Profile
               </Link>
               <button
                 type="button"
@@ -140,11 +140,11 @@ export function PlatformNav() {
             ) : user ? (
               <>
                 <Link
-                  href="/dashboard/client"
+                  href="/profile"
                   onClick={() => setIsOpen(false)}
                   className="rounded-full border border-[#c8d8f0] px-4 py-2 text-center text-base text-[#0f172a]"
                 >
-                  Dashboard
+                  Profile
                 </Link>
                 <button
                   type="button"

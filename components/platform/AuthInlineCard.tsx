@@ -9,7 +9,7 @@ type Mode = "sign-in" | "sign-up"
 export function AuthInlineCard() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTarget = searchParams.get("redirect") ?? "/dashboard/client"
+  const redirectTarget = searchParams.get("redirect") ?? "/profile"
   const [mode, setMode] = useState<Mode>("sign-up")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -88,7 +88,7 @@ export function AuthInlineCard() {
         </div>
       </div>
       <p className="mt-2 text-sm text-[#64748b]">
-        Create your account to track saved listings, viewing status, and advisor updates inside your dashboard.
+        Create your account to manage your buyer or seller profile and track your property activity.
       </p>
 
       <button

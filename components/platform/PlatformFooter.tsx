@@ -32,9 +32,9 @@ export function PlatformFooter() {
         <div>
           <h4 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#93c5fd]">Account</h4>
           <ul className="space-y-2 text-sm text-[#cbd5e1]">
-            <li><Link href="/dashboard/client#help-center">Get Help</Link></li>
+            <li><Link href="/contact">Get Help</Link></li>
             <li><Link href="/auth">Sign up / Sign in</Link></li>
-            <li><Link href="/dashboard/client">Client Dashboard</Link></li>
+            <li><Link href="/profile">Buyer / Seller Profile</Link></li>
           </ul>
         </div>
       </div>

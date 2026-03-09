@@ -115,30 +115,6 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
         )}
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
-        <h2 className="property-section-title text-[#0f172a]">Relocation plans</h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <div className="emz-gloss-card rounded-2xl p-5">
-            <p className="text-xs uppercase tracking-wider text-[#64748b]">Explorer</p>
-            <h3 className="mt-1 font-[var(--font-playfair)] text-2xl font-bold">Verified Search</h3>
-            <p className="mt-1 text-4xl font-black">$299</p>
-            <p className="mt-2 text-sm text-[#64748b]">Shortlist + verification support</p>
-          </div>
-          <div className="rounded-2xl border border-[#155eef] bg-[#155eef] p-5 text-white shadow-xl">
-            <p className="text-xs uppercase tracking-wider text-[#bfdbfe]">Most Popular</p>
-            <h3 className="mt-1 font-[var(--font-playfair)] text-2xl font-bold">Move Concierge</h3>
-            <p className="mt-1 text-4xl font-black">$1.5K</p>
-            <p className="mt-2 text-sm text-blue-100">End-to-end move support</p>
-          </div>
-          <div className="rounded-2xl border border-[#0f766e] bg-[#0f766e] p-5 text-white shadow-[0_18px_40px_-26px_rgba(13,13,13,0.6)]">
-            <p className="text-xs uppercase tracking-wider text-teal-100">Full Service</p>
-            <h3 className="mt-1 font-[var(--font-playfair)] text-2xl font-bold">Corporate Relocation</h3>
-            <p className="mt-1 text-4xl font-black">$5K+</p>
-            <p className="mt-2 text-sm text-teal-100">Team and executive move package</p>
-          </div>
-        </div>
-      </section>
-
       <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
         <h2 className="property-section-title text-[#0f172a]">Trusted agents</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
