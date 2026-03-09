@@ -31,8 +31,8 @@ export function IntelligencePageClient({ cities, listings }: IntelligencePageCli
 
   return (
     <>
-      <section className="mx-auto w-full max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8">
-        <div className="property-hero-image p-6 md:p-8">
+      <section className="emz-hero-section">
+        <div className="property-hero-image p-5 md:p-6">
           <div className="max-w-2xl rounded-2xl border border-white/30 bg-black/35 p-6 text-white backdrop-blur-sm">
             <h1 className="font-[var(--font-playfair)] text-5xl font-bold leading-[0.95] md:text-6xl">
               Neighbourhood intelligence before you sign

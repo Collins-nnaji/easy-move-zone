@@ -658,6 +658,29 @@
 }
 
 @layer utilities {
+  .emz-hero-section {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 80rem;
+    padding-inline: 1rem;
+    padding-top: 1.75rem;
+    padding-bottom: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .emz-hero-section {
+      padding-inline: 1.5rem;
+      padding-top: 2rem;
+      padding-bottom: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .emz-hero-section {
+      padding-inline: 2rem;
+    }
+  }
+
   .emz-surface {
     background:
       linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.7)),

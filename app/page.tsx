@@ -29,7 +29,7 @@ export default async function HomePage() {
 
   return (
     <PublicShell>
-      <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 pb-8 pt-10 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:px-8">
+      <section className="emz-hero-section grid gap-6 lg:grid-cols-[1fr_1.05fr]">
         <div className="space-y-6">
           <span className="inline-flex rounded-full border border-[#bfd1ee] bg-[#eef4ff] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">
             Strategic relocation platform · 2025
@@ -64,7 +64,7 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-        <div className="property-hero-image emz-hero-float p-6 text-white">
+        <div className="property-hero-image emz-hero-float p-5 text-white md:p-6">
           <div className="max-w-sm rounded-2xl border border-white/30 bg-white/10 p-4 backdrop-blur-md">
             <p className="text-xs uppercase tracking-[0.18em] text-sky-100">For movers</p>
             <p className="mt-2 text-sm leading-6 text-sky-50/90">

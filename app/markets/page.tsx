@@ -10,8 +10,8 @@ export default async function MarketsPage() {
 
   return (
     <PublicShell>
-      <section className="mx-auto w-full max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8">
-        <div className="property-hero-image p-6 md:p-8">
+      <section className="emz-hero-section">
+        <div className="property-hero-image p-5 md:p-6">
           <div className="max-w-2xl rounded-2xl border border-white/30 bg-black/35 p-6 text-white backdrop-blur-sm">
             <p className="text-xs uppercase tracking-[0.2em] text-sky-100">City coverage</p>
             <h1 className="mt-2 font-[var(--font-playfair)] text-6xl font-bold leading-[0.95]">

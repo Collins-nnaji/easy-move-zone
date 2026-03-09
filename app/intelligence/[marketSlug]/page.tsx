@@ -15,7 +15,7 @@ export default async function IntelligenceMarketPage({
 
   return (
     <PublicShell>
-      <section className="mx-auto w-full max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8">
+      <section className="emz-hero-section">
         <div className="emz-gloss-card rounded-2xl p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-[#155eef]">Neighbourhood Intelligence · City Detail</p>
           <h1 className="mt-2 font-[var(--font-playfair)] text-5xl font-black text-[#0f172a]">
