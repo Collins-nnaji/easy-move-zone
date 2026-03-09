@@ -658,6 +658,29 @@
 }
 
 @layer utilities {
+  .emz-hero-section {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 80rem;
+    padding-inline: 1rem;
+    padding-top: 1.75rem;
+    padding-bottom: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .emz-hero-section {
+      padding-inline: 1.5rem;
+      padding-top: 2rem;
+      padding-bottom: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .emz-hero-section {
+      padding-inline: 2rem;
+    }
+  }
+
   .emz-surface {
     background:
       linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.7)),
@@ -708,8 +731,11 @@
     position: relative;
     overflow: hidden;
     border-radius: 1.4rem;
-    min-height: 460px;
+    min-height: clamp(280px, 42vh, 380px);
+    background-color: #0f172a;
     background-image:
+      radial-gradient(circle at 16% 10%, rgba(255, 255, 255, 0.17), transparent 42%),
+      radial-gradient(circle at 88% 86%, rgba(255, 255, 255, 0.12), transparent 44%),
       linear-gradient(130deg, rgba(15, 23, 42, 0.7), rgba(15, 94, 239, 0.28)),
       url("https://images.unsplash.com/photo-1613977257592-487ecd136cc3?auto=format&fit=crop&w=1600&q=80");
     background-size: cover;
@@ -720,6 +746,7 @@
     border-radius: 1rem;
     overflow: hidden;
     min-height: 190px;
+    background-color: #1e293b;
     background-size: cover;
     background-position: center;
   }

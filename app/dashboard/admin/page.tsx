@@ -1,4 +1,5 @@
 import { MonthlyDigestGenerator } from "@/components/platform/MonthlyDigestGenerator"
+import Link from "next/link"
 import { getLeadManagementRows } from "@/lib/platform"
 import { getAgents, getCityMarkets, getPropertyListings } from "@/lib/property"
 
@@ -17,6 +18,14 @@ export default async function AdminDashboardPage() {
           <p className="text-xs uppercase tracking-[0.2em] text-[#c9a84c]">Admin Dashboard</p>
           <h1 className="mt-2 font-[var(--font-playfair)] text-5xl font-black text-[#0d0d0d]">Property platform operations</h1>
           <p className="mt-2 text-sm text-[#6b6560]">Manage mover leads, listings, cities, agents, and platform intelligence in one place.</p>
+          <div className="mt-4">
+            <Link
+              href="/dashboard/crm"
+              className="inline-flex rounded-xl bg-[#155eef] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+            >
+              Open CRM workspace
+            </Link>
+          </div>
         </section>
 
         <section className="emz-gloss-card rounded-2xl p-5">
