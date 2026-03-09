@@ -22,18 +22,18 @@ export default async function HomePage() {
     <PublicShell>
       <section className="emz-hero-section grid gap-6 lg:grid-cols-[1fr_1.05fr]">
         <div className="space-y-5">
-          <span className="inline-flex rounded-full border border-[#bfd1ee] bg-[#eef4ff] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">
+          <span className="emz-hero-reveal inline-flex rounded-full border border-[#bfd1ee] bg-[#eef4ff] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">
             Property relocation platform
           </span>
-          <h1 className="font-[var(--font-playfair)] text-5xl font-black leading-[0.92] text-[#0f172a] md:text-7xl">
+          <h1 className="emz-hero-reveal emz-hero-reveal-delay-1 font-[var(--font-playfair)] text-5xl font-black leading-[0.92] text-[#0f172a] md:text-7xl">
             Move smarter.
             <br />
             Find home faster.
           </h1>
-          <p className="max-w-xl text-base leading-7 text-[#475569] md:text-lg">
+          <p className="emz-hero-reveal emz-hero-reveal-delay-2 max-w-xl text-base leading-7 text-[#475569] md:text-lg">
             Verified listings, city intelligence, and advisor support in one clear flow.
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="emz-hero-reveal emz-hero-reveal-delay-3 flex flex-wrap gap-3">
             <Link href="/services" className="emz-pill-cta rounded-full px-6 py-3 text-sm font-semibold">
               Browse listings
             </Link>
@@ -41,25 +41,25 @@ export default async function HomePage() {
               Explore city intel
             </Link>
           </div>
-          <div className="flex flex-wrap gap-2 text-xs font-semibold text-[#334155]">
+          <div className="emz-hero-reveal emz-hero-reveal-delay-3 flex flex-wrap gap-2 text-xs font-semibold text-[#334155]">
             <span className="rounded-full bg-[#eef4ff] px-3 py-1.5">Verified supply</span>
             <span className="rounded-full bg-[#ecfdf5] px-3 py-1.5">AI city insights</span>
             <span className="rounded-full bg-[#fff7ed] px-3 py-1.5">Advisor support</span>
           </div>
         </div>
-        <div className="property-hero-image emz-hero-float flex items-end p-5 text-white md:p-6">
+        <div className="property-hero-image emz-hero-float emz-hero-reveal emz-hero-reveal-delay-2 flex items-end p-5 text-white md:p-6">
           <div className="w-full max-w-md space-y-3 rounded-2xl border border-white/30 bg-white/12 p-4 backdrop-blur-md">
             <p className="text-xs uppercase tracking-[0.18em] text-sky-100">Live platform snapshot</p>
             <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-xl bg-black/25 p-2">
+              <div className="emz-hero-breathe rounded-xl bg-black/25 p-2">
                 <p className="text-lg font-bold">{cities.length}+</p>
                 <p className="text-[10px] text-sky-100">Cities</p>
               </div>
-              <div className="rounded-xl bg-black/25 p-2">
+              <div className="emz-hero-breathe rounded-xl bg-black/25 p-2" style={{ animationDelay: "140ms" }}>
                 <p className="text-lg font-bold">{listings.length}+</p>
                 <p className="text-[10px] text-sky-100">Listings</p>
               </div>
-              <div className="rounded-xl bg-black/25 p-2">
+              <div className="emz-hero-breathe rounded-xl bg-black/25 p-2" style={{ animationDelay: "260ms" }}>
                 <p className="text-lg font-bold">&lt;24h</p>
                 <p className="text-[10px] text-sky-100">Response</p>
               </div>

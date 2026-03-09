@@ -727,6 +727,48 @@
     animation: emz-float-slow 5.5s ease-in-out infinite;
   }
 
+  @keyframes emz-hero-rise {
+    0% {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes emz-hero-breathe {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.015);
+    }
+  }
+
+  .emz-hero-reveal {
+    opacity: 0;
+    animation: emz-hero-rise 700ms var(--ease-out-expo) forwards;
+  }
+
+  .emz-hero-reveal-delay-1 {
+    animation-delay: 90ms;
+  }
+
+  .emz-hero-reveal-delay-2 {
+    animation-delay: 180ms;
+  }
+
+  .emz-hero-reveal-delay-3 {
+    animation-delay: 270ms;
+  }
+
+  .emz-hero-breathe {
+    animation: emz-hero-breathe 5s ease-in-out infinite;
+    transform-origin: center;
+  }
+
   .property-hero-image {
     position: relative;
     overflow: hidden;
@@ -757,5 +799,13 @@
     line-height: 1;
     font-weight: 700;
     letter-spacing: -0.02em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .emz-hero-reveal,
+    .emz-hero-breathe {
+      animation: none !important;
+      opacity: 1 !important;
+    }
   }
 }
