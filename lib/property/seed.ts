@@ -2,7 +2,9 @@ import type {
   AgentProfile,
   CityMarket,
   OpportunityRow,
+  PropertyFaq,
   PropertyListing,
+  ResourceGuide,
   RevenueStream,
   Testimonial,
 } from "@/lib/property/types"
@@ -119,6 +121,38 @@ export const seedCities: CityMarket[] = [
     topSectors: ["Services", "Tech", "Hospitality"],
     latitude: -1.9441,
     longitude: 30.0619,
+  },
+  {
+    id: "c_dar_es_salaam",
+    slug: "dar-es-salaam",
+    name: "Dar es Salaam",
+    country: "Tanzania",
+    flagEmoji: "🇹🇿",
+    status: "expanding",
+    avgRentUsd: 10500,
+    avgBuyUsd: 125000,
+    securityScore: 73,
+    commuteScore: 66,
+    lifestyleScore: 74,
+    topSectors: ["Trade", "Logistics", "Maritime"],
+    latitude: -6.7924,
+    longitude: 39.2083,
+  },
+  {
+    id: "c_cairo",
+    slug: "cairo",
+    name: "Cairo",
+    country: "Egypt",
+    flagEmoji: "🇪🇬",
+    status: "coming_soon",
+    avgRentUsd: 9800,
+    avgBuyUsd: 118000,
+    securityScore: 69,
+    commuteScore: 58,
+    lifestyleScore: 71,
+    topSectors: ["Professional Services", "Manufacturing", "Trade"],
+    latitude: 30.0444,
+    longitude: 31.2357,
   },
 ]
 
@@ -237,6 +271,63 @@ export const seedListings: PropertyListing[] = [
     images: ["https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&q=80"],
     agentId: "a2",
   },
+  {
+    id: "p7",
+    title: "Garden 3-Bed Terrace",
+    citySlug: "abuja",
+    country: "Nigeria",
+    neighborhood: "Asokoro",
+    type: "rent",
+    priceUsd: 18500,
+    bedrooms: 3,
+    bathrooms: 3,
+    areaSqm: 190,
+    verified: true,
+    moveInReady: true,
+    schoolsNearby: 5,
+    commuteMinutes: 17,
+    description: "Family-friendly terrace in a secured estate with reliable utilities.",
+    images: ["https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=1200&q=80"],
+    agentId: "a2",
+  },
+  {
+    id: "p8",
+    title: "Modern 2-Bed Apartment",
+    citySlug: "kigali",
+    country: "Rwanda",
+    neighborhood: "Kiyovu",
+    type: "rent",
+    priceUsd: 13500,
+    bedrooms: 2,
+    bathrooms: 2,
+    areaSqm: 128,
+    verified: true,
+    moveInReady: true,
+    schoolsNearby: 4,
+    commuteMinutes: 14,
+    description: "Clean modern apartment for mobile professionals relocating quickly.",
+    images: ["https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&q=80"],
+    agentId: "a4",
+  },
+  {
+    id: "p9",
+    title: "Executive 4-Bed Family Villa",
+    citySlug: "nairobi",
+    country: "Kenya",
+    neighborhood: "Karen",
+    type: "buy",
+    priceUsd: 390000,
+    bedrooms: 4,
+    bathrooms: 4,
+    areaSqm: 360,
+    verified: true,
+    moveInReady: false,
+    schoolsNearby: 6,
+    commuteMinutes: 26,
+    description: "Spacious villa for long-term relocation and family settlement.",
+    images: ["https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1200&q=80"],
+    agentId: "a4",
+  },
 ]
 
 export const seedAgents: AgentProfile[] = [
@@ -274,7 +365,7 @@ export const seedAgents: AgentProfile[] = [
     id: "a4",
     name: "David Mwangi",
     company: "Nairobi Move Realty",
-    cityCoverage: ["nairobi"],
+    cityCoverage: ["nairobi", "kigali"],
     rating: 4.5,
     verified: true,
     transactions: 63,
@@ -349,6 +440,80 @@ export const revenueStreams: RevenueStream[] = [
   {
     name: "Data & Insights",
     description: "Anonymized market intelligence for developers and institutional players.",
+  },
+]
+
+export const seedPropertyFaqs: PropertyFaq[] = [
+  {
+    id: "faq_1",
+    question: "How do you verify listings and agents?",
+    answer:
+      "We verify agent identity, listing ownership details, and recent availability checks before properties are labeled verified.",
+  },
+  {
+    id: "faq_2",
+    question: "Can I complete my search before arriving in Nigeria?",
+    answer:
+      "Yes. We support virtual tours, remote shortlist management, and documentation prep before your arrival date.",
+  },
+  {
+    id: "faq_3",
+    question: "Do you support both rentals and purchases?",
+    answer:
+      "Yes. EasyMoveZone supports rental search, purchase search, and commercial property options for relocating teams.",
+  },
+  {
+    id: "faq_4",
+    question: "What happens after I shortlist properties?",
+    answer:
+      "We coordinate viewings, help validate terms, and guide legal/payment steps through move-in completion.",
+  },
+  {
+    id: "faq_5",
+    question: "Can you help with school-focused family moves?",
+    answer:
+      "Yes. We map neighborhood options against school access, commute needs, and safety preferences for family relocations.",
+  },
+  {
+    id: "faq_6",
+    question: "How fast can I secure a move-in ready property?",
+    answer:
+      "Timelines vary by city and inventory, but many verified move-ready options can be secured in 1-3 weeks.",
+  },
+]
+
+export const seedResourceGuides: ResourceGuide[] = [
+  {
+    id: "guide_1",
+    title: "Lagos Relocation Starter Checklist",
+    summary: "A practical checklist covering budget, target areas, and key documentation before your move.",
+    category: "Relocation",
+    readMinutes: 6,
+    href: "/contact",
+  },
+  {
+    id: "guide_2",
+    title: "How to Avoid Rental Fraud in Nigeria",
+    summary: "Common fraud patterns and the verification steps every mover should follow.",
+    category: "Legal",
+    readMinutes: 8,
+    href: "/contact",
+  },
+  {
+    id: "guide_3",
+    title: "Choosing Between Ikoyi, VI, and Lekki",
+    summary: "Compare commute patterns, pricing, and lifestyle fit across Lagos prime areas.",
+    category: "Neighbourhood",
+    readMinutes: 7,
+    href: "/intelligence",
+  },
+  {
+    id: "guide_4",
+    title: "Diaspora Move Budget Planning",
+    summary: "How to structure housing budget, setup costs, and contingency for return moves.",
+    category: "Budgeting",
+    readMinutes: 5,
+    href: "/services",
   },
 ]
 

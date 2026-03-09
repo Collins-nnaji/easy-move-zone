@@ -55,3 +55,18 @@ CREATE TABLE IF NOT EXISTS property_testimonials (
   outcome TEXT NOT NULL,
   quote TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS property_faqs (
+  id TEXT PRIMARY KEY,
+  question TEXT NOT NULL,
+  answer TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS resource_guides (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  summary TEXT NOT NULL,
+  category TEXT NOT NULL,
+  read_minutes INTEGER NOT NULL DEFAULT 5,
+  href TEXT NOT NULL DEFAULT '/contact'
+);

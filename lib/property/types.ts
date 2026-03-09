@@ -68,6 +68,21 @@ export interface RevenueStream {
   description: string
 }
 
+export interface PropertyFaq {
+  id: string
+  question: string
+  answer: string
+}
+
+export interface ResourceGuide {
+  id: string
+  title: string
+  summary: string
+  category: "Relocation" | "Legal" | "Neighbourhood" | "Budgeting"
+  readMinutes: number
+  href: string
+}
+
 export interface ListingFilters {
   citySlug?: string
   type?: ListingType | "all"

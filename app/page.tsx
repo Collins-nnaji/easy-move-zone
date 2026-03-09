@@ -8,14 +8,16 @@ import {
   getFeaturedListings,
   getOpportunityRows,
   getPropertyTestimonials,
+  getResourceGuides,
   getRevenueStreams,
 } from "@/lib/property"
 
 export default async function HomePage() {
-  const [cities, listings, testimonials] = await Promise.all([
+  const [cities, listings, testimonials, guides] = await Promise.all([
     getCityMarkets(),
     getFeaturedListings(),
     getPropertyTestimonials(),
+    getResourceGuides(),
   ])
   const opportunityRows = getOpportunityRows()
   const revenueStreams = getRevenueStreams()
@@ -138,6 +140,25 @@ export default async function HomePage() {
           <div className="mt-5">
             <NewsletterSignupForm />
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+        <div className="mb-4 flex items-end justify-between">
+          <h3 className="font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Relocation guides</h3>
+          <Link href="/intelligence" className="text-sm font-semibold text-[#155eef]">See all intelligence</Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {guides.map((guide) => (
+            <article key={guide.id} className="emz-gloss-card rounded-2xl p-5">
+              <p className="text-xs uppercase tracking-[0.16em] text-[#0f766e]">{guide.category} · {guide.readMinutes} min read</p>
+              <h4 className="mt-2 text-2xl font-bold text-[#0f172a]">{guide.title}</h4>
+              <p className="mt-2 text-sm text-[#64748b]">{guide.summary}</p>
+              <Link href={guide.href} className="mt-3 inline-block text-sm font-semibold text-[#155eef]">
+                Open guide
+              </Link>
+            </article>
+          ))}
         </div>
       </section>
 

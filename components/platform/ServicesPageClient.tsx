@@ -2,15 +2,16 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import type { AgentProfile, CityMarket, PropertyListing } from "@/lib/property/types"
+import type { AgentProfile, CityMarket, PropertyFaq, PropertyListing } from "@/lib/property/types"
 
 interface ServicesPageClientProps {
   cities: CityMarket[]
   listings: PropertyListing[]
   agents: AgentProfile[]
+  faqs: PropertyFaq[]
 }
 
-export function ServicesPageClient({ cities, listings, agents }: ServicesPageClientProps) {
+export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesPageClientProps) {
   const [citySlug, setCitySlug] = useState<string>("all")
   const [listingType, setListingType] = useState<"all" | "rent" | "buy" | "commercial">("all")
   const [maxBudget, setMaxBudget] = useState<number>(500000)
@@ -140,6 +141,18 @@ export function ServicesPageClient({ cities, listings, agents }: ServicesPageCli
               <p className="mt-1 text-sm text-[#64748b]">Cities: {agent.cityCoverage.join(", ")}</p>
               <p className="text-sm text-[#64748b]">Rating: {agent.rating} · {agent.transactions} completed transactions</p>
             </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
+        <h2 className="property-section-title text-[#0f172a]">Frequently asked questions</h2>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {faqs.map((faq) => (
+            <details key={faq.id} className="emz-gloss-card rounded-xl p-4">
+              <summary className="cursor-pointer text-sm font-semibold text-[#0f172a]">{faq.question}</summary>
+              <p className="mt-2 text-sm text-[#64748b]">{faq.answer}</p>
+            </details>
           ))}
         </div>
       </section>

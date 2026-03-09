@@ -12,7 +12,7 @@ const navItems = [
   { href: "/intelligence", label: "Neighbourhood Intel" },
   { href: "/markets", label: "Cities" },
   { href: "/about", label: "About" },
-  { href: "/contact", label: "Get Help" },
+  { href: "/get-help", label: "Get Help" },
 ]
 
 export function PlatformNav() {

@@ -4,6 +4,8 @@ import {
   revenueStreams,
   seedAgents,
   seedCities,
+  seedPropertyFaqs,
+  seedResourceGuides,
   seedListings,
   seedTestimonials,
 } from "@/lib/property/seed"
@@ -12,7 +14,9 @@ import type {
   CityMarket,
   ListingFilters,
   OpportunityRow,
+  PropertyFaq,
   PropertyListing,
+  ResourceGuide,
   RevenueStream,
   Testimonial,
 } from "@/lib/property/types"
@@ -201,5 +205,47 @@ export function getOpportunityRows(): OpportunityRow[] {
 
 export function getRevenueStreams(): RevenueStream[] {
   return revenueStreams
+}
+
+export async function getPropertyFaqs(): Promise<PropertyFaq[]> {
+  if (!sql) return seedPropertyFaqs
+  try {
+    const rows = await sql`
+      SELECT id, question, answer
+      FROM property_faqs
+      ORDER BY id ASC
+    `
+    if (!rows.length) return seedPropertyFaqs
+    return rows.map((row) => ({
+      id: row.id,
+      question: row.question,
+      answer: row.answer,
+    }))
+  } catch {
+    return seedPropertyFaqs
+  }
+}
+
+export async function getResourceGuides(): Promise<ResourceGuide[]> {
+  if (!sql) return seedResourceGuides
+  try {
+    const rows = await sql`
+      SELECT id, title, summary, category, read_minutes, href
+      FROM resource_guides
+      ORDER BY id ASC
+      LIMIT 12
+    `
+    if (!rows.length) return seedResourceGuides
+    return rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      summary: row.summary,
+      category: row.category,
+      readMinutes: Number(row.read_minutes),
+      href: row.href,
+    }))
+  } catch {
+    return seedResourceGuides
+  }
 }
 
