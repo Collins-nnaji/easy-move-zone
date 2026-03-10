@@ -28,7 +28,37 @@ export default async function HomePage() {
   ]
   const listingVisuals = listings.map((listing) => getPrimaryListingImage(listing))
   const heroVisuals = [...listingVisuals, ...fallbackVisuals].slice(0, 6)
-  const marqueeVisuals = [...listingVisuals, ...fallbackVisuals, ...listingVisuals, ...fallbackVisuals].slice(0, 16)
+  const cityNamesBySlug = new Map(cities.map((city) => [city.slug, city.name]))
+  const galleryItems = [
+    ...listings.slice(0, 10).map((listing) => ({
+      image: getPrimaryListingImage(listing),
+      city: cityNamesBySlug.get(listing.citySlug) ?? listing.citySlug.replace("-", " "),
+      price: `$${listing.priceUsd.toLocaleString()}`,
+      type: listing.type === "commercial" ? "Commercial" : "Buy",
+      href: `/services?city=${listing.citySlug}`,
+    })),
+    {
+      image: fallbackVisuals[0],
+      city: "Lagos",
+      price: "$460,000",
+      type: "Buy",
+      href: "/services",
+    },
+    {
+      image: fallbackVisuals[2],
+      city: "Abuja",
+      price: "$390,000",
+      type: "Buy",
+      href: "/services",
+    },
+    {
+      image: fallbackVisuals[4],
+      city: "Nairobi",
+      price: "$880,000",
+      type: "Commercial",
+      href: "/services",
+    },
+  ]
 
   return (
     <PublicShell>
@@ -42,12 +72,19 @@ export default async function HomePage() {
           </div>
           <div className="emz-photo-marquee-frame">
             <div className="emz-photo-marquee">
-              {[...marqueeVisuals, ...marqueeVisuals].map((photo, index) => (
-                <div
-                  key={`${photo}-${index}`}
-                  className="emz-photo-marquee-item"
-                  style={{ backgroundImage: `url(${photo})` }}
-                />
+              {[...galleryItems, ...galleryItems].map((item, index) => (
+                <Link
+                  key={`${item.image}-${index}`}
+                  href={item.href}
+                  className="emz-gallery-thumb emz-photo-marquee-item"
+                  style={{ backgroundImage: `url(${item.image})` }}
+                >
+                  <div className="emz-gallery-thumb-overlay">
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-sky-100">{item.city}</p>
+                    <p className="mt-1 text-sm font-semibold text-white">{item.price}</p>
+                    <p className="text-[11px] text-sky-100">{item.type}</p>
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -74,7 +111,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section id="about" className="mx-auto grid w-full max-w-7xl gap-6 px-4 pb-10 sm:px-6 lg:grid-cols-2 lg:px-8">
+      <section id="about" className="mx-auto grid w-full max-w-7xl gap-6 px-4 pb-10 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
         <article className="emz-gloss-card rounded-2xl p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">About EasyMoveZone</p>
           <h2 className="mt-2 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Built to make home ownership real</h2>
@@ -87,11 +124,14 @@ export default async function HomePage() {
             <span className="rounded-full bg-[#eef4ff] px-3 py-1.5 text-[#155eef]">Diaspora investors</span>
           </div>
         </article>
-        <article className="emz-gloss-card rounded-2xl p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#0f766e]">AI Ownership Match</p>
-          <h3 className="mt-2 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Describe your plan</h3>
+        <article className="overflow-hidden rounded-2xl border border-[#1f3f6b] bg-[#0d1b2a] p-6 shadow-[0_26px_55px_-36px_rgba(13,27,42,0.92)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7cc8ff]">AI Ownership Match</p>
+          <h3 className="mt-2 font-[var(--font-playfair)] text-4xl font-bold text-white">Describe your plan</h3>
+          <p className="mt-2 max-w-xl text-sm text-slate-300">
+            Get a fast ownership pathway recommendation based on your buy/sell goal, timeline, and target city.
+          </p>
           <div className="mt-4">
-            <DirectionDetector />
+            <DirectionDetector dark />
           </div>
         </article>
       </section>

@@ -927,6 +927,60 @@
     background-size: cover;
     background-position: center;
     flex: 0 0 auto;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .emz-gallery-thumb {
+    display: block;
+    text-decoration: none;
+  }
+
+  .emz-gallery-thumb::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 35%, rgba(2, 6, 23, 0.7) 100%);
+  }
+
+  .emz-gallery-thumb-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    padding: 0.7rem;
+  }
+
+  .emz-gallery-thumb:hover {
+    transform: translateY(-2px);
+    transition: transform 220ms ease;
+  }
+
+  .emz-budget-slider {
+    appearance: none;
+    height: 8px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #0d1b2a, #1976d2, #7cc8ff);
+  }
+
+  .emz-budget-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    background: #0d1b2a;
+    box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.25);
+  }
+
+  .emz-budget-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    background: #0d1b2a;
+    box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.25);
   }
 
   .property-hero-image {
