@@ -1,16 +1,11 @@
-import { CitiesIntelWorkbench } from "@/components/platform/CitiesIntelWorkbench"
 import { ComingSoonInterestForm } from "@/components/platform/ComingSoonInterestForm"
 import { MarketComparisonTool } from "@/components/platform/MarketComparisonTool"
+import { MarketsMap } from "@/components/platform/MarketsMap"
 import { PublicShell } from "@/components/platform/PublicShell"
-import { getCityMarkets } from "@/lib/property"
+import { getCityMarkets, getPropertyListings } from "@/lib/property"
 
-export default async function MarketsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ city?: string }>
-}) {
-  const params = await searchParams
-  const markets = await getCityMarkets()
+export default async function MarketsPage() {
+  const [markets, listings] = await Promise.all([getCityMarkets(), getPropertyListings()])
   const comingSoon = markets.filter((market) => market.status !== "active")
 
   return (
@@ -30,7 +25,7 @@ export default async function MarketsPage({
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
-        <CitiesIntelWorkbench markets={markets} initialCitySlug={params.city} />
+        <MarketsMap markets={markets} listings={listings} />
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
