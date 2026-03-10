@@ -810,6 +810,73 @@
     }
   }
 
+  @keyframes emz-grid-pan {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: 60px 60px;
+    }
+  }
+
+  @keyframes emz-glow-pulse {
+    from {
+      transform: scale(1);
+      opacity: 0.62;
+    }
+    to {
+      transform: scale(1.14);
+      opacity: 1;
+    }
+  }
+
+  @keyframes emz-fade-up {
+    from {
+      transform: translateY(26px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes emz-stack-float-1 {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes emz-stack-float-2 {
+    0%, 100% {
+      transform: translateY(0px) rotate(1.2deg);
+    }
+    50% {
+      transform: translateY(-8px) rotate(1.2deg);
+    }
+  }
+
+  @keyframes emz-stack-float-3 {
+    0%, 100% {
+      transform: translateY(0px) rotate(-1deg);
+    }
+    50% {
+      transform: translateY(-11px) rotate(-1deg);
+    }
+  }
+
+  @keyframes emz-stack-float-4 {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-7px);
+    }
+  }
+
   .emz-hero-reveal {
     opacity: 0;
     animation: emz-hero-rise 700ms var(--ease-out-expo) forwards;
@@ -834,6 +901,48 @@
 
   .emz-home-full-hero {
     min-height: clamp(560px, calc(100svh - 5rem), 920px);
+  }
+
+  .emz-home-hero-grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(79, 195, 247, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79, 195, 247, 0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: emz-grid-pan 20s linear infinite;
+    pointer-events: none;
+  }
+
+  .emz-home-hero-glow-a {
+    position: absolute;
+    width: 700px;
+    height: 700px;
+    right: -110px;
+    top: -210px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(21, 101, 192, 0.2) 0%, transparent 70%);
+    animation: emz-glow-pulse 6s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+
+  .emz-home-hero-glow-b {
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    left: 92px;
+    bottom: -64px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(79, 195, 247, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .emz-home-hero-content-enter {
+    animation: emz-fade-up 700ms ease both 100ms;
+  }
+
+  .emz-home-hero-cards-enter {
+    animation: emz-fade-up 700ms ease both 280ms;
   }
 
   .emz-home-hero-layer-parallax {
@@ -878,6 +987,39 @@
     background:
       linear-gradient(112deg, rgba(7, 12, 25, 0.86) 0%, rgba(7, 12, 25, 0.74) 34%, rgba(9, 25, 60, 0.46) 62%, rgba(15, 118, 110, 0.32) 100%),
       linear-gradient(180deg, rgba(10, 19, 39, 0.1) 0%, rgba(10, 19, 39, 0.42) 100%);
+  }
+
+  .emz-home-stack-card {
+    position: absolute;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(6px);
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 24px 55px -36px rgba(0, 0, 0, 0.65);
+    transition: transform 220ms ease, box-shadow 220ms ease;
+  }
+
+  .emz-home-stack-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 28px 62px -34px rgba(0, 0, 0, 0.72);
+  }
+
+  .emz-home-stack-card-a {
+    animation: emz-stack-float-1 5.2s ease-in-out infinite;
+  }
+
+  .emz-home-stack-card-b {
+    animation: emz-stack-float-2 5.3s ease-in-out infinite 0.8s;
+  }
+
+  .emz-home-stack-card-c {
+    animation: emz-stack-float-3 5.5s ease-in-out infinite 0.4s;
+  }
+
+  .emz-home-stack-card-d {
+    animation: emz-stack-float-4 6.1s ease-in-out infinite 1.2s;
   }
 
   .emz-photo-card {
@@ -1018,8 +1160,16 @@
   @media (prefers-reduced-motion: reduce) {
     .emz-hero-reveal,
     .emz-hero-breathe,
+    .emz-home-hero-grid-lines,
+    .emz-home-hero-content-enter,
+    .emz-home-hero-cards-enter,
+    .emz-home-stack-card-a,
+    .emz-home-stack-card-b,
+    .emz-home-stack-card-c,
+    .emz-home-stack-card-d,
     .emz-home-hero-bg-layer-a,
     .emz-home-hero-bg-layer-b,
+    .emz-home-hero-glow-a,
     .emz-home-hero-gradient-wave,
     .emz-photo-drift-a,
     .emz-photo-drift-b,
