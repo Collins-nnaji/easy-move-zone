@@ -9,7 +9,9 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   const pageHasOwnChrome =
     pathname === "/" ||
     pathname === "/services" ||
+    pathname === "/listings" ||
     pathname === "/markets" ||
+    pathname === "/cities" ||
     pathname === "/contact" ||
     pathname === "/auth"
 

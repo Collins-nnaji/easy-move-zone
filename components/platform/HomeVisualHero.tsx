@@ -95,10 +95,10 @@ export function HomeVisualHero({ heroVisuals, heroCards, citiesCount, listingsCo
               Verified listings, installment-friendly pathways, and city intelligence in one clear buy/sell flow for serious movers.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/services" className="rounded-full bg-[#1976d2] px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1e88e5]">
+              <Link href="/listings" className="rounded-full bg-[#1976d2] px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1e88e5]">
                 Browse listings
               </Link>
-              <Link href="/markets#intel-tool" className="rounded-full border border-white/25 bg-transparent px-7 py-3 text-sm font-semibold text-white/90 transition hover:border-white/60 hover:text-white">
+              <Link href="/cities#intel-tool" className="rounded-full border border-white/25 bg-transparent px-7 py-3 text-sm font-semibold text-white/90 transition hover:border-white/60 hover:text-white">
                 Explore city intel
               </Link>
             </div>

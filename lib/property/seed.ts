@@ -505,7 +505,7 @@ export const seedResourceGuides: ResourceGuide[] = [
     summary: "Compare commute patterns, pricing, and lifestyle fit across Lagos prime areas.",
     category: "Neighbourhood",
     readMinutes: 7,
-    href: "/markets#intel-tool",
+    href: "/cities#intel-tool",
   },
   {
     id: "guide_4",
@@ -513,7 +513,7 @@ export const seedResourceGuides: ResourceGuide[] = [
     summary: "How to structure housing budget, setup costs, and contingency for return moves.",
     category: "Budgeting",
     readMinutes: 5,
-    href: "/services",
+    href: "/listings",
   },
 ]
 

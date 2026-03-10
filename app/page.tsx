@@ -67,10 +67,10 @@ export default async function HomePage() {
               buy/sell flow — built for Africa and the diaspora.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/services" className="rounded-full bg-[#1769d0] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1e80e8]">
+              <Link href="/listings" className="rounded-full bg-[#1769d0] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1e80e8]">
                 Browse listings →
               </Link>
-              <Link href="/markets" className="rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white/80 transition hover:border-white/50 hover:text-white">
+              <Link href="/cities" className="rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white/80 transition hover:border-white/50 hover:text-white">
                 Explore city intel
               </Link>
             </div>
@@ -143,7 +143,7 @@ export default async function HomePage() {
               A structured journey from first search to final signature — no guesswork, no gaps.
             </p>
           </div>
-          <Link href="/services" className="hidden text-sm font-semibold text-[#1769d0] md:inline-flex">
+          <Link href="/listings" className="hidden text-sm font-semibold text-[#1769d0] md:inline-flex">
             See all listings →
           </Link>
         </div>
@@ -154,14 +154,14 @@ export default async function HomePage() {
               icon: "🔍",
               title: "Shortlist",
               text: "Filter verified homes that match budget, city, and ownership goals across buy, installment, and trade-up.",
-              href: "/services",
+              href: "/listings",
             },
             {
               step: "02",
               icon: "💳",
               title: "Finance",
               text: "Plan installment and top-up options before committing. Compare payment structures against your cash flow.",
-              href: "/services",
+              href: "/listings",
             },
             {
               step: "03",
@@ -235,7 +235,7 @@ export default async function HomePage() {
               Verified properties for sale
             </h2>
           </div>
-          <Link href="/services" className="text-sm font-semibold text-[#1769d0]">
+          <Link href="/listings" className="text-sm font-semibold text-[#1769d0]">
             View all listings →
           </Link>
         </div>
@@ -275,7 +275,7 @@ export default async function HomePage() {
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">City intelligence</p>
               <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-[#091520]">Browse by city</h2>
             </div>
-            <Link href="/markets" className="text-sm font-semibold text-[#1769d0]">
+            <Link href="/cities" className="text-sm font-semibold text-[#1769d0]">
               Explore all cities →
             </Link>
           </div>
@@ -284,7 +284,7 @@ export default async function HomePage() {
             {cities.slice(0, 8).map((city, index) => (
               <Link
                 key={city.id}
-                href="/markets"
+                href="/cities"
                 className={`home-city-card home-city-gradient-${(index % 8) + 1}`}
               >
                 <span className="home-city-icon">{city.flagEmoji}</span>
@@ -330,10 +330,10 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link href="/services" className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#1769d0] transition hover:translate-y-[-1px]">
+            <Link href="/listings" className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#1769d0] transition hover:translate-y-[-1px]">
               Browse listings →
             </Link>
-            <Link href="/markets" className="rounded-full border border-white/50 px-6 py-3 text-sm font-semibold text-white">
+            <Link href="/cities" className="rounded-full border border-white/50 px-6 py-3 text-sm font-semibold text-white">
               Explore cities
             </Link>
           </div>

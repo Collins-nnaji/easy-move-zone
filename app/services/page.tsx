@@ -1,18 +1,5 @@
-import { PublicShell } from "@/components/platform/PublicShell"
-import { ServicesPageClient } from "@/components/platform/ServicesPageClient"
-import { getAgents, getCityMarkets, getPropertyFaqs, getPropertyListings } from "@/lib/property"
+import { redirect } from "next/navigation"
 
 export default async function ServicesPage() {
-  const [cities, listings, agents, faqs] = await Promise.all([
-    getCityMarkets(),
-    getPropertyListings(),
-    getAgents(),
-    getPropertyFaqs(),
-  ])
-
-  return (
-    <PublicShell>
-      <ServicesPageClient cities={cities} listings={listings} agents={agents} faqs={faqs} />
-    </PublicShell>
-  )
+  redirect("/listings")
 }

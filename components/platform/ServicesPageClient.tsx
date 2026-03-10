@@ -66,9 +66,9 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
   const [pathwayFilter, setPathwayFilter] = useState<PathwayFilter>("all")
   const [propertyTypeFilter, setPropertyTypeFilter] = useState<PropertyTypeFilter>("all")
   const [bedroomFilter, setBedroomFilter] = useState<BedroomFilter>("any")
-  const [minBudget, setMinBudget] = useState<number>(50000)
-  const [maxBudget, setMaxBudget] = useState<number>(650000)
-  const [moveInReadyOnly, setMoveInReadyOnly] = useState<boolean>(true)
+  const [minBudget, setMinBudget] = useState<number>(0)
+  const [maxBudget, setMaxBudget] = useState<number>(5000000)
+  const [moveInReadyOnly, setMoveInReadyOnly] = useState<boolean>(false)
   const [sortBy, setSortBy] = useState<SortBy>("best_match")
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [shortlistedIds, setShortlistedIds] = useState<string[]>([])
@@ -82,11 +82,11 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
     [listings]
   )
 
-  const filtered = useMemo(() => {
+  const baseFiltered = useMemo(() => {
     const safeMin = Math.min(minBudget, maxBudget)
     const safeMax = Math.max(minBudget, maxBudget)
 
-    const scoped = listings
+    return listings
       .filter((listing) => (citySlug === "all" ? true : listing.citySlug === citySlug))
       .filter((listing) => {
         if (propertyTypeFilter === "all") return true
@@ -100,7 +100,13 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
       })
       .filter((listing) => listing.priceUsd >= safeMin && listing.priceUsd <= safeMax)
       .filter((listing) => (moveInReadyOnly ? listing.moveInReady : true))
-      .filter((listing) => (pathwayFilter === "all" ? true : classifyPathway(listing) === pathwayFilter))
+  }, [bedroomFilter, citySlug, listings, maxBudget, minBudget, moveInReadyOnly, propertyTypeFilter])
+
+  const filtered = useMemo(() => {
+    const scoped =
+      pathwayFilter === "all"
+        ? baseFiltered
+        : baseFiltered.filter((listing) => classifyPathway(listing) === pathwayFilter)
 
     const sorted = [...scoped]
     if (sortBy === "price_low_high") sorted.sort((a, b) => a.priceUsd - b.priceUsd)
@@ -116,17 +122,17 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
       })
     }
     return sorted
-  }, [bedroomFilter, citySlug, listings, maxBudget, minBudget, moveInReadyOnly, pathwayFilter, propertyTypeFilter, sortBy])
+  }, [baseFiltered, pathwayFilter, sortBy])
 
   const pathwayCounts = useMemo(
     () => ({
-      all: listings.length,
-      direct_purchase: listings.filter((listing) => classifyPathway(listing) === "direct_purchase").length,
-      installment: listings.filter((listing) => classifyPathway(listing) === "installment").length,
-      sell_top_up: listings.filter((listing) => classifyPathway(listing) === "sell_top_up").length,
-      commercial: listings.filter((listing) => classifyPathway(listing) === "commercial").length,
+      all: baseFiltered.length,
+      direct_purchase: baseFiltered.filter((listing) => classifyPathway(listing) === "direct_purchase").length,
+      installment: baseFiltered.filter((listing) => classifyPathway(listing) === "installment").length,
+      sell_top_up: baseFiltered.filter((listing) => classifyPathway(listing) === "sell_top_up").length,
+      commercial: baseFiltered.filter((listing) => classifyPathway(listing) === "commercial").length,
     }),
-    [listings]
+    [baseFiltered]
   )
 
   const featured = filtered[0]
@@ -343,16 +349,16 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                   </div>
                   <input
                     type="range"
-                    min={25000}
-                    max={1200000}
+                    min={0}
+                    max={5000000}
                     step={5000}
                     value={maxBudget}
                     onChange={(event) => setMaxBudget(Number(event.target.value))}
                     className="w-full accent-[#1769d0]"
                   />
                   <div className="mt-1 flex justify-between text-[11px] text-[#94a3b8]">
-                    <span>$25K</span>
-                    <span>$1.2M+</span>
+                    <span>$0</span>
+                    <span>$5M+</span>
                   </div>
                 </div>
                 <label className="inline-flex items-center gap-2 text-xs text-[#475569]">

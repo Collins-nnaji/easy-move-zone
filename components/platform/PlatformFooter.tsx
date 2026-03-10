@@ -24,8 +24,8 @@ export function PlatformFooter() {
           <h4 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#93c5fd]">Platform</h4>
           <ul className="space-y-2 text-sm text-[#cbd5e1]">
             <li><Link href="/">Home</Link></li>
-            <li><Link href="/services">Listings</Link></li>
-            <li><Link href="/markets#intel-tool">Cities + AI Intel</Link></li>
+            <li><Link href="/listings">Listings</Link></li>
+            <li><Link href="/cities#intel-tool">Cities + AI Intel</Link></li>
             <li><Link href="/#about">About</Link></li>
           </ul>
         </div>
