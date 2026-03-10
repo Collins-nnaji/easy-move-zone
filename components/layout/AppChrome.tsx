@@ -15,7 +15,6 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
     pathname === "/contact" ||
     pathname === "/auth" ||
     pathname === "/mortgage" ||
-    pathname.startsWith("/profile") ||
     pathname.startsWith("/admin")
 
   if (pageHasOwnChrome) {
