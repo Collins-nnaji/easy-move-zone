@@ -20,7 +20,7 @@ export default async function MarketsPage({
           <div className="max-w-2xl rounded-2xl border border-white/30 bg-black/35 p-6 text-white backdrop-blur-sm">
             <p className="text-xs uppercase tracking-[0.2em] text-sky-100">City coverage</p>
             <h1 className="mt-2 font-[var(--font-playfair)] text-6xl font-bold leading-[0.95]">
-              City intelligence for your next move
+              City intelligence for ownership decisions
             </h1>
             <p className="mt-3 max-w-xl text-sm text-sky-100">
               Explore map context, city dynamics, and AI-powered neighbourhood intel with live web-informed analysis.

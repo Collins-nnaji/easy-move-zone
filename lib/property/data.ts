@@ -24,6 +24,10 @@ import type {
 const DATABASE_URL = process.env.DATABASE_URL ?? process.env.NEON_DATABASE_URL
 const sql = DATABASE_URL ? neon(DATABASE_URL) : null
 
+function isOwnershipListing(listing: PropertyListing): boolean {
+  return listing.type !== "rent"
+}
+
 export async function getCityMarkets(): Promise<CityMarket[]> {
   if (!sql) return seedCities
   try {
@@ -72,6 +76,7 @@ export async function getCityMarkets(): Promise<CityMarket[]> {
 export async function getPropertyListings(filters?: ListingFilters): Promise<PropertyListing[]> {
   if (!sql) {
     return seedListings
+      .filter((listing) => isOwnershipListing(listing))
       .filter((listing) => (filters?.citySlug ? listing.citySlug === filters.citySlug : true))
       .filter((listing) => (!filters?.type || filters.type === "all" ? true : listing.type === filters.type))
       .filter((listing) => (filters?.maxBudgetUsd ? listing.priceUsd <= filters.maxBudgetUsd : true))
@@ -122,12 +127,14 @@ export async function getPropertyListings(filters?: ListingFilters): Promise<Pro
     }))
 
     return listings
+      .filter((listing) => isOwnershipListing(listing))
       .filter((listing) => (filters?.citySlug ? listing.citySlug === filters.citySlug : true))
       .filter((listing) => (!filters?.type || filters.type === "all" ? true : listing.type === filters.type))
       .filter((listing) => (filters?.maxBudgetUsd ? listing.priceUsd <= filters.maxBudgetUsd : true))
       .filter((listing) => (filters?.moveInReady ? listing.moveInReady : true))
   } catch {
     return seedListings
+      .filter((listing) => isOwnershipListing(listing))
       .filter((listing) => (filters?.citySlug ? listing.citySlug === filters.citySlug : true))
       .filter((listing) => (!filters?.type || filters.type === "all" ? true : listing.type === filters.type))
       .filter((listing) => (filters?.maxBudgetUsd ? listing.priceUsd <= filters.maxBudgetUsd : true))

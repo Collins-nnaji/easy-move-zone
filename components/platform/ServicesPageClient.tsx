@@ -14,7 +14,7 @@ interface ServicesPageClientProps {
 
 export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesPageClientProps) {
   const [citySlug, setCitySlug] = useState<string>("all")
-  const [listingType, setListingType] = useState<"all" | "rent" | "buy" | "commercial">("all")
+  const [listingType, setListingType] = useState<"all" | "buy" | "commercial">("all")
   const [maxBudget, setMaxBudget] = useState<number>(500000)
   const [moveInReadyOnly, setMoveInReadyOnly] = useState(false)
 
@@ -35,10 +35,10 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
           <div className="max-w-2xl rounded-2xl border border-white/25 bg-black/35 p-6 text-white backdrop-blur-sm">
             <p className="text-xs uppercase tracking-[0.2em] text-sky-100">Verified property inventory</p>
             <h1 className="mt-2 font-[var(--font-playfair)] text-5xl font-bold leading-[0.95] md:text-6xl">
-              Browse homes built for relocation life
+              Browse verified homes for ownership
             </h1>
             <p className="mt-3 text-sm text-sky-50/90">
-              Filter by city, listing type, budget, and move-readiness to shortlist faster.
+              Compare buy opportunities, set your budget, and shortlist faster for purchase, installment, or trade-up plans.
             </p>
           </div>
         </div>
@@ -53,9 +53,8 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                 <option key={city.id} value={city.slug}>{city.name}</option>
               ))}
             </select>
-            <select value={listingType} onChange={(event) => setListingType(event.target.value as "all" | "rent" | "buy" | "commercial")} className="rounded-xl border border-[#c8d8f0] bg-white px-3 py-2 text-sm">
-              <option value="all">All listing types</option>
-              <option value="rent">Rent</option>
+            <select value={listingType} onChange={(event) => setListingType(event.target.value as "all" | "buy" | "commercial")} className="rounded-xl border border-[#c8d8f0] bg-white px-3 py-2 text-sm">
+              <option value="all">All ownership types</option>
               <option value="buy">Buy</option>
               <option value="commercial">Commercial</option>
             </select>
@@ -74,8 +73,28 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
           </div>
           <label className="mt-3 inline-flex items-center gap-2 text-sm text-[#475569]">
             <input type="checkbox" checked={moveInReadyOnly} onChange={(event) => setMoveInReadyOnly(event.target.checked)} />
-            Move-in ready only
+            Ready-to-close only
           </label>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
+        <div className="grid gap-3 md:grid-cols-3">
+          <article className="emz-gloss-card rounded-2xl p-4">
+            <p className="text-xs uppercase tracking-[0.18em] text-[#64748b]">Pathway 1</p>
+            <h2 className="mt-2 text-xl font-bold text-[#0f172a]">Direct purchase</h2>
+            <p className="mt-1 text-sm text-[#64748b]">Buy verified properties with full legal and documentation support.</p>
+          </article>
+          <article className="emz-gloss-card rounded-2xl p-4">
+            <p className="text-xs uppercase tracking-[0.18em] text-[#64748b]">Pathway 2</p>
+            <h2 className="mt-2 text-xl font-bold text-[#0f172a]">Installment plans</h2>
+            <p className="mt-1 text-sm text-[#64748b]">Shortlist homes with flexible payment structures that fit your cash flow.</p>
+          </article>
+          <article className="emz-gloss-card rounded-2xl p-4">
+            <p className="text-xs uppercase tracking-[0.18em] text-[#64748b]">Pathway 3</p>
+            <h2 className="mt-2 text-xl font-bold text-[#0f172a]">Sell and top-up</h2>
+            <p className="mt-1 text-sm text-[#64748b]">Sell your current property, add funds, and upgrade into a better home.</p>
+          </article>
         </div>
       </section>
 
@@ -83,7 +102,7 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
         {filtered.length === 0 ? (
           <div className="emz-gloss-card rounded-2xl p-6 text-center">
             <h3 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0f172a]">No listings match these filters</h3>
-            <p className="mt-2 text-sm text-[#64748b]">Try increasing budget, changing city, or disabling “move-in ready only”.</p>
+            <p className="mt-2 text-sm text-[#64748b]">Try increasing budget, changing city, or disabling “ready-to-close only”.</p>
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -103,11 +122,11 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {listing.verified ? <span className="rounded-full bg-[#eaf1ff] px-2 py-1 text-[11px] text-[#155eef]">Verified</span> : null}
-                  {listing.moveInReady ? <span className="rounded-full bg-[#e7f7f2] px-2 py-1 text-[11px] text-[#0f766e]">Move-in ready</span> : null}
+                  {listing.moveInReady ? <span className="rounded-full bg-[#e7f7f2] px-2 py-1 text-[11px] text-[#0f766e]">Ready to close</span> : null}
                   <span className="rounded-full bg-[#f1f5f9] px-2 py-1 text-[11px] text-[#64748b]">{listing.schoolsNearby} schools nearby</span>
                 </div>
                 <Link href={`/contact?market=${listing.citySlug}&message=I%20want%20to%20view%20${encodeURIComponent(listing.title)}`} className="emz-pill-cta mt-4 inline-block rounded-full px-4 py-2 text-sm font-semibold">
-                  Book Viewing Support
+                  Request purchase support
                 </Link>
               </article>
             ))}

@@ -314,7 +314,7 @@ export function ProfileWorkspace({
               </label>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
-              {(["rent", "buy", "commercial"] as ListingType[]).map((type) => {
+              {(["buy", "commercial"] as ListingType[]).map((type) => {
                 const selected = profile.buyerListingTypes.includes(type)
                 return (
                   <button
@@ -375,8 +375,7 @@ export function ProfileWorkspace({
                   }
                   className="rounded-xl border border-[#c8d8f0] bg-white px-3 py-2 text-sm"
                 >
-                  <option value="">Any type</option>
-                  <option value="rent">rent</option>
+                  <option value="">Any ownership type</option>
                   <option value="buy">buy</option>
                   <option value="commercial">commercial</option>
                 </select>
@@ -410,7 +409,7 @@ export function ProfileWorkspace({
                     <div>
                       <p className="font-semibold text-[#0f172a]">{search.name}</p>
                       <p className="text-[#64748b]">
-                        {search.citySlug || "any city"} · {search.listingType || "any type"} ·
+                        {search.citySlug || "any city"} · {search.listingType || "any ownership type"} ·
                         ${search.budgetMin?.toLocaleString() || 0} - ${search.budgetMax?.toLocaleString() || "any"}
                       </p>
                     </div>
@@ -458,7 +457,7 @@ export function ProfileWorkspace({
               </label>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
-              {(["rent", "buy", "commercial"] as ListingType[]).map((type) => {
+              {(["buy", "commercial"] as ListingType[]).map((type) => {
                 const selected = profile.sellerPropertyTypes.includes(type)
                 return (
                   <button

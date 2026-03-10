@@ -23,9 +23,9 @@ const playfairDisplay = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone Homes — Relocation Property Platform",
+  title: "EasyMoveZone Homes — Buy & Sell Property Platform",
   description:
-    "A modern property relocation platform for Nigeria and Africa: verified listings, neighbourhood intelligence, trusted agents, and move support.",
+    "A modern property ownership platform for Nigeria and Africa: verified listings, city intelligence, trusted agents, and buy/sell support.",
 };
 
 export default function RootLayout({

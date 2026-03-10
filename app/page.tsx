@@ -23,15 +23,15 @@ export default async function HomePage() {
       <section className="emz-hero-section grid gap-6 lg:grid-cols-[1fr_1.05fr]">
         <div className="space-y-5">
           <span className="emz-hero-reveal inline-flex rounded-full border border-[#bfd1ee] bg-[#eef4ff] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">
-            Property relocation platform
+            Property ownership platform
           </span>
           <h1 className="emz-hero-reveal emz-hero-reveal-delay-1 font-[var(--font-playfair)] text-5xl font-black leading-[0.92] text-[#0f172a] md:text-7xl">
-            Move smarter.
+            Buy smarter.
             <br />
-            Find home faster.
+            Sell and upgrade faster.
           </h1>
           <p className="emz-hero-reveal emz-hero-reveal-delay-2 max-w-xl text-base leading-7 text-[#475569] md:text-lg">
-            Verified listings, city intelligence, and advisor support in one clear flow.
+            Verified listings, installment-friendly pathways, and city intelligence in one clear buy/sell flow.
           </p>
           <div className="emz-hero-reveal emz-hero-reveal-delay-3 flex flex-wrap gap-3">
             <Link href="/services" className="emz-pill-cta rounded-full px-6 py-3 text-sm font-semibold">
@@ -43,8 +43,8 @@ export default async function HomePage() {
           </div>
           <div className="emz-hero-reveal emz-hero-reveal-delay-3 flex flex-wrap gap-2 text-xs font-semibold text-[#334155]">
             <span className="rounded-full bg-[#eef4ff] px-3 py-1.5">Verified supply</span>
-            <span className="rounded-full bg-[#ecfdf5] px-3 py-1.5">AI city insights</span>
-            <span className="rounded-full bg-[#fff7ed] px-3 py-1.5">Advisor support</span>
+            <span className="rounded-full bg-[#ecfdf5] px-3 py-1.5">Installment options</span>
+            <span className="rounded-full bg-[#fff7ed] px-3 py-1.5">Trade-up support</span>
           </div>
         </div>
         <div className="property-hero-image emz-hero-float emz-hero-reveal emz-hero-reveal-delay-2 flex items-end p-5 text-white md:p-6">
@@ -65,7 +65,7 @@ export default async function HomePage() {
               </div>
             </div>
             <p className="text-sm leading-6 text-sky-50/90">
-              Designed for movers who need quick, confident decisions.
+              Built for buyers and sellers who want ownership with confidence.
             </p>
           </div>
         </div>
@@ -76,17 +76,17 @@ export default async function HomePage() {
           <article className="emz-gloss-card rounded-2xl p-5">
             <p className="text-xs uppercase tracking-[0.18em] text-[#64748b]">Step 1</p>
             <h2 className="mt-2 text-2xl font-bold text-[#0f172a]">Shortlist</h2>
-            <p className="mt-1 text-sm text-[#64748b]">Filter verified listings that match your budget and move window.</p>
+            <p className="mt-1 text-sm text-[#64748b]">Filter verified homes that match your budget, city, and ownership goals.</p>
           </article>
           <article className="emz-gloss-card rounded-2xl p-5">
             <p className="text-xs uppercase tracking-[0.18em] text-[#64748b]">Step 2</p>
-            <h2 className="mt-2 text-2xl font-bold text-[#0f172a]">Validate</h2>
-            <p className="mt-1 text-sm text-[#64748b]">Check city and neighbourhood intelligence before committing.</p>
+            <h2 className="mt-2 text-2xl font-bold text-[#0f172a]">Finance</h2>
+            <p className="mt-1 text-sm text-[#64748b]">Plan installment and top-up options before you commit.</p>
           </article>
           <article className="emz-gloss-card rounded-2xl p-5">
             <p className="text-xs uppercase tracking-[0.18em] text-[#64748b]">Step 3</p>
-            <h2 className="mt-2 text-2xl font-bold text-[#0f172a]">Move</h2>
-            <p className="mt-1 text-sm text-[#64748b]">Get advisor help for viewings, documentation, and final decision.</p>
+            <h2 className="mt-2 text-2xl font-bold text-[#0f172a]">Close</h2>
+            <p className="mt-1 text-sm text-[#64748b]">Get support with selling, documentation, and final ownership transfer.</p>
           </article>
         </div>
       </section>
@@ -94,19 +94,19 @@ export default async function HomePage() {
       <section id="about" className="mx-auto grid w-full max-w-7xl gap-6 px-4 pb-10 sm:px-6 lg:grid-cols-2 lg:px-8">
         <article className="emz-gloss-card rounded-2xl p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">About EasyMoveZone</p>
-          <h2 className="mt-2 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Built for confident relocation</h2>
+          <h2 className="mt-2 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Built to make home ownership real</h2>
           <p className="mt-3 text-sm leading-7 text-[#475569]">
-            We combine trusted listings, city context, and practical guidance so movers can decide faster.
+            We combine trusted listings, city context, and practical guidance so buyers and sellers can close faster.
           </p>
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
-            <span className="rounded-full bg-[#eef4ff] px-3 py-1.5 text-[#155eef]">Domestic movers</span>
-            <span className="rounded-full bg-[#eef4ff] px-3 py-1.5 text-[#155eef]">Diaspora returnees</span>
-            <span className="rounded-full bg-[#eef4ff] px-3 py-1.5 text-[#155eef]">Pan-African professionals</span>
+            <span className="rounded-full bg-[#eef4ff] px-3 py-1.5 text-[#155eef]">First-time buyers</span>
+            <span className="rounded-full bg-[#eef4ff] px-3 py-1.5 text-[#155eef]">Home upgraders</span>
+            <span className="rounded-full bg-[#eef4ff] px-3 py-1.5 text-[#155eef]">Diaspora investors</span>
           </div>
         </article>
         <article className="emz-gloss-card rounded-2xl p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#0f766e]">AI Move Match</p>
-          <h3 className="mt-2 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Describe your move</h3>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#0f766e]">AI Ownership Match</p>
+          <h3 className="mt-2 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Describe your plan</h3>
           <div className="mt-4">
             <DirectionDetector />
           </div>
@@ -117,7 +117,7 @@ export default async function HomePage() {
         <div className="mb-6 flex items-end justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">Featured inventory</p>
-            <h2 className="property-section-title mt-2 text-[#0f172a]">Move-ready properties</h2>
+            <h2 className="property-section-title mt-2 text-[#0f172a]">Verified properties for sale</h2>
           </div>
           <Link href="/services" className="text-sm font-semibold text-[#155eef]">View all listings</Link>
         </div>
@@ -141,8 +141,8 @@ export default async function HomePage() {
       <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 pb-12 sm:px-6 lg:grid-cols-2 lg:px-8">
         <div className="emz-gloss-card rounded-2xl p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">Cities</p>
-          <h3 className="mt-2 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Where should you move?</h3>
-          <p className="mt-2 text-sm text-[#64748b]">Use the city map and AI intel workbench to compare fit quickly.</p>
+          <h3 className="mt-2 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Where should you buy?</h3>
+          <p className="mt-2 text-sm text-[#64748b]">Use the city map and AI intel workbench to compare ownership fit quickly.</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {activeCities.slice(0, 5).map((city) => (
               <span key={city.id} className="rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs text-[#334155]">
@@ -162,7 +162,7 @@ export default async function HomePage() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">Updates</p>
-              <h3 className="mt-1 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Get monthly move intelligence</h3>
+              <h3 className="mt-1 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Get monthly ownership intelligence</h3>
             </div>
             <Link href="/contact" className="rounded-full border border-[#c8d8f0] bg-white px-5 py-2 text-sm font-semibold text-[#0f172a]">
               Talk to an advisor

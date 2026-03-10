@@ -9,6 +9,7 @@ const sql = DATABASE_URL ? neon(DATABASE_URL) : null
 type ContactMethod = "email" | "phone" | "whatsapp"
 type ListingType = "rent" | "buy" | "commercial"
 type ProfileRole = "buyer" | "seller"
+const ownershipListingTypes = new Set<ListingType>(["buy", "commercial"])
 
 interface ProfilePayload {
   role: ProfileRole
@@ -52,9 +53,8 @@ function normalizeProfileInput(input: Partial<ProfilePayload>): ProfilePayload {
     input.preferredContactMethod === "phone" || input.preferredContactMethod === "whatsapp"
       ? input.preferredContactMethod
       : "email"
-  const allowedListingTypes = new Set<ListingType>(["rent", "buy", "commercial"])
   const sanitizeTypes = (value: unknown): ListingType[] =>
-    toArray(value).filter((item): item is ListingType => allowedListingTypes.has(item as ListingType))
+    toArray(value).filter((item): item is ListingType => ownershipListingTypes.has(item as ListingType))
 
   return {
     role,
@@ -152,6 +152,8 @@ export async function GET() {
     }>
 
     const row = profileRows[0]
+    const sanitizeStoredTypes = (value: ListingType[] | null | undefined): ListingType[] =>
+      (value ?? []).filter((item) => ownershipListingTypes.has(item))
     const profile: ProfilePayload = row
       ? {
           role: row.role,
@@ -159,7 +161,7 @@ export async function GET() {
           phone: row.phone ?? "",
           preferredContactMethod: row.preferred_contact_method ?? "email",
           buyerPreferredCities: row.buyer_preferred_cities ?? [],
-          buyerListingTypes: row.buyer_listing_types ?? [],
+          buyerListingTypes: sanitizeStoredTypes(row.buyer_listing_types),
           buyerBudgetMin: row.buyer_budget_min,
           buyerBudgetMax: row.buyer_budget_max,
           buyerBedroomsMin: row.buyer_bedrooms_min,
@@ -167,7 +169,7 @@ export async function GET() {
           sellerCompanyName: row.seller_company_name ?? "",
           sellerLicense: row.seller_license ?? "",
           sellerServiceCities: row.seller_service_cities ?? [],
-          sellerPropertyTypes: row.seller_property_types ?? [],
+          sellerPropertyTypes: sanitizeStoredTypes(row.seller_property_types),
           sellerNotes: row.seller_notes ?? "",
         }
       : emptyProfile
@@ -186,7 +188,7 @@ export async function GET() {
       id: item.id,
       name: item.name,
       citySlug: item.city_slug,
-      listingType: item.listing_type,
+      listingType: item.listing_type === "rent" ? null : item.listing_type,
       budgetMin: item.budget_min,
       budgetMax: item.budget_max,
       bedroomsMin: item.bedrooms_min,

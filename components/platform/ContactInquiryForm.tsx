@@ -17,7 +17,7 @@ export function ContactInquiryForm({ markets }: { markets: CityMarket[] }) {
     email: "",
     phone: "",
     website: "",
-    direction: initialDirection || "Domestic move within Nigeria",
+    direction: initialDirection || "Buy first home",
     targetMarket: initialMarket || "Not sure yet",
     businessSector: "Residential",
     timeline: "Within 3 months",
@@ -69,9 +69,10 @@ export function ContactInquiryForm({ markets }: { markets: CityMarket[] }) {
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         <select value={form.direction} onChange={(event) => updateField("direction", event.target.value)} className="rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base">
-          <option>Domestic move within Nigeria</option>
-          <option>Diaspora move into Nigeria</option>
-          <option>Pan-African move</option>
+          <option>Buy first home</option>
+          <option>Buy with installment plan</option>
+          <option>Sell current property</option>
+          <option>Sell and top-up to buy</option>
           <option>Commercial property search</option>
           <option>General inquiry</option>
         </select>
@@ -85,8 +86,8 @@ export function ContactInquiryForm({ markets }: { markets: CityMarket[] }) {
           <option>Residential</option>
           <option>Commercial</option>
           <option>Mixed-use</option>
-          <option>Short-let</option>
-          <option>Corporate housing</option>
+          <option>Land</option>
+          <option>New development</option>
         </select>
         <select value={form.timeline} onChange={(event) => updateField("timeline", event.target.value)} className="rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base">
           <option>Ready now</option>
@@ -119,7 +120,7 @@ export function ContactInquiryForm({ markets }: { markets: CityMarket[] }) {
         minLength={60}
         value={form.message}
         onChange={(event) => updateField("message", event.target.value)}
-        placeholder="Tell us about your move (target city, budget, timeline, property type). 100+ characters recommended."
+        placeholder="Tell us about your buy/sell plan (target city, budget, timeline, property type). 100+ characters recommended."
         className="min-h-28 w-full rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-base"
       />
       <button type="submit" disabled={loading} className="emz-pill-cta w-full rounded-full px-4 py-3 text-base font-semibold disabled:opacity-60">

@@ -50,7 +50,7 @@ export function PlatformNav() {
           <p className="font-[var(--font-playfair)] text-2xl font-bold tracking-tight text-[#0f172a]">
             EasyMoveZone
           </p>
-          <p className="text-[11px] uppercase tracking-[0.22em] text-[#155eef]">Property Finder</p>
+          <p className="text-[11px] uppercase tracking-[0.22em] text-[#155eef]">Home Ownership Platform</p>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -98,10 +98,10 @@ export function PlatformNav() {
                 Sign in
               </Link>
               <Link
-                href="/contact?direction=Domestic%20move%20within%20Nigeria"
+                href="/contact?direction=Buy%20first%20home"
                 className="emz-pill-cta rounded-full px-4 py-2 text-[14px] font-semibold"
               >
-                Start My Move
+                Start Buying / Selling
               </Link>
             </>
           )}
@@ -165,11 +165,11 @@ export function PlatformNav() {
                   Sign in
                 </Link>
                 <Link
-                  href="/contact?direction=Domestic%20move%20within%20Nigeria"
+                  href="/contact?direction=Buy%20first%20home"
                   onClick={() => setIsOpen(false)}
                   className="emz-pill-cta rounded-full px-4 py-2 text-center text-base font-semibold"
                 >
-                  Start My Move
+                  Start Buying / Selling
                 </Link>
               </>
             )}

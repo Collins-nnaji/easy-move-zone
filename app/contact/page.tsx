@@ -14,10 +14,10 @@ export default async function ContactPage() {
         <div className="property-hero-image p-5 text-white md:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-100">Get Started</p>
           <h1 className="mt-3 font-[var(--font-playfair)] text-6xl font-black leading-[0.95]">
-            Tell us your move plan.
+            Tell us your buying or selling plan.
           </h1>
           <p className="mt-4 text-sm leading-7 text-sky-50/90">
-            We help you shortlist, verify, and secure a suitable property with less stress and better decision quality.
+            We help you shortlist, verify, and secure ownership with less stress and better decision quality.
             You will hear from us within 24 hours on business days.
           </p>
           <div className="mt-6 space-y-3 rounded-2xl border border-white/30 bg-white/10 p-4 text-sm text-sky-50/90 backdrop-blur-sm">
@@ -31,7 +31,7 @@ export default async function ContactPage() {
         <div className="space-y-4 bg-[#f8fbff] p-5 md:p-6">
           <h2 className="font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Inquiry form</h2>
           <p className="mt-2 text-sm text-[#64748b]">
-            Share your move details. We will reply with clear options and next steps.
+            Share your ownership goals. We will reply with clear options and next steps.
           </p>
           <Suspense fallback={<div className="rounded-2xl border border-[#dbe4f0] bg-white p-6 text-sm text-[#64748b]">Loading account form...</div>}>
             <AuthInlineCard />

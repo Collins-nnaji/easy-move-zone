@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as {
       name?: string
       citySlug?: string
-      listingType?: "rent" | "buy" | "commercial" | null
+      listingType?: "buy" | "commercial" | null
       budgetMin?: number | null
       budgetMax?: number | null
       bedroomsMin?: number | null
@@ -24,6 +24,9 @@ export async function POST(request: Request) {
 
     const name = String(body.name ?? "").trim()
     if (!name) return Response.json({ error: "Search name is required." }, { status: 400 })
+    if (body.listingType && !["buy", "commercial"].includes(body.listingType)) {
+      return Response.json({ error: "Only ownership listing types are supported." }, { status: 400 })
+    }
 
     // Ensure profile row exists for FK consistency.
     await sql.query(
@@ -53,7 +56,7 @@ export async function POST(request: Request) {
       id: string
       name: string
       city_slug: string | null
-      listing_type: "rent" | "buy" | "commercial" | null
+      listing_type: "buy" | "commercial" | null
       budget_min: number | null
       budget_max: number | null
       bedrooms_min: number | null

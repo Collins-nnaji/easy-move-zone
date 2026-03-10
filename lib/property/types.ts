@@ -51,7 +51,7 @@ export interface AgentProfile {
 
 export interface Testimonial {
   id: string
-  moverType: "Domestic Mover" | "Diaspora Returnee" | "Pan-African Professional"
+  moverType: "First-time Buyer" | "Home Upgrader" | "Diaspora Investor"
   route: string
   outcome: string
   quote: string

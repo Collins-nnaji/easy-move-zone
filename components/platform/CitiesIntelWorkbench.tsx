@@ -22,7 +22,7 @@ export function CitiesIntelWorkbench({
     markets[0]
 
   const [activeMarketId, setActiveMarketId] = useState(initialCity?.id ?? "")
-  const [question, setQuestion] = useState("What are the key relocation trade-offs for this city in the next 12 months?")
+  const [question, setQuestion] = useState("What are the main buy, installment, and resale trade-offs for this city in the next 12 months?")
   const [result, setResult] = useState<CityIntelResult | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -70,12 +70,12 @@ export function CitiesIntelWorkbench({
 
         <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
           <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
-            <p className="text-xs text-[#64748b]">Avg rent</p>
-            <p className="font-semibold text-[#0f172a]">${activeMarket.avgRentUsd.toLocaleString()}</p>
-          </div>
-          <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
             <p className="text-xs text-[#64748b]">Avg buy</p>
             <p className="font-semibold text-[#0f172a]">${activeMarket.avgBuyUsd.toLocaleString()}</p>
+          </div>
+          <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+            <p className="text-xs text-[#64748b]">Est. 20% deposit</p>
+            <p className="font-semibold text-[#0f172a]">${Math.round(activeMarket.avgBuyUsd * 0.2).toLocaleString()}</p>
           </div>
           <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
             <p className="text-xs text-[#64748b]">Security</p>
@@ -101,7 +101,7 @@ export function CitiesIntelWorkbench({
         <div id="intel-tool" className="mt-5 rounded-xl border border-[#dbe4f0] bg-white p-4">
           <h3 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0f172a]">AI Neighbourhood Intel</h3>
           <p className="mt-1 text-sm text-[#64748b]">
-            Uses AI + map context + live web search signals for current city insights.
+            Uses AI + map context + live web search signals for current ownership insights.
           </p>
           <form onSubmit={askIntel} className="mt-3 space-y-2">
             <textarea
@@ -109,7 +109,7 @@ export function CitiesIntelWorkbench({
               onChange={(event) => setQuestion(event.target.value)}
               rows={4}
               className="w-full rounded-xl border border-[#c8d8f0] px-3 py-2 text-sm"
-              placeholder="Ask about security, infrastructure, schools, demand trends, policy changes..."
+              placeholder="Ask about affordability, security, schools, demand trends, policy changes..."
             />
             <button
               type="submit"

@@ -229,7 +229,7 @@ export const seedListings: PropertyListing[] = [
     moveInReady: true,
     schoolsNearby: 0,
     commuteMinutes: 16,
-    description: "Plug-and-play office floor for teams relocating into Nairobi.",
+    description: "Plug-and-play office floor for teams expanding ownership operations in Nairobi.",
     images: ["https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=1200&q=80"],
     agentId: "a4",
   },
@@ -267,7 +267,7 @@ export const seedListings: PropertyListing[] = [
     moveInReady: false,
     schoolsNearby: 7,
     commuteMinutes: 19,
-    description: "Premium city penthouse suited for executive relocation.",
+    description: "Premium city penthouse for executive ownership and long-term value.",
     images: ["https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&q=80"],
     agentId: "a2",
   },
@@ -305,7 +305,7 @@ export const seedListings: PropertyListing[] = [
     moveInReady: true,
     schoolsNearby: 4,
     commuteMinutes: 14,
-    description: "Clean modern apartment for mobile professionals relocating quickly.",
+    description: "Clean modern apartment for professionals building long-term ownership.",
     images: ["https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&q=80"],
     agentId: "a4",
   },
@@ -324,7 +324,7 @@ export const seedListings: PropertyListing[] = [
     moveInReady: false,
     schoolsNearby: 6,
     commuteMinutes: 26,
-    description: "Spacious villa for long-term relocation and family settlement.",
+    description: "Spacious villa designed for long-term family ownership.",
     images: ["https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1200&q=80"],
     agentId: "a4",
   },
@@ -376,24 +376,24 @@ export const seedAgents: AgentProfile[] = [
 export const seedTestimonials: Testimonial[] = [
   {
     id: "t1",
-    moverType: "Domestic Mover",
+    moverType: "First-time Buyer",
     route: "Lagos → Abuja",
-    outcome: "Secured verified apartment in 11 days.",
-    quote: "EasyMoveZone cut out fake agents and gave me clear options fast.",
+    outcome: "Secured a verified apartment in 11 days.",
+    quote: "EasyMoveZone cut out fake agents and gave me clear ownership options fast.",
   },
   {
     id: "t2",
-    moverType: "Diaspora Returnee",
+    moverType: "Diaspora Investor",
     route: "London → Lagos",
     outcome: "Completed search, virtual tour, and legal review remotely.",
-    quote: "I moved in one week after landing because everything was pre-vetted.",
+    quote: "I completed my purchase quickly after landing because everything was pre-vetted.",
   },
   {
     id: "t3",
-    moverType: "Pan-African Professional",
+    moverType: "Home Upgrader",
     route: "Accra → Nairobi",
-    outcome: "Found office + home bundle before job start date.",
-    quote: "For cross-border moves, this was the first platform that felt built for me.",
+    outcome: "Sold and upgraded into a larger home with a clear top-up plan.",
+    quote: "For cross-border ownership planning, this was the first platform that felt built for me.",
   },
 ]
 
@@ -458,9 +458,9 @@ export const seedPropertyFaqs: PropertyFaq[] = [
   },
   {
     id: "faq_3",
-    question: "Do you support both rentals and purchases?",
+    question: "Do you support only buying and selling?",
     answer:
-      "Yes. EasyMoveZone supports rental search, purchase search, and commercial property options for relocating teams.",
+      "Yes. EasyMoveZone focuses on verified properties for purchase and sale, including commercial ownership opportunities.",
   },
   {
     id: "faq_4",
@@ -470,15 +470,15 @@ export const seedPropertyFaqs: PropertyFaq[] = [
   },
   {
     id: "faq_5",
-    question: "Can you help with school-focused family moves?",
+    question: "Can you help with school-focused family buying decisions?",
     answer:
-      "Yes. We map neighborhood options against school access, commute needs, and safety preferences for family relocations.",
+      "Yes. We map neighborhood options against school access, commute needs, and safety preferences for family ownership goals.",
   },
   {
     id: "faq_6",
-    question: "How fast can I secure a move-in ready property?",
+    question: "How fast can I secure a verified property for purchase?",
     answer:
-      "Timelines vary by city and inventory, but many verified move-ready options can be secured in 1-3 weeks.",
+      "Timelines vary by city and inventory, but many verified properties can move from shortlist to offer in 1-3 weeks.",
   },
 ]
 

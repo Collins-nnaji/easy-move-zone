@@ -8,16 +8,16 @@ export function PlatformFooter() {
           <div className="font-[var(--font-playfair)] text-3xl font-bold text-white">
             EasyMoveZone
           </div>
-          <p className="mt-2 text-xs uppercase tracking-[0.2em] text-[#60a5fa]">Property Finder Platform</p>
+          <p className="mt-2 text-xs uppercase tracking-[0.2em] text-[#60a5fa]">Property Ownership Platform</p>
           <p className="mt-4 max-w-md text-sm text-[#cbd5e1]">
-            Helping movers secure verified homes across Nigeria and key African cities with trusted
-            agent support, neighbourhood clarity, and faster move decisions.
+            Helping buyers and sellers secure verified homes across Nigeria and key African cities with trusted
+            agent support, city clarity, and faster ownership decisions.
           </p>
           <Link
             href="/contact"
             className="emz-pill-cta mt-5 inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold"
           >
-            Speak to relocation advisor
+            Speak to ownership advisor
           </Link>
         </div>
         <div>
