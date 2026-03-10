@@ -798,6 +798,18 @@
     }
   }
 
+  @keyframes emz-gradient-flow {
+    0% {
+      transform: translate3d(-3%, -2%, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(2%, 2%, 0) scale(1.06);
+    }
+    100% {
+      transform: translate3d(-3%, -2%, 0) scale(1);
+    }
+  }
+
   .emz-hero-reveal {
     opacity: 0;
     animation: emz-hero-rise 700ms var(--ease-out-expo) forwards;
@@ -820,6 +832,16 @@
     transform-origin: center;
   }
 
+  .emz-home-full-hero {
+    min-height: clamp(560px, calc(100svh - 5rem), 920px);
+  }
+
+  .emz-home-hero-layer-parallax {
+    position: absolute;
+    inset: -7%;
+    will-change: transform;
+  }
+
   .emz-home-hero-bg-layer {
     position: absolute;
     inset: -6%;
@@ -838,8 +860,28 @@
     animation: emz-hero-pan-b 27s ease-in-out infinite;
   }
 
+  .emz-home-hero-gradient-wave {
+    position: absolute;
+    inset: -22%;
+    background:
+      radial-gradient(circle at 15% 18%, rgba(56, 189, 248, 0.24), transparent 44%),
+      radial-gradient(circle at 84% 24%, rgba(21, 94, 239, 0.28), transparent 45%),
+      radial-gradient(circle at 58% 82%, rgba(16, 185, 129, 0.26), transparent 42%);
+    mix-blend-mode: screen;
+    animation: emz-gradient-flow 16s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .emz-home-hero-vignette {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(112deg, rgba(7, 12, 25, 0.86) 0%, rgba(7, 12, 25, 0.74) 34%, rgba(9, 25, 60, 0.46) 62%, rgba(15, 118, 110, 0.32) 100%),
+      linear-gradient(180deg, rgba(10, 19, 39, 0.1) 0%, rgba(10, 19, 39, 0.42) 100%);
+  }
+
   .emz-photo-card {
-    min-height: 170px;
+    min-height: clamp(150px, 18vh, 220px);
     border-radius: 0.95rem;
     border: 1px solid rgba(255, 255, 255, 0.28);
     background-size: cover;
@@ -924,6 +966,7 @@
     .emz-hero-breathe,
     .emz-home-hero-bg-layer-a,
     .emz-home-hero-bg-layer-b,
+    .emz-home-hero-gradient-wave,
     .emz-photo-drift-a,
     .emz-photo-drift-b,
     .emz-photo-marquee {
