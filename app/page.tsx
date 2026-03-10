@@ -17,56 +17,89 @@ export default async function HomePage() {
     getPropertyTestimonials(),
   ])
   const activeCities = cities.filter((city) => city.status === "active")
+  const fallbackVisuals = [
+    "https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=1400&q=80",
+    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1400&q=80",
+    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=80",
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80",
+    "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?auto=format&fit=crop&w=1400&q=80",
+    "https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?auto=format&fit=crop&w=1400&q=80",
+  ]
+  const listingVisuals = listings.map((listing) => getPrimaryListingImage(listing))
+  const heroVisuals = [...listingVisuals, ...fallbackVisuals].slice(0, 6)
+  const marqueeVisuals = [...listingVisuals, ...fallbackVisuals, ...listingVisuals, ...fallbackVisuals].slice(0, 16)
 
   return (
     <PublicShell>
-      <section className="emz-hero-section grid gap-6 lg:grid-cols-[1fr_1.05fr]">
-        <div className="space-y-5">
-          <span className="emz-hero-reveal inline-flex rounded-full border border-[#bfd1ee] bg-[#eef4ff] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">
-            Property ownership platform
-          </span>
-          <h1 className="emz-hero-reveal emz-hero-reveal-delay-1 font-[var(--font-playfair)] text-5xl font-black leading-[0.92] text-[#0f172a] md:text-7xl">
-            Buy smarter.
-            <br />
-            Sell and upgrade faster.
-          </h1>
-          <p className="emz-hero-reveal emz-hero-reveal-delay-2 max-w-xl text-base leading-7 text-[#475569] md:text-lg">
-            Verified listings, installment-friendly pathways, and city intelligence in one clear buy/sell flow.
-          </p>
-          <div className="emz-hero-reveal emz-hero-reveal-delay-3 flex flex-wrap gap-3">
-            <Link href="/services" className="emz-pill-cta rounded-full px-6 py-3 text-sm font-semibold">
-              Browse listings
-            </Link>
-            <Link href="/markets#intel-tool" className="rounded-full border border-[#c8d8f0] bg-white px-6 py-3 text-sm font-semibold text-[#0f172a]">
-              Explore city intel
-            </Link>
-          </div>
-          <div className="emz-hero-reveal emz-hero-reveal-delay-3 flex flex-wrap gap-2 text-xs font-semibold text-[#334155]">
-            <span className="rounded-full bg-[#eef4ff] px-3 py-1.5">Verified supply</span>
-            <span className="rounded-full bg-[#ecfdf5] px-3 py-1.5">Installment options</span>
-            <span className="rounded-full bg-[#fff7ed] px-3 py-1.5">Trade-up support</span>
-          </div>
-        </div>
-        <div className="property-hero-image emz-hero-float emz-hero-reveal emz-hero-reveal-delay-2 flex items-end p-5 text-white md:p-6">
-          <div className="w-full max-w-md space-y-3 rounded-2xl border border-white/30 bg-white/12 p-4 backdrop-blur-md">
-            <p className="text-xs uppercase tracking-[0.18em] text-sky-100">Live platform snapshot</p>
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="emz-hero-breathe rounded-xl bg-black/25 p-2">
-                <p className="text-lg font-bold">{cities.length}+</p>
-                <p className="text-[10px] text-sky-100">Cities</p>
+      <section className="emz-hero-section">
+        <div className="relative overflow-hidden rounded-3xl border border-[#dbe4f0] shadow-[0_30px_70px_-42px_rgba(15,23,42,0.55)]">
+          <div
+            className="emz-home-hero-bg-layer emz-home-hero-bg-layer-a"
+            style={{ backgroundImage: `url(${heroVisuals[0]})` }}
+          />
+          <div
+            className="emz-home-hero-bg-layer emz-home-hero-bg-layer-b"
+            style={{ backgroundImage: `url(${heroVisuals[1]})` }}
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(112deg,rgba(9,16,34,0.83)_0%,rgba(9,16,34,0.76)_35%,rgba(10,28,68,0.48)_60%,rgba(15,118,110,0.34)_100%)]" />
+
+          <div className="relative z-10 grid gap-6 p-5 text-white md:p-8 lg:grid-cols-[1fr_0.9fr] lg:gap-7 lg:p-10">
+            <div className="space-y-5">
+              <span className="emz-hero-reveal inline-flex rounded-full border border-white/30 bg-white/12 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-sky-100">
+                Property ownership platform
+              </span>
+              <h1 className="emz-hero-reveal emz-hero-reveal-delay-1 font-[var(--font-playfair)] text-5xl font-black leading-[0.92] text-white md:text-7xl">
+                Buy smarter.
+                <br />
+                Sell and upgrade faster.
+              </h1>
+              <p className="emz-hero-reveal emz-hero-reveal-delay-2 max-w-xl text-base leading-7 text-sky-50/95 md:text-lg">
+                Verified listings, installment-friendly pathways, and city intelligence in one clear buy/sell flow.
+              </p>
+              <div className="emz-hero-reveal emz-hero-reveal-delay-3 flex flex-wrap gap-3">
+                <Link href="/services" className="emz-pill-cta rounded-full px-6 py-3 text-sm font-semibold">
+                  Browse listings
+                </Link>
+                <Link href="/markets#intel-tool" className="rounded-full border border-white/40 bg-white/12 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm">
+                  Explore city intel
+                </Link>
               </div>
-              <div className="emz-hero-breathe rounded-xl bg-black/25 p-2" style={{ animationDelay: "140ms" }}>
-                <p className="text-lg font-bold">{listings.length}+</p>
-                <p className="text-[10px] text-sky-100">Listings</p>
-              </div>
-              <div className="emz-hero-breathe rounded-xl bg-black/25 p-2" style={{ animationDelay: "260ms" }}>
-                <p className="text-lg font-bold">&lt;24h</p>
-                <p className="text-[10px] text-sky-100">Response</p>
+              <div className="emz-hero-reveal emz-hero-reveal-delay-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-100">
+                <span className="rounded-full bg-white/15 px-3 py-1.5">Verified supply</span>
+                <span className="rounded-full bg-white/15 px-3 py-1.5">Installment options</span>
+                <span className="rounded-full bg-white/15 px-3 py-1.5">Trade-up support</span>
               </div>
             </div>
-            <p className="text-sm leading-6 text-sky-50/90">
-              Built for buyers and sellers who want ownership with confidence.
-            </p>
+
+            <div className="grid grid-cols-2 gap-3">
+              {heroVisuals.slice(2, 6).map((photo, index) => (
+                <div
+                  key={photo}
+                  className={`emz-photo-card ${index % 2 === 0 ? "emz-photo-drift-a" : "emz-photo-drift-b"} ${index === 1 ? "mt-4" : ""}`}
+                  style={{ backgroundImage: `url(${photo})` }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
+        <div className="emz-gloss-card overflow-hidden rounded-2xl p-3 md:p-4">
+          <div className="mb-3 flex items-center justify-between px-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">Live ownership gallery</p>
+            <p className="text-xs text-[#64748b]">{cities.length}+ cities · {listings.length}+ verified listings</p>
+          </div>
+          <div className="emz-photo-marquee-frame">
+            <div className="emz-photo-marquee">
+              {[...marqueeVisuals, ...marqueeVisuals].map((photo, index) => (
+                <div
+                  key={`${photo}-${index}`}
+                  className="emz-photo-marquee-item"
+                  style={{ backgroundImage: `url(${photo})` }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
