@@ -1,114 +1,189 @@
+import Image from "next/image"
 import Link from "next/link"
 import { DirectionDetector } from "@/components/platform/DirectionDetector"
-import { HomeVisualHero } from "@/components/platform/HomeVisualHero"
 import { NewsletterSignupForm } from "@/components/platform/NewsletterSignupForm"
 import { PublicShell } from "@/components/platform/PublicShell"
 import { TestimonialsRotator } from "@/components/platform/TestimonialsRotator"
 import {
   getCityMarkets,
-  getPrimaryListingImage,
+  getFeaturedListings,
+  getOpportunityRows,
   getPropertyListings,
   getPropertyTestimonials,
+  getResourceGuides,
 } from "@/lib/property"
 
+const floatingCardClasses = [
+  "left-0 top-0 w-[290px] h-[215px] rotate-[-2deg] home-float-card-a",
+  "right-0 top-4 w-[280px] h-[205px] rotate-[1.5deg] home-float-card-b",
+  "left-6 bottom-3 w-[265px] h-[195px] rotate-[-1.5deg] home-float-card-c",
+  "right-5 bottom-0 w-[225px] h-[168px] rotate-[2deg] home-float-card-d",
+]
+
+function listingEmoji(type: "rent" | "buy" | "commercial") {
+  if (type === "commercial") return "🏢"
+  if (type === "buy") return "🏠"
+  return "🏘️"
+}
+
 export default async function HomePage() {
-  const [cities, allListings, testimonials] = await Promise.all([
+  const [cities, featuredListings, allListings, testimonials, guides] = await Promise.all([
     getCityMarkets(),
+    getFeaturedListings(),
     getPropertyListings(),
     getPropertyTestimonials(),
+    getResourceGuides(),
   ])
-
+  const opportunityRows = getOpportunityRows()
   const activeCities = cities.filter((city) => city.status === "active")
-  const featuredListings = allListings.filter((listing) => listing.verified).slice(0, 3)
-  const fallbackVisuals = [
-    "https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=1400&q=80",
-    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1400&q=80",
-    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=80",
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80",
-    "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?auto=format&fit=crop&w=1400&q=80",
-    "https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?auto=format&fit=crop&w=1400&q=80",
-  ]
-
-  const listingVisuals = allListings.map((listing) => getPrimaryListingImage(listing))
-  const heroVisuals = [...listingVisuals, ...fallbackVisuals].slice(0, 6)
-  const cityNamesBySlug = new Map(cities.map((city) => [city.slug, city.name]))
-  const listingCountByCity = allListings.reduce<Record<string, number>>((acc, listing) => {
-    acc[listing.citySlug] = (acc[listing.citySlug] ?? 0) + 1
-    return acc
-  }, {})
-
-  const heroCards = allListings.slice(0, 4).map((listing) => ({
-    image: getPrimaryListingImage(listing),
-    city: cityNamesBySlug.get(listing.citySlug) ?? listing.citySlug.replace("-", " "),
-    title: listing.title,
-    price: `$${listing.priceUsd.toLocaleString()}`,
-    badge: listing.type === "commercial" ? "Commercial" : listing.priceUsd <= 250000 ? "Installment" : "Buy",
-  })) as Array<{ image: string; city: string; title: string; price: string; badge: "Buy" | "Installment" | "Commercial" }>
-
-  const galleryItems = allListings.slice(0, 12).map((listing) => ({
-    image: getPrimaryListingImage(listing),
-    city: cityNamesBySlug.get(listing.citySlug) ?? listing.citySlug.replace("-", " "),
-    title: listing.title,
-    type: listing.type === "commercial" ? "Commercial" : "Buy",
-    price: `$${listing.priceUsd.toLocaleString()}`,
-    href: `/services?city=${listing.citySlug}`,
-  }))
+  const avgSecurity =
+    activeCities.length > 0
+      ? Math.round(activeCities.reduce((sum, city) => sum + city.securityScore, 0) / activeCities.length)
+      : 0
 
   return (
     <PublicShell>
-      <HomeVisualHero
-        heroVisuals={heroVisuals}
-        heroCards={heroCards}
-        citiesCount={activeCities.length}
-        listingsCount={allListings.length}
-      />
+      <section className="relative overflow-hidden bg-[#091520] pb-0">
+        <div className="home-hero-grid" />
+        <div className="home-glow-a" />
+        <div className="home-glow-b" />
+        <div className="home-glow-c" />
 
-      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+        <div className="relative z-[2] mx-auto grid w-full max-w-7xl gap-10 px-4 pb-10 pt-14 sm:px-6 lg:grid-cols-[1fr_520px] lg:px-8">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">How it works</p>
-            <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-[#0f172a]">Three steps to ownership</h2>
+            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#2d4e76] bg-[#102237] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#6dcaf4]">
+              <span className="h-2 w-2 rounded-full bg-[#3ec6f5]" />
+              Home ownership platform
+            </span>
+            <h1 className="font-[var(--font-playfair)] text-6xl font-semibold leading-[0.95] text-white md:text-7xl">
+              Buy smarter.
+              <br />
+              <em className="text-[#3ec6f5]">Sell</em> and
+              <br />
+              upgrade faster.
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-8 text-white/55">
+              Verified listings, installment-friendly pathways, and city intelligence in one clear
+              buy/sell flow — built for Africa and the diaspora.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href="/services" className="rounded-full bg-[#1769d0] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1e80e8]">
+                Browse listings →
+              </Link>
+              <Link href="/markets" className="rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white/80 transition hover:border-white/50 hover:text-white">
+                Explore city intel
+              </Link>
+            </div>
+            <div className="mt-7 flex flex-wrap gap-2">
+              {["Verified supply", "Installment options", "Trade-up support", "Diaspora ready"].map((chip) => (
+                <span key={chip} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/55">
+                  {chip}
+                </span>
+              ))}
+            </div>
           </div>
-          <p className="max-w-lg text-sm leading-7 text-[#64748b]">
-            A structured journey from first search to final signature with verified inventory, financing clarity, and closing support.
-          </p>
+
+          <div className="relative h-[450px]">
+            {featuredListings.slice(0, 4).map((listing, index) => (
+              <article
+                key={listing.id}
+                className={`absolute overflow-hidden rounded-2xl border border-white/15 bg-white/5 backdrop-blur-sm ${floatingCardClasses[index] ?? "left-0 top-0 h-[200px] w-[260px]"}`}
+              >
+                <div className="relative h-[62%] w-full">
+                  <Image src={listing.images[0]} alt={listing.title} fill className="object-cover" sizes="300px" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-black/10" />
+                  <span className="absolute left-3 top-3 rounded-md bg-[#1769d0] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+                    {listing.type}
+                  </span>
+                </div>
+                <div className="px-4 pb-4 pt-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6dcaf4]">
+                    {listing.citySlug.replace("-", " ")}
+                  </p>
+                  <h3 className="font-[var(--font-playfair)] text-lg font-semibold text-white">{listing.title}</h3>
+                  <p className="mt-0.5 text-xs text-white/55">
+                    ${listing.priceUsd.toLocaleString()} · {listingEmoji(listing.type)}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="relative z-[2] mx-auto grid w-full max-w-7xl grid-cols-2 gap-y-5 border-t border-white/10 px-4 py-6 sm:grid-cols-3 sm:px-6 lg:grid-cols-5 lg:px-8">
+          <div>
+            <p className="font-[var(--font-playfair)] text-4xl font-semibold text-white">{cities.length}+</p>
+            <p className="text-xs text-white/40">Cities covered</p>
+          </div>
+          <div>
+            <p className="font-[var(--font-playfair)] text-4xl font-semibold text-white">{allListings.length}</p>
+            <p className="text-xs text-white/40">Verified listings</p>
+          </div>
+          <div>
+            <p className="font-[var(--font-playfair)] text-4xl font-semibold text-white">3</p>
+            <p className="text-xs text-white/40">Ownership pathways</p>
+          </div>
+          <div>
+            <p className="font-[var(--font-playfair)] text-4xl font-semibold text-white">94%</p>
+            <p className="text-xs text-white/40">Shortlist close rate</p>
+          </div>
+          <div>
+            <p className="font-[var(--font-playfair)] text-4xl font-semibold text-white">{avgSecurity}/100</p>
+            <p className="text-xs text-white/40">Avg security confidence</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mb-10 flex items-end justify-between">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">How it works</p>
+            <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-[#091520]">Three steps to ownership</h2>
+            <p className="mt-3 max-w-md text-sm text-[#526070]">
+              A structured journey from first search to final signature — no guesswork, no gaps.
+            </p>
+          </div>
+          <Link href="/services" className="hidden text-sm font-semibold text-[#1769d0] md:inline-flex">
+            See all listings →
+          </Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
           {[
             {
-              id: "01",
+              step: "01",
               icon: "🔍",
               title: "Shortlist",
-              desc: "Filter verified homes that match your budget, city, and ownership goals across buy, installment, and trade-up pathways.",
+              text: "Filter verified homes that match budget, city, and ownership goals across buy, installment, and trade-up.",
               href: "/services",
             },
             {
-              id: "02",
+              step: "02",
               icon: "💳",
               title: "Finance",
-              desc: "Plan installment and top-up options before you commit. Compare structures and choose the best cashflow fit.",
+              text: "Plan installment and top-up options before committing. Compare payment structures against your cash flow.",
               href: "/services",
             },
             {
-              id: "03",
+              step: "03",
               icon: "✅",
               title: "Close",
-              desc: "Get support with selling, documentation, and final ownership transfer until keys are in your hands.",
+              text: "Get help with documentation, negotiation, and final ownership transfer until keys are in your hand.",
               href: "/contact",
             },
-          ].map((step) => (
-            <article key={step.id} className="group relative overflow-hidden rounded-2xl border border-[#dbe4f0] bg-white p-7 shadow-[0_16px_38px_-28px_rgba(15,23,42,0.24)] transition hover:-translate-y-1 hover:shadow-[0_24px_44px_-28px_rgba(15,23,42,0.32)]">
-              <span className="pointer-events-none absolute right-5 top-2 font-[var(--font-playfair)] text-7xl font-bold text-[#eef3fb] transition group-hover:text-[#dde9fb]">
-                {step.id}
+          ].map((item) => (
+            <article key={item.step} className="emz-gloss-card relative overflow-hidden rounded-2xl p-7">
+              <span className="absolute right-4 top-0 font-[var(--font-playfair)] text-[92px] text-[#f0f4f9]">
+                {item.step}
               </span>
-              <div className="relative z-10">
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#eaf1ff] text-2xl">{step.icon}</div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#155eef]">Step {step.id}</p>
-                <h3 className="mt-2 font-[var(--font-playfair)] text-3xl font-semibold text-[#0f172a]">{step.title}</h3>
-                <p className="mt-2 text-sm leading-7 text-[#64748b]">{step.desc}</p>
-                <Link href={step.href} className="mt-4 inline-flex items-center text-sm font-semibold text-[#155eef]">
-                  Continue
+              <div className="relative z-[1]">
+                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#e4eef9] text-xl">
+                  {item.icon}
+                </div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#1769d0]">Step {item.step}</p>
+                <h3 className="mt-1 font-[var(--font-playfair)] text-3xl font-semibold text-[#091520]">{item.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-[#526070]">{item.text}</p>
+                <Link href={item.href} className="mt-4 inline-block text-sm font-semibold text-[#1769d0]">
+                  Continue →
                 </Link>
               </div>
             </article>
@@ -116,86 +191,75 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section id="about" className="mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
-        <div className="grid gap-6 lg:grid-cols-2">
+      <section className="bg-[#f0f4f9] py-14">
+        <div className="mx-auto grid w-full max-w-7xl gap-4 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
           <article className="emz-gloss-card rounded-3xl p-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">About EasyMoveZone</p>
-            <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-[#0f172a]">Built to make home ownership real</h2>
-            <p className="mt-3 text-sm leading-7 text-[#475569]">
-              We combine trusted listings, city context, and practical guidance so buyers and sellers can close faster whether they are first-time buyers, upgraders, or diaspora investors.
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">About EasyMoveZone</p>
+            <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold leading-[1.05] text-[#091520]">
+              Built to make ownership real
+            </h2>
+            <p className="mt-4 text-sm leading-8 text-[#526070]">
+              We combine trusted listings, city context, and practical guidance so buyers and sellers
+              can close faster — whether you are buying for the first time, upgrading locally, or
+              investing from abroad.
             </p>
-            <div className="mt-5 flex flex-wrap gap-2 text-xs">
-              <span className="rounded-full bg-[#eef4ff] px-3 py-1.5 text-[#155eef]">First-time buyers</span>
-              <span className="rounded-full bg-[#eef4ff] px-3 py-1.5 text-[#155eef]">Home upgraders</span>
-              <span className="rounded-full bg-[#eef4ff] px-3 py-1.5 text-[#155eef]">Diaspora investors</span>
-              <span className="rounded-full bg-[#eef4ff] px-3 py-1.5 text-[#155eef]">Commercial buyers</span>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {["First-time buyers", "Home upgraders", "Diaspora investors", "Commercial buyers"].map((chip) => (
+                <span key={chip} className="rounded-full border border-[#c9ddf8] bg-[#e4eef9] px-3 py-1 text-xs font-medium text-[#1769d0]">
+                  {chip}
+                </span>
+              ))}
             </div>
           </article>
 
-          <article className="overflow-hidden rounded-3xl border border-[#1b3554] bg-[#0b1829] p-8 shadow-[0_26px_58px_-36px_rgba(13,27,42,0.9)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7cc8ff]">AI Ownership Match</p>
-            <h3 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-white">Describe your plan</h3>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-slate-300">
-              Tell us your goal in one sentence and get a suggested journey, city fit, and support plan.
+          <article className="rounded-3xl bg-[#091520] p-8">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6dcaf4]">AI ownership match</p>
+            <h3 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold leading-[1.05] text-white">
+              Describe your plan
+            </h3>
+            <p className="mt-4 text-sm leading-7 text-white/50">
+              Tell us your goal in one sentence. We will suggest the best journey, city options, and support plan.
             </p>
-            <div className="mt-5">
-              <DirectionDetector dark />
+            <div className="mt-5 rounded-2xl border border-white/15 bg-white/5 p-3">
+              <DirectionDetector />
             </div>
           </article>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-end justify-between">
+      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mb-7 flex items-end justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">Featured inventory</p>
-            <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-[#0f172a]">Verified properties for sale</h2>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">Featured inventory</p>
+            <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-[#091520]">
+              Verified properties for sale
+            </h2>
           </div>
-          <Link href="/services" className="text-sm font-semibold text-[#155eef]">View all listings</Link>
+          <Link href="/services" className="text-sm font-semibold text-[#1769d0]">
+            View all listings →
+          </Link>
         </div>
-
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {featuredListings.map((listing, index) => (
-            <article key={listing.id} className="group overflow-hidden rounded-2xl border border-[#dbe4f0] bg-white shadow-[0_16px_38px_-30px_rgba(15,23,42,0.35)] transition hover:-translate-y-1 hover:shadow-[0_24px_44px_-24px_rgba(15,23,42,0.38)]">
-              <div className="relative h-56 overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={getPrimaryListingImage(listing)} alt={listing.title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                <span
-                  className={`absolute left-3 top-3 rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${
-                    listing.type === "commercial"
-                      ? "bg-[#7b1fa2] text-white"
-                      : index === 2
-                        ? "bg-[#e8a020] text-[#0b1829]"
-                        : "bg-[#1976d2] text-white"
-                  }`}
-                >
-                  {listing.type === "commercial" ? "Commercial" : index === 2 ? "Installment" : "Buy"}
-                </span>
-                <span className="absolute bottom-3 left-3 rounded-md bg-black/65 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
-                  Verified
-                </span>
-                <button
-                  type="button"
-                  className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-sm text-[#0f172a] transition hover:scale-110"
-                >
-                  ♡
-                </button>
+        <div className="grid gap-5 lg:grid-cols-3">
+          {featuredListings.slice(0, 3).map((listing) => (
+            <article key={listing.id} className="emz-gloss-card overflow-hidden rounded-2xl">
+              <div className="relative h-52">
+                <Image src={listing.images[0]} alt={listing.title} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 33vw" />
+                <div className="absolute left-3 top-3 rounded-md bg-[#1769d0] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+                  {listing.type}
+                </div>
               </div>
               <div className="p-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#155eef]">
-                  {cityNamesBySlug.get(listing.citySlug) ?? listing.citySlug.replace("-", " ")} · {listing.type}
+                <p className="text-[11px] uppercase tracking-[0.12em] text-[#1769d0]">{listing.citySlug.replace("-", " ")}</p>
+                <h3 className="mt-1 font-[var(--font-playfair)] text-3xl font-semibold text-[#091520]">{listing.title}</h3>
+                <p className="mt-1 text-sm text-[#526070]">
+                  {listing.neighborhood}, {listing.country}
                 </p>
-                <h3 className="mt-1 font-[var(--font-playfair)] text-3xl font-semibold text-[#0f172a]">{listing.title}</h3>
-                <p className="mt-1 text-sm text-[#64748b]">{listing.neighborhood}, {listing.country}</p>
-                <div className="mt-3 flex items-center gap-3 text-xs text-[#64748b]">
-                  <span>{listing.bedrooms} beds</span>
-                  <span>{listing.bathrooms} baths</span>
-                  <span>{listing.areaSqm} sqm</span>
-                </div>
-                <div className="mt-4 flex items-end justify-between border-t border-[#e8edf6] pt-3">
-                  <p className="font-[var(--font-playfair)] text-3xl font-semibold text-[#0f172a]">${listing.priceUsd.toLocaleString()}</p>
-                  <Link href={`/contact?market=${listing.citySlug}`} className="rounded-lg bg-[#0b1829] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1976d2]">
-                    View
+                <div className="mt-4 flex items-end justify-between">
+                  <p className="font-[var(--font-playfair)] text-3xl font-bold text-[#091520]">
+                    ${listing.priceUsd.toLocaleString()}
+                  </p>
+                  <Link href={`/contact?market=${listing.citySlug}`} className="rounded-lg bg-[#091520] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1769d0]">
+                    View →
                   </Link>
                 </div>
               </div>
@@ -204,89 +268,103 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-end justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">City intelligence</p>
-            <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-[#0f172a]">Browse by city</h2>
-          </div>
-          <Link href="/markets" className="text-sm font-semibold text-[#155eef]">All cities</Link>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {activeCities.slice(0, 8).map((city, index) => (
-            <Link key={city.id} href={`/markets?city=${city.slug}`} className="group relative min-h-[170px] overflow-hidden rounded-2xl">
-              <div
-                className="absolute inset-0 transition duration-300 group-hover:scale-105"
-                style={{
-                  backgroundImage: `linear-gradient(180deg,rgba(0,0,0,0.2),rgba(0,0,0,0.74)), url(${listingVisuals[index] ?? fallbackVisuals[index % fallbackVisuals.length]})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              />
-              <div className="relative z-10 flex h-full flex-col justify-end p-4 text-white">
-                <p className="text-xs text-white/70">{city.country}</p>
-                <h3 className="font-[var(--font-playfair)] text-3xl font-semibold">{city.name}</h3>
-                <p className="text-xs text-[#7cc8ff]">{listingCountByCity[city.slug] ?? 0} listings</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        <div className="mt-6">
-          <TestimonialsRotator testimonials={testimonials.slice(0, 3)} />
-        </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">Live ownership gallery</p>
-          <h2 className="mt-2 font-[var(--font-playfair)] text-4xl font-semibold text-[#0f172a]">
-            {activeCities.length}+ cities · {allListings.length} verified listings
-          </h2>
-        </div>
-
-        <div className="flex gap-4 overflow-x-auto pb-2">
-          {galleryItems.map((item, index) => {
-            const size = index % 3 === 0 ? "h-[300px] w-[240px]" : index % 3 === 1 ? "h-[220px] w-[340px]" : "h-[240px] w-[240px]"
-            return (
-              <Link
-                key={`${item.title}-${index}`}
-                href={item.href}
-                className={`group relative shrink-0 overflow-hidden rounded-2xl ${size}`}
-              >
-                <div
-                  className="absolute inset-0 transition duration-300 group-hover:scale-105"
-                  style={{
-                    backgroundImage: `linear-gradient(180deg,transparent 40%,rgba(0,0,0,0.72) 100%), url(${item.image})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                />
-                <div className="absolute inset-x-0 bottom-0 z-10 p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/75">{item.city}</p>
-                  <p className="font-[var(--font-playfair)] text-2xl font-semibold text-white">{item.title}</p>
-                  <p className="text-xs text-[#9bdfff]">{item.price} · {item.type}</p>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        <div className="emz-gloss-card rounded-2xl p-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+      <section className="bg-[#f4f7fb] py-14">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-7 flex items-end justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#155eef]">Updates</p>
-              <h3 className="mt-1 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a]">Get monthly ownership intelligence</h3>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">City intelligence</p>
+              <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-[#091520]">Browse by city</h2>
             </div>
-            <Link href="/contact" className="rounded-full border border-[#c8d8f0] bg-white px-5 py-2 text-sm font-semibold text-[#0f172a]">
-              Talk to an advisor
+            <Link href="/markets" className="text-sm font-semibold text-[#1769d0]">
+              Explore all cities →
             </Link>
           </div>
-          <div className="mt-5 max-w-xl">
-            <NewsletterSignupForm />
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {cities.slice(0, 8).map((city, index) => (
+              <Link
+                key={city.id}
+                href="/markets"
+                className={`home-city-card home-city-gradient-${(index % 8) + 1}`}
+              >
+                <span className="home-city-icon">{city.flagEmoji}</span>
+                <p className="home-city-country">{city.country}</p>
+                <p className="home-city-name">{city.name}</p>
+                <p className="home-city-count">{allListings.filter((l) => l.citySlug === city.slug).length} listings</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#0f2235] py-14">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6dcaf4]">What buyers say</p>
+          <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-white">Real stories, real ownership</h2>
+          <div className="mt-6 grid gap-5 lg:grid-cols-2">
+            <TestimonialsRotator testimonials={testimonials.slice(0, 3)} />
+            <div className="emz-gloss-card rounded-2xl p-6">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">Monthly market brief</p>
+              <h3 className="mt-2 font-[var(--font-playfair)] text-4xl font-semibold text-[#091520]">Stay ahead of market shifts</h3>
+              <p className="mt-2 text-sm text-[#526070]">
+                Get verified supply updates, city trend snapshots, and ownership pathways in one concise brief.
+              </p>
+              <div className="mt-4">
+                <NewsletterSignupForm />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#1769d0] py-14">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-start justify-between gap-8 px-4 sm:px-6 lg:flex-row lg:items-center lg:px-8">
+          <div>
+            <h2 className="font-[var(--font-playfair)] text-5xl font-semibold leading-[1.05] text-white">
+              Ready to own your
+              <br />
+              next home?
+            </h2>
+            <p className="mt-3 text-sm text-white/70">
+              Join thousands of buyers and sellers closing confidently across Africa and the diaspora.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/services" className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#1769d0] transition hover:translate-y-[-1px]">
+              Browse listings →
+            </Link>
+            <Link href="/markets" className="rounded-full border border-white/50 px-6 py-3 text-sm font-semibold text-white">
+              Explore cities
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="emz-gloss-card rounded-2xl p-6">
+          <h3 className="font-[var(--font-playfair)] text-4xl font-semibold text-[#091520]">
+            Market opportunity snapshot
+          </h3>
+          <ul className="mt-4 grid gap-2 text-sm text-[#526070] md:grid-cols-2">
+            {opportunityRows.map((row) => (
+              <li key={row.segment}>
+                <strong className="text-[#091520]">{row.segment}:</strong> {row.sizeVolume} — {row.whyNow}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            {guides.slice(0, 2).map((guide) => (
+              <article key={guide.id} className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#1769d0]">
+                  {guide.category} · {guide.readMinutes} min read
+                </p>
+                <h4 className="mt-1 font-[var(--font-playfair)] text-2xl font-semibold text-[#091520]">{guide.title}</h4>
+                <p className="mt-1 text-sm text-[#526070]">{guide.summary}</p>
+                <Link href={guide.href} className="mt-2 inline-block text-sm font-semibold text-[#1769d0]">
+                  Open guide →
+                </Link>
+              </article>
+            ))}
           </div>
         </div>
       </section>
