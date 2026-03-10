@@ -160,8 +160,8 @@ export default async function HomePage() {
               step: "02",
               icon: "💳",
               title: "Finance",
-              text: "Plan installment and top-up options before committing. Compare payment structures against your cash flow.",
-              href: "/listings",
+              text: "Use our Mortgage Finder to check eligibility, get AI assessment, and connect directly with lenders in your country.",
+              href: "/mortgage",
             },
             {
               step: "03",
@@ -235,36 +235,49 @@ export default async function HomePage() {
               Verified properties for sale
             </h2>
           </div>
-          <Link href="/listings" className="text-sm font-semibold text-[#1769d0]">
+          <Link href="/listings" className="hidden text-sm font-semibold text-[#1769d0] sm:inline">
             View all listings →
           </Link>
         </div>
         <div className="grid gap-5 lg:grid-cols-3">
           {featuredListings.slice(0, 3).map((listing) => (
-            <article key={listing.id} className="emz-gloss-card overflow-hidden rounded-2xl">
-              <div className="relative h-52">
-                <Image src={listing.images[0]} alt={listing.title} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 33vw" />
+            <article key={listing.id} className="emz-gloss-card group overflow-hidden rounded-2xl transition hover:-translate-y-1">
+              <div className="relative h-52 overflow-hidden">
+                <Image src={listing.images[0]} alt={listing.title} fill className="object-cover transition group-hover:scale-105" sizes="(max-width: 1024px) 100vw, 33vw" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 <div className="absolute left-3 top-3 rounded-md bg-[#1769d0] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
                   {listing.type}
                 </div>
+                {listing.verified && (
+                  <span className="absolute bottom-3 left-3 rounded-md bg-black/70 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+                    ✓ Verified
+                  </span>
+                )}
               </div>
               <div className="p-5">
                 <p className="text-[11px] uppercase tracking-[0.12em] text-[#1769d0]">{listing.citySlug.replace("-", " ")}</p>
                 <h3 className="mt-1 font-[var(--font-playfair)] text-3xl font-semibold text-[#091520]">{listing.title}</h3>
-                <p className="mt-1 text-sm text-[#526070]">
-                  {listing.neighborhood}, {listing.country}
-                </p>
-                <div className="mt-4 flex items-end justify-between">
+                <p className="mt-1 text-sm text-[#526070]">{listing.neighborhood}, {listing.country}</p>
+                <div className="mt-2 flex gap-3 text-xs text-[#64748b]">
+                  <span>🛏 {listing.bedrooms} beds</span>
+                  <span>🚿 {listing.bathrooms} baths</span>
+                  <span>📐 {listing.areaSqm.toLocaleString()} sqm</span>
+                </div>
+                <div className="mt-4 flex items-end justify-between border-t border-[#e8edf6] pt-4">
                   <p className="font-[var(--font-playfair)] text-3xl font-bold text-[#091520]">
                     ${listing.priceUsd.toLocaleString()}
                   </p>
-                  <Link href={`/contact?market=${listing.citySlug}`} className="rounded-lg bg-[#091520] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1769d0]">
-                    View →
+                  <Link href={`/contact?market=${listing.citySlug}&message=I%20want%20to%20view%20${encodeURIComponent(listing.title)}`}
+                    className="rounded-xl bg-[#091520] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#1769d0]">
+                    View listing →
                   </Link>
                 </div>
               </div>
             </article>
           ))}
+        </div>
+        <div className="mt-6 text-center sm:hidden">
+          <Link href="/listings" className="text-sm font-semibold text-[#1769d0]">View all listings →</Link>
         </div>
       </section>
 
@@ -333,7 +346,10 @@ export default async function HomePage() {
             <Link href="/listings" className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#1769d0] transition hover:translate-y-[-1px]">
               Browse listings →
             </Link>
-            <Link href="/cities" className="rounded-full border border-white/50 px-6 py-3 text-sm font-semibold text-white">
+            <Link href="/mortgage" className="rounded-full border border-white/50 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10">
+              Find a mortgage
+            </Link>
+            <Link href="/cities" className="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white/70">
               Explore cities
             </Link>
           </div>
@@ -341,26 +357,32 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="emz-gloss-card rounded-2xl p-6">
-          <h3 className="font-[var(--font-playfair)] text-4xl font-semibold text-[#091520]">
-            Market opportunity snapshot
-          </h3>
-          <ul className="mt-4 grid gap-2 text-sm text-[#526070] md:grid-cols-2">
-            {opportunityRows.map((row) => (
-              <li key={row.segment}>
-                <strong className="text-[#091520]">{row.segment}:</strong> {row.sizeVolume} — {row.whyNow}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
+          <div className="emz-gloss-card rounded-2xl p-6">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">Market intelligence</p>
+            <h3 className="mt-2 font-[var(--font-playfair)] text-4xl font-semibold text-[#091520]">
+              Opportunity snapshot
+            </h3>
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              {opportunityRows.map((row) => (
+                <div key={row.segment} className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-4">
+                  <p className="text-xs font-bold text-[#0f172a]">{row.segment}</p>
+                  <p className="mt-1 text-lg font-semibold text-[#1769d0]">{row.sizeVolume}</p>
+                  <p className="mt-1 text-xs text-[#64748b]">{row.whyNow}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4">
             {guides.slice(0, 2).map((guide) => (
-              <article key={guide.id} className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-4">
+              <article key={guide.id} className="flex flex-1 flex-col rounded-2xl border border-[#dbe4f0] bg-white p-5 shadow-sm">
                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#1769d0]">
                   {guide.category} · {guide.readMinutes} min read
                 </p>
                 <h4 className="mt-1 font-[var(--font-playfair)] text-2xl font-semibold text-[#091520]">{guide.title}</h4>
                 <p className="mt-1 text-sm text-[#526070]">{guide.summary}</p>
-                <Link href={guide.href} className="mt-2 inline-block text-sm font-semibold text-[#1769d0]">
+                <Link href={guide.href} className="mt-auto pt-3 text-sm font-semibold text-[#1769d0]">
                   Open guide →
                 </Link>
               </article>

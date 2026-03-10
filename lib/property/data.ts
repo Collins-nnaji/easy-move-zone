@@ -152,27 +152,26 @@ export async function getAgents(): Promise<AgentProfile[]> {
   try {
     const rows = await sql`
       SELECT
-        id,
-        name,
-        company,
-        city_coverage,
-        rating,
-        verified,
-        transactions,
-        languages
-      FROM trusted_agents
-      ORDER BY verified DESC, rating DESC
+        auth_user_id,
+        full_name,
+        agent_company,
+        agent_license,
+        agent_bio,
+        seller_service_cities
+      FROM user_profiles
+      WHERE is_agent = TRUE AND agent_verified = TRUE
+      ORDER BY auth_user_id DESC
     `
     if (!rows.length) return seedAgents
     return rows.map((row) => ({
-      id: row.id,
-      name: row.name,
-      company: row.company,
-      cityCoverage: Array.isArray(row.city_coverage) ? row.city_coverage : [],
-      rating: Number(row.rating),
-      verified: Boolean(row.verified),
-      transactions: Number(row.transactions),
-      languages: Array.isArray(row.languages) ? row.languages : [],
+      id: String(row.auth_user_id),
+      name: String(row.full_name ?? "Agent"),
+      company: String(row.agent_company ?? "Independent"),
+      cityCoverage: Array.isArray(row.seller_service_cities) ? row.seller_service_cities : [],
+      rating: 5.0,
+      verified: true,
+      transactions: 0,
+      languages: ["English"],
     }))
   } catch {
     return seedAgents

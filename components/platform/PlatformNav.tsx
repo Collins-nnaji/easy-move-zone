@@ -10,6 +10,7 @@ const navItems = [
   { href: "/", label: "Home" },
   { href: "/listings", label: "Listings" },
   { href: "/cities", label: "Cities" },
+  { href: "/mortgage", label: "Mortgage Finder" },
 ]
 
 export function PlatformNav() {

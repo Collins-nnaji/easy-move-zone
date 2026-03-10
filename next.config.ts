@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'plus.unsplash.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'easymovezone.s3.eu-west-3.idrivee2.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 's3.eu-west-3.idrivee2.com',
+      },
     ],
   },
   async redirects() {

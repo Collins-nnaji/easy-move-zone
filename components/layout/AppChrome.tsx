@@ -13,7 +13,10 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
     pathname === "/markets" ||
     pathname === "/cities" ||
     pathname === "/contact" ||
-    pathname === "/auth"
+    pathname === "/auth" ||
+    pathname === "/mortgage" ||
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/admin")
 
   if (pageHasOwnChrome) {
     return <main className="flex-1">{children}</main>

@@ -27,6 +27,11 @@ interface ProfilePayload {
   sellerServiceCities: string[]
   sellerPropertyTypes: ListingType[]
   sellerNotes: string
+  isAgent: boolean
+  agentLicense: string
+  agentCompany: string
+  agentBio: string
+  agentVerified: boolean
 }
 
 interface SavedSearchPayload {
@@ -72,6 +77,11 @@ function normalizeProfileInput(input: Partial<ProfilePayload>): ProfilePayload {
     sellerServiceCities: toArray(input.sellerServiceCities),
     sellerPropertyTypes: sanitizeTypes(input.sellerPropertyTypes),
     sellerNotes: String(input.sellerNotes ?? "").trim(),
+    isAgent: Boolean(input.isAgent ?? false),
+    agentLicense: String(input.agentLicense ?? "").trim(),
+    agentCompany: String(input.agentCompany ?? "").trim(),
+    agentBio: String(input.agentBio ?? "").trim(),
+    agentVerified: false,
   }
 }
 
@@ -91,6 +101,11 @@ const emptyProfile: ProfilePayload = {
   sellerServiceCities: [],
   sellerPropertyTypes: [],
   sellerNotes: "",
+  isAgent: false,
+  agentLicense: "",
+  agentCompany: "",
+  agentBio: "",
+  agentVerified: false,
 }
 
 export async function GET() {
@@ -117,7 +132,12 @@ export async function GET() {
           seller_license,
           seller_service_cities,
           seller_property_types,
-          seller_notes
+          seller_notes,
+          is_agent,
+          agent_license,
+          agent_company,
+          agent_bio,
+          agent_verified
         from user_profiles
         where auth_user_id = $1
         limit 1`,
@@ -149,6 +169,11 @@ export async function GET() {
       seller_service_cities: string[] | null
       seller_property_types: ListingType[] | null
       seller_notes: string | null
+      is_agent: boolean | null
+      agent_license: string | null
+      agent_company: string | null
+      agent_bio: string | null
+      agent_verified: boolean | null
     }>
 
     const row = profileRows[0]
@@ -171,6 +196,11 @@ export async function GET() {
           sellerServiceCities: row.seller_service_cities ?? [],
           sellerPropertyTypes: sanitizeStoredTypes(row.seller_property_types),
           sellerNotes: row.seller_notes ?? "",
+          isAgent: row.is_agent ?? false,
+          agentLicense: row.agent_license ?? "",
+          agentCompany: row.agent_company ?? "",
+          agentBio: row.agent_bio ?? "",
+          agentVerified: row.agent_verified ?? false,
         }
       : emptyProfile
 
@@ -229,9 +259,13 @@ export async function PUT(request: Request) {
         seller_service_cities,
         seller_property_types,
         seller_notes,
+        is_agent,
+        agent_license,
+        agent_company,
+        agent_bio,
         updated_at
       ) values (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,now()
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,now()
       )
       on conflict (auth_user_id) do update set
         role = excluded.role,
@@ -249,6 +283,10 @@ export async function PUT(request: Request) {
         seller_service_cities = excluded.seller_service_cities,
         seller_property_types = excluded.seller_property_types,
         seller_notes = excluded.seller_notes,
+        is_agent = excluded.is_agent,
+        agent_license = excluded.agent_license,
+        agent_company = excluded.agent_company,
+        agent_bio = excluded.agent_bio,
         updated_at = now()
       returning
         role,
@@ -265,7 +303,12 @@ export async function PUT(request: Request) {
         seller_license,
         seller_service_cities,
         seller_property_types,
-        seller_notes`,
+        seller_notes,
+        is_agent,
+        agent_license,
+        agent_company,
+        agent_bio,
+        agent_verified`,
       [
         authUserId,
         profile.role,
@@ -283,6 +326,10 @@ export async function PUT(request: Request) {
         profile.sellerServiceCities,
         profile.sellerPropertyTypes,
         profile.sellerNotes || null,
+        profile.isAgent,
+        profile.agentLicense || null,
+        profile.agentCompany || null,
+        profile.agentBio || null,
       ],
     )
 
@@ -302,6 +349,11 @@ export async function PUT(request: Request) {
       seller_service_cities: string[] | null
       seller_property_types: ListingType[] | null
       seller_notes: string | null
+      is_agent: boolean | null
+      agent_license: string | null
+      agent_company: string | null
+      agent_bio: string | null
+      agent_verified: boolean | null
     }>
     const row = rows[0]
     if (!row) return Response.json({ error: "Unable to save profile." }, { status: 500 })
@@ -322,6 +374,11 @@ export async function PUT(request: Request) {
       sellerServiceCities: row.seller_service_cities ?? [],
       sellerPropertyTypes: row.seller_property_types ?? [],
       sellerNotes: row.seller_notes ?? "",
+      isAgent: row.is_agent ?? false,
+      agentLicense: row.agent_license ?? "",
+      agentCompany: row.agent_company ?? "",
+      agentBio: row.agent_bio ?? "",
+      agentVerified: row.agent_verified ?? false,
     }
 
     return Response.json({ profile: savedProfile }, { status: 200 })

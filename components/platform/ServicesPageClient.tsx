@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import { Heart } from "lucide-react"
+import { Heart, ChevronDown, Sparkles, Phone, Star } from "lucide-react"
 import { getPrimaryListingImage } from "@/lib/property/media"
 import type { AgentProfile, CityMarket, PropertyFaq, PropertyListing } from "@/lib/property/types"
 
@@ -59,6 +59,25 @@ function cityColor(citySlug: string) {
   if (citySlug === "nairobi") return "text-[#7b28c8]"
   if (citySlug === "accra") return "text-[#b45309]"
   return "text-[#334155]"
+}
+
+function FaqItem({ question, answer }: { question: string; answer: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className={`rounded-2xl border bg-white transition-all ${open ? "border-[#1769d0]" : "border-[#dbe4f0]"}`}>
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="flex w-full items-start justify-between gap-4 p-5 text-left"
+      >
+        <span className="text-sm font-semibold text-[#0f172a]">{question}</span>
+        <ChevronDown className={`mt-0.5 h-4 w-4 shrink-0 text-[#64748b] transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <p className="border-t border-[#e8edf6] px-5 pb-5 pt-3 text-sm leading-7 text-[#64748b]">{answer}</p>
+      )}
+    </div>
+  )
 }
 
 export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesPageClientProps) {
@@ -166,15 +185,18 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
           <div className="absolute -bottom-10 left-12 h-48 w-48 rounded-full bg-[#3ec6f5]/20 blur-3xl" />
           <div className="relative grid gap-8 lg:grid-cols-[1fr_420px] lg:items-end">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#7dd3fc]">Verified Property Inventory</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#7dd3fc]">Property Listings — Ready to View & Buy</span>
               <h1 className="mt-3 font-[var(--font-playfair)] text-5xl font-bold leading-[0.95] md:text-6xl">
-                Browse verified
+                Find your next home.
                 <br />
-                homes for ownership
+                Make an offer today.
               </h1>
               <p className="mt-4 max-w-xl text-sm leading-7 text-white/65">
-                Compare buy opportunities, set your budget, and shortlist for purchase, installment, sell & top-up, or
-                commercial ownership across {cities.length}+ cities.
+                Every listing is verified and ready to enquire on. Filter by city, budget, and ownership pathway —
+                then connect directly with the seller or agent to move forward.
+              </p>
+              <p className="mt-2 text-xs text-white/40 italic">
+                Not sure which city to choose? Use <a href="/cities" className="underline hover:text-white/70">City Intelligence</a> to compare markets first.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/70">✓ Verified supply</span>
@@ -211,20 +233,28 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                   <option value="commercial">Commercial</option>
                 </select>
                 <div className="grid grid-cols-2 gap-2">
-                  <input
-                    value={minBudget}
-                    onChange={(event) => setMinBudget(Number(event.target.value))}
-                    type="number"
-                    min={0}
-                    className="w-full rounded-xl border border-white/20 bg-[#10253b] px-3 py-2.5 text-sm text-white outline-none focus:border-[#3ec6f5]"
-                  />
-                  <input
-                    value={maxBudget}
-                    onChange={(event) => setMaxBudget(Number(event.target.value))}
-                    type="number"
-                    min={0}
-                    className="w-full rounded-xl border border-white/20 bg-[#10253b] px-3 py-2.5 text-sm text-white outline-none focus:border-[#3ec6f5]"
-                  />
+                  <label className="text-[10px] text-white/50">
+                    Min budget (USD)
+                    <input
+                      value={minBudget}
+                      onChange={(event) => setMinBudget(Number(event.target.value))}
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                      className="mt-1 w-full rounded-xl border border-white/20 bg-[#10253b] px-3 py-2.5 text-sm text-white outline-none focus:border-[#3ec6f5]"
+                    />
+                  </label>
+                  <label className="text-[10px] text-white/50">
+                    Max budget (USD)
+                    <input
+                      value={maxBudget}
+                      onChange={(event) => setMaxBudget(Number(event.target.value))}
+                      type="number"
+                      min={0}
+                      placeholder="5,000,000"
+                      className="mt-1 w-full rounded-xl border border-white/20 bg-[#10253b] px-3 py-2.5 text-sm text-white outline-none focus:border-[#3ec6f5]"
+                    />
+                  </label>
                 </div>
                 <label className="inline-flex items-center gap-2 text-xs text-white/75">
                   <input type="checkbox" checked={moveInReadyOnly} onChange={(event) => setMoveInReadyOnly(event.target.checked)} />
@@ -533,31 +563,96 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
         </div>
       </section>
 
+      {/* ── Mortgage cross-sell ── */}
       <section className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-        <h2 className="font-[var(--font-playfair)] text-4xl font-bold text-[#091520]">Trusted agents</h2>
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          {agents.map((agent) => (
-            <article key={agent.id} className="rounded-2xl border border-[#dbe4f0] bg-white p-4">
-              <h3 className="text-lg font-semibold text-[#0f172a]">{agent.name}</h3>
-              <p className="text-sm text-[#64748b]">{agent.company}</p>
-              <p className="mt-1 text-sm text-[#64748b]">Cities: {agent.cityCoverage.map(slugToLabel).join(", ")}</p>
-              <p className="text-sm text-[#64748b]">
-                Rating: {agent.rating} · {agent.transactions} completed transactions
+        <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-[#0b1f4a] via-[#0f2f6e] to-[#1a3fa0] p-8">
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white/80 mb-3">
+                <Sparkles className="h-3.5 w-3.5 text-[#f0b14b]" />
+                AI Mortgage Advisor
+              </div>
+              <h2 className="font-[var(--font-playfair)] text-3xl font-bold text-white md:text-4xl">
+                Found a home? Let&apos;s finance it.
+              </h2>
+              <p className="mt-2 max-w-lg text-sm text-white/65">
+                Tell our AI your situation in plain language — income, country, budget — and get matched with the right lender in under 60 seconds. Nigeria, Kenya, Ghana, South Africa.
               </p>
+            </div>
+            <Link
+              href="/mortgage"
+              className="shrink-0 rounded-full bg-white px-7 py-3.5 text-sm font-bold text-[#155eef] transition hover:bg-[#f0f4ff]"
+            >
+              Find my mortgage →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Agents ── */}
+      <section className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+        <div className="mb-6 flex items-end justify-between">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">Our team</p>
+            <h2 className="mt-1 font-[var(--font-playfair)] text-4xl font-bold text-[#091520]">Trusted agents</h2>
+          </div>
+          <Link href="/contact" className="text-sm font-semibold text-[#1769d0]">Work with us →</Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {agents.map((agent) => (
+            <article key={agent.id} className="flex flex-col rounded-2xl border border-[#dbe4f0] bg-white p-5 shadow-sm">
+              {/* Avatar placeholder */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#c8d8f0] to-[#e8f1ff] text-xl font-bold text-[#1769d0]">
+                  {agent.name[0]}
+                </div>
+                <div>
+                  <p className="font-bold text-[#0f172a]">{agent.name}</p>
+                  <p className="text-xs text-[#64748b]">{agent.company}</p>
+                </div>
+              </div>
+
+              {/* Rating */}
+              <div className="flex items-center gap-1.5 mb-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className={`h-3.5 w-3.5 ${i < Math.floor(agent.rating) ? "fill-[#f0b14b] text-[#f0b14b]" : "text-[#e2e8f0]"}`} />
+                ))}
+                <span className="ml-1 text-xs font-semibold text-[#0f172a]">{agent.rating}</span>
+                <span className="text-xs text-[#64748b]">· {agent.transactions} deals</span>
+              </div>
+
+              {/* Cities */}
+              <div className="flex flex-wrap gap-1 mb-4">
+                {agent.cityCoverage.map(c => (
+                  <span key={c} className="rounded-full border border-[#dbe4f0] bg-[#f8fbff] px-2.5 py-0.5 text-[11px] text-[#475569]">
+                    {slugToLabel(c)}
+                  </span>
+                ))}
+              </div>
+
+              <Link
+                href={`/contact?agent=${encodeURIComponent(agent.name)}`}
+                className="mt-auto flex items-center gap-1.5 rounded-xl border border-[#dbe4f0] px-4 py-2.5 text-sm font-semibold text-[#0f172a] transition hover:border-[#1769d0] hover:text-[#1769d0]"
+              >
+                <Phone className="h-4 w-4" /> Contact agent
+              </Link>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
-        <h2 className="font-[var(--font-playfair)] text-4xl font-bold text-[#091520]">Frequently asked questions</h2>
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          {faqs.map((faq) => (
-            <details key={faq.id} className="rounded-2xl border border-[#dbe4f0] bg-white p-4">
-              <summary className="cursor-pointer text-sm font-semibold text-[#0f172a]">{faq.question}</summary>
-              <p className="mt-2 text-sm text-[#64748b]">{faq.answer}</p>
-            </details>
-          ))}
+      {/* ── FAQ ── */}
+      <section className="bg-[#f4f7fb] py-14">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">Questions</p>
+            <h2 className="mt-1 font-[var(--font-playfair)] text-4xl font-bold text-[#091520]">Frequently asked</h2>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            {faqs.map((faq) => (
+              <FaqItem key={faq.id} question={faq.question} answer={faq.answer} />
+            ))}
+          </div>
         </div>
       </section>
     </>
