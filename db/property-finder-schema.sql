@@ -128,3 +128,18 @@ CREATE TABLE IF NOT EXISTS relocation_contacts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS relocation_country_guides (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  country TEXT NOT NULL UNIQUE,
+  visa_summary TEXT NOT NULL,
+  required_documents TEXT[] NOT NULL DEFAULT '{}',
+  pre_move_steps TEXT[] NOT NULL DEFAULT '{}',
+  first_week_steps TEXT[] NOT NULL DEFAULT '{}',
+  healthcare_tip TEXT NOT NULL DEFAULT '',
+  banking_tip TEXT NOT NULL DEFAULT '',
+  schooling_tip TEXT NOT NULL DEFAULT '',
+  estimated_setup_days INTEGER NOT NULL DEFAULT 14,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

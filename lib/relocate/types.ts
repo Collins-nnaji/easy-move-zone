@@ -61,3 +61,18 @@ export interface RelocationContact {
   createdAt: string
   updatedAt: string
 }
+
+export interface RelocationCountryGuide {
+  id: string
+  country: string
+  visaSummary: string
+  requiredDocuments: string[]
+  preMoveSteps: string[]
+  firstWeekSteps: string[]
+  healthcareTip: string
+  bankingTip: string
+  schoolingTip: string
+  estimatedSetupDays: number
+  createdAt: string
+  updatedAt: string
+}

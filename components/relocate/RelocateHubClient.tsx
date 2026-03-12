@@ -3,7 +3,15 @@
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import { AlertCircle, CheckCircle2, ClipboardCheck, Loader2, Plus, Trash2, Users, Wallet } from "lucide-react"
-import type { RelocationContact, RelocationPlan, RelocationTask, TaskCategory, TaskPriority, TaskStatus } from "@/lib/relocate/types"
+import type {
+  RelocationContact,
+  RelocationCountryGuide,
+  RelocationPlan,
+  RelocationTask,
+  TaskCategory,
+  TaskPriority,
+  TaskStatus,
+} from "@/lib/relocate/types"
 
 const EMPTY_PLAN: Omit<RelocationPlan, "id" | "authUserId" | "createdAt" | "updatedAt"> = {
   planName: "My relocation plan",
@@ -63,6 +71,10 @@ export function RelocateHubClient() {
     notes: "",
   })
   const [creatingContact, setCreatingContact] = useState(false)
+  const [guides, setGuides] = useState<RelocationCountryGuide[]>([])
+  const [guidesLoading, setGuidesLoading] = useState(true)
+  const [guideCountry, setGuideCountry] = useState("")
+  const [monthlyRunwayCost, setMonthlyRunwayCost] = useState(1200)
 
   const budgetTotal = useMemo(() => {
     const p = plan ?? ({ ...EMPTY_PLAN } as Omit<RelocationPlan, "id" | "authUserId" | "createdAt" | "updatedAt">)
@@ -70,6 +82,16 @@ export function RelocateHubClient() {
   }, [plan])
 
   const completedTasks = useMemo(() => tasks.filter((task) => task.status === "done").length, [tasks])
+  const activeGuide = useMemo(() => {
+    if (guides.length === 0) return null
+    const bySelected = guides.find((guide) => guide.country.toLowerCase() === guideCountry.toLowerCase())
+    if (bySelected) return bySelected
+    return guides[0]
+  }, [guideCountry, guides])
+  const runwayMonths = useMemo(() => {
+    if (!monthlyRunwayCost || monthlyRunwayCost <= 0) return 0
+    return Math.floor(budgetTotal / monthlyRunwayCost)
+  }, [budgetTotal, monthlyRunwayCost])
 
   async function loadWorkspace() {
     setLoading(true)
@@ -109,6 +131,37 @@ export function RelocateHubClient() {
     void loadWorkspace()
   }, [])
 
+  useEffect(() => {
+    let mounted = true
+    const loadGuides = async () => {
+      setGuidesLoading(true)
+      try {
+        const res = await fetch("/api/relocate/guides", { cache: "no-store" })
+        if (!res.ok) return
+        const data = (await res.json()) as { guides?: RelocationCountryGuide[] }
+        if (!mounted) return
+        const rows = data.guides ?? []
+        setGuides(rows)
+        if (rows.length > 0) {
+          setGuideCountry((prev) => prev || rows[0].country)
+        }
+      } finally {
+        if (mounted) setGuidesLoading(false)
+      }
+    }
+    void loadGuides()
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  useEffect(() => {
+    const destination = plan?.destinationCountry?.trim()
+    if (!destination || guides.length === 0) return
+    const matched = guides.find((guide) => guide.country.toLowerCase() === destination.toLowerCase())
+    if (matched) setGuideCountry(matched.country)
+  }, [guides, plan?.destinationCountry])
+
   function updatePlanField<K extends keyof typeof EMPTY_PLAN>(key: K, value: (typeof EMPTY_PLAN)[K]) {
     setPlan((prev) => {
       const baseline = prev ?? ({
@@ -123,10 +176,13 @@ export function RelocateHubClient() {
   }
 
   async function savePlan() {
-    if (!plan) {
-      updatePlanField("planName", "My relocation plan")
-      return
-    }
+    const planToSave = plan ?? ({
+      id: "",
+      authUserId: "",
+      createdAt: "",
+      updatedAt: "",
+      ...EMPTY_PLAN,
+    } as RelocationPlan)
     setSavingPlan(true)
     setStatusMsg("")
     setErrorMsg("")
@@ -134,7 +190,7 @@ export function RelocateHubClient() {
       const res = await fetch("/api/relocate/plan", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({ plan: planToSave }),
       })
       if (!res.ok) {
         const data = (await res.json()) as { error?: string }
@@ -352,6 +408,19 @@ export function RelocateHubClient() {
               <input type="number" min={0} value={draftPlan.budgetBufferUsd} onChange={(e) => updatePlanField("budgetBufferUsd", Number(e.target.value) || 0)} placeholder="Emergency buffer" className="rounded-xl border border-[#dbe4f0] px-3 py-2.5 text-sm" />
             </div>
             <p className="mt-3 text-sm font-semibold text-[#155eef]">Total: ${budgetTotal.toLocaleString()}</p>
+            <div className="mt-3 grid gap-2 md:grid-cols-[1fr_auto]">
+              <input
+                type="number"
+                min={100}
+                value={monthlyRunwayCost}
+                onChange={(e) => setMonthlyRunwayCost(Number(e.target.value) || 0)}
+                placeholder="Estimated monthly living cost"
+                className="rounded-xl border border-[#dbe4f0] px-3 py-2.5 text-sm"
+              />
+              <div className="rounded-xl border border-[#dbe4f0] bg-white px-3 py-2.5 text-sm text-[#475569]">
+                Runway: <span className="font-semibold text-[#155eef]">{runwayMonths} months</span>
+              </div>
+            </div>
           </div>
 
           <textarea value={draftPlan.notes} onChange={(e) => updatePlanField("notes", e.target.value)} rows={3} placeholder="Planning notes, risks, and key dependencies…" className="mt-4 w-full rounded-xl border border-[#dbe4f0] px-3 py-2.5 text-sm" />
@@ -531,6 +600,86 @@ export function RelocateHubClient() {
             <p className="mt-1 text-sm text-[#64748b]">Save immigration, legal, education, and tax contacts in one place.</p>
           </div>
         </div>
+      </div>
+
+      <div className="rounded-2xl border border-[#dbe4f0] bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#155eef]">Country relocation guide</p>
+            <h3 className="mt-1 font-[var(--font-playfair)] text-3xl font-semibold text-[#091520]">Visa + setup briefing</h3>
+          </div>
+          <select
+            value={guideCountry}
+            onChange={(e) => setGuideCountry(e.target.value)}
+            className="rounded-xl border border-[#dbe4f0] px-3 py-2 text-sm"
+            disabled={guidesLoading || guides.length === 0}
+          >
+            {guides.map((guide) => (
+              <option key={guide.id} value={guide.country}>
+                {guide.country}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {guidesLoading ? (
+          <div className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] px-3 py-2 text-sm text-[#64748b]">
+            <Loader2 className="h-4 w-4 animate-spin text-[#155eef]" />
+            Loading country guide…
+          </div>
+        ) : activeGuide ? (
+          <div className="mt-4 space-y-3">
+            <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+              <p className="text-xs font-semibold text-[#0f172a]">Visa summary</p>
+              <p className="mt-1 text-sm text-[#526070]">{activeGuide.visaSummary}</p>
+              <p className="mt-1 text-xs text-[#64748b]">Estimated setup window: {activeGuide.estimatedSetupDays} days</p>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                <p className="text-xs font-semibold text-[#0f172a]">Required documents</p>
+                <ul className="mt-1 space-y-1 text-xs text-[#526070]">
+                  {activeGuide.requiredDocuments.map((item) => (
+                    <li key={item}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                <p className="text-xs font-semibold text-[#0f172a]">Pre-move steps</p>
+                <ul className="mt-1 space-y-1 text-xs text-[#526070]">
+                  {activeGuide.preMoveSteps.map((item) => (
+                    <li key={item}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                <p className="text-xs font-semibold text-[#0f172a]">First-week steps</p>
+                <ul className="mt-1 space-y-1 text-xs text-[#526070]">
+                  {activeGuide.firstWeekSteps.map((item) => (
+                    <li key={item}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              <div className="rounded-xl border border-[#dbe4f0] bg-white p-3 text-xs text-[#526070]">
+                <p className="font-semibold text-[#0f172a]">Healthcare tip</p>
+                <p className="mt-1">{activeGuide.healthcareTip}</p>
+              </div>
+              <div className="rounded-xl border border-[#dbe4f0] bg-white p-3 text-xs text-[#526070]">
+                <p className="font-semibold text-[#0f172a]">Banking tip</p>
+                <p className="mt-1">{activeGuide.bankingTip}</p>
+              </div>
+              <div className="rounded-xl border border-[#dbe4f0] bg-white p-3 text-xs text-[#526070]">
+                <p className="font-semibold text-[#0f172a]">Schooling tip</p>
+                <p className="mt-1">{activeGuide.schoolingTip}</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-[#64748b]">No country guide available yet.</p>
+        )}
       </div>
     </section>
   )
