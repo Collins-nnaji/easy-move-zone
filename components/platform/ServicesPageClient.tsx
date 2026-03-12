@@ -185,24 +185,24 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
           <div className="absolute -bottom-10 left-12 h-48 w-48 rounded-full bg-[#3ec6f5]/20 blur-3xl" />
           <div className="relative grid gap-8 lg:grid-cols-[1fr_420px] lg:items-end">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#7dd3fc]">Property Listings — Ready to View & Buy</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#7dd3fc]">Listings — tied to scouted territories</span>
               <h1 className="mt-3 font-[var(--font-playfair)] text-5xl font-bold leading-[0.95] md:text-6xl">
-                Find your next home.
+                Find the right property.
                 <br />
-                Make an offer today.
+                Move with confidence.
               </h1>
               <p className="mt-4 max-w-xl text-sm leading-7 text-white/65">
-                Every listing is verified and ready to enquire on. Filter by city, budget, and ownership pathway —
-                then connect directly with the seller or agent to move forward.
+                Every listing is connected to city intelligence and relocation planning. Filter by budget, type,
+                and relocation readiness to shortlist homes that fit your move plan.
               </p>
               <p className="mt-2 text-xs text-white/40 italic">
-                Not sure which city to choose? Use <a href="/cities" className="underline hover:text-white/70">City Intelligence</a> to compare markets first.
+                Need help after shortlisting? Use the <a href="/relocate" className="underline hover:text-white/70">Relocate Hub</a> for move checklists and local support.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/70">✓ Verified supply</span>
                 <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/70">📍 {cities.length}+ cities</span>
-                <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/70">💳 Installment options</span>
-                <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/70">🔒 Docs supported</span>
+                <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/70">🏠 Relocation-ready options</span>
+                <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/70">🧭 Scout-to-settle flow</span>
               </div>
             </div>
 
@@ -258,7 +258,7 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                 </div>
                 <label className="inline-flex items-center gap-2 text-xs text-white/75">
                   <input type="checkbox" checked={moveInReadyOnly} onChange={(event) => setMoveInReadyOnly(event.target.checked)} />
-                  Ready-to-close only
+                  Relocation-ready only
                 </label>
               </div>
             </div>
@@ -393,7 +393,7 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                 </div>
                 <label className="inline-flex items-center gap-2 text-xs text-[#475569]">
                   <input type="checkbox" checked={moveInReadyOnly} onChange={(event) => setMoveInReadyOnly(event.target.checked)} />
-                  Ready-to-close only
+                  Relocation-ready only
                 </label>
               </div>
             </div>
@@ -403,7 +403,7 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="font-[var(--font-playfair)] text-4xl font-bold text-[#091520]">{filtered.length} Properties</h2>
-                <p className="text-sm text-[#64748b]">Across {cities.length} cities · updated inventory</p>
+                <p className="text-sm text-[#64748b]">Across {cities.length} cities · relocation-aware inventory</p>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-[#64748b]">Sort by</span>
@@ -439,7 +439,7 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
             {filtered.length === 0 ? (
               <div className="rounded-2xl border border-[#dbe4f0] bg-white p-8 text-center">
                 <h3 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0f172a]">No listings match these filters</h3>
-                <p className="mt-2 text-sm text-[#64748b]">Try widening your city, pathway, or budget selection.</p>
+                <p className="mt-2 text-sm text-[#64748b]">Try widening city, budget, or relocation readiness filters.</p>
               </div>
             ) : (
               <div className={`grid gap-4 ${viewMode === "grid" ? "md:grid-cols-2" : "grid-cols-1"}`}>
@@ -576,7 +576,7 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                 Found a home? Let&apos;s finance it.
               </h2>
               <p className="mt-2 max-w-lg text-sm text-white/65">
-                Tell our AI your situation in plain language — income, country, budget — and get matched with the right lender in under 60 seconds. Nigeria, Kenya, Ghana, South Africa.
+                Tell our AI your situation in plain language and get matched with the right lender in under 60 seconds, then continue to Relocate Hub for move execution.
               </p>
             </div>
             <Link

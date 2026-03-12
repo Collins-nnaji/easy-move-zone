@@ -204,7 +204,7 @@ function ContactForm({
         {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Submitting…</> : <><Send className="h-4 w-4" /> Submit application</>}
       </button>
       <p className="mt-2 text-[11px] text-[#94a3b8]">
-        We&apos;ll share your profile with this lender. No hidden fees. EasyMoveZone facilitates introductions only.
+        We&apos;ll share your profile with this lender. No hidden fees. EasyMoveZonne facilitates introductions only.
       </p>
     </div>
   )
@@ -412,7 +412,7 @@ function ResultsCard({ assessment, profile }: { assessment: AiAssessment; profil
       <div className="flex items-start gap-2 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
         <Info className="h-3.5 w-3.5 shrink-0 mt-0.5 text-[#94a3b8]" />
         <p className="text-[11px] text-[#94a3b8]">
-          Match scores are indicative. Actual approval depends on lender credit policy. EasyMoveZone facilitates introductions only — we are not a licensed mortgage broker.
+          Match scores are indicative. Actual approval depends on lender credit policy. EasyMoveZonne facilitates introductions only — we are not a licensed mortgage broker.
         </p>
       </div>
     </div>

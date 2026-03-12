@@ -53,19 +53,41 @@ export default async function HomePage() {
           <div>
             <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#2d4e76] bg-[#102237] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#6dcaf4]">
               <span className="h-2 w-2 rounded-full bg-[#3ec6f5]" />
-              Home ownership platform
+              Destination intelligence + relocation platform
             </span>
             <h1 className="font-[var(--font-playfair)] text-6xl font-semibold leading-[0.95] text-white md:text-7xl">
-              Buy smarter.
+              Find Your Territory.
               <br />
-              <em className="text-[#3ec6f5]">Sell</em> and
-              <br />
-              upgrade faster.
+              <em className="text-[#3ec6f5]">Make Your Move.</em>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-8 text-white/55">
-              Verified listings, installment-friendly pathways, and city intelligence in one clear
-              buy/sell flow — built for Africa and the diaspora.
+              Scout the best cities, find your property, and relocate with confidence — all in one place.
             </p>
+            <div className="mt-6 rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur-sm">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70">Search your next territory</p>
+              <div className="grid gap-2 sm:grid-cols-4">
+                <input
+                  defaultValue=""
+                  placeholder="City"
+                  className="rounded-xl border border-white/20 bg-[#10253b] px-3 py-2 text-sm text-white placeholder:text-white/45 outline-none"
+                />
+                <input
+                  defaultValue=""
+                  placeholder="Country"
+                  className="rounded-xl border border-white/20 bg-[#10253b] px-3 py-2 text-sm text-white placeholder:text-white/45 outline-none"
+                />
+                <select className="rounded-xl border border-white/20 bg-[#10253b] px-3 py-2 text-sm text-white outline-none">
+                  <option>Lifestyle</option>
+                  <option>Family-friendly</option>
+                  <option>Career growth</option>
+                  <option>Remote worker</option>
+                  <option>Investor</option>
+                </select>
+                <Link href="/cities" className="inline-flex items-center justify-center rounded-xl bg-[#1769d0] px-4 py-2 text-sm font-semibold text-white">
+                  Scout cities
+                </Link>
+              </div>
+            </div>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="/listings" className="rounded-full bg-[#1769d0] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1e80e8]">
                 Browse listings →
@@ -73,9 +95,12 @@ export default async function HomePage() {
               <Link href="/cities" className="rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white/80 transition hover:border-white/50 hover:text-white">
                 Explore city intel
               </Link>
+              <Link href="/relocate" className="rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white/80 transition hover:border-white/50 hover:text-white">
+                Open relocate hub
+              </Link>
             </div>
             <div className="mt-7 flex flex-wrap gap-2">
-              {["Verified supply", "Installment options", "Trade-up support", "Diaspora ready"].map((chip) => (
+              {["10,000+ families relocated", "50+ cities scouted", "Relocation-ready listings", "Mortgage + move support"].map((chip) => (
                 <span key={chip} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/55">
                   {chip}
                 </span>
@@ -112,16 +137,16 @@ export default async function HomePage() {
 
         <div className="relative z-[2] mx-auto grid w-full max-w-7xl grid-cols-2 gap-y-5 border-t border-white/10 px-4 py-6 sm:grid-cols-3 sm:px-6 lg:grid-cols-5 lg:px-8">
           <div>
-            <p className="font-[var(--font-playfair)] text-4xl font-semibold text-white">{cities.length}+</p>
-            <p className="text-xs text-white/40">Cities covered</p>
+            <p className="font-[var(--font-playfair)] text-4xl font-semibold text-white">10,000+</p>
+            <p className="text-xs text-white/40">Families relocated</p>
+          </div>
+          <div>
+            <p className="font-[var(--font-playfair)] text-4xl font-semibold text-white">50+</p>
+            <p className="text-xs text-white/40">Cities scouted</p>
           </div>
           <div>
             <p className="font-[var(--font-playfair)] text-4xl font-semibold text-white">{allListings.length}</p>
-            <p className="text-xs text-white/40">Verified listings</p>
-          </div>
-          <div>
-            <p className="font-[var(--font-playfair)] text-4xl font-semibold text-white">3</p>
-            <p className="text-xs text-white/40">Ownership pathways</p>
+            <p className="text-xs text-white/40">Relocation-ready listings</p>
           </div>
           <div>
             <p className="font-[var(--font-playfair)] text-4xl font-semibold text-white">94%</p>
@@ -138,9 +163,9 @@ export default async function HomePage() {
         <div className="mb-10 flex items-end justify-between">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">How it works</p>
-            <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-[#091520]">Three steps to ownership</h2>
+            <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-[#091520]">Three steps to relocation confidence</h2>
             <p className="mt-3 max-w-md text-sm text-[#526070]">
-              A structured journey from first search to final signature — no guesswork, no gaps.
+              Bridge the gap between &quot;where should I go?&quot; and &quot;I&apos;m fully settled.&quot;
             </p>
           </div>
           <Link href="/listings" className="hidden text-sm font-semibold text-[#1769d0] md:inline-flex">
@@ -152,23 +177,23 @@ export default async function HomePage() {
             {
               step: "01",
               icon: "🔍",
-              title: "Shortlist",
-              text: "Filter verified homes that match budget, city, and ownership goals across buy, installment, and trade-up.",
-              href: "/listings",
+              title: "Scout",
+              text: "Compare city intelligence, lifestyle fit, and opportunity signals to find your best territory.",
+              href: "/cities",
             },
             {
               step: "02",
-              icon: "💳",
-              title: "Finance",
-              text: "Use our Mortgage Finder to check eligibility, get AI assessment, and connect directly with lenders in your country.",
-              href: "/mortgage",
+              icon: "🏠",
+              title: "Secure",
+              text: "Choose a relocation-ready property, align financing, and plan your move budget in one flow.",
+              href: "/listings",
             },
             {
               step: "03",
               icon: "✅",
-              title: "Close",
-              text: "Get help with documentation, negotiation, and final ownership transfer until keys are in your hand.",
-              href: "/contact",
+              title: "Settle",
+              text: "Follow the Relocate Hub roadmap for visas, checklists, and local setup until your transition is complete.",
+              href: "/relocate",
             },
           ].map((item) => (
             <article key={item.step} className="emz-gloss-card relative overflow-hidden rounded-2xl p-7">
@@ -194,17 +219,16 @@ export default async function HomePage() {
       <section className="bg-[#f0f4f9] py-14">
         <div className="mx-auto grid w-full max-w-7xl gap-4 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
           <article className="emz-gloss-card rounded-3xl p-8">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">About EasyMoveZone</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">About EasyMoveZonne</p>
             <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold leading-[1.05] text-[#091520]">
-              Built to make ownership real
+              Built for bold, life-changing moves
             </h2>
             <p className="mt-4 text-sm leading-8 text-[#526070]">
-              We combine trusted listings, city context, and practical guidance so buyers and sellers
-              can close faster — whether you are buying for the first time, upgrading locally, or
-              investing from abroad.
+              EasyMoveZonne combines territory intelligence, verified properties, mortgage pathways,
+              and relocation guidance so your move is informed, practical, and achievable.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
-              {["First-time buyers", "Home upgraders", "Diaspora investors", "Commercial buyers"].map((chip) => (
+              {["Individuals", "Families", "Professionals", "Diaspora movers"].map((chip) => (
                 <span key={chip} className="rounded-full border border-[#c9ddf8] bg-[#e4eef9] px-3 py-1 text-xs font-medium text-[#1769d0]">
                   {chip}
                 </span>
@@ -213,12 +237,12 @@ export default async function HomePage() {
           </article>
 
           <article className="rounded-3xl bg-[#091520] p-8">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6dcaf4]">AI ownership match</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6dcaf4]">AI move direction</p>
             <h3 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold leading-[1.05] text-white">
               Describe your plan
             </h3>
             <p className="mt-4 text-sm leading-7 text-white/50">
-              Tell us your goal in one sentence. We will suggest the best journey, city options, and support plan.
+              Tell us your move goal in one sentence. We will recommend the next best city, property, and relocation steps.
             </p>
             <div className="mt-5 rounded-2xl border border-white/15 bg-white/5 p-3">
               <DirectionDetector />
@@ -334,12 +358,12 @@ export default async function HomePage() {
         <div className="mx-auto flex w-full max-w-7xl flex-col items-start justify-between gap-8 px-4 sm:px-6 lg:flex-row lg:items-center lg:px-8">
           <div>
             <h2 className="font-[var(--font-playfair)] text-5xl font-semibold leading-[1.05] text-white">
-              Ready to own your
+              Ready to find your territory and
               <br />
-              next home?
+              make your move?
             </h2>
             <p className="mt-3 text-sm text-white/70">
-              Join thousands of buyers and sellers closing confidently across Africa and the diaspora.
+              Scout smarter, secure your property, and relocate with confidence in one platform.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -351,6 +375,9 @@ export default async function HomePage() {
             </Link>
             <Link href="/cities" className="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white/70">
               Explore cities
+            </Link>
+            <Link href="/relocate" className="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white/70">
+              Relocate hub
             </Link>
           </div>
         </div>

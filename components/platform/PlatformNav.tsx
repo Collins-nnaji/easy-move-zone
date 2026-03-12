@@ -11,6 +11,8 @@ const navItems = [
   { href: "/listings", label: "Listings" },
   { href: "/cities", label: "Cities" },
   { href: "/mortgage", label: "Mortgage Finder" },
+  { href: "/relocate", label: "Relocate" },
+  { href: "/profile", label: "Profile" },
 ]
 
 export function PlatformNav() {
@@ -49,9 +51,9 @@ export function PlatformNav() {
       <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="leading-tight">
           <p className="font-[var(--font-playfair)] text-2xl font-bold tracking-tight text-[#0f172a]">
-            EasyMoveZone
+            EasyMoveZonne
           </p>
-          <p className="text-[11px] uppercase tracking-[0.22em] text-[#155eef]">Home Ownership Platform</p>
+          <p className="text-[11px] uppercase tracking-[0.22em] text-[#155eef]">Destination Intelligence + Relocation</p>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -75,12 +77,6 @@ export function PlatformNav() {
             <div className="h-10 w-24 animate-pulse rounded-full bg-[#eef4ff]" />
           ) : user ? (
             <>
-              <Link
-                href="/profile"
-                className="ml-2 rounded-full border border-[#c8d8f0] px-4 py-2 text-[14px] font-semibold text-[#0f172a]"
-              >
-                Profile
-              </Link>
               <button
                 type="button"
                 onClick={handleSignOut}
@@ -102,7 +98,7 @@ export function PlatformNav() {
                 href="/contact?direction=Buy%20first%20home"
                 className="emz-pill-cta rounded-full px-4 py-2 text-[14px] font-semibold"
               >
-                Start Buying / Selling
+                Start Your Move
               </Link>
             </>
           )}
@@ -140,13 +136,6 @@ export function PlatformNav() {
               <div className="h-10 animate-pulse rounded-full bg-[#eef4ff]" />
             ) : user ? (
               <>
-                <Link
-                  href="/profile"
-                  onClick={() => setIsOpen(false)}
-                  className="rounded-full border border-[#c8d8f0] px-4 py-2 text-center text-base text-[#0f172a]"
-                >
-                  Profile
-                </Link>
                 <button
                   type="button"
                   onClick={handleSignOut}
@@ -170,7 +159,7 @@ export function PlatformNav() {
                   onClick={() => setIsOpen(false)}
                   className="emz-pill-cta rounded-full px-4 py-2 text-center text-base font-semibold"
                 >
-                  Start Buying / Selling
+                  Start Your Move
                 </Link>
               </>
             )}

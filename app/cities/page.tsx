@@ -10,16 +10,15 @@ export default async function CitiesPage() {
       {/* Page header */}
       <div className="border-b border-[#e8edf6] bg-white px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-7xl">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#155eef]">City intelligence</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#155eef]">Territory intelligence</p>
           <h1 className="mt-1 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a] md:text-5xl">
-            Research before you buy
+            Scout the right city before you move
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-[#64748b]">
-            Not sure which city is right for you? Explore safety scores, commute times, average prices in local currency,
-            and get AI-powered answers about any African city — before you ever view a listing.
+            Compare cities by cost of living, growth score, safety, opportunity index, and community vibe — then move to listings with clarity.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
-            {["Safety scores", "Local currency prices", "AI city advisor", "Compare cities", "Map view", "Sector insights"].map(tag => (
+            {["Cost of living", "Growth score", "Safety", "Opportunity index", "Community vibe", "AI city advisor"].map(tag => (
               <span key={tag} className="rounded-full border border-[#dbe4f0] bg-[#f8fbff] px-3 py-1 text-xs font-medium text-[#475569]">
                 {tag}
               </span>

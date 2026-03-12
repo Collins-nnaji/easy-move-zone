@@ -5,7 +5,7 @@ import Link from "next/link"
 import { getPrimaryListingImage } from "@/lib/property/media"
 import type { CityMarket, PropertyListing } from "@/lib/property/types"
 import {
-  MapPin, TrendingUp, Shield, Clock, Sparkles,
+  MapPin, TrendingUp, Shield, Sparkles,
   ChevronRight, Send, Loader2, BarChart3, Home,
   Star, ArrowRight, Building2
 } from "lucide-react"
@@ -18,6 +18,8 @@ interface CityRow {
   avgListingPrice: number
   readyToClose: number
   valueScore: number
+  growthScore: number
+  costOfLivingIndex: number
 }
 
 interface AiMessage {
@@ -37,6 +39,20 @@ function valueScore(market: CityMarket): number {
   )
 }
 
+function growthScore(market: CityMarket): number {
+  const sectorLift = Math.min(100, market.topSectors.length * 18)
+  return Math.round(
+    market.commuteScore * 0.45 +
+    market.lifestyleScore * 0.25 +
+    sectorLift * 0.3
+  )
+}
+
+function costOfLivingIndex(market: CityMarket): number {
+  const weightedCost = market.avgRentUsd * 0.55 + market.avgBuyUsd * 0.45
+  return Math.max(1, Math.min(100, Math.round(weightedCost / 4200)))
+}
+
 function scoreBar(value: number, color: string) {
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#e8edf6]">
@@ -49,28 +65,6 @@ function formatUsd(n: number) {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
   if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`
   return `$${n}`
-}
-
-const COUNTRY_CURRENCY: Record<string, { symbol: string; rate: number; code: string }> = {
-  Nigeria:      { symbol: "₦",    rate: 1600, code: "NGN" },
-  Kenya:        { symbol: "KSh",  rate: 130,  code: "KES" },
-  Ghana:        { symbol: "GH₵",  rate: 16,   code: "GHS" },
-  "South Africa": { symbol: "R", rate: 19,    code: "ZAR" },
-  Rwanda:       { symbol: "RWF",  rate: 1340, code: "RWF" },
-}
-
-function formatLocal(usd: number, country: string): string {
-  const c = COUNTRY_CURRENCY[country]
-  if (!c) return formatUsd(usd)
-  const local = Math.round(usd * c.rate)
-  if (local >= 1_000_000_000) return `${c.symbol}${(local / 1_000_000_000).toFixed(1)}B`
-  if (local >= 1_000_000) return `${c.symbol}${(local / 1_000_000).toFixed(0)}M`
-  if (local >= 1_000) return `${c.symbol}${(local / 1_000).toFixed(0)}K`
-  return `${c.symbol}${local}`
-}
-
-function formatDual(usd: number, country: string): string {
-  return `${formatUsd(usd)} · ${formatLocal(usd, country)}`
 }
 
 const SUGGESTED_QUESTIONS = [
@@ -175,6 +169,8 @@ export function CitiesPageClient({
           : market.avgBuyUsd,
         readyToClose: cityListings.filter((l) => l.moveInReady).length,
         valueScore: valueScore(market),
+        growthScore: growthScore(market),
+        costOfLivingIndex: costOfLivingIndex(market),
       }
     }).sort((a, b) => b.valueScore - a.valueScore),
     [activeMarkets, listings]
@@ -338,34 +334,34 @@ export function CitiesPageClient({
               <div className="rounded-2xl border border-[#dbe4f0] bg-white p-5">
                 <p className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-[#155eef]">City scorecard</p>
                 <div className="flex flex-wrap justify-around gap-4">
-                  <ScoreRing score={activeCity.securityScore} label="Security" />
-                  <ScoreRing score={activeCity.commuteScore} label="Commute" />
-                  <ScoreRing score={activeCity.lifestyleScore} label="Lifestyle" />
-                  <ScoreRing score={activeRow?.valueScore ?? 0} label="Overall" />
+                  <ScoreRing score={activeCity.securityScore} label="Safety" />
+                  <ScoreRing score={activeRow?.growthScore ?? 0} label="Growth" />
+                  <ScoreRing score={activeCity.lifestyleScore} label="Community" />
+                  <ScoreRing score={activeRow?.valueScore ?? 0} label="Opportunity" />
                 </div>
               </div>
 
               {/* Key stats */}
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <StatPill
-                  label="Avg buy price"
-                  value={formatDual(activeCity.avgBuyUsd, activeCity.country)}
+                  label="Cost of living"
+                  value={`${activeRow?.costOfLivingIndex ?? 0}/100`}
                   icon={<Building2 className="h-3.5 w-3.5" />}
                 />
                 <StatPill
-                  label="Avg annual rent"
-                  value={formatDual(activeCity.avgRentUsd, activeCity.country)}
-                  icon={<Home className="h-3.5 w-3.5" />}
+                  label="Growth score"
+                  value={`${activeRow?.growthScore ?? 0}/100`}
+                  icon={<TrendingUp className="h-3.5 w-3.5" />}
                 />
                 <StatPill
-                  label="Active listings"
-                  value={String(activeRow?.listingCount ?? 0)}
+                  label="Opportunity index"
+                  value={`${activeRow?.valueScore ?? 0}/100`}
                   icon={<BarChart3 className="h-3.5 w-3.5" />}
                 />
                 <StatPill
-                  label="Ready to close"
-                  value={String(activeRow?.readyToClose ?? 0)}
-                  icon={<Star className="h-3.5 w-3.5" />}
+                  label="Community vibe"
+                  value={`${activeCity.lifestyleScore}/100`}
+                  icon={<Sparkles className="h-3.5 w-3.5" />}
                 />
               </div>
 
@@ -385,7 +381,7 @@ export function CitiesPageClient({
               <div className="rounded-2xl border border-[#dbe4f0] bg-white p-5">
                 <div className="mb-3 flex items-center justify-between">
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#155eef]">All cities ranked</p>
-                  <span className="text-[10px] text-[#94a3b8]">security · commute · lifestyle · affordability</span>
+                  <span className="text-[10px] text-[#94a3b8]">safety · growth · community · opportunity</span>
                 </div>
                 <div className="space-y-2">
                   {cityRows.map((row, i) => {
@@ -415,7 +411,7 @@ export function CitiesPageClient({
                               {scoreBar(row.valueScore, isThis ? "bg-[#155eef]" : "bg-[#94a3b8]")}
                             </div>
                             <p className="mt-1 text-[11px] text-[#64748b]">
-                              {row.listingCount} listings · avg {formatUsd(row.avgListingPrice)} · {row.readyToClose} ready
+                              {row.listingCount} listings · COL {row.costOfLivingIndex}/100 · growth {row.growthScore}/100
                             </p>
                           </div>
                         </div>
@@ -669,21 +665,21 @@ export function CitiesPageClient({
 
             <div className="mt-4 space-y-2.5">
               <div className="flex items-center justify-between text-sm">
-                <span className="flex items-center gap-1.5 text-[#475569]"><Shield className="h-3.5 w-3.5" /> Security</span>
+                <span className="flex items-center gap-1.5 text-[#475569]"><Shield className="h-3.5 w-3.5" /> Safety</span>
                 <div className="flex items-center gap-2">
                   <div className="w-24">{scoreBar(activeCity.securityScore, "bg-[#22c55e]")}</div>
                   <span className="w-7 text-right text-xs font-bold text-[#0f172a]">{activeCity.securityScore}</span>
                 </div>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="flex items-center gap-1.5 text-[#475569]"><Clock className="h-3.5 w-3.5" /> Commute</span>
+                <span className="flex items-center gap-1.5 text-[#475569]"><TrendingUp className="h-3.5 w-3.5" /> Growth</span>
                 <div className="flex items-center gap-2">
-                  <div className="w-24">{scoreBar(activeCity.commuteScore, "bg-[#f0b14b]")}</div>
-                  <span className="w-7 text-right text-xs font-bold text-[#0f172a]">{activeCity.commuteScore}</span>
+                  <div className="w-24">{scoreBar(activeRow?.growthScore ?? 0, "bg-[#f0b14b]")}</div>
+                  <span className="w-7 text-right text-xs font-bold text-[#0f172a]">{activeRow?.growthScore ?? 0}</span>
                 </div>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="flex items-center gap-1.5 text-[#475569]"><Star className="h-3.5 w-3.5" /> Lifestyle</span>
+                <span className="flex items-center gap-1.5 text-[#475569]"><Star className="h-3.5 w-3.5" /> Community vibe</span>
                 <div className="flex items-center gap-2">
                   <div className="w-24">{scoreBar(activeCity.lifestyleScore, "bg-[#155eef]")}</div>
                   <span className="w-7 text-right text-xs font-bold text-[#0f172a]">{activeCity.lifestyleScore}</span>
@@ -693,14 +689,14 @@ export function CitiesPageClient({
 
             <div className="mt-4 grid grid-cols-2 gap-2 border-t border-[#e8edf6] pt-4">
               <div className="text-center">
-                <p className="text-[10px] uppercase tracking-wider text-[#64748b]">Buy from</p>
-                <p className="mt-0.5 text-sm font-bold text-[#0f172a]">{formatUsd(activeCity.avgBuyUsd)}</p>
-                <p className="text-[10px] text-[#94a3b8]">{formatLocal(activeCity.avgBuyUsd, activeCity.country)}</p>
+                <p className="text-[10px] uppercase tracking-wider text-[#64748b]">Cost index</p>
+                <p className="mt-0.5 text-sm font-bold text-[#0f172a]">{activeRow?.costOfLivingIndex ?? 0}/100</p>
+                <p className="text-[10px] text-[#94a3b8]">Lower = more affordable</p>
               </div>
               <div className="text-center">
-                <p className="text-[10px] uppercase tracking-wider text-[#64748b]">Rent/yr</p>
-                <p className="mt-0.5 text-sm font-bold text-[#0f172a]">{formatUsd(activeCity.avgRentUsd)}</p>
-                <p className="text-[10px] text-[#94a3b8]">{formatLocal(activeCity.avgRentUsd, activeCity.country)}</p>
+                <p className="text-[10px] uppercase tracking-wider text-[#64748b]">Opportunity</p>
+                <p className="mt-0.5 text-sm font-bold text-[#0f172a]">{activeRow?.valueScore ?? 0}/100</p>
+                <p className="text-[10px] text-[#94a3b8]">Safety + growth + lifestyle</p>
               </div>
             </div>
 

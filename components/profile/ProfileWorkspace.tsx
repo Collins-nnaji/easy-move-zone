@@ -149,6 +149,13 @@ export function ProfileWorkspace({
   const [newSearch, setNewSearch] = useState<NewSavedSearchForm>(initialSavedSearchForm)
   const [savingSearch, setSavingSearch] = useState(false)
   const [activeSection, setActiveSection] = useState<"details" | "preferences" | "listings">("details")
+  const [relocationProgress, setRelocationProgress] = useState<Record<string, boolean>>({
+    cityScouted: false,
+    listingShortlisted: false,
+    mortgageMatched: false,
+    documentsReady: false,
+    settled: false,
+  })
 
   useEffect(() => {
     let mounted = true
@@ -170,6 +177,10 @@ export function ProfileWorkspace({
 
   function upd<K extends keyof ProfileData>(k: K, v: ProfileData[K]) {
     setProfile((prev) => ({ ...prev, [k]: v }))
+  }
+
+  function toggleRelocationStep(step: string) {
+    setRelocationProgress((prev) => ({ ...prev, [step]: !prev[step] }))
   }
 
   const buyerCitiesCsv = useMemo(() => arrayToCsv(profile.buyerPreferredCities), [profile.buyerPreferredCities])
@@ -402,6 +413,41 @@ export function ProfileWorkspace({
                     ))}
                   </div>
                 </SectionCard>
+
+                <SectionCard title="Relocation progress tracker" icon={MapPin}>
+                  <p className="mb-3 text-sm text-[#64748b]">
+                    Track your move from scouting to settled. Update these milestones as you complete each stage.
+                  </p>
+                  <div className="space-y-2.5">
+                    {[
+                      { id: "cityScouted", label: "City shortlisted from territory intelligence" },
+                      { id: "listingShortlisted", label: "Property listing shortlisted" },
+                      { id: "mortgageMatched", label: "Mortgage Finder match completed" },
+                      { id: "documentsReady", label: "Relocation documents and checklist ready" },
+                      { id: "settled", label: "Moved and settled in new territory" },
+                    ].map((item) => {
+                      const done = relocationProgress[item.id]
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => toggleRelocationStep(item.id)}
+                          className={`flex w-full items-center gap-2 rounded-xl border px-3.5 py-2.5 text-left text-sm transition ${
+                            done
+                              ? "border-green-200 bg-green-50 text-green-700"
+                              : "border-[#dbe4f0] bg-white text-[#475569] hover:border-[#c8d8f0]"
+                          }`}
+                        >
+                          <CheckCircle className={`h-4 w-4 shrink-0 ${done ? "text-green-600" : "text-[#cbd5e1]"}`} />
+                          <span>{item.label}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <p className="mt-3 text-xs text-[#94a3b8]">
+                    Need help with any milestone? Use the Relocate Hub for guided next steps.
+                  </p>
+                </SectionCard>
               </>
             )}
 
@@ -584,7 +630,7 @@ export function ProfileWorkspace({
                           <div className="flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3">
                             <BadgeCheck className="h-5 w-5 text-green-600" />
                             <div>
-                              <p className="text-sm font-bold text-green-800">Agent verified by EasyMoveZone</p>
+                              <p className="text-sm font-bold text-green-800">Agent verified by EasyMoveZonne</p>
                               <p className="text-xs text-green-600">Your profile appears in the agent directory.</p>
                             </div>
                           </div>

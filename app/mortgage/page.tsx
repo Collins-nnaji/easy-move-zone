@@ -28,15 +28,15 @@ export default function MortgagePage() {
         <div className="relative mx-auto max-w-3xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white/80 backdrop-blur-sm">
             <Sparkles className="h-3.5 w-3.5 text-[#f0b14b]" />
-            AI Mortgage Advisor
+            Mortgage Finder
           </div>
           <h1 className="mt-4 font-[var(--font-playfair)] text-4xl font-bold text-white md:text-5xl lg:text-6xl">
-            Find your home loan <br />
-            <span className="text-[#f0b14b]">the smart way</span>
+            Finance your move <br />
+            <span className="text-[#f0b14b]">with territory-ready lenders</span>
           </h1>
           <p className="mt-4 max-w-xl text-base text-white/70">
             Just describe your situation in plain language. Our AI advisor will assess your eligibility,
-            match you with the right lenders for your country, and connect you directly — free, no hidden fees.
+            match you with the right lenders for your territory, and connect you directly — free, no hidden fees.
           </p>
 
           {/* Trust strip */}
@@ -105,7 +105,7 @@ export default function MortgagePage() {
         <div className="mx-auto max-w-3xl">
           <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-[#155eef]">How it works</p>
           <h2 className="mt-2 text-center font-[var(--font-playfair)] text-3xl font-bold text-[#0f172a]">
-            From chat to lender in minutes
+            From city shortlist to lender match in minutes
           </h2>
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
             {[
@@ -160,19 +160,19 @@ export default function MortgagePage() {
       <section className="bg-gradient-to-br from-[#0b1f4a] to-[#155eef] px-4 py-14 sm:px-6">
         <div className="mx-auto max-w-xl text-center">
           <h2 className="font-[var(--font-playfair)] text-3xl font-bold text-white">
-            Ready to find your mortgage?
+            Ready to fund your relocation?
           </h2>
           <p className="mt-3 text-sm text-white/70">
-            Start a conversation with our AI advisor above. It takes less than 2 minutes to get matched.
+            Start with Mortgage Finder above, then continue in Relocate Hub to plan your move timeline.
           </p>
           <div className="mt-6 flex justify-center gap-3">
             <a href="/mortgage"
               className="rounded-full bg-white px-6 py-3 text-sm font-bold text-[#155eef] transition hover:bg-[#f0f4ff]">
               Start now →
             </a>
-            <a href="/contact"
+            <a href="/relocate"
               className="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
-              Talk to an advisor
+              Open Relocate Hub
             </a>
           </div>
         </div>

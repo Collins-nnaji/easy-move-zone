@@ -23,9 +23,9 @@ const playfairDisplay = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone Homes — Buy & Sell Property Platform",
+  title: "EasyMoveZonne — Find Your Territory. Make Your Move.",
   description:
-    "A modern property ownership platform for Nigeria and Africa: verified listings, city intelligence, trusted agents, and buy/sell support.",
+    "EasyMoveZonne helps you scout the right city, secure the right property, and relocate with confidence from discovery to settled.",
 };
 
 export default function RootLayout({
