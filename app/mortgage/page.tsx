@@ -1,5 +1,6 @@
 import { PublicShell } from "@/components/platform/PublicShell"
 import { MortgageFinder } from "@/components/platform/MortgageFinder"
+import { JourneyFlowStrip } from "@/components/platform/JourneyFlowStrip"
 import { Sparkles, Shield, Zap, Users } from "lucide-react"
 
 const TRUST_ITEMS = [
@@ -73,6 +74,8 @@ export default function MortgagePage() {
           </svg>
         </div>
       </section>
+
+      <JourneyFlowStrip current="mortgage" />
 
       {/* ── Chat section ── */}
       <section className="bg-[#f4f7fc] px-4 sm:px-6">

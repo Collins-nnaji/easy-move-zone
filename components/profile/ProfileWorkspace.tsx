@@ -1,7 +1,10 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import { SubmitListingForm } from "@/components/profile/SubmitListingForm"
+import { JourneyFlowStrip } from "@/components/platform/JourneyFlowStrip"
+import type { RelocationContact, RelocationPlan, RelocationTask } from "@/lib/relocate/types"
 import {
   User, MapPin, Phone, Mail, Building2, BadgeCheck, Clock,
   Trash2, Plus, Heart, Home, Briefcase, ChevronRight, AlertCircle,
@@ -148,22 +151,24 @@ export function ProfileWorkspace({
   const [statusMsg, setStatusMsg] = useState("")
   const [newSearch, setNewSearch] = useState<NewSavedSearchForm>(initialSavedSearchForm)
   const [savingSearch, setSavingSearch] = useState(false)
-  const [activeSection, setActiveSection] = useState<"details" | "preferences" | "listings">("details")
-  const [relocationProgress, setRelocationProgress] = useState<Record<string, boolean>>({
-    cityScouted: false,
-    listingShortlisted: false,
-    mortgageMatched: false,
-    documentsReady: false,
-    settled: false,
-  })
+  const [activeSection, setActiveSection] = useState<"details" | "preferences" | "relocation" | "listings">("details")
+  const [relocationPlan, setRelocationPlan] = useState<RelocationPlan | null>(null)
+  const [relocationTasks, setRelocationTasks] = useState<RelocationTask[]>([])
+  const [relocationContacts, setRelocationContacts] = useState<RelocationContact[]>([])
+  const [relocationLoading, setRelocationLoading] = useState(true)
+  const [relocationError, setRelocationError] = useState("")
+  const [updatingRelocationStatus, setUpdatingRelocationStatus] = useState(false)
 
   useEffect(() => {
     let mounted = true
     const load = async () => {
       setLoading(true)
       try {
-        const res = await fetch("/api/profile")
-        const data = (await res.json()) as { profile?: ProfileData; savedSearches?: SavedSearch[] }
+        const [profileRes] = await Promise.all([
+          fetch("/api/profile"),
+          loadRelocationWorkspace(),
+        ])
+        const data = (await profileRes.json()) as { profile?: ProfileData; savedSearches?: SavedSearch[] }
         if (!mounted) return
         setProfile({ ...emptyProfile, role: initialRole, fullName: displayName, ...data.profile })
         setSavedSearches(data.savedSearches ?? [])
@@ -179,12 +184,74 @@ export function ProfileWorkspace({
     setProfile((prev) => ({ ...prev, [k]: v }))
   }
 
-  function toggleRelocationStep(step: string) {
-    setRelocationProgress((prev) => ({ ...prev, [step]: !prev[step] }))
+  async function loadRelocationWorkspace() {
+    setRelocationLoading(true)
+    setRelocationError("")
+    try {
+      const res = await fetch("/api/relocate/plan", { cache: "no-store" })
+      if (!res.ok) {
+        const data = (await res.json()) as { error?: string }
+        setRelocationError(data.error ?? "Unable to load relocation workspace.")
+        return
+      }
+      const data = (await res.json()) as {
+        plan: RelocationPlan | null
+        tasks: RelocationTask[]
+        contacts: RelocationContact[]
+      }
+      setRelocationPlan(data.plan ?? null)
+      setRelocationTasks(data.tasks ?? [])
+      setRelocationContacts(data.contacts ?? [])
+    } catch {
+      setRelocationError("Unable to load relocation workspace.")
+    } finally {
+      setRelocationLoading(false)
+    }
+  }
+
+  async function updateRelocationStatus(status: RelocationPlan["status"]) {
+    setUpdatingRelocationStatus(true)
+    setRelocationError("")
+    try {
+      const planPayload = relocationPlan
+        ? { ...relocationPlan, status }
+        : { planName: "My relocation plan", status }
+      const res = await fetch("/api/relocate/plan", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          plan: planPayload,
+        }),
+      })
+      if (!res.ok) {
+        const data = (await res.json()) as { error?: string }
+        setRelocationError(data.error ?? "Unable to update relocation status.")
+        return
+      }
+      const data = (await res.json()) as { plan: RelocationPlan }
+      setRelocationPlan(data.plan)
+    } catch {
+      setRelocationError("Unable to update relocation status.")
+    } finally {
+      setUpdatingRelocationStatus(false)
+    }
   }
 
   const buyerCitiesCsv = useMemo(() => arrayToCsv(profile.buyerPreferredCities), [profile.buyerPreferredCities])
   const sellerCitiesCsv = useMemo(() => arrayToCsv(profile.sellerServiceCities), [profile.sellerServiceCities])
+  const completedRelocationTasks = useMemo(
+    () => relocationTasks.filter((task) => task.status === "done").length,
+    [relocationTasks]
+  )
+  const relocationBudgetTotal = useMemo(() => {
+    if (!relocationPlan) return 0
+    return (
+      relocationPlan.budgetHousingUsd +
+      relocationPlan.budgetTravelUsd +
+      relocationPlan.budgetSetupUsd +
+      relocationPlan.budgetBufferUsd
+    )
+  }, [relocationPlan])
 
   async function saveProfile() {
     setSaving(true); setSaveStatus("idle"); setStatusMsg("")
@@ -242,6 +309,7 @@ export function ProfileWorkspace({
   const NAV_ITEMS = [
     { id: "details" as const, label: "My details", icon: User },
     { id: "preferences" as const, label: role === "buyer" ? "Buyer preferences" : "Seller profile", icon: role === "buyer" ? Heart : Briefcase },
+    { id: "relocation" as const, label: "Relocation workspace", icon: MapPin },
     ...(role === "seller" ? [{ id: "listings" as const, label: "List a property", icon: Home }] : []),
   ]
 
@@ -294,6 +362,8 @@ export function ProfileWorkspace({
           )}
         </div>
       </div>
+
+      <JourneyFlowStrip current="profile" />
 
       {/* ── Content ── */}
       <div className="mx-auto -mt-10 w-full max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
@@ -414,41 +484,144 @@ export function ProfileWorkspace({
                   </div>
                 </SectionCard>
 
-                <SectionCard title="Relocation progress tracker" icon={MapPin}>
-                  <p className="mb-3 text-sm text-[#64748b]">
-                    Track your move from scouting to settled. Update these milestones as you complete each stage.
-                  </p>
-                  <div className="space-y-2.5">
-                    {[
-                      { id: "cityScouted", label: "City shortlisted from territory intelligence" },
-                      { id: "listingShortlisted", label: "Property listing shortlisted" },
-                      { id: "mortgageMatched", label: "Mortgage Finder match completed" },
-                      { id: "documentsReady", label: "Relocation documents and checklist ready" },
-                      { id: "settled", label: "Moved and settled in new territory" },
-                    ].map((item) => {
-                      const done = relocationProgress[item.id]
-                      return (
+                <SectionCard title="Relocation workspace overview" icon={MapPin}>
+                  {relocationLoading ? (
+                    <p className="text-sm text-[#64748b]">Loading relocation summary…</p>
+                  ) : (
+                    <>
+                      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748b]">Status</p>
+                          <p className="mt-1 text-sm font-bold text-[#0f172a]">
+                            {relocationPlan ? relocationPlan.status.replace("_", " ") : "Not started"}
+                          </p>
+                        </div>
+                        <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748b]">Tasks</p>
+                          <p className="mt-1 text-sm font-bold text-[#0f172a]">
+                            {completedRelocationTasks}/{relocationTasks.length} done
+                          </p>
+                        </div>
+                        <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748b]">Contacts</p>
+                          <p className="mt-1 text-sm font-bold text-[#0f172a]">{relocationContacts.length} saved</p>
+                        </div>
+                        <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748b]">Budget</p>
+                          <p className="mt-1 text-sm font-bold text-[#0f172a]">${relocationBudgetTotal.toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <p className="mt-3 text-xs text-[#94a3b8]">
+                        Destination: {relocationPlan?.destinationCity || "—"}, {relocationPlan?.destinationCountry || "—"}
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2">
                         <button
-                          key={item.id}
                           type="button"
-                          onClick={() => toggleRelocationStep(item.id)}
-                          className={`flex w-full items-center gap-2 rounded-xl border px-3.5 py-2.5 text-left text-sm transition ${
-                            done
-                              ? "border-green-200 bg-green-50 text-green-700"
-                              : "border-[#dbe4f0] bg-white text-[#475569] hover:border-[#c8d8f0]"
-                          }`}
+                          onClick={() => setActiveSection("relocation")}
+                          className="rounded-full border border-[#155eef] bg-[#eef4ff] px-4 py-2 text-xs font-semibold text-[#155eef]"
                         >
-                          <CheckCircle className={`h-4 w-4 shrink-0 ${done ? "text-green-600" : "text-[#cbd5e1]"}`} />
-                          <span>{item.label}</span>
+                          Manage in profile
                         </button>
-                      )
-                    })}
-                  </div>
-                  <p className="mt-3 text-xs text-[#94a3b8]">
-                    Need help with any milestone? Use the Relocate Hub for guided next steps.
-                  </p>
+                        <Link href="/relocate" className="rounded-full border border-[#dbe4f0] px-4 py-2 text-xs font-semibold text-[#475569]">
+                          Open full Relocate Hub
+                        </Link>
+                      </div>
+                    </>
+                  )}
                 </SectionCard>
               </>
+            )}
+
+            {/* ── Relocation workspace ── */}
+            {activeSection === "relocation" && (
+              <SectionCard title="Relocation workspace sync" icon={MapPin}>
+                {relocationLoading ? (
+                  <p className="text-sm text-[#64748b]">Loading relocation workspace…</p>
+                ) : (
+                  <>
+                    {relocationError ? (
+                      <div className="mb-3 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                        <AlertCircle className="h-3.5 w-3.5" />
+                        {relocationError}
+                      </div>
+                    ) : null}
+
+                    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+                      <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748b]">Destination</p>
+                        <p className="mt-1 text-sm font-bold text-[#0f172a]">
+                          {relocationPlan?.destinationCity || "—"}
+                        </p>
+                        <p className="text-xs text-[#64748b]">{relocationPlan?.destinationCountry || "—"}</p>
+                      </div>
+                      <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748b]">Move date</p>
+                        <p className="mt-1 text-sm font-bold text-[#0f172a]">{relocationPlan?.moveDate || "Not set"}</p>
+                      </div>
+                      <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748b]">Checklist</p>
+                        <p className="mt-1 text-sm font-bold text-[#0f172a]">{completedRelocationTasks}/{relocationTasks.length} completed</p>
+                      </div>
+                      <div className="rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748b]">Support contacts</p>
+                        <p className="mt-1 text-sm font-bold text-[#0f172a]">{relocationContacts.length}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
+                      <div>
+                        <p className="mb-1 text-sm font-medium text-[#475569]">Relocation status</p>
+                        <select
+                          value={relocationPlan?.status ?? "planning"}
+                          onChange={(e) => void updateRelocationStatus(e.target.value as RelocationPlan["status"])}
+                          disabled={updatingRelocationStatus}
+                          className="w-full rounded-xl border border-[#c8d8f0] bg-white px-3 py-2.5 text-sm focus:border-[#155eef] focus:outline-none disabled:opacity-50"
+                        >
+                          <option value="planning">Planning</option>
+                          <option value="in_progress">In progress</option>
+                          <option value="ready_to_move">Ready to move</option>
+                          <option value="settled">Settled</option>
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void loadRelocationWorkspace()}
+                        className="rounded-xl border border-[#dbe4f0] px-4 py-2.5 text-sm font-semibold text-[#475569] hover:border-[#c8d8f0]"
+                      >
+                        Refresh
+                      </button>
+                    </div>
+
+                    <div className="mt-4 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                      <p className="text-sm font-semibold text-[#0f172a]">Recent relocation tasks</p>
+                      {relocationTasks.length === 0 ? (
+                        <p className="mt-1 text-xs text-[#64748b]">No tasks yet. Start in Relocate Hub to generate your timeline.</p>
+                      ) : (
+                        <ul className="mt-2 space-y-1.5 text-xs text-[#475569]">
+                          {relocationTasks.slice(0, 5).map((task) => (
+                            <li key={task.id} className="flex items-center justify-between gap-2">
+                              <span>{task.title}</span>
+                              <span className="rounded-full bg-[#e8edf6] px-2 py-0.5 text-[10px]">{task.status.replace("_", " ")}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Link href="/relocate" className="rounded-full bg-[#155eef] px-4 py-2 text-xs font-semibold text-white">
+                        Open Relocate Hub
+                      </Link>
+                      <Link href="/cities" className="rounded-full border border-[#dbe4f0] px-4 py-2 text-xs font-semibold text-[#475569]">
+                        Continue scouting cities
+                      </Link>
+                      <Link href="/listings" className="rounded-full border border-[#dbe4f0] px-4 py-2 text-xs font-semibold text-[#475569]">
+                        Continue listing search
+                      </Link>
+                    </div>
+                  </>
+                )}
+              </SectionCard>
             )}
 
             {/* ── Buyer preferences ── */}

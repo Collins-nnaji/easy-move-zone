@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { ClipboardCheck, FileSearch, Handshake, Plane, Wallet } from "lucide-react"
 import { PublicShell } from "@/components/platform/PublicShell"
+import { JourneyFlowStrip } from "@/components/platform/JourneyFlowStrip"
 import { RelocateHubClient } from "@/components/relocate/RelocateHubClient"
 
 const HUB_MODULES = [
@@ -54,6 +55,8 @@ export default function RelocatePage() {
           </div>
         </div>
       </section>
+
+      <JourneyFlowStrip current="relocate" />
 
       <RelocateHubClient />
 

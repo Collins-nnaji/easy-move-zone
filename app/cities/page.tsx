@@ -1,5 +1,7 @@
+import Link from "next/link"
 import { PublicShell } from "@/components/platform/PublicShell"
 import { CitiesPageClient } from "@/components/platform/CitiesPageClient"
+import { JourneyFlowStrip } from "@/components/platform/JourneyFlowStrip"
 import { getCityMarkets, getPropertyListings } from "@/lib/property"
 
 export default async function CitiesPage() {
@@ -24,8 +26,14 @@ export default async function CitiesPage() {
               </span>
             ))}
           </div>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href="/listings" className="rounded-full bg-[#155eef] px-4 py-2 text-xs font-semibold text-white">Next: browse listings</Link>
+            <Link href="/relocate" className="rounded-full border border-[#dbe4f0] px-4 py-2 text-xs font-semibold text-[#475569]">Then: open Relocate Hub</Link>
+          </div>
         </div>
       </div>
+
+      <JourneyFlowStrip current="cities" />
 
       <CitiesPageClient markets={markets} listings={listings} />
     </PublicShell>

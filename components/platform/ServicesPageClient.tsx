@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 import Link from "next/link"
 import { Heart, ChevronDown, Sparkles, Phone, Star } from "lucide-react"
 import { getPrimaryListingImage } from "@/lib/property/media"
+import { JourneyFlowStrip } from "@/components/platform/JourneyFlowStrip"
 import type { AgentProfile, CityMarket, PropertyFaq, PropertyListing } from "@/lib/property/types"
 
 interface ServicesPageClientProps {
@@ -265,6 +266,8 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
           </div>
         </div>
       </section>
+
+      <JourneyFlowStrip current="listings" />
 
       <section className="sticky top-[66px] z-20 border-y border-[#dbe4f0] bg-white/95 backdrop-blur">
         <div className="mx-auto flex w-full max-w-7xl gap-1 overflow-x-auto px-4 py-2.5 sm:px-6 lg:px-8">

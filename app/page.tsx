@@ -4,6 +4,7 @@ import { DirectionDetector } from "@/components/platform/DirectionDetector"
 import { NewsletterSignupForm } from "@/components/platform/NewsletterSignupForm"
 import { PublicShell } from "@/components/platform/PublicShell"
 import { TestimonialsRotator } from "@/components/platform/TestimonialsRotator"
+import { JourneyFlowStrip } from "@/components/platform/JourneyFlowStrip"
 import {
   getCityMarkets,
   getFeaturedListings,
@@ -158,6 +159,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <JourneyFlowStrip current="home" />
 
       <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mb-10 flex items-end justify-between">
