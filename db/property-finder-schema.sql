@@ -1,5 +1,7 @@
 -- EasyMoveZone Property Finder schema (optional, for Neon)
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE IF NOT EXISTS city_markets (
   id TEXT PRIMARY KEY,
   slug TEXT UNIQUE NOT NULL,
@@ -69,4 +71,60 @@ CREATE TABLE IF NOT EXISTS resource_guides (
   category TEXT NOT NULL,
   read_minutes INTEGER NOT NULL DEFAULT 5,
   href TEXT NOT NULL DEFAULT '/contact'
+);
+
+CREATE TABLE IF NOT EXISTS relocation_plans (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  auth_user_id TEXT NOT NULL UNIQUE,
+  plan_name TEXT NOT NULL DEFAULT 'My relocation plan',
+  origin_city TEXT,
+  origin_country TEXT,
+  destination_city TEXT,
+  destination_country TEXT,
+  move_date DATE,
+  move_reason TEXT,
+  household_size INTEGER NOT NULL DEFAULT 1,
+  work_mode TEXT NOT NULL DEFAULT 'hybrid',
+  visa_pathway TEXT,
+  status TEXT NOT NULL DEFAULT 'planning',
+  budget_housing_usd INTEGER NOT NULL DEFAULT 0,
+  budget_travel_usd INTEGER NOT NULL DEFAULT 0,
+  budget_setup_usd INTEGER NOT NULL DEFAULT 0,
+  budget_buffer_usd INTEGER NOT NULL DEFAULT 0,
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT relocation_plans_work_mode_check CHECK (work_mode IN ('onsite', 'hybrid', 'remote', 'business_owner', 'student')),
+  CONSTRAINT relocation_plans_status_check CHECK (status IN ('planning', 'in_progress', 'ready_to_move', 'settled'))
+);
+
+CREATE TABLE IF NOT EXISTS relocation_tasks (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  plan_id uuid NOT NULL REFERENCES relocation_plans(id) ON DELETE CASCADE,
+  auth_user_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL,
+  due_date DATE,
+  status TEXT NOT NULL DEFAULT 'todo',
+  priority TEXT NOT NULL DEFAULT 'medium',
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT relocation_tasks_category_check CHECK (category IN ('visa', 'legal', 'finance', 'logistics', 'career', 'family', 'settling')),
+  CONSTRAINT relocation_tasks_status_check CHECK (status IN ('todo', 'in_progress', 'done')),
+  CONSTRAINT relocation_tasks_priority_check CHECK (priority IN ('low', 'medium', 'high'))
+);
+
+CREATE TABLE IF NOT EXISTS relocation_contacts (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  plan_id uuid NOT NULL REFERENCES relocation_plans(id) ON DELETE CASCADE,
+  auth_user_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  service_type TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  website TEXT,
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

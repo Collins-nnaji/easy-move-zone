@@ -1,37 +1,7 @@
 import Link from "next/link"
-import { CheckCircle2, ClipboardCheck, Compass, FileSearch, Handshake, Home, Plane, Wallet } from "lucide-react"
+import { ClipboardCheck, FileSearch, Handshake, Plane, Wallet } from "lucide-react"
 import { PublicShell } from "@/components/platform/PublicShell"
-
-const ROADMAP_STEPS = [
-  {
-    id: "01",
-    title: "Plan your territory",
-    description: "Choose your target city using cost, safety, growth, and lifestyle signals from Cities intelligence.",
-    icon: Compass,
-    cta: { label: "Scout cities", href: "/cities" },
-  },
-  {
-    id: "02",
-    title: "Secure your home",
-    description: "Shortlist relocation-ready listings, compare options, and align your budget before committing.",
-    icon: Home,
-    cta: { label: "Browse listings", href: "/listings" },
-  },
-  {
-    id: "03",
-    title: "Lock financing",
-    description: "Use Mortgage Finder to match lenders and get your next move funded with clarity.",
-    icon: Wallet,
-    cta: { label: "Find mortgage", href: "/mortgage" },
-  },
-  {
-    id: "04",
-    title: "Move and settle",
-    description: "Follow visas, documentation, and local setup checklists until you are fully settled.",
-    icon: CheckCircle2,
-    cta: { label: "Update profile progress", href: "/profile" },
-  },
-]
+import { RelocateHubClient } from "@/components/relocate/RelocateHubClient"
 
 const HUB_MODULES = [
   {
@@ -85,34 +55,7 @@ export default function RelocatePage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="mb-7">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">Step-by-step</p>
-          <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-[#091520]">Relocation roadmap</h2>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          {ROADMAP_STEPS.map((step) => {
-            const Icon = step.icon
-            return (
-              <article key={step.id} className="emz-gloss-card relative rounded-2xl p-6">
-                <span className="absolute right-4 top-2 font-[var(--font-playfair)] text-6xl text-[#e8eef8]">
-                  {step.id}
-                </span>
-                <div className="relative z-[1]">
-                  <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#eaf1ff]">
-                    <Icon className="h-5 w-5 text-[#155eef]" />
-                  </div>
-                  <h3 className="mt-3 font-[var(--font-playfair)] text-3xl font-semibold text-[#091520]">{step.title}</h3>
-                  <p className="mt-2 text-sm leading-7 text-[#526070]">{step.description}</p>
-                  <Link href={step.cta.href} className="mt-4 inline-block text-sm font-semibold text-[#1769d0]">
-                    {step.cta.label} →
-                  </Link>
-                </div>
-              </article>
-            )
-          })}
-        </div>
-      </section>
+      <RelocateHubClient />
 
       <section className="bg-[#f4f7fb] py-14">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -153,8 +96,8 @@ export default function RelocatePage() {
             <Link href="/contact?direction=Relocation%20planning%20support" className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#155eef]">
               Request move planning
             </Link>
-            <Link href="/profile" className="rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white">
-              Open relocation progress
+            <Link href="/cities" className="rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white">
+              Back to city scouting
             </Link>
           </div>
         </div>
