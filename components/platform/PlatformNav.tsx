@@ -44,6 +44,15 @@ export function PlatformNav() {
     router.refresh()
   }
 
+  function handleNavClick(href: string, closeMobileMenu = false) {
+    if (closeMobileMenu) {
+      setIsOpen(false)
+    }
+    if (pathname === href) {
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+  }
+
   const user = sessionData?.user ?? null
 
   return (
@@ -63,6 +72,8 @@ export function PlatformNav() {
               <Link
                 key={item.href}
                 href={item.href}
+                scroll
+                onClick={() => handleNavClick(item.href)}
                 className={`rounded-full px-3.5 py-2 text-[14px] font-medium transition ${
                   isActive
                     ? "bg-[#eaf1ff] text-[#155eef]"
@@ -123,7 +134,8 @@ export function PlatformNav() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => setIsOpen(false)}
+                  scroll
+                  onClick={() => handleNavClick(item.href, true)}
                   className={`rounded-lg px-3 py-2 text-base ${
                     isActive ? "bg-[#eaf1ff] text-[#155eef]" : "text-[#475569]"
                   }`}
