@@ -78,7 +78,6 @@ const SUGGESTED_QUESTIONS = [
 // Google Maps embed using free Embed API (no key needed for basic map)
 function GoogleMapEmbed({ city }: { city: CityMarket }) {
   const query = encodeURIComponent(`${city.name}, ${city.country}`)
-  const src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFmBWY&q=${query}&zoom=12`
   // Fallback to no-key search embed
   const fallbackSrc = `https://maps.google.com/maps?q=${query}&z=12&output=embed`
   return (
