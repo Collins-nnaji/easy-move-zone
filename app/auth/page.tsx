@@ -16,7 +16,7 @@ export default function AuthPage() {
           </p>
         </div>
         <Suspense fallback={<div className="rounded-2xl border border-[#dbe4f0] bg-white p-6 text-sm text-[#64748b]">Loading account form...</div>}>
-          <AuthInlineCard />
+          <AuthInlineCard redirectIfAuthenticated />
         </Suspense>
       </section>
     </PublicShell>

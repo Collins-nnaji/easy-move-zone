@@ -6,7 +6,7 @@ import { authClient } from "@/lib/auth/client"
 
 type Mode = "sign-in" | "sign-up"
 
-export function AuthInlineCard() {
+export function AuthInlineCard({ redirectIfAuthenticated = false }: { redirectIfAuthenticated?: boolean }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTarget = searchParams.get("redirect") ?? "/profile"
@@ -19,10 +19,10 @@ export function AuthInlineCard() {
   const { data: sessionData, refetch: refetchSession } = authClient.useSession()
 
   useEffect(() => {
-    if (sessionData?.user) {
+    if (redirectIfAuthenticated && sessionData?.user) {
       router.push(redirectTarget)
     }
-  }, [sessionData?.user, router, redirectTarget])
+  }, [sessionData?.user, router, redirectTarget, redirectIfAuthenticated])
 
   async function handleEmail(event: FormEvent) {
     event.preventDefault()

@@ -36,7 +36,7 @@ export default async function ContactPage() {
             Share your move goals. We will reply with clear options and next steps.
           </p>
           <Suspense fallback={<div className="rounded-2xl border border-[#dbe4f0] bg-white p-6 text-sm text-[#64748b]">Loading account form...</div>}>
-            <AuthInlineCard />
+            <AuthInlineCard redirectIfAuthenticated={false} />
           </Suspense>
           <div className="mt-4">
             <Suspense fallback={<p className="text-sm text-[#64748b]">Loading form...</p>}>
