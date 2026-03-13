@@ -4,7 +4,6 @@ import { useMemo, useState } from "react"
 import Link from "next/link"
 import { Heart, ChevronDown, Sparkles, Phone, Star } from "lucide-react"
 import { getPrimaryListingImage } from "@/lib/property/media"
-import { JourneyFlowStrip } from "@/components/platform/JourneyFlowStrip"
 import type { AgentProfile, CityMarket, PropertyFaq, PropertyListing } from "@/lib/property/types"
 
 interface ServicesPageClientProps {
@@ -197,7 +196,7 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                 and relocation readiness to shortlist homes that fit your move plan.
               </p>
               <p className="mt-2 text-xs text-white/40 italic">
-                Need help after shortlisting? Use the <a href="/relocate" className="underline hover:text-white/70">Relocate Hub</a> for move checklists and local support.
+                Need help with logistics or moving? Browse the <a href="/hub" className="underline hover:text-white/70">verified vendor marketplace</a> for packing, removals, and more.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/70">✓ Verified supply</span>
@@ -266,8 +265,6 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
           </div>
         </div>
       </section>
-
-      <JourneyFlowStrip current="listings" />
 
       <section className="sticky top-[66px] z-20 border-y border-[#dbe4f0] bg-white/95 backdrop-blur">
         <div className="mx-auto flex w-full max-w-7xl gap-1 overflow-x-auto px-4 py-2.5 sm:px-6 lg:px-8">
@@ -484,7 +481,7 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                           <p className="mt-1 text-xs text-[#64748b]">{pathwaySubtext(classifyPathway(featured))}</p>
                         </div>
                         <Link
-                          href={`/contact?market=${featured.citySlug}&message=I%20want%20to%20view%20${encodeURIComponent(featured.title)}`}
+                          href={`/listings/${featured.id}`}
                           className="rounded-xl bg-[#091520] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1769d0]"
                         >
                           View listing
@@ -550,7 +547,7 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                             <p className="mt-1 text-xs text-[#64748b]">{pathwaySubtext(pathway)}</p>
                           </div>
                           <Link
-                            href={`/contact?market=${listing.citySlug}&message=I%20want%20to%20view%20${encodeURIComponent(listing.title)}`}
+                            href={`/listings/${listing.id}`}
                             className="rounded-lg bg-[#091520] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1769d0]"
                           >
                             View
@@ -583,7 +580,7 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
               </p>
             </div>
             <Link
-              href="/mortgage"
+              href="/hub"
               className="shrink-0 rounded-full bg-white px-7 py-3.5 text-sm font-bold text-[#155eef] transition hover:bg-[#f0f4ff]"
             >
               Find my mortgage →

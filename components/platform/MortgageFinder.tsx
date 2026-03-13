@@ -2,13 +2,14 @@
 
 import { useState, useRef, useEffect, useMemo } from "react"
 import Link from "next/link"
+import type { MortgageBroker } from "@/lib/mortgage/brokers"
 import {
   LENDERS, SUPPORTED_COUNTRIES, getCountryInfo, formatLocalCurrency,
   type MortgageLender,
 } from "@/lib/mortgage/lenders"
 import {
   CheckCircle, Loader2, AlertCircle, Building2, Sparkles, Send,
-  Phone, Globe, Star, Info, RotateCcw, ChevronDown, ChevronUp,
+  Phone, Globe, Star, Info, RotateCcw, ChevronDown, ChevronUp, UserCheck,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -204,7 +205,7 @@ function ContactForm({
         {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Submitting…</> : <><Send className="h-4 w-4" /> Submit application</>}
       </button>
       <p className="mt-2 text-[11px] text-[#94a3b8]">
-        We&apos;ll share your profile with this lender. No hidden fees. EasyMoveZonne facilitates introductions only.
+        We&apos;ll share your profile with this lender. No hidden fees. EasyMoveZone facilitates introductions only.
       </p>
     </div>
   )
@@ -216,6 +217,14 @@ function ResultsCard({ assessment, profile }: { assessment: AiAssessment; profil
   const [selectedLenderId, setSelectedLenderId] = useState<string | null>(null)
   const [showContact, setShowContact] = useState(false)
   const [expandedLender, setExpandedLender] = useState<string | null>(null)
+  const [brokers, setBrokers] = useState<MortgageBroker[]>([])
+
+  useEffect(() => {
+    if (!profile.country) return
+    fetch(`/api/mortgage/brokers?country=${encodeURIComponent(profile.country)}`)
+      .then((r) => r.json())
+      .then((data: { brokers?: MortgageBroker[] }) => setBrokers(data.brokers ?? []))
+  }, [profile.country])
 
   const rankedLenders = useMemo(() => {
     return LENDERS
@@ -401,6 +410,29 @@ function ResultsCard({ assessment, profile }: { assessment: AiAssessment; profil
         />
       )}
 
+      {/* Partner brokers (search uses brokers for this country) */}
+      {brokers.length > 0 && (
+        <div className="rounded-2xl border border-[#dbe4f0] bg-[#f8fbff] p-4">
+          <p className="mb-2 flex items-center gap-1.5 text-sm font-bold text-[#0f172a]">
+            <UserCheck className="h-4 w-4 text-[#155eef]" />
+            Partner brokers in {profile.country}
+          </p>
+          <p className="mb-2 text-[11px] text-[#64748b]">We also searched our partner brokers. You can contact them for personalised comparison and application support.</p>
+          <div className="flex flex-wrap gap-2">
+            {brokers.map((b) => (
+              <a
+                key={b.id}
+                href={b.email ? `mailto:${b.email}` : "/contact"}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs font-medium text-[#0f172a] transition hover:border-[#155eef] hover:bg-[#eef4ff]"
+              >
+                <Building2 className="h-3 w-3 text-[#64748b]" />
+                {b.name} {b.verified && "✓"}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Advisor link */}
       <div className="flex flex-wrap items-center gap-3">
         <Link href="/contact"
@@ -412,7 +444,7 @@ function ResultsCard({ assessment, profile }: { assessment: AiAssessment; profil
       <div className="flex items-start gap-2 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
         <Info className="h-3.5 w-3.5 shrink-0 mt-0.5 text-[#94a3b8]" />
         <p className="text-[11px] text-[#94a3b8]">
-          Match scores are indicative. Actual approval depends on lender credit policy. EasyMoveZonne facilitates introductions only — we are not a licensed mortgage broker.
+          Match scores are indicative. Actual approval depends on lender credit policy. EasyMoveZone facilitates introductions only — we are not a licensed mortgage broker.
         </p>
       </div>
     </div>
@@ -550,7 +582,7 @@ export function MortgageFinder() {
   const hasProfile = Object.keys(profile).length > 0
 
   return (
-    <div className="flex flex-col" style={{ height: "calc(100vh - 200px)", minHeight: "500px" }}>
+    <div className="flex h-full min-h-0 flex-shrink-0 flex-col" style={{ minHeight: "280px" }}>
       {/* Profile pill strip */}
       {hasProfile && (
         <div className="flex flex-wrap gap-1.5 px-4 pb-2 sm:px-6">

@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import { SubmitListingForm } from "@/components/profile/SubmitListingForm"
-import { JourneyFlowStrip } from "@/components/platform/JourneyFlowStrip"
 import type { RelocationContact, RelocationPlan, RelocationTask } from "@/lib/relocate/types"
 import {
   User, MapPin, Phone, Mail, Building2, BadgeCheck, Clock,
@@ -363,8 +362,6 @@ export function ProfileWorkspace({
         </div>
       </div>
 
-      <JourneyFlowStrip current="profile" />
-
       {/* ── Content ── */}
       <div className="mx-auto -mt-10 w-full max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
         <div className="grid gap-5 lg:grid-cols-[240px_1fr]">
@@ -522,8 +519,8 @@ export function ProfileWorkspace({
                         >
                           Manage in profile
                         </button>
-                        <Link href="/relocate" className="rounded-full border border-[#dbe4f0] px-4 py-2 text-xs font-semibold text-[#475569]">
-                          Open full Relocate Hub
+                        <Link href="/hub" className="rounded-full border border-[#dbe4f0] px-4 py-2 text-xs font-semibold text-[#475569]">
+                          The Hub
                         </Link>
                       </div>
                     </>
@@ -609,8 +606,8 @@ export function ProfileWorkspace({
                     </div>
 
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <Link href="/relocate" className="rounded-full bg-[#155eef] px-4 py-2 text-xs font-semibold text-white">
-                        Open Relocate Hub
+                      <Link href="/hub" className="rounded-full bg-[#155eef] px-4 py-2 text-xs font-semibold text-white">
+                        The Hub
                       </Link>
                       <Link href="/cities" className="rounded-full border border-[#dbe4f0] px-4 py-2 text-xs font-semibold text-[#475569]">
                         Continue scouting cities
@@ -803,7 +800,7 @@ export function ProfileWorkspace({
                           <div className="flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3">
                             <BadgeCheck className="h-5 w-5 text-green-600" />
                             <div>
-                              <p className="text-sm font-bold text-green-800">Agent verified by EasyMoveZonne</p>
+                              <p className="text-sm font-bold text-green-800">Agent verified by EasyMoveZone</p>
                               <p className="text-xs text-green-600">Your profile appears in the agent directory.</p>
                             </div>
                           </div>

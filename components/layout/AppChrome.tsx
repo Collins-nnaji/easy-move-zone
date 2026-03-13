@@ -14,7 +14,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
     pathname === "/cities" ||
     pathname === "/contact" ||
     pathname === "/auth" ||
-    pathname === "/mortgage" ||
+    pathname.startsWith("/hub") ||
     pathname.startsWith("/relocate") ||
     pathname.startsWith("/admin")
 

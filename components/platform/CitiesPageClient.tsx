@@ -143,22 +143,24 @@ export function CitiesPageClient({
 }) {
   const activeMarkets = markets.filter((m) => m.status === "active")
   const comingSoon = markets.filter((m) => m.status !== "active")
+  // Use all markets so cities page matches homepage (same city list)
+  const allMarketsForList = markets
 
-  const [activeCityId, setActiveCityId] = useState(activeMarkets[0]?.id ?? "")
+  const [activeCityId, setActiveCityId] = useState(allMarketsForList[0]?.id ?? "")
   const [aiMessages, setAiMessages] = useState<AiMessage[]>([])
   const [aiInput, setAiInput] = useState("")
   const [aiLoading, setAiLoading] = useState(false)
-  const [compareA, setCompareA] = useState(activeMarkets[0]?.id ?? "")
-  const [compareB, setCompareB] = useState(activeMarkets[1]?.id ?? "")
+  const [compareA, setCompareA] = useState(allMarketsForList[0]?.id ?? "")
+  const [compareB, setCompareB] = useState(allMarketsForList[1]?.id ?? "")
   const [compareResult, setCompareResult] = useState<Record<string, string> | null>(null)
   const [compareLoading, setCompareLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<"overview" | "listings" | "ai" | "compare">("overview")
   const chatBottomRef = useRef<HTMLDivElement>(null)
 
-  const activeCity = markets.find((m) => m.id === activeCityId) ?? activeMarkets[0]
+  const activeCity = markets.find((m) => m.id === activeCityId) ?? allMarketsForList[0]
 
   const cityRows = useMemo<CityRow[]>(() =>
-    activeMarkets.map((market) => {
+    allMarketsForList.map((market) => {
       const cityListings = listings.filter((l) => l.citySlug === market.slug)
       return {
         market,
@@ -172,7 +174,7 @@ export function CitiesPageClient({
         costOfLivingIndex: costOfLivingIndex(market),
       }
     }).sort((a, b) => b.valueScore - a.valueScore),
-    [activeMarkets, listings]
+    [allMarketsForList, listings]
   )
 
   const cityListings = useMemo(
@@ -246,7 +248,7 @@ export function CitiesPageClient({
       {/* ── Top bar: city selector ───────────────────────────────────────── */}
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#64748b]">Select city</span>
-        {activeMarkets.map((market) => {
+        {allMarketsForList.map((market) => {
           const row = cityRows.find((r) => r.market.id === market.id)
           const isActive = market.id === activeCityId
           return (
@@ -592,7 +594,7 @@ export function CitiesPageClient({
                   onChange={(e) => setCompareA(e.target.value)}
                   className="rounded-xl border border-[#c8d8f0] bg-[#f8fbff] px-3 py-2.5 text-sm"
                 >
-                  {activeMarkets.map((m) => (
+                  {allMarketsForList.map((m) => (
                     <option key={m.id} value={m.id}>{m.flagEmoji} {m.name}</option>
                   ))}
                 </select>
@@ -601,7 +603,7 @@ export function CitiesPageClient({
                   onChange={(e) => setCompareB(e.target.value)}
                   className="rounded-xl border border-[#c8d8f0] bg-[#f8fbff] px-3 py-2.5 text-sm"
                 >
-                  {activeMarkets.map((m) => (
+                  {allMarketsForList.map((m) => (
                     <option key={m.id} value={m.id}>{m.flagEmoji} {m.name}</option>
                   ))}
                 </select>

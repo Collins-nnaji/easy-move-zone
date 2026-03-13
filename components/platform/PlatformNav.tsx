@@ -10,8 +10,7 @@ const navItems = [
   { href: "/", label: "Home" },
   { href: "/listings", label: "Listings" },
   { href: "/cities", label: "Cities" },
-  { href: "/mortgage", label: "Mortgage Finder" },
-  { href: "/relocate", label: "Relocate" },
+  { href: "/hub", label: "The Hub", highlight: true },
   { href: "/profile", label: "Profile" },
 ]
 
@@ -58,27 +57,36 @@ export function PlatformNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-[#d9e3f1]/80 bg-white/90 backdrop-blur-xl">
       <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="leading-tight">
-          <p className="font-[var(--font-playfair)] text-2xl font-bold tracking-tight text-[#0f172a]">
-            EasyMoveZonne
-          </p>
-          <p className="text-[11px] uppercase tracking-[0.22em] text-[#155eef]">Destination Intelligence + Relocation</p>
+        <Link href="/" className="flex flex-col leading-tight">
+          <span className="font-[var(--font-playfair)] text-xl font-bold tracking-tight text-[#0f172a] sm:text-2xl">
+            EasyMove<span className="font-semibold text-[#155eef]">Zone</span>
+          </span>
+          <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#64748b]">Scout · Secure · Settle</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
+            const isHub = "highlight" in item && item.highlight
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 scroll
                 onClick={() => handleNavClick(item.href)}
-                className={`rounded-full px-3.5 py-2 text-[14px] font-medium transition ${
-                  isActive
-                    ? "bg-[#eaf1ff] text-[#155eef]"
-                    : "text-[#475569] hover:bg-[#eef4ff] hover:text-[#0f172a]"
-                }`}
+                className={
+                  isHub
+                    ? `rounded-full px-4 py-2 text-[14px] font-semibold transition ${
+                        isActive
+                          ? "bg-[#155eef] text-white shadow-md"
+                          : "bg-[#155eef] text-white hover:bg-[#0d4bc9] shadow-sm"
+                      }`
+                    : `rounded-full px-3.5 py-2 text-[14px] font-medium transition ${
+                        isActive
+                          ? "bg-[#eaf1ff] text-[#155eef]"
+                          : "text-[#475569] hover:bg-[#eef4ff] hover:text-[#0f172a]"
+                      }`
+                }
               >
                 {item.label}
               </Link>
@@ -130,6 +138,7 @@ export function PlatformNav() {
           <div className="flex flex-col gap-2">
             {navItems.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
+              const isHub = "highlight" in item && item.highlight
               return (
                 <Link
                   key={item.href}
@@ -137,7 +146,7 @@ export function PlatformNav() {
                   scroll
                   onClick={() => handleNavClick(item.href, true)}
                   className={`rounded-lg px-3 py-2 text-base ${
-                    isActive ? "bg-[#eaf1ff] text-[#155eef]" : "text-[#475569]"
+                    isHub ? "bg-[#155eef] text-white font-semibold" : isActive ? "bg-[#eaf1ff] text-[#155eef]" : "text-[#475569]"
                   }`}
                 >
                   {item.label}

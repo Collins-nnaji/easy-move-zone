@@ -38,6 +38,10 @@ const nextConfig: NextConfig = {
       { source: "/nhf", destination: "/listings", permanent: true },
       { source: "/document-support", destination: "/contact", permanent: true },
       { source: "/calculator", destination: "/contact", permanent: true },
+      { source: "/relocate", destination: "/hub", permanent: true },
+      { source: "/relocate/hub", destination: "/hub", permanent: true },
+      { source: "/mortgage", destination: "/hub", permanent: true },
+      { source: "/marketplace", destination: "/hub", permanent: true },
     ]
   },
 };

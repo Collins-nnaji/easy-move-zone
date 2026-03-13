@@ -1,7 +1,40 @@
 import { NextRequest, NextResponse } from "next/server"
 import OpenAI from "openai"
+import { getBrokersByCountry } from "@/lib/mortgage/brokers"
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+
+/** Optional web search (Tavily). Set TAVILY_API_KEY in .env to enable internet search for rates/products. */
+async function searchWebForMortgage(country: string): Promise<string> {
+  const key = process.env.TAVILY_API_KEY
+  if (!key?.trim()) return ""
+
+  const query = `mortgage rates ${country} 2024 2025 home loan products`
+  try {
+    const res = await fetch("https://api.tavily.com/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        api_key: key,
+        query,
+        max_results: 5,
+        search_depth: "basic",
+        topic: "finance",
+      }),
+    })
+    if (!res.ok) return ""
+    const data = (await res.json()) as { results?: Array<{ content?: string; title?: string; url?: string }> }
+    const results = data.results ?? []
+    if (results.length === 0) return ""
+    return results
+      .slice(0, 5)
+      .map((r) => (r.content ?? r.title ?? "").trim())
+      .filter(Boolean)
+      .join("\n\n")
+  } catch {
+    return ""
+  }
+}
 
 interface ExtractedProfile {
   country?: string
@@ -74,7 +107,9 @@ Country-specific scoring boosts:
 - Nigeria: NHF contributes → +10; RSA pension → +8; diaspora earning in forex → +12
 - Kenya: Government employee → +8; diaspora → +10
 - Ghana: SSNIT contributor → +5
-- South Africa: FLISP eligible (income < $2000/mo) → +8`
+- South Africa: FLISP eligible (income < $2000/mo) → +8
+
+When you show results (readyForResults: true), we also show the user partner mortgage brokers for their country — you can mention in your reply that they can speak to a partner broker for personalised comparison and application support.`
 
 export async function POST(req: NextRequest) {
   let body: {
@@ -91,7 +126,21 @@ export async function POST(req: NextRequest) {
   const { messages, currentProfile } = body
 
   try {
-    const systemWithContext = `${SYSTEM_PROMPT}\n\nCurrent extracted profile so far: ${JSON.stringify(currentProfile)}`
+    let webSnippet = ""
+    const country = currentProfile?.country?.trim()
+    if (country) {
+      webSnippet = await searchWebForMortgage(country)
+      const brokerNames = getBrokersByCountry(country).map((b) => b.name)
+      if (brokerNames.length > 0) {
+        webSnippet = (webSnippet ? webSnippet + "\n\n" : "") + `Partner brokers in ${country} (for search/referral): ${brokerNames.join(", ")}.`
+      }
+    }
+
+    const systemWithContext = [
+      SYSTEM_PROMPT,
+      "\n\nCurrent extracted profile so far: " + JSON.stringify(currentProfile),
+      webSnippet ? "\n\nLatest from the web (use to inform your reply if relevant; do not invent URLs):\n" + webSnippet.slice(0, 3000) : "",
+    ].join("")
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",

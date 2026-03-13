@@ -142,6 +142,11 @@ export async function getPropertyListings(filters?: ListingFilters): Promise<Pro
   }
 }
 
+export async function getPropertyListingById(id: string): Promise<PropertyListing | null> {
+  const listings = await getPropertyListings()
+  return listings.find((l) => l.id === id) ?? null
+}
+
 export async function getFeaturedListings(): Promise<PropertyListing[]> {
   const listings = await getPropertyListings()
   return listings.filter((listing) => listing.verified).slice(0, 6)

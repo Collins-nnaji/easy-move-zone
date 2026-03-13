@@ -1,107 +1,107 @@
 import Link from "next/link"
-import { ClipboardCheck, FileSearch, Handshake, Plane, Wallet } from "lucide-react"
+import { MapPin, Home, ClipboardCheck, ArrowRight } from "lucide-react"
 import { PublicShell } from "@/components/platform/PublicShell"
-import { JourneyFlowStrip } from "@/components/platform/JourneyFlowStrip"
-import { RelocateHubClient } from "@/components/relocate/RelocateHubClient"
 
-const HUB_MODULES = [
+const STEPS = [
   {
-    title: "Visa + entry guides",
-    detail: "Country-specific visa pathways, key documents, and timeline expectations.",
-    icon: Plane,
+    step: "1",
+    title: "Scout your city",
+    desc: "Compare cost of living, safety, and opportunity across 50+ cities.",
+    href: "/cities",
+    icon: MapPin,
   },
   {
-    title: "Cost planner",
-    detail: "Estimate relocation budget: flights, deposits, setup costs, and emergency buffers.",
-    icon: Wallet,
+    step: "2",
+    title: "Secure a property",
+    desc: "Browse verified listings and get matched with territory-ready lenders.",
+    href: "/listings",
+    icon: Home,
   },
   {
-    title: "Move checklist",
-    detail: "Track pre-move, in-transit, and post-arrival tasks with a practical weekly checklist.",
+    step: "3",
+    title: "Plan your move",
+    desc: "Track visas, budget, and checklist — or get a custom plan from our team.",
+    href: "/relocate/hub",
     icon: ClipboardCheck,
-  },
-  {
-    title: "Local contacts",
-    detail: "Connect with relocation partners, agents, and local support providers in your destination.",
-    icon: Handshake,
   },
 ]
 
 export default function RelocatePage() {
   return (
     <PublicShell>
-      <section className="relative overflow-hidden bg-[#0a1a2f] px-4 pb-12 pt-14 text-white sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(62,198,245,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(62,198,245,0.05)_1px,transparent_1px)] bg-[size:52px_52px]" />
-        <div className="absolute -right-24 top-[-120px] h-[420px] w-[420px] rounded-full bg-[#1769d0]/30 blur-3xl" />
-        <div className="absolute -left-20 bottom-[-100px] h-[320px] w-[320px] rounded-full bg-[#0f766e]/30 blur-3xl" />
-        <div className="relative mx-auto w-full max-w-7xl">
-          <p className="inline-flex items-center rounded-full border border-[#2d4e76] bg-[#102237] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#7dd3fc]">
-            Relocate Hub
-          </p>
-          <h1 className="mt-4 max-w-3xl font-[var(--font-playfair)] text-5xl font-semibold leading-[1.02] md:text-6xl">
-            Move with a roadmap,
-            <br />
-            not guesswork.
+      {/* ── Simple hero ── */}
+      <section className="border-b border-[#e8edf6] bg-white px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#155eef]">Plan your move</p>
+          <h1 className="mt-3 font-[var(--font-playfair)] text-4xl font-bold leading-tight text-[#0f172a] sm:text-5xl">
+            From discovery to settled — with a clear roadmap
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-white/70">
-            EasyMoveZonne bridges scouting and settling. Use this hub to manage visas, budgeting, checklists, and local setup in one guided flow.
+          <p className="mt-4 text-base text-[#64748b]">
+            Scout the right city, secure the right property, and move with checklists and support — not guesswork.
           </p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            {["10,000+ families relocated", "50+ cities scouted", "End-to-end move support"].map((proof) => (
-              <span key={proof} className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/80">
-                {proof}
-              </span>
+        </div>
+      </section>
+
+      {/* ── Three steps ── */}
+      <section className="bg-[#f8fbff] px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="grid gap-6 sm:grid-cols-3">
+            {STEPS.map(({ step, title, desc, href, icon: Icon }) => (
+              <Link
+                key={step}
+                href={href}
+                className="group flex flex-col rounded-2xl border border-[#dbe4f0] bg-white p-6 shadow-sm transition hover:border-[#155eef]/30 hover:shadow-md"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef4ff] text-[#155eef]">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <p className="mt-4 text-xs font-bold uppercase tracking-wider text-[#64748b]">Step {step}</p>
+                <h2 className="mt-1 font-[var(--font-playfair)] text-xl font-semibold text-[#0f172a]">{title}</h2>
+                <p className="mt-2 flex-1 text-sm text-[#64748b]">{desc}</p>
+                <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#155eef] group-hover:gap-2 transition-all">
+                  Get started <ArrowRight className="h-4 w-4" />
+                </span>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <JourneyFlowStrip current="relocate" />
-
-      <RelocateHubClient />
-
-      <section className="bg-[#f4f7fb] py-14">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-7">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">Core tools</p>
-            <h2 className="mt-2 font-[var(--font-playfair)] text-5xl font-semibold text-[#091520]">Everything to relocate confidently</h2>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {HUB_MODULES.map((module) => {
-              const Icon = module.icon
-              return (
-                <article key={module.title} className="rounded-2xl border border-[#dbe4f0] bg-white p-5 shadow-sm">
-                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-[#eef4ff]">
-                    <Icon className="h-5 w-5 text-[#155eef]" />
-                  </div>
-                  <h3 className="mt-3 text-base font-semibold text-[#0f172a]">{module.title}</h3>
-                  <p className="mt-1 text-sm text-[#64748b]">{module.detail}</p>
-                </article>
-              )
-            })}
+      {/* ── Primary CTA ── */}
+      <section className="border-t border-[#e8edf6] bg-white px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="font-[var(--font-playfair)] text-2xl font-bold text-[#0f172a] sm:text-3xl">
+            Want a custom relocation plan?
+          </h2>
+          <p className="mt-3 text-sm text-[#64748b]">
+            Share your destination and timeline. We’ll suggest the fastest path and next steps.
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/contact?direction=Relocation%20planning%20support"
+              className="emz-pill-cta inline-flex rounded-full px-6 py-3 text-sm font-semibold"
+            >
+              Get my move plan
+            </Link>
+            <Link
+              href="/relocate/hub"
+              className="inline-flex rounded-full border border-[#dbe4f0] bg-white px-6 py-3 text-sm font-semibold text-[#0f172a] transition hover:bg-[#f8fbff]"
+            >
+              Track my move (checklist + budget)
+            </Link>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-[#0f2235] px-6 py-10 text-white md:px-10">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#7dd3fc]">
-            <FileSearch className="h-3.5 w-3.5" />
-            Need guided help?
-          </p>
-          <h2 className="mt-3 font-[var(--font-playfair)] text-4xl font-semibold leading-[1.06] md:text-5xl">
-            Get a custom relocation plan
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-white/70">
-            Share your destination, move timeline, and household needs. We will suggest the fastest path from discovery to settled.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/contact?direction=Relocation%20planning%20support" className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#155eef]">
-              Request move planning
-            </Link>
-            <Link href="/cities" className="rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white">
-              Back to city scouting
-            </Link>
+      {/* ── Proof ── */}
+      <section className="border-t border-[#e8edf6] bg-[#f8fbff] px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+          <div className="flex flex-wrap justify-center gap-4 text-center text-sm text-[#64748b]">
+            <span>10,000+ families relocated</span>
+            <span>·</span>
+            <span>50+ cities scouted</span>
+            <span>·</span>
+            <span>End-to-end move support</span>
           </div>
         </div>
       </section>

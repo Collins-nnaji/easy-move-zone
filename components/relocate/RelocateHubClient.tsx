@@ -318,7 +318,7 @@ export function RelocateHubClient() {
             Save your relocation plan, track visa/logistics tasks, manage budgets, and keep local contacts in one place.
           </p>
           <div className="mt-6 flex justify-center gap-3">
-            <Link href="/auth?redirect=/relocate" className="rounded-full bg-[#155eef] px-6 py-3 text-sm font-semibold text-white">
+            <Link href="/auth?redirect=/relocate/hub" className="rounded-full bg-[#155eef] px-6 py-3 text-sm font-semibold text-white">
               Sign in
             </Link>
             <Link href="/cities" className="rounded-full border border-[#dbe4f0] px-6 py-3 text-sm font-semibold text-[#0f172a]">
@@ -452,7 +452,7 @@ export function RelocateHubClient() {
             <div className="mt-2 flex flex-wrap gap-2">
               <Link href="/cities" className="rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs font-semibold text-[#475569]">Cities</Link>
               <Link href="/listings" className="rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs font-semibold text-[#475569]">Listings</Link>
-              <Link href="/mortgage" className="rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs font-semibold text-[#475569]">Mortgage Finder</Link>
+              <Link href="/hub" className="rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs font-semibold text-[#475569]">The Hub</Link>
             </div>
           </div>
         </article>

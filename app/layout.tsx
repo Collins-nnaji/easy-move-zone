@@ -23,9 +23,9 @@ const playfairDisplay = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZonne — Find Your Territory. Make Your Move.",
+  title: "EasyMoveZone — Find Your Territory. Make Your Move.",
   description:
-    "EasyMoveZonne helps you scout the right city, secure the right property, and relocate with confidence from discovery to settled.",
+    "EasyMoveZone helps you scout the right city, secure the right property, and relocate with confidence from discovery to settled.",
 };
 
 export default function RootLayout({
@@ -35,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${outfit.variable} ${spaceGrotesk.variable} ${playfairDisplay.variable} min-h-screen flex flex-col`}>
+      <body className={`${outfit.variable} ${spaceGrotesk.variable} ${playfairDisplay.variable} min-h-screen min-w-0 flex flex-col overflow-x-hidden`}>
         <AppChrome>{children}</AppChrome>
       </body>
     </html>
