@@ -8,10 +8,10 @@ import { authClient } from "@/lib/auth/client"
 
 const navItems = [
   { href: "/", label: "Home" },
-  { href: "/listings", label: "Listings" },
-  { href: "/cities", label: "Cities" },
-  { href: "/hub", label: "The Hub", highlight: true },
-  { href: "/profile", label: "Profile" },
+  { href: "/individual", label: "For Individuals" },
+  { href: "/corporate", label: "For Corporate" },
+  { href: "/index", label: "City Index" },
+  { href: "/pricing", label: "Pricing" },
 ]
 
 export function PlatformNav() {

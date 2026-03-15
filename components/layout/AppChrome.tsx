@@ -9,17 +9,19 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   const pageHasOwnChrome =
     pathname === "/" ||
     pathname === "/services" ||
-    pathname === "/listings" ||
-    pathname === "/markets" ||
-    pathname === "/cities" ||
-    pathname === "/contact" ||
+    pathname === "/individual" ||
+    pathname === "/corporate" ||
+    pathname === "/pricing" ||
+    pathname === "/about" ||
+    pathname === "/index" ||
     pathname === "/auth" ||
-    pathname.startsWith("/hub") ||
-    pathname.startsWith("/relocate") ||
-    pathname.startsWith("/admin")
+    pathname === "/profile" ||
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/app") ||
+    pathname.startsWith("/corp")
 
   if (pageHasOwnChrome) {
-    return <main className="flex-1">{children}</main>
+    return <main className="flex-1 min-w-0">{children}</main>
   }
 
   return (

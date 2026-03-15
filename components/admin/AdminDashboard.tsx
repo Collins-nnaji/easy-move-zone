@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react"
 import {
-  Users, Building2, Home, CreditCard, CheckCircle, XCircle,
-  Clock, ShieldCheck, AlertCircle, RefreshCw, BadgeCheck,
+  Users, Building2, CreditCard, CheckCircle,
+  Clock, RefreshCw, BadgeCheck, AlertCircle,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -14,12 +14,12 @@ interface DashboardData {
     totalBuyers: number
     totalSellers: number
     totalAgents: number
-    pendingListings: number
-    approvedListings: number
+    pendingRequests: number
+    completedRequests: number
     totalMortgages: number
   }
   users: UserRow[]
-  listings: ListingRow[]
+  serviceRequests: RequestRow[]
   mortgageApplications: MortgageRow[]
   agents: AgentRow[]
 }
@@ -35,17 +35,13 @@ interface UserRow {
   updated_at: string
 }
 
-interface ListingRow {
+interface RequestRow {
   id: string
-  title: string
-  city_slug: string
-  country: string
-  submission_status: string
-  submitted_by: string | null
-  submitted_at: string | null
-  reviewed_at: string | null
-  reviewer_notes: string | null
-  price_usd: number
+  service_name: string
+  user_name: string | null
+  status: string
+  created_at: string | null
+  price_usd: number | null
 }
 
 interface MortgageRow {
@@ -75,14 +71,13 @@ interface AgentRow {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-type Tab = "overview" | "listings" | "mortgages" | "agents" | "users"
+type Tab = "overview" | "requests" | "mortgages" | "agents" | "users"
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-amber-100 text-amber-800",
-  approved: "bg-green-100 text-green-800",
+  active: "bg-blue-100 text-blue-800",
+  completed: "bg-green-100 text-green-800",
   rejected: "bg-red-100 text-red-800",
-  draft: "bg-gray-100 text-gray-600",
-  submitted: "bg-blue-100 text-blue-800",
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -110,22 +105,19 @@ function StatCard({ icon: Icon, label, value, sub, color }: {
   )
 }
 
-// ─── Listings tab ─────────────────────────────────────────────────────────────
+// ─── Service Requests tab ─────────────────────────────────────────────────────
 
-function ListingsTab({ listings }: { listings: ListingRow[] }) {
+function RequestsTab({ requests }: { requests: RequestRow[] }) {
   const [updating, setUpdating] = useState<string | null>(null)
-  const [localListings, setLocalListings] = useState(listings)
-  const [notes, setNotes] = useState<Record<string, string>>({})
 
   async function updateStatus(id: string, status: string) {
     setUpdating(id)
     try {
-      await fetch(`/api/admin/listings/${id}`, {
+      await fetch(`/api/admin/requests/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, notes: notes[id] }),
+        body: JSON.stringify({ status }),
       })
-      setLocalListings(prev => prev.map(l => l.id === id ? { ...l, submission_status: status } : l))
     } finally {
       setUpdating(null)
     }
@@ -133,53 +125,35 @@ function ListingsTab({ listings }: { listings: ListingRow[] }) {
 
   return (
     <div className="space-y-3">
-      {localListings.length === 0 && (
-        <p className="text-sm text-[#64748b]">No user-submitted listings yet.</p>
+      {requests.length === 0 && (
+        <p className="text-sm text-[#64748b]">No service requests yet.</p>
       )}
-      {localListings.map(listing => (
-        <div key={listing.id} className="rounded-2xl border border-[#dbe4f0] bg-white p-5">
+      {requests.map(req => (
+        <div key={req.id} className="rounded-2xl border border-[#dbe4f0] bg-white p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="font-bold text-[#0f172a]">{listing.title}</p>
-              <p className="text-xs text-[#64748b]">{listing.city_slug}, {listing.country} · ${listing.price_usd?.toLocaleString()}</p>
+              <p className="font-bold text-[#0f172a]">{req.service_name}</p>
+              <p className="text-xs text-[#64748b]">Requested by: {req.user_name ?? "Unknown"} · ${req.price_usd?.toLocaleString() ?? "—"}</p>
               <p className="mt-1 text-[11px] text-[#94a3b8]">
-                Submitted: {listing.submitted_at ? new Date(listing.submitted_at).toLocaleDateString() : "—"}
-                {listing.reviewed_at && ` · Reviewed: ${new Date(listing.reviewed_at).toLocaleDateString()}`}
+                Date: {req.created_at ? new Date(req.created_at).toLocaleDateString() : "—"}
               </p>
-              {listing.reviewer_notes && (
-                <p className="mt-1 text-xs italic text-[#64748b]">Notes: {listing.reviewer_notes}</p>
-              )}
             </div>
-            <StatusBadge status={listing.submission_status} />
+            <StatusBadge status={req.status} />
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <input
-              placeholder="Review note (optional)"
-              value={notes[listing.id] ?? ""}
-              onChange={e => setNotes(prev => ({ ...prev, [listing.id]: e.target.value }))}
-              className="flex-1 min-w-[180px] rounded-xl border border-[#c8d8f0] px-3 py-1.5 text-xs"
-            />
             <button
-              onClick={() => void updateStatus(listing.id, "approved")}
-              disabled={updating === listing.id || listing.submission_status === "approved"}
-              className="flex items-center gap-1 rounded-full bg-green-600 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-40"
+               onClick={() => void updateStatus(req.id, "active")}
+               disabled={updating === req.id}
+               className="rounded-full bg-blue-600 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-50"
             >
-              <CheckCircle className="h-3.5 w-3.5" />
-              {updating === listing.id ? "…" : "Approve"}
+              Mark Active
             </button>
             <button
-              onClick={() => void updateStatus(listing.id, "rejected")}
-              disabled={updating === listing.id || listing.submission_status === "rejected"}
-              className="flex items-center gap-1 rounded-full bg-red-600 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-40"
+               onClick={() => void updateStatus(req.id, "completed")}
+               disabled={updating === req.id}
+               className="rounded-full bg-green-600 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-50"
             >
-              <XCircle className="h-3.5 w-3.5" /> Reject
-            </button>
-            <button
-              onClick={() => void updateStatus(listing.id, "pending")}
-              disabled={updating === listing.id || listing.submission_status === "pending"}
-              className="flex items-center gap-1 rounded-full border border-[#dbe4f0] px-3 py-1.5 text-xs font-bold text-[#64748b] disabled:opacity-40"
-            >
-              <Clock className="h-3.5 w-3.5" /> Set pending
+              Mark Completed
             </button>
           </div>
         </div>
@@ -227,9 +201,6 @@ function AgentsTab({ agents }: { agents: AgentRow[] }) {
             <p className="text-xs text-[#64748b]">{agent.agent_company ?? "No company"}</p>
             {agent.agent_license && <p className="text-[11px] text-[#94a3b8]">Licence: {agent.agent_license}</p>}
             {agent.agent_bio && <p className="mt-1 max-w-md text-xs text-[#64748b] italic">{agent.agent_bio}</p>}
-            {agent.seller_service_cities && agent.seller_service_cities.length > 0 && (
-              <p className="mt-1 text-[11px] text-[#94a3b8]">Cities: {agent.seller_service_cities.join(", ")}</p>
-            )}
           </div>
           <button
             onClick={() => void toggleVerified(agent.auth_user_id, agent.agent_verified)}
@@ -240,7 +211,6 @@ function AgentsTab({ agents }: { agents: AgentRow[] }) {
                 : "bg-[#155eef] text-white hover:bg-[#1347c8]"
             } disabled:opacity-40`}
           >
-            <ShieldCheck className="h-3.5 w-3.5" />
             {updating === agent.auth_user_id ? "…" : agent.agent_verified ? "Revoke verification" : "Verify agent"}
           </button>
         </div>
@@ -275,7 +245,7 @@ export function AdminDashboard() {
 
   const TABS: { id: Tab; label: string }[] = [
     { id: "overview", label: "Overview" },
-    { id: "listings", label: `Listings ${data ? `(${data.stats.pendingListings} pending)` : ""}` },
+    { id: "requests", label: `Requests ${data ? `(${data.stats.pendingRequests} new)` : ""}` },
     { id: "mortgages", label: `Mortgages ${data ? `(${data.stats.totalMortgages})` : ""}` },
     { id: "agents", label: `Agents ${data ? `(${data.stats.totalAgents})` : ""}` },
     { id: "users", label: `Users ${data ? `(${data.stats.totalUsers})` : ""}` },
@@ -292,8 +262,7 @@ export function AdminDashboard() {
           </div>
           <button
             onClick={() => void load()}
-            disabled={loading}
-            className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white hover:bg-white/20 disabled:opacity-40"
+            className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white hover:bg-white/20"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
             Refresh
@@ -307,7 +276,6 @@ export function AdminDashboard() {
           {TABS.map(t => (
             <button
               key={t.id}
-              type="button"
               onClick={() => setTab(t.id)}
               className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition ${
                 tab === t.id ? "bg-[#155eef] text-white" : "text-[#475569] hover:bg-[#f0f4fa]"
@@ -339,63 +307,39 @@ export function AdminDashboard() {
               <div className="space-y-6">
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <StatCard icon={Users} label="Total users" value={data.stats.totalUsers}
-                    sub={`${data.stats.totalBuyers} buyers · ${data.stats.totalSellers} sellers`}
+                    sub={`${data.stats.totalBuyers} individual · ${data.stats.totalSellers} corporate`}
                     color="bg-blue-100 text-blue-600" />
-                  <StatCard icon={Building2} label="Agent accounts" value={data.stats.totalAgents}
+                  <StatCard icon={Building2} label="Partner accounts" value={data.stats.totalAgents}
                     color="bg-purple-100 text-purple-600" />
-                  <StatCard icon={Home} label="Pending listings" value={data.stats.pendingListings}
-                    sub={`${data.stats.approvedListings} approved`}
+                  <StatCard icon={CheckCircle} label="Service Requests" value={data.stats.pendingRequests}
+                    sub={`${data.stats.completedRequests} completed`}
                     color="bg-amber-100 text-amber-600" />
-                  <StatCard icon={CreditCard} label="Mortgage applications" value={data.stats.totalMortgages}
+                  <StatCard icon={CreditCard} label="Mortgage queries" value={data.stats.totalMortgages}
                     color="bg-green-100 text-green-600" />
                 </div>
 
-                {/* Quick action — pending listings */}
-                {data.stats.pendingListings > 0 && (
+                {/* Quick action — pending requests */}
+                {data.stats.pendingRequests > 0 && (
                   <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <Clock className="h-4 w-4 text-amber-600" />
-                      <p className="font-bold text-amber-900">{data.stats.pendingListings} listing{data.stats.pendingListings !== 1 ? "s" : ""} awaiting review</p>
+                      <p className="font-bold text-amber-900">{data.stats.pendingRequests} request{data.stats.pendingRequests !== 1 ? "s" : ""} awaiting action</p>
                     </div>
-                    <button onClick={() => setTab("listings")}
+                    <button onClick={() => setTab("requests")}
                       className="rounded-full bg-amber-600 px-4 py-2 text-xs font-bold text-white hover:bg-amber-700">
-                      Review now →
+                      Manage requests →
                     </button>
                   </div>
                 )}
-
-                {/* Recent mortgages preview */}
-                <div className="rounded-2xl border border-[#dbe4f0] bg-white p-5">
-                  <p className="mb-3 font-bold text-[#0f172a]">Recent mortgage applications</p>
-                  {data.mortgageApplications.slice(0, 5).map(m => (
-                    <div key={m.id} className="flex items-center justify-between border-b border-[#f0f4fa] py-2 last:border-0">
-                      <div>
-                        <p className="text-sm font-semibold text-[#0f172a]">{m.full_name}</p>
-                        <p className="text-xs text-[#64748b]">{m.country} · ${m.loan_amount_usd?.toLocaleString()} loan</p>
-                      </div>
-                      <div className="text-right">
-                        {m.ai_score != null && (
-                          <p className={`text-sm font-black ${m.ai_score >= 75 ? "text-green-600" : m.ai_score >= 55 ? "text-amber-600" : "text-red-500"}`}>
-                            {m.ai_score}/100
-                          </p>
-                        )}
-                        <StatusBadge status={m.status} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             )}
 
-            {/* Listings */}
-            {tab === "listings" && <ListingsTab listings={data.listings} />}
+            {/* Requests */}
+            {tab === "requests" && <RequestsTab requests={data.serviceRequests} />}
 
             {/* Mortgages */}
             {tab === "mortgages" && (
               <div className="space-y-3">
-                {data.mortgageApplications.length === 0 && (
-                  <p className="text-sm text-[#64748b]">No mortgage applications yet.</p>
-                )}
                 {data.mortgageApplications.map(m => (
                   <div key={m.id} className="rounded-2xl border border-[#dbe4f0] bg-white p-5">
                     <div className="flex flex-wrap items-start justify-between gap-2">
@@ -404,10 +348,6 @@ export function AdminDashboard() {
                         <p className="text-xs text-[#64748b]">{m.email}</p>
                         <p className="mt-1 text-xs text-[#64748b]">
                           {m.city}, {m.country} · Property ${m.property_price_usd?.toLocaleString()} · Loan ${m.loan_amount_usd?.toLocaleString()}
-                        </p>
-                        {m.lender_id && <p className="text-[11px] text-[#94a3b8]">Lender: {m.lender_id}</p>}
-                        <p className="text-[11px] text-[#94a3b8]">
-                          Submitted: {new Date(m.submitted_at).toLocaleDateString()}
                         </p>
                       </div>
                       <div className="text-right">
@@ -433,34 +373,19 @@ export function AdminDashboard() {
                 <table className="w-full text-sm">
                   <thead className="border-b border-[#dbe4f0] bg-[#f8fbff]">
                     <tr>
-                      <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-[#64748b]">Name</th>
-                      <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-[#64748b]">Role</th>
-                      <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-[#64748b]">Agent</th>
-                      <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-[#64748b]">Joined</th>
+                      <th className="px-4 py-3 text-left">Name</th>
+                      <th className="px-4 py-3 text-left">Role</th>
+                      <th className="px-4 py-3 text-left">Agent</th>
+                      <th className="px-4 py-3 text-left">Joined</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.users.map(u => (
                       <tr key={u.auth_user_id} className="border-b border-[#f0f4fa] last:border-0 hover:bg-[#f8fbff]">
-                        <td className="px-4 py-3 font-medium text-[#0f172a]">{u.full_name ?? "—"}</td>
-                        <td className="px-4 py-3">
-                          <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
-                            u.role === "seller" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"
-                          }`}>{u.role}</span>
-                        </td>
-                        <td className="px-4 py-3">
-                          {u.is_agent ? (
-                            <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-green-700">
-                              <BadgeCheck className="h-3.5 w-3.5" />
-                              {u.agent_verified ? "Verified" : "Pending"}
-                            </span>
-                          ) : (
-                            <span className="text-[11px] text-[#94a3b8]">—</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-[#64748b]">
-                          {u.created_at ? new Date(u.created_at).toLocaleDateString() : "—"}
-                        </td>
+                        <td className="px-4 py-3">{u.full_name ?? "—"}</td>
+                        <td className="px-4 py-3 capitalize">{u.role}</td>
+                        <td className="px-4 py-3">{u.is_agent ? (u.agent_verified ? "Verified" : "Pending") : "—"}</td>
+                        <td className="px-4 py-3">{new Date(u.created_at).toLocaleDateString()}</td>
                       </tr>
                     ))}
                   </tbody>

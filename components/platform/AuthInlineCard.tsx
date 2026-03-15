@@ -12,7 +12,9 @@ export function AuthInlineCard({
 }: { redirectIfAuthenticated?: boolean; hideWhenAuthenticated?: boolean }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTarget = searchParams.get("redirect") ?? "/profile"
+  const userType = searchParams.get("type") ?? "individual"
+  const defaultRedirect = userType === "corporate" ? "/onboarding/corporate" : "/onboarding/individual"
+  const redirectTarget = searchParams.get("redirect") ?? defaultRedirect
   const [mode, setMode] = useState<Mode>("sign-up")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -74,28 +76,30 @@ export function AuthInlineCard({
   }
 
   return (
-    <div className="emz-gloss-card rounded-2xl p-5" id="account">
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0f172a]">Account access</h3>
-        <div className="inline-flex rounded-full border border-[#c8d8f0] bg-[#eef4ff] p-1">
+    <div className="emz-gloss-card rounded-2xl p-5 border border-white/10 bg-[#0A0F1E] text-white" id="account">
+      <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+        <h3 className="font-[var(--font-playfair)] text-3xl font-bold">Account access</h3>
+        <div className="inline-flex rounded-full border border-white/20 bg-white/5 p-1">
           <button
             type="button"
-            className={`rounded-full px-3 py-1 text-sm ${mode === "sign-up" ? "bg-[#155eef] text-white" : "text-[#64748b]"}`}
+            className={`rounded-full px-3 py-1 text-sm ${mode === "sign-up" ? (userType === "corporate" ? "bg-[#D4A843] text-[#0A0F1E] font-bold" : "bg-[#00D4FF] text-[#0A0F1E] font-bold") : "text-slate-400"}`}
             onClick={() => setMode("sign-up")}
           >
             Sign up
           </button>
           <button
             type="button"
-            className={`rounded-full px-3 py-1 text-sm ${mode === "sign-in" ? "bg-[#155eef] text-white" : "text-[#64748b]"}`}
+            className={`rounded-full px-3 py-1 text-sm ${mode === "sign-in" ? (userType === "corporate" ? "bg-[#D4A843] text-[#0A0F1E] font-bold" : "bg-[#00D4FF] text-[#0A0F1E] font-bold") : "text-slate-400"}`}
             onClick={() => setMode("sign-in")}
           >
             Sign in
           </button>
         </div>
       </div>
-      <p className="mt-2 text-sm text-[#64748b]">
-        Create your account to manage your buyer or seller profile and track your property activity.
+      <p className="mt-2 text-sm text-slate-400 mb-4">
+        {mode === "sign-up" 
+          ? `Create a ${userType} account to get started with EasyMoveZone.` 
+          : "Sign in to access your dashboard and tools."}
       </p>
 
       <button
@@ -137,7 +141,9 @@ export function AuthInlineCard({
         <button
           type="submit"
           disabled={loading !== null}
-          className="emz-pill-cta w-full rounded-full px-4 py-2.5 text-sm font-semibold"
+          className={`w-full rounded-xl px-4 py-3 text-sm font-bold text-[#0A0F1E] transition-colors ${
+            userType === "corporate" ? "bg-[#D4A843] hover:bg-[#D4A843]/90" : "bg-[#00D4FF] hover:bg-[#00D4FF]/90"
+          }`}
         >
           {loading === "email" ? "Please wait..." : mode === "sign-up" ? "Create account" : "Sign in"}
         </button>

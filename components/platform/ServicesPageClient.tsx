@@ -13,23 +13,24 @@ interface ServicesPageClientProps {
   faqs: PropertyFaq[]
 }
 
-type PathwayFilter = "all" | "direct_purchase" | "installment" | "sell_top_up" | "commercial"
-type PropertyTypeFilter = "all" | "apartment" | "duplex" | "commercial"
-type BedroomFilter = "any" | "1_2" | "3_4" | "5_plus"
+type ServiceCategoryFilter = "all" | "visa" | "housing" | "tax" | "legal" | "concierge"
+type LogisticsPathway = "direct_execution" | "managed_concierge" | "partner_referral"
 type SortBy = "best_match" | "price_low_high" | "price_high_low" | "ready_first"
 type ViewMode = "grid" | "list"
 
-function classifyPathway(listing: PropertyListing): Exclude<PathwayFilter, "all"> {
-  if (listing.type === "commercial") return "commercial"
-  if (listing.priceUsd <= 230000 || listing.moveInReady) return "installment"
-  if (listing.priceUsd >= 360000 || listing.bedrooms >= 4) return "sell_top_up"
-  return "direct_purchase"
+function classifyServiceCategory(listing: PropertyListing): ServiceCategoryFilter {
+  const title = listing.title.toLowerCase()
+  if (title.includes("visa") || title.includes("permit")) return "visa"
+  if (title.includes("home") || title.includes("housing") || title.includes("lease")) return "housing"
+  if (title.includes("tax") || title.includes("wealth")) return "tax"
+  if (title.includes("legal") || title.includes("compliance")) return "legal"
+  return "concierge"
 }
 
-function classifyPropertyType(listing: PropertyListing): Exclude<PropertyTypeFilter, "all"> {
-  if (listing.type === "commercial") return "commercial"
-  if (listing.bedrooms >= 4 || listing.areaSqm >= 250) return "duplex"
-  return "apartment"
+function classifyLogisticsPathway(listing: PropertyListing): LogisticsPathway {
+  if (listing.priceUsd > 2000) return "managed_concierge"
+  if (listing.verified) return "direct_execution"
+  return "partner_referral"
 }
 
 function slugToLabel(value: string) {
@@ -40,17 +41,14 @@ function formatPrice(priceUsd: number) {
   return `$${priceUsd.toLocaleString()}`
 }
 
-function pathwayBadge(pathway: Exclude<PathwayFilter, "all">) {
-  if (pathway === "installment") {
-    return { label: "Installment", className: "bg-[#f0b14b] text-[#091520]" }
+function pathwayBadge(pathway: LogisticsPathway) {
+  if (pathway === "managed_concierge") {
+    return { label: "Managed Concierge", className: "bg-[#f0b14b] text-[#091520]" }
   }
-  if (pathway === "sell_top_up") {
-    return { label: "Sell & Top-Up", className: "bg-[#0f766e] text-white" }
+  if (pathway === "partner_referral") {
+    return { label: "Partner Referral", className: "bg-[#0f766e] text-white" }
   }
-  if (pathway === "commercial") {
-    return { label: "Commercial", className: "bg-[#7b28c8] text-white" }
-  }
-  return { label: "Buy", className: "bg-[#1769d0] text-white" }
+  return { label: "Direct Execution", className: "bg-[#1769d0] text-white" }
 }
 
 function cityColor(citySlug: string) {
@@ -82,12 +80,10 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
 
 export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesPageClientProps) {
   const [citySlug, setCitySlug] = useState<string>("all")
-  const [pathwayFilter, setPathwayFilter] = useState<PathwayFilter>("all")
-  const [propertyTypeFilter, setPropertyTypeFilter] = useState<PropertyTypeFilter>("all")
-  const [bedroomFilter, setBedroomFilter] = useState<BedroomFilter>("any")
+  const [categoryFilter, setCategoryFilter] = useState<ServiceCategoryFilter>("all")
   const [minBudget, setMinBudget] = useState<number>(0)
-  const [maxBudget, setMaxBudget] = useState<number>(5000000)
-  const [moveInReadyOnly, setMoveInReadyOnly] = useState<boolean>(false)
+  const [maxBudget, setMaxBudget] = useState<number>(500000)
+  const [verifiedOnly, setVerifiedOnly] = useState<boolean>(false)
   const [sortBy, setSortBy] = useState<SortBy>("best_match")
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [shortlistedIds, setShortlistedIds] = useState<string[]>([])
@@ -108,48 +104,39 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
     return listings
       .filter((listing) => (citySlug === "all" ? true : listing.citySlug === citySlug))
       .filter((listing) => {
-        if (propertyTypeFilter === "all") return true
-        return classifyPropertyType(listing) === propertyTypeFilter
-      })
-      .filter((listing) => {
-        if (bedroomFilter === "any") return true
-        if (bedroomFilter === "1_2") return listing.bedrooms >= 1 && listing.bedrooms <= 2
-        if (bedroomFilter === "3_4") return listing.bedrooms >= 3 && listing.bedrooms <= 4
-        return listing.bedrooms >= 5
+        if (categoryFilter === "all") return true
+        return classifyServiceCategory(listing) === categoryFilter
       })
       .filter((listing) => listing.priceUsd >= safeMin && listing.priceUsd <= safeMax)
-      .filter((listing) => (moveInReadyOnly ? listing.moveInReady : true))
-  }, [bedroomFilter, citySlug, listings, maxBudget, minBudget, moveInReadyOnly, propertyTypeFilter])
+      .filter((listing) => (verifiedOnly ? listing.verified : true))
+  }, [categoryFilter, citySlug, listings, maxBudget, minBudget, verifiedOnly])
 
   const filtered = useMemo(() => {
-    const scoped =
-      pathwayFilter === "all"
-        ? baseFiltered
-        : baseFiltered.filter((listing) => classifyPathway(listing) === pathwayFilter)
+    const scoped = baseFiltered
 
     const sorted = [...scoped]
     if (sortBy === "price_low_high") sorted.sort((a, b) => a.priceUsd - b.priceUsd)
     else if (sortBy === "price_high_low") sorted.sort((a, b) => b.priceUsd - a.priceUsd)
-    else if (sortBy === "ready_first") sorted.sort((a, b) => Number(b.moveInReady) - Number(a.moveInReady))
     else {
       sorted.sort((a, b) => {
         const scoreA =
-          Number(a.verified) * 4 + Number(a.moveInReady) * 3 + (a.type === "commercial" ? 1 : 0) - a.priceUsd / 1000000
+          Number(a.verified) * 4 - a.priceUsd / 100000
         const scoreB =
-          Number(b.verified) * 4 + Number(b.moveInReady) * 3 + (b.type === "commercial" ? 1 : 0) - b.priceUsd / 1000000
+          Number(b.verified) * 4 - b.priceUsd / 100000
         return scoreB - scoreA
       })
     }
     return sorted
-  }, [baseFiltered, pathwayFilter, sortBy])
+  }, [baseFiltered, sortBy])
 
-  const pathwayCounts = useMemo(
+  const categoryCounts = useMemo(
     () => ({
       all: baseFiltered.length,
-      direct_purchase: baseFiltered.filter((listing) => classifyPathway(listing) === "direct_purchase").length,
-      installment: baseFiltered.filter((listing) => classifyPathway(listing) === "installment").length,
-      sell_top_up: baseFiltered.filter((listing) => classifyPathway(listing) === "sell_top_up").length,
-      commercial: baseFiltered.filter((listing) => classifyPathway(listing) === "commercial").length,
+      visa: baseFiltered.filter((listing) => classifyServiceCategory(listing) === "visa").length,
+      housing: baseFiltered.filter((listing) => classifyServiceCategory(listing) === "housing").length,
+      tax: baseFiltered.filter((listing) => classifyServiceCategory(listing) === "tax").length,
+      legal: baseFiltered.filter((listing) => classifyServiceCategory(listing) === "legal").length,
+      concierge: baseFiltered.filter((listing) => classifyServiceCategory(listing) === "concierge").length,
     }),
     [baseFiltered]
   )
@@ -161,19 +148,13 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
     setShortlistedIds((prev) => (prev.includes(listingId) ? prev.filter((id) => id !== listingId) : [...prev, listingId]))
   }
 
-  function pathwaySubtext(pathway: Exclude<PathwayFilter, "all">) {
-    if (pathway === "installment") return "Installment-friendly"
-    if (pathway === "sell_top_up") return "Upgrade candidate"
-    if (pathway === "commercial") return "Business-ready"
-    return "Direct purchase"
-  }
 
-  const pathwayTabs: Array<{ id: PathwayFilter; label: string }> = [
-    { id: "all", label: "All Listings" },
-    { id: "direct_purchase", label: "Direct Purchase" },
-    { id: "installment", label: "Installment Plans" },
-    { id: "sell_top_up", label: "Sell & Top-Up" },
-    { id: "commercial", label: "Commercial" },
+  const categoryTabs: Array<{ id: ServiceCategoryFilter; label: string }> = [
+    { id: "all", label: "All Services" },
+    { id: "visa", label: "Visa & Immigration" },
+    { id: "housing", label: "Housing & Relocation" },
+    { id: "tax", label: "Tax & Wealth" },
+    { id: "legal", label: "Legal & Compliance" },
   ]
 
   return (
@@ -185,18 +166,18 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
           <div className="absolute -bottom-10 left-12 h-48 w-48 rounded-full bg-[#3ec6f5]/20 blur-3xl" />
           <div className="relative grid gap-8 lg:grid-cols-[1fr_420px] lg:items-end">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#7dd3fc]">Listings — tied to scouted territories</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#7dd3fc]">Services — powered by the Move Engine™</span>
               <h1 className="mt-3 font-[var(--font-playfair)] text-5xl font-bold leading-[0.95] md:text-6xl">
-                Find the right property.
+                Find the right service.
                 <br />
                 Move with confidence.
               </h1>
               <p className="mt-4 max-w-xl text-sm leading-7 text-white/65">
-                Every listing is connected to city intelligence and relocation planning. Filter by budget, type,
-                and relocation readiness to shortlist homes that fit your move plan.
+                Every service is verified and connected to city intelligence. Request expert human execution for
+                your visas, housing, tax, and logistics to ensure a seamless transition.
               </p>
               <p className="mt-2 text-xs text-white/40 italic">
-                Need help with logistics or moving? Browse the <a href="/hub" className="underline hover:text-white/70">verified vendor marketplace</a> for packing, removals, and more.
+                Get personalized support for your move. Explore our verified partner network for packing, removals, and more.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/70">✓ Verified supply</span>
@@ -222,15 +203,16 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                   ))}
                 </select>
                 <select
-                  value={pathwayFilter}
-                  onChange={(event) => setPathwayFilter(event.target.value as PathwayFilter)}
+                  value={categoryFilter}
+                  onChange={(event) => setCategoryFilter(event.target.value as ServiceCategoryFilter)}
                   className="w-full rounded-xl border border-white/20 bg-[#10253b] px-3 py-2.5 text-sm text-white outline-none focus:border-[#3ec6f5]"
                 >
-                  <option value="all">All pathways</option>
-                  <option value="direct_purchase">Direct purchase</option>
-                  <option value="installment">Installment plan</option>
-                  <option value="sell_top_up">Sell & top-up</option>
-                  <option value="commercial">Commercial</option>
+                  <option value="all">All categories</option>
+                  <option value="visa">Visa & Immigration</option>
+                  <option value="housing">Housing & Relocation</option>
+                  <option value="tax">Tax & Wealth</option>
+                  <option value="legal">Legal & Compliance</option>
+                  <option value="concierge">Concierge</option>
                 </select>
                 <div className="grid grid-cols-2 gap-2">
                   <label className="text-[10px] text-white/50">
@@ -251,14 +233,14 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                       onChange={(event) => setMaxBudget(Number(event.target.value))}
                       type="number"
                       min={0}
-                      placeholder="5,000,000"
+                      placeholder="10,000"
                       className="mt-1 w-full rounded-xl border border-white/20 bg-[#10253b] px-3 py-2.5 text-sm text-white outline-none focus:border-[#3ec6f5]"
                     />
                   </label>
                 </div>
                 <label className="inline-flex items-center gap-2 text-xs text-white/75">
-                  <input type="checkbox" checked={moveInReadyOnly} onChange={(event) => setMoveInReadyOnly(event.target.checked)} />
-                  Relocation-ready only
+                  <input type="checkbox" checked={verifiedOnly} onChange={(event) => setVerifiedOnly(event.target.checked)} />
+                  Verified vendors only
                 </label>
               </div>
             </div>
@@ -268,13 +250,13 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
 
       <section className="sticky top-[66px] z-20 border-y border-[#dbe4f0] bg-white/95 backdrop-blur">
         <div className="mx-auto flex w-full max-w-7xl gap-1 overflow-x-auto px-4 py-2.5 sm:px-6 lg:px-8">
-          {pathwayTabs.map((tab) => (
+          {categoryTabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
-              onClick={() => setPathwayFilter(tab.id)}
+              onClick={() => setCategoryFilter(tab.id)}
               className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                pathwayFilter === tab.id
+                categoryFilter === tab.id
                   ? "border-[#1769d0] bg-[#e8f1ff] text-[#1769d0]"
                   : "border-[#dbe4f0] bg-white text-[#475569] hover:border-[#bfd2f2]"
               }`}
@@ -282,7 +264,7 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
               <span className="h-1.5 w-1.5 rounded-full bg-current" />
               {tab.label}
               <span className="rounded-full bg-[#f0f4fa] px-1.5 py-0.5 text-[10px] text-[#334155]">
-                {pathwayCounts[tab.id]}
+                {categoryCounts[tab.id]}
               </span>
             </button>
           ))}
@@ -325,44 +307,21 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1769d0]">Refine</p>
               <div className="mt-3 space-y-4">
                 <div>
-                  <p className="mb-2 text-sm font-semibold text-[#1f2937]">Property Type</p>
+                  <p className="mb-2 text-sm font-semibold text-[#1f2937]">Service Category</p>
                   <div className="flex flex-wrap gap-1.5">
                     {([
                       ["all", "Any"],
-                      ["apartment", "Apartment"],
-                      ["duplex", "Duplex"],
-                      ["commercial", "Commercial"],
-                    ] as Array<[PropertyTypeFilter, string]>).map(([id, label]) => (
+                      ["visa", "Visa"],
+                      ["housing", "Housing"],
+                      ["tax", "Tax"],
+                      ["legal", "Legal"],
+                    ] as Array<[ServiceCategoryFilter, string]>).map(([id, label]) => (
                       <button
                         key={id}
                         type="button"
-                        onClick={() => setPropertyTypeFilter(id)}
+                        onClick={() => setCategoryFilter(id)}
                         className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-                          propertyTypeFilter === id
-                            ? "border-[#1769d0] bg-[#e8f1ff] text-[#1769d0]"
-                            : "border-[#dbe4f0] text-[#475569] hover:border-[#bfd2f2]"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="mb-2 text-sm font-semibold text-[#1f2937]">Bedrooms</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {([
-                      ["any", "Any"],
-                      ["1_2", "1-2"],
-                      ["3_4", "3-4"],
-                      ["5_plus", "5+"],
-                    ] as Array<[BedroomFilter, string]>).map(([id, label]) => (
-                      <button
-                        key={id}
-                        type="button"
-                        onClick={() => setBedroomFilter(id)}
-                        className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-                          bedroomFilter === id
+                          categoryFilter === id
                             ? "border-[#1769d0] bg-[#e8f1ff] text-[#1769d0]"
                             : "border-[#dbe4f0] text-[#475569] hover:border-[#bfd2f2]"
                         }`}
@@ -380,20 +339,20 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                   <input
                     type="range"
                     min={0}
-                    max={5000000}
-                    step={5000}
+                    max={500000}
+                    step={100}
                     value={maxBudget}
                     onChange={(event) => setMaxBudget(Number(event.target.value))}
                     className="w-full accent-[#1769d0]"
                   />
                   <div className="mt-1 flex justify-between text-[11px] text-[#94a3b8]">
                     <span>$0</span>
-                    <span>$5M+</span>
+                    <span>$500k+</span>
                   </div>
                 </div>
                 <label className="inline-flex items-center gap-2 text-xs text-[#475569]">
-                  <input type="checkbox" checked={moveInReadyOnly} onChange={(event) => setMoveInReadyOnly(event.target.checked)} />
-                  Relocation-ready only
+                  <input type="checkbox" checked={verifiedOnly} onChange={(event) => setVerifiedOnly(event.target.checked)} />
+                  Verified vendors only
                 </label>
               </div>
             </div>
@@ -402,8 +361,8 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
           <div>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="font-[var(--font-playfair)] text-4xl font-bold text-[#091520]">{filtered.length} Properties</h2>
-                <p className="text-sm text-[#64748b]">Across {cities.length} cities · relocation-aware inventory</p>
+                <h2 className="font-[var(--font-playfair)] text-4xl font-bold text-[#091520]">{filtered.length} Relief Services</h2>
+                <p className="text-sm text-[#64748b]">Found in {citySlug === "all" ? "all cities" : slugToLabel(citySlug)} · relocation experts</p>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-[#64748b]">Sort by</span>
@@ -415,7 +374,6 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                   <option value="best_match">Best match</option>
                   <option value="price_low_high">Price: Low to High</option>
                   <option value="price_high_low">Price: High to Low</option>
-                  <option value="ready_first">Ready first</option>
                 </select>
                 <div className="overflow-hidden rounded-lg border border-[#dbe4f0]">
                   <button
@@ -438,8 +396,8 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
 
             {filtered.length === 0 ? (
               <div className="rounded-2xl border border-[#dbe4f0] bg-white p-8 text-center">
-                <h3 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0f172a]">No listings match these filters</h3>
-                <p className="mt-2 text-sm text-[#64748b]">Try widening city, budget, or relocation readiness filters.</p>
+                <h3 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0f172a]">No services match these filters</h3>
+                <p className="mt-2 text-sm text-[#64748b]">Try widening city, budget, or service category filters.</p>
               </div>
             ) : (
               <div className={`grid gap-4 ${viewMode === "grid" ? "md:grid-cols-2" : "grid-cols-1"}`}>
@@ -464,27 +422,22 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                     </div>
                     <div className="flex flex-col p-5 md:p-6">
                       <p className={`text-xs font-semibold uppercase tracking-[0.16em] ${cityColor(featured.citySlug)}`}>
-                        {slugToLabel(featured.citySlug)} · {pathwayBadge(classifyPathway(featured)).label}
+                        {slugToLabel(featured.citySlug)} · {pathwayBadge(classifyLogisticsPathway(featured)).label}
                       </p>
                       <h3 className="mt-2 font-[var(--font-playfair)] text-4xl font-bold leading-tight text-[#091520]">{featured.title}</h3>
                       <p className="mt-1 text-sm text-[#64748b]">
                         {featured.neighborhood}, {featured.country}
                       </p>
-                      <div className="mt-3 flex flex-wrap gap-3 text-sm text-[#475569]">
-                        <span>🛏 {featured.bedrooms} beds</span>
-                        <span>🚿 {featured.bathrooms} baths</span>
-                        <span>📐 {featured.areaSqm.toLocaleString()} sqm</span>
-                      </div>
                       <div className="mt-auto flex items-end justify-between border-t border-[#e8edf6] pt-4">
                         <div>
                           <p className="font-[var(--font-playfair)] text-4xl font-bold leading-none text-[#091520]">{formatPrice(featured.priceUsd)}</p>
-                          <p className="mt-1 text-xs text-[#64748b]">{pathwaySubtext(classifyPathway(featured))}</p>
+                          <p className="mt-1 text-xs text-[#64748b]">Request assessment</p>
                         </div>
                         <Link
-                          href={`/listings/${featured.id}`}
+                          href={`/contact?service=${encodeURIComponent(featured.title)}`}
                           className="rounded-xl bg-[#091520] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1769d0]"
                         >
-                          View listing
+                          Request service
                         </Link>
                       </div>
                     </div>
@@ -492,7 +445,8 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                 ) : null}
 
                 {rest.map((listing) => {
-                  const pathway = classifyPathway(listing)
+                  const category = classifyServiceCategory(listing)
+                  const pathway = classifyLogisticsPathway(listing)
                   const badge = pathwayBadge(pathway)
                   const isShortlisted = shortlistedIds.includes(listing.id)
                   return (
@@ -526,7 +480,7 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                       </div>
                       <div className="p-4">
                         <p className={`text-xs font-semibold uppercase tracking-[0.14em] ${cityColor(listing.citySlug)}`}>
-                          {slugToLabel(listing.citySlug)} · {classifyPropertyType(listing)}
+                          {slugToLabel(listing.citySlug)} · {category}
                         </p>
                         <h3 className="mt-1 font-[var(--font-playfair)] text-[1.7rem] font-bold leading-tight text-[#091520]">
                           {listing.title}
@@ -534,23 +488,18 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                         <p className="mt-1 text-sm text-[#64748b]">
                           {listing.neighborhood}, {listing.country}
                         </p>
-                        <div className="mt-3 flex flex-wrap gap-3 text-sm text-[#475569]">
-                          <span>🛏 {listing.bedrooms} beds</span>
-                          <span>🚿 {listing.bathrooms} baths</span>
-                          <span>📐 {listing.areaSqm.toLocaleString()} sqm</span>
-                        </div>
                         <div className="mt-4 flex items-end justify-between border-t border-[#e8edf6] pt-3">
                           <div>
                             <p className="font-[var(--font-playfair)] text-3xl font-bold leading-none text-[#091520]">
                               {formatPrice(listing.priceUsd)}
                             </p>
-                            <p className="mt-1 text-xs text-[#64748b]">{pathwaySubtext(pathway)}</p>
+                            <p className="mt-1 text-xs text-[#64748b]">Expert execution</p>
                           </div>
                           <Link
-                            href={`/listings/${listing.id}`}
+                            href={`/contact?service=${encodeURIComponent(listing.title)}`}
                             className="rounded-lg bg-[#091520] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1769d0]"
                           >
-                            View
+                            Inquire
                           </Link>
                         </div>
                       </div>
@@ -576,14 +525,15 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
                 Found a home? Let&apos;s finance it.
               </h2>
               <p className="mt-2 max-w-lg text-sm text-white/65">
-                Tell our AI your situation in plain language and get matched with the right lender in under 60 seconds, then continue to Relocate Hub for move execution.
+                Tell our experts your situation and get a personalized move strategy, then let us coordinate your
+                visa processing, housing search, and corporate entity setup.
               </p>
             </div>
             <Link
-              href="/hub"
+              href="/contact"
               className="shrink-0 rounded-full bg-white px-7 py-3.5 text-sm font-bold text-[#155eef] transition hover:bg-[#f0f4ff]"
             >
-              Find my mortgage →
+              Request Move Strategy →
             </Link>
           </div>
         </div>

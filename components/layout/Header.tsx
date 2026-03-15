@@ -33,7 +33,7 @@ function AnnouncementTicker() {
 }
 
 const NAV_LINKS = [
-  { name: "Suite", href: "/suite" },
+  { name: "Service Directory", href: "/services" },
 ]
 
 export function Header() {
@@ -162,11 +162,11 @@ export function Header() {
                           className="absolute right-0 top-full mt-1 z-50 min-w-[180px] rounded-xl border border-border bg-card shadow-lg py-1"
                         >
                           <Link
-                            href="/dashboard"
+                            href="/app/dashboard"
                             className="block px-4 py-2 text-sm hover:bg-muted rounded-t-xl transition-colors duration-150"
                             onClick={() => setUserMenuOpen(false)}
                           >
-                            Dashboard
+                            My Dashboard
                           </Link>
                           <button
                             type="button"
@@ -185,9 +185,9 @@ export function Header() {
                   <Link href="/auth">
                     <Button size="sm" variant="outline">Log in</Button>
                   </Link>
-                  <Link href="/suite">
+                  <Link href="/services">
                     <Button size="sm" className="gap-1.5">
-                      <Zap className="w-3.5 h-3.5" /> Open Suite
+                      <Zap className="w-3.5 h-3.5" /> Explore Services
                     </Button>
                   </Link>
                 </>
@@ -239,8 +239,8 @@ export function Header() {
                 {user ? (
                   <>
                     <p className="text-xs text-muted-foreground px-1 truncate">{user.name || user.email}</p>
-                    <Link href="/dashboard" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="outline" className="w-full">Dashboard</Button>
+                    <Link href="/app/dashboard" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="outline" className="w-full">My Dashboard</Button>
                     </Link>
                     <button type="button" onClick={() => { setIsMenuOpen(false); handleSignOut(); }} className="w-full">
                       <Button variant="outline" className="w-full gap-2">
@@ -253,9 +253,9 @@ export function Header() {
                     <Link href="/auth" onClick={() => setIsMenuOpen(false)}>
                       <Button variant="outline" className="w-full">Log in</Button>
                     </Link>
-                    <Link href="/suite" onClick={() => setIsMenuOpen(false)}>
+                    <Link href="/services" onClick={() => setIsMenuOpen(false)}>
                       <Button className="w-full gap-1.5">
-                        <Zap className="w-3.5 h-3.5" /> Open Suite
+                        <Zap className="w-3.5 h-3.5" /> Explore Services
                       </Button>
                     </Link>
                   </>

@@ -165,8 +165,8 @@ function ContactForm({
           A representative from <strong>{lenderName}</strong> will contact you within 2–3 business days.
         </p>
         <div className="mt-4 flex justify-center gap-2">
-          <Link href="/listings" className="emz-pill-cta rounded-full px-4 py-2 text-xs font-semibold">Browse properties →</Link>
-          <Link href="/cities" className="rounded-full border border-[#dbe4f0] px-4 py-2 text-xs font-semibold text-[#475569]">Explore cities</Link>
+          <Link href="/services" className="emz-pill-cta rounded-full px-4 py-2 text-xs font-semibold">Explore services →</Link>
+          <Link href="/index" className="rounded-full border border-[#dbe4f0] px-4 py-2 text-xs font-semibold text-[#475569]">Explore cities</Link>
         </div>
       </div>
     )

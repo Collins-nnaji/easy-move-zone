@@ -4,10 +4,10 @@ import { Zap, MapPin } from "lucide-react"
 export function Footer() {
   const navigation = {
     product: [
-      { name: "Open EMZ Suite", href: "/suite" },
-      { name: "Get assessed", href: "/qualify" },
-      { name: "Budget calculator", href: "/calculator" },
-      { name: "Document support", href: "/document-support" },
+      { name: "Public Services", href: "/services" },
+      { name: "Pricing Plans", href: "/pricing" },
+      { name: "City Index", href: "/index" },
+      { name: "About Us", href: "/about" },
     ],
     markets: [
       { name: "Lagos", href: "#" },
@@ -52,57 +52,6 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Link columns */}
-          <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-3 xl:mt-0 md:grid-cols-4 md:gap-6">
-            <div>
-              <h3 className="text-xs font-bold text-foreground uppercase tracking-widest">Product</h3>
-              <ul className="mt-5 space-y-3">
-                {navigation.product.map((item) => (
-                  <li key={item.name}>
-                    <Link href={item.href} className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-                      {item.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-foreground uppercase tracking-widest">Markets</h3>
-              <ul className="mt-5 space-y-3">
-                {navigation.markets.map((item) => (
-                  <li key={item.name}>
-                    <a href={item.href} className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-                      {item.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-foreground uppercase tracking-widest">Company</h3>
-              <ul className="mt-5 space-y-3">
-                {navigation.company.map((item) => (
-                  <li key={item.name}>
-                    <a href={item.href} className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-                      {item.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-foreground uppercase tracking-widest">Legal</h3>
-              <ul className="mt-5 space-y-3">
-                {navigation.legal.map((item) => (
-                  <li key={item.name}>
-                    <a href={item.href} className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-                      {item.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
         </div>
 
         <div className="mt-16 border-t border-border pt-8 flex flex-col sm:flex-row justify-between items-start gap-4">

@@ -443,7 +443,7 @@ export function CitiesPageClient({
                 <p className="text-sm font-semibold text-[#0f172a]">
                   {cityListings.length} properties in {activeCity.name}
                 </p>
-                <Link href="/listings" className="text-xs font-semibold text-[#155eef] hover:underline">
+                <Link href="/services" className="text-xs font-semibold text-[#155eef] hover:underline">
                   See all listings →
                 </Link>
               </div>
@@ -489,7 +489,7 @@ export function CitiesPageClient({
                 </div>
               )}
               {cityListings.length > 8 && (
-                <Link href={`/listings`} className="emz-pill-cta flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold">
+                <Link href={`/services`} className="emz-pill-cta flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold">
                   View all {cityListings.length} listings in {activeCity.name} <ChevronRight className="h-4 w-4" />
                 </Link>
               )}

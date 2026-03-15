@@ -15,10 +15,10 @@ interface HomeVisualHeroProps {
   heroVisuals: string[]
   heroCards: HeroCard[]
   citiesCount: number
-  listingsCount: number
+  servicesCount: number
 }
 
-export function HomeVisualHero({ heroVisuals, heroCards, citiesCount, listingsCount }: HomeVisualHeroProps) {
+export function HomeVisualHero({ heroVisuals, heroCards, citiesCount, servicesCount }: HomeVisualHeroProps) {
   const [scrollY, setScrollY] = useState(0)
   const [reduceMotion, setReduceMotion] = useState(false)
 
@@ -82,30 +82,30 @@ export function HomeVisualHero({ heroVisuals, heroCards, citiesCount, listingsCo
           <div className="emz-home-hero-content-enter self-center" style={{ transform: `translate3d(0, ${contentOffset}px, 0)` }}>
             <span className="inline-flex items-center gap-2 rounded-full border border-[#4fc3f7]/25 bg-[#4fc3f7]/10 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#7dd6ff]">
               <span className="h-1.5 w-1.5 rounded-full bg-[#4fc3f7]" />
-              Property ownership platform
+              Migration intelligence platform
             </span>
             <h1 className="mt-6 font-[var(--font-playfair)] text-6xl font-semibold leading-[0.95] text-white md:text-8xl">
-              Buy smarter.
+              Move smarter.
               <br />
-              <em className="italic text-[#4fc3f7]">Sell</em> and
+              <em className="italic text-[#4fc3f7]">Execute</em> and
               <br />
-              upgrade faster.
+              settle faster.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-8 text-white/70 md:text-lg">
-              Verified listings, installment-friendly pathways, and city intelligence in one clear buy/sell flow for serious movers.
+              Verified services, expert-led relocation pathways, and city intelligence in one clear end-to-end flow for serious movers.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/listings" className="rounded-full bg-[#1976d2] px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1e88e5]">
-                Browse listings
+              <Link href="/services" className="rounded-full bg-[#1976d2] px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1e88e5]">
+                Explore services
               </Link>
               <Link href="/cities#intel-tool" className="rounded-full border border-white/25 bg-transparent px-7 py-3 text-sm font-semibold text-white/90 transition hover:border-white/60 hover:text-white">
                 Explore city intel
               </Link>
             </div>
             <div className="mt-8 flex flex-wrap gap-2 text-xs text-white/70">
-              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5">Verified supply</span>
-              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5">Installment options</span>
-              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5">Trade-up support</span>
+              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5">Visa coordination</span>
+              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5">Housing search</span>
+              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5">Entity setup</span>
             </div>
           </div>
 
@@ -146,9 +146,9 @@ export function HomeVisualHero({ heroVisuals, heroCards, citiesCount, listingsCo
         <div className="relative z-10 mx-auto flex w-full max-w-[1280px] flex-wrap items-center gap-6 border-t border-white/10 px-6 py-5 md:px-10 lg:px-14">
           {[
             { value: `${citiesCount}+`, label: "Cities covered" },
-            { value: `${listingsCount}`, label: "Verified listings" },
-            { value: "3", label: "Ownership pathways" },
-            { value: "94%", label: "Close rate on shortlisted" },
+            { value: `${servicesCount}`, label: "Verified services" },
+            { value: "3", label: "Relocation pathways" },
+            { value: "98%", label: "Client satisfaction" },
           ].map((item, index) => (
             <div key={item.label} className="flex items-center gap-5">
               <div>

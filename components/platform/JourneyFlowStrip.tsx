@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-export type JourneyStepKey = "home" | "cities" | "listings" | "hub" | "profile"
+export type JourneyStepKey = "home" | "cities" | "services" | "hub" | "profile"
 
 interface JourneyStep {
   key: JourneyStepKey
@@ -12,8 +12,8 @@ interface JourneyStep {
 const STEPS: JourneyStep[] = [
   { key: "home", title: "Discover", label: "Home", href: "/" },
   { key: "cities", title: "Scout", label: "Cities", href: "/cities" },
-  { key: "listings", title: "Secure", label: "Listings", href: "/listings" },
-  { key: "hub", title: "Settle", label: "The Hub", href: "/hub" },
+  { key: "services", title: "Secure", label: "Services", href: "/services" },
+  { key: "hub", title: "Settle", label: "The Hub", href: "/app/dashboard" },
   { key: "profile", title: "Track", label: "Profile", href: "/profile" },
 ]
 

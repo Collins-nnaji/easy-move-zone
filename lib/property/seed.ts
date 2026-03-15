@@ -513,7 +513,7 @@ export const seedResourceGuides: ResourceGuide[] = [
     summary: "How to structure housing budget, setup costs, and contingency for return moves.",
     category: "Budgeting",
     readMinutes: 5,
-    href: "/listings",
+    href: "/contact",
   },
 ]
 

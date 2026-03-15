@@ -321,7 +321,7 @@ export function RelocateHubClient() {
             <Link href="/auth?redirect=/relocate/hub" className="rounded-full bg-[#155eef] px-6 py-3 text-sm font-semibold text-white">
               Sign in
             </Link>
-            <Link href="/cities" className="rounded-full border border-[#dbe4f0] px-6 py-3 text-sm font-semibold text-[#0f172a]">
+            <Link href="/index" className="rounded-full border border-[#dbe4f0] px-6 py-3 text-sm font-semibold text-[#0f172a]">
               Explore cities first
             </Link>
           </div>
@@ -450,9 +450,9 @@ export function RelocateHubClient() {
           <div className="mt-5 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-4">
             <p className="text-xs font-semibold text-[#0f172a]">Need city or financing inputs?</p>
             <div className="mt-2 flex flex-wrap gap-2">
-              <Link href="/cities" className="rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs font-semibold text-[#475569]">Cities</Link>
-              <Link href="/listings" className="rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs font-semibold text-[#475569]">Listings</Link>
-              <Link href="/hub" className="rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs font-semibold text-[#475569]">The Hub</Link>
+              <Link href="/index" className="rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs font-semibold text-[#475569]">Cities</Link>
+              <Link href="/services" className="rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs font-semibold text-[#475569]">Services</Link>
+              <Link href="/app/dashboard" className="rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs font-semibold text-[#475569]">My Dashboard</Link>
             </div>
           </div>
         </article>
