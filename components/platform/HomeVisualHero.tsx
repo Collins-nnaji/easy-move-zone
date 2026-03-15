@@ -95,7 +95,7 @@ export function HomeVisualHero({ heroVisuals, heroCards, citiesCount, servicesCo
               Verified services, expert-led relocation pathways, and city intelligence in one clear end-to-end flow for serious movers.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/services" className="rounded-full bg-[#1976d2] px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1e88e5]">
+              <Link href="/individual#services" className="rounded-full bg-[#1976d2] px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1e88e5]">
                 Explore services
               </Link>
               <Link href="/cities#intel-tool" className="rounded-full border border-white/25 bg-transparent px-7 py-3 text-sm font-semibold text-white/90 transition hover:border-white/60 hover:text-white">

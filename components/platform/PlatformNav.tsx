@@ -8,7 +8,7 @@ import { authClient } from "@/lib/auth/client"
 
 const navItems = [
   { href: "/", label: "Home" },
-  { href: "/individual", label: "For Individuals" },
+  { href: "/individual", label: "Individual Services" },
   { href: "/corporate", label: "For Corporate" },
   { href: "/index", label: "City Index" },
   { href: "/pricing", label: "Pricing" },

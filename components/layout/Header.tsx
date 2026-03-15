@@ -33,7 +33,7 @@ function AnnouncementTicker() {
 }
 
 const NAV_LINKS = [
-  { name: "Service Directory", href: "/services" },
+  { name: "Our Services", href: "/individual#services" },
 ]
 
 export function Header() {
@@ -185,7 +185,7 @@ export function Header() {
                   <Link href="/auth">
                     <Button size="sm" variant="outline">Log in</Button>
                   </Link>
-                  <Link href="/services">
+                  <Link href="/individual#services">
                     <Button size="sm" className="gap-1.5">
                       <Zap className="w-3.5 h-3.5" /> Explore Services
                     </Button>
@@ -253,7 +253,7 @@ export function Header() {
                     <Link href="/auth" onClick={() => setIsMenuOpen(false)}>
                       <Button variant="outline" className="w-full">Log in</Button>
                     </Link>
-                    <Link href="/services" onClick={() => setIsMenuOpen(false)}>
+                    <Link href="/individual#services" onClick={() => setIsMenuOpen(false)}>
                       <Button className="w-full gap-1.5">
                         <Zap className="w-3.5 h-3.5" /> Explore Services
                       </Button>
