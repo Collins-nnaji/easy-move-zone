@@ -12,8 +12,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const rows = await sql`SELECT * FROM properties WHERE id = ${id}`
     if (rows.length === 0) return NextResponse.json({ error: "Property not found" }, { status: 404 })
 
-    await sql`UPDATE properties SET view_count = view_count + 1 WHERE id = ${id}`
-
     return NextResponse.json({ property: rows[0] })
   } catch {
     return NextResponse.json({ error: "Failed to fetch property" }, { status: 500 })

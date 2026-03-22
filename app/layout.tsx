@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
-import { Manrope, Cormorant_Garamond, Sora } from "next/font/google";
+import { Inter, Manrope, Cormorant_Garamond, Sora } from "next/font/google";
 import { AppChrome } from "@/components/layout/AppChrome";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 const outfit = Manrope({
   subsets: ["latin"],
@@ -35,7 +41,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${outfit.variable} ${spaceGrotesk.variable} ${playfairDisplay.variable} min-h-screen min-w-0 flex flex-col overflow-x-hidden`}>
+      <body
+        className={`${inter.variable} ${outfit.variable} ${spaceGrotesk.variable} ${playfairDisplay.variable} min-h-screen min-w-0 flex flex-col overflow-x-hidden antialiased`}
+      >
         <AppChrome>{children}</AppChrome>
       </body>
     </html>

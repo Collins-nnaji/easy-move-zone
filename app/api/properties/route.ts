@@ -14,10 +14,22 @@ export async function GET(req: NextRequest) {
   const city = searchParams.get("city")
   const type = searchParams.get("type")
   const status = searchParams.get("status")
+  const featured = searchParams.get("featured")
   const limit = Math.min(parseInt(searchParams.get("limit") ?? "20"), 100)
   const offset = parseInt(searchParams.get("offset") ?? "0")
 
   try {
+    if (featured === "1" || featured === "true") {
+      const rows = await sql`
+        SELECT * FROM properties
+        WHERE is_published = true AND is_featured = true
+        ORDER BY created_at DESC
+        LIMIT ${limit}
+        OFFSET ${offset}
+      `
+      return NextResponse.json({ properties: rows, count: rows.length })
+    }
+
     if (city && type && type !== "all" && status && status !== "any") {
       const rows = await sql`
         SELECT * FROM properties

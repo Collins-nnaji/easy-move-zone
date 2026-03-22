@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import { authServer } from "@/lib/auth/server"
 import { PublicShell } from "@/components/platform/PublicShell"
 import Link from "next/link"
-import { User, LayoutDashboard, Building2, Search, ShieldCheck, Sparkles } from "lucide-react"
+import { User, LayoutDashboard, Search, ShieldCheck, Sparkles } from "lucide-react"
 
 export default async function ProfilePage() {
   const session = await authServer.getSession()
@@ -18,13 +18,6 @@ export default async function ProfilePage() {
       desc: "Saved homes, offers, and documents",
       icon: LayoutDashboard,
       style: "from-[#155eef] to-[#1249d1] text-white shadow-lg shadow-[#155eef]/25",
-    },
-    {
-      href: "/portal",
-      title: "Agent portal",
-      desc: "Listings, enquiries, and analytics",
-      icon: Building2,
-      style: "border border-[#e2e8f0] bg-white text-[#0f172a] hover:border-[#155eef]/25 hover:shadow-md",
     },
     {
       href: "/search",

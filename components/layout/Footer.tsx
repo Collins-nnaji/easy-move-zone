@@ -7,7 +7,7 @@ export function Footer() {
       { name: "Public Services", href: "/services" },
       { name: "Pricing Plans", href: "/pricing" },
       { name: "City Index", href: "/index" },
-      { name: "About Us", href: "/about" },
+      { name: "Contact", href: "/contact" },
     ],
     markets: [
       { name: "Lagos", href: "#" },

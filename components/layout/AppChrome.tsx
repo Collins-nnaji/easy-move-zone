@@ -9,13 +9,14 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   const pageHasOwnChrome =
     pathname === "/" ||
     pathname === "/search" ||
-    pathname === "/about" ||
+    pathname === "/contact" ||
+    pathname === "/mortgage" ||
     pathname === "/auth" ||
     pathname === "/profile" ||
     pathname.startsWith("/properties") ||
     pathname.startsWith("/verify") ||
     pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/portal")
+    pathname.startsWith("/admin")
 
   if (pageHasOwnChrome) {
     return <main className="flex-1 min-w-0">{children}</main>

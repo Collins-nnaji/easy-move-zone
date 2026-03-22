@@ -459,14 +459,14 @@ function ChatBubble({ msg, profile }: { msg: Message; profile: ExtractedProfile 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && (
-        <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#155eef]">
-          <Sparkles className="h-3.5 w-3.5 text-white" />
+        <div className="mr-2 mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0033A1]">
+          <Sparkles className="h-4 w-4 text-white" />
         </div>
       )}
       <div className={`max-w-[85%] space-y-3 ${isUser ? "" : ""}`}>
-        <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+        <div className={`rounded-2xl px-4 py-3.5 text-[15px] leading-relaxed sm:text-base ${
           isUser
-            ? "bg-[#155eef] text-white rounded-tr-sm"
+            ? "bg-[#0033A1] text-white rounded-tr-sm"
             : "bg-white border border-[#dbe4f0] text-[#1e293b] rounded-tl-sm shadow-sm"
         }`}>
           {msg.content}
@@ -582,7 +582,7 @@ export function MortgageFinder() {
   const hasProfile = Object.keys(profile).length > 0
 
   return (
-    <div className="flex h-full min-h-0 flex-shrink-0 flex-col" style={{ minHeight: "280px" }}>
+    <div className="flex h-full min-h-0 flex-shrink-0 flex-col" style={{ minHeight: "300px" }}>
       {/* Profile pill strip */}
       {hasProfile && (
         <div className="flex flex-wrap gap-1.5 px-4 pb-2 sm:px-6">
@@ -610,8 +610,8 @@ export function MortgageFinder() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6">
-        <div className="space-y-4 py-4">
+      <div className="min-h-0 flex-1 overflow-y-auto scroll-pb-60 px-4 sm:px-6">
+        <div className="space-y-4 py-3 pb-8">
           {/* Starter prompts — only when at beginning */}
           {messages.length === 1 && (
             <div className="flex flex-wrap gap-2 pl-9">
@@ -620,7 +620,7 @@ export function MortgageFinder() {
                   key={p}
                   type="button"
                   onClick={() => void sendMessage(p)}
-                  className="rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-left text-xs text-[#475569] transition hover:border-[#155eef] hover:text-[#155eef]"
+                  className="rounded-full border border-[#dbe4f0] bg-white px-3.5 py-2 text-left text-sm text-[#475569] transition hover:border-[#0072CE] hover:text-[#0033A1]"
                 >
                   {p}
                 </button>
@@ -634,13 +634,13 @@ export function MortgageFinder() {
 
           {loading && (
             <div className="flex justify-start">
-              <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#155eef]">
-                <Sparkles className="h-3.5 w-3.5 text-white" />
+              <div className="mr-2 mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0033A1]">
+                <Sparkles className="h-4 w-4 text-white" />
               </div>
-              <div className="rounded-2xl rounded-tl-sm border border-[#dbe4f0] bg-white px-4 py-3 shadow-sm">
-                <div className="flex items-center gap-1.5">
-                  <Loader2 className="h-4 w-4 animate-spin text-[#155eef]" />
-                  <span className="text-xs text-[#64748b]">Analysing…</span>
+              <div className="rounded-2xl rounded-tl-sm border border-[#dbe4f0] bg-white px-4 py-3.5 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-5 w-5 animate-spin text-[#0072CE]" />
+                  <span className="text-sm text-[#64748b]">Analysing…</span>
                 </div>
               </div>
             </div>
@@ -650,44 +650,51 @@ export function MortgageFinder() {
         </div>
       </div>
 
-      {/* Input bar */}
-      <div className="border-t border-[#e8edf6] bg-white px-4 py-3 sm:px-6">
-        <div className="flex items-end gap-2">
+      {/* Input bar — raised, larger type for readability */}
+      <div className="relative z-[1] shrink-0 border-t-2 border-[#0072CE]/20 bg-gradient-to-b from-[#f0f9ff] to-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-10px_36px_-8px_rgba(0,51,161,0.14)] sm:px-5 sm:pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] sm:pt-5">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#0033A1]/80">Your message</p>
+        <div className="flex items-end gap-3">
           <textarea
             ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            rows={1}
-            placeholder="Describe your situation… (e.g. I earn $3k/month, looking to buy in Nairobi for $90k)"
-            className="flex-1 resize-none rounded-2xl border border-[#c8d8f0] bg-[#f8fbff] px-4 py-3 text-sm text-[#0f172a] placeholder:text-[#94a3b8] focus:border-[#155eef] focus:outline-none focus:ring-2 focus:ring-[#155eef]/20"
-            style={{ maxHeight: "120px" }}
+            rows={6}
+            placeholder="Type here — budget, city, income, diaspora / NHF…"
+            className="min-h-[11rem] flex-1 resize-y rounded-3xl border-2 border-[#c8d8f0] bg-white px-5 py-5 text-[18px] leading-[1.55] text-[#0f172a] shadow-inner shadow-[#0033A1]/[0.04] placeholder:text-[#64748b] placeholder:text-[17px] focus:border-[#0072CE] focus:outline-none focus:ring-4 focus:ring-[#0072CE]/18 sm:min-h-[13rem] sm:px-7 sm:py-6 sm:text-[19px] sm:placeholder:text-[18px]"
+            style={{ maxHeight: "min(58vh, 400px)" }}
             onInput={e => {
               const t = e.currentTarget
+              const cap = Math.min(window.innerHeight * 0.58, 400)
               t.style.height = "auto"
-              t.style.height = `${t.scrollHeight}px`
+              t.style.height = `${Math.min(t.scrollHeight, cap)}px`
             }}
           />
           <button
             type="button"
             onClick={() => void sendMessage()}
             disabled={!input.trim() || loading}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#155eef] text-white transition hover:bg-[#1347c8] disabled:opacity-40"
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0072CE] text-white shadow-md shadow-[#0072CE]/25 transition hover:brightness-110 disabled:opacity-40 sm:h-[3.75rem] sm:w-[3.75rem]"
+            aria-label="Send message"
           >
-            <Send className="h-4.5 w-4.5" />
+            <Send className="h-6 w-6" />
           </button>
           {messages.length > 1 && (
             <button
               type="button"
               onClick={reset}
               title="Start over"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#dbe4f0] text-[#94a3b8] transition hover:text-[#475569]"
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-[#dbe4f0] bg-white text-[#64748b] transition hover:border-[#0072CE]/40 hover:text-[#0033A1] sm:h-[3.75rem] sm:w-[3.75rem]"
+              aria-label="Start over"
             >
-              <RotateCcw className="h-4 w-4" />
+              <RotateCcw className="h-6 w-6" />
             </button>
           )}
         </div>
-        <p className="mt-1.5 text-[11px] text-[#94a3b8]">Press Enter to send · Shift+Enter for new line</p>
+        <p className="mt-2 text-xs leading-snug text-[#64748b] sm:text-[13px]">
+          <span className="font-medium text-[#475569]">Enter</span> to send ·{" "}
+          <span className="font-medium text-[#475569]">Shift+Enter</span> for a new line
+        </p>
       </div>
     </div>
   )
