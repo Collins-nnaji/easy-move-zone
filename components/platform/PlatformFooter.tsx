@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Mail, ShieldCheck } from "lucide-react"
+import { Home, Mail } from "lucide-react"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 
 const footerLinks = {
@@ -29,7 +29,7 @@ export function PlatformFooter() {
           <div className="max-w-sm">
             <div className="flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#0033A1] to-[#0072CE]">
-                <ShieldCheck className="h-4 w-4 text-white" />
+                <Home className="h-4 w-4 text-white" strokeWidth={2.25} />
               </div>
               <span className="text-lg font-bold tracking-tight">
                 EasyMove<span className="text-cyan-300">Zone</span>

@@ -7,12 +7,11 @@ import {
   Search,
   MapPin,
   SlidersHorizontal,
-  ShieldCheck,
+  Home,
   TrendingUp,
   ArrowRight,
   BadgeCheck,
   Sparkles,
-  Home,
   Trees,
   LayoutGrid,
   BedDouble,
@@ -249,7 +248,7 @@ export function SearchPageClient() {
                 className="mt-6 flex flex-wrap items-center gap-3 text-xs text-slate-500"
               >
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 font-semibold text-emerald-300">
-                  <ShieldCheck className="h-3.5 w-3.5" />
+                  <Home className="h-3.5 w-3.5" strokeWidth={2.5} />
                   Platform-managed
                 </span>
                 <span className="text-slate-500">Live database · AI ranges when available</span>

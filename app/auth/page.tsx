@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import { AuthInlineCard } from "@/components/platform/AuthInlineCard"
 import { PublicShell } from "@/components/platform/PublicShell"
-import { ShieldCheck, Sparkles } from "lucide-react"
+import { Home, Sparkles } from "lucide-react"
 
 export default function AuthPage() {
   return (
@@ -15,7 +15,7 @@ export default function AuthPage() {
               Secure access
             </span>
             <div className="mx-auto mt-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#155eef] to-[#0f4ec4] text-white shadow-lg shadow-[#155eef]/30">
-              <ShieldCheck className="h-8 w-8" />
+              <Home className="h-8 w-8" strokeWidth={2.25} />
             </div>
             <h1 className="mt-5 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a] sm:text-[2.5rem]">
               Welcome to{" "}

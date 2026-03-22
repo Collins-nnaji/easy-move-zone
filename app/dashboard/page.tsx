@@ -15,7 +15,6 @@ import {
   CheckCircle2,
   Circle,
   AlertCircle,
-  ShieldCheck,
   Home,
   Settings,
   BadgeCheck,

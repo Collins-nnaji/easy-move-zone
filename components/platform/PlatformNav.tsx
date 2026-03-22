@@ -6,7 +6,7 @@ import {
   LogOut,
   Menu,
   X,
-  ShieldCheck,
+  Home,
   LayoutDashboard,
   Search,
   ChevronDown,
@@ -71,7 +71,7 @@ export function PlatformNav() {
         <div className="mx-auto flex h-[52px] w-full max-w-7xl items-center justify-between gap-3 px-4 sm:h-14 sm:px-6 lg:px-8">
           <Link href="/" className="flex shrink-0 items-center gap-2.5 text-white">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/20">
-              <ShieldCheck className="h-5 w-5 text-white" />
+              <Home className="h-5 w-5 text-white" strokeWidth={2.25} />
             </div>
             <div className="hidden flex-col leading-tight sm:flex">
               <span className="text-[17px] font-bold tracking-tight">EasyMoveZone</span>

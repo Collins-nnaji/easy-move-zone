@@ -1,7 +1,7 @@
 import Link from "next/link"
 import {
   MapPin,
-  ShieldCheck,
+  Home,
   TrendingUp,
   Ruler,
   Calendar,
@@ -282,7 +282,7 @@ export function PropertyDetailServer({ property: p }: { property: PropertyRow })
               className="block rounded-2xl border border-[#059669]/20 bg-[#f0fdf4] p-5 transition-all hover:shadow-md"
             >
               <div className="mb-2 flex items-center gap-2 text-[#059669]">
-                <ShieldCheck className="h-5 w-5" />
+                <Home className="h-5 w-5" strokeWidth={2.25} />
                 <span className="text-sm font-bold">Verification centre</span>
               </div>
               <p className="text-xs text-[#475569]">Title status, document trail, and risk notes for this listing.</p>

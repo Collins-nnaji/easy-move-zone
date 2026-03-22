@@ -4,7 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion"
 import {
-  ShieldCheck,
+  Home,
   Search,
   ArrowRight,
   Handshake,
@@ -59,7 +59,7 @@ const cities = [
 
 const trustStats = [
   { value: "2,400+", label: "Verified listings", icon: BadgeCheck },
-  { value: "98.7%", label: "Fraud signals caught", icon: ShieldCheck },
+  { value: "98.7%", label: "Fraud signals caught", icon: Home },
   { value: "₦45B+", label: "Value guided", icon: Sparkles },
   { value: "12,000+", label: "Buyers supported", icon: Users },
 ]
@@ -361,7 +361,7 @@ export function HomePageClient() {
             {/* Right — built for trust */}
             <div className="border-t border-slate-200/80 pt-10 lg:col-span-5 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
               <div className="flex items-start gap-3">
-                <ShieldCheck className="mt-0.5 h-7 w-7 shrink-0 text-emerald-600/90" strokeWidth={1.25} />
+                <Home className="mt-0.5 h-7 w-7 shrink-0 text-emerald-600/90" strokeWidth={2} />
                 <div>
                   <h2 className="text-xl font-semibold tracking-tight text-[#0f172a] md:text-2xl">Built for trust, not volume</h2>
                   <p className="mt-2 text-sm leading-relaxed text-slate-600">

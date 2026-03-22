@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import { authServer } from "@/lib/auth/server"
 import { PublicShell } from "@/components/platform/PublicShell"
 import Link from "next/link"
-import { User, LayoutDashboard, Search, ShieldCheck, Sparkles } from "lucide-react"
+import { User, LayoutDashboard, Search, Home, Sparkles } from "lucide-react"
 
 export default async function ProfilePage() {
   const session = await authServer.getSession()
@@ -49,7 +49,7 @@ export default async function ProfilePage() {
             </div>
             <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f0fdf4] px-3 py-1 text-xs font-semibold text-[#059669] ring-1 ring-[#bbf7d0]">
-                <ShieldCheck className="h-3.5 w-3.5" />
+                <Home className="h-3.5 w-3.5" strokeWidth={2.5} />
                 Verified access
               </span>
             </div>

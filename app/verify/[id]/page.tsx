@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { PublicShell } from "@/components/platform/PublicShell"
 import {
-  ShieldCheck,
+  Home,
   FileCheck,
   AlertTriangle,
   CheckCircle2,
@@ -69,7 +69,7 @@ export default function VerificationPage() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#059669]/10 text-[#059669]">
-              <ShieldCheck className="h-6 w-6" />
+              <Home className="h-6 w-6" strokeWidth={2.25} />
             </div>
             <div>
               <h1 className="font-[var(--font-playfair)] text-3xl font-bold text-[#0f172a]">Verification Centre</h1>
