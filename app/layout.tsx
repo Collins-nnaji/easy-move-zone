@@ -23,9 +23,9 @@ const playfairDisplay = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Find Your Territory. Make Your Move.",
+  title: "EasyMoveZone — Trusted Land & Property in Africa",
   description:
-    "EasyMoveZone helps you scout the right city, secure the right property, and relocate with confidence from discovery to settled.",
+    "The trusted land and property platform for African professionals, diaspora, and returnees. Every listing is title-verified. Every transaction is guided end to end.",
 };
 
 export default function RootLayout({

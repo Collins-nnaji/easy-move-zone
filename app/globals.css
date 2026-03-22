@@ -882,4 +882,76 @@
       animation: none !important;
     }
   }
+
+  /* Full-page ambient background (PublicShell) */
+  .emz-page-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 110% 55% at 50% -8%, rgba(21, 94, 239, 0.11), transparent 58%),
+      radial-gradient(ellipse 70% 45% at 100% 15%, rgba(15, 118, 110, 0.08), transparent 52%),
+      radial-gradient(ellipse 55% 40% at 0% 70%, rgba(21, 94, 239, 0.06), transparent 48%),
+      linear-gradient(180deg, #f5f8fd 0%, #eef2f9 45%, #f6f8fb 100%);
+  }
+
+  .emz-page-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23155eef' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .emz-section-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(21, 94, 239, 0.22);
+    padding: 0.35rem 0.85rem;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, rgba(21, 94, 239, 0.07), rgba(15, 118, 110, 0.06));
+    color: #155eef;
+  }
+
+  .emz-rich-card {
+    border-radius: 1.15rem;
+    border: 1px solid rgba(219, 228, 240, 0.95);
+    background: linear-gradient(165deg, #ffffff 0%, #fafcff 55%, #f4f7fc 100%);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.9) inset,
+      0 22px 48px -28px rgba(15, 23, 42, 0.28);
+    transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1), border-color 280ms ease;
+  }
+
+  .emz-rich-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(21, 94, 239, 0.28);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.95) inset,
+      0 28px 56px -24px rgba(21, 94, 239, 0.22);
+  }
+
+  .emz-hero-bento {
+    border-radius: 1.35rem;
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 250, 255, 0.88) 100%);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.8) inset,
+      0 32px 64px -32px rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(12px);
+  }
+
+  .emz-nav-glow {
+    box-shadow: 0 1px 0 rgba(21, 94, 239, 0.08), 0 12px 40px -24px rgba(15, 23, 42, 0.12);
+  }
+
+  .emz-footer-glow {
+    box-shadow: 0 -1px 0 rgba(96, 165, 250, 0.12);
+  }
 }

@@ -2,16 +2,13 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { LogOut, Menu, X } from "lucide-react"
+import { LogOut, Menu, X, ShieldCheck, LayoutDashboard } from "lucide-react"
 import { useEffect, useState } from "react"
 import { authClient } from "@/lib/auth/client"
 
 const navItems = [
-  { href: "/", label: "Home" },
-  { href: "/individual", label: "Individual Services" },
-  { href: "/corporate", label: "For Corporate" },
-  { href: "/index", label: "City Index" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/search", label: "Browse Properties" },
+  { href: "/about", label: "How It Works" },
 ]
 
 export function PlatformNav() {
@@ -21,16 +18,12 @@ export function PlatformNav() {
   const { data: sessionData, isPending: sessionPending, refetch: refetchSession } = authClient.useSession()
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      void refetchSession()
-    }, 120)
+    const timeout = setTimeout(() => { void refetchSession() }, 120)
     return () => clearTimeout(timeout)
   }, [pathname, refetchSession])
 
   useEffect(() => {
-    const onFocus = () => {
-      void refetchSession()
-    }
+    const onFocus = () => { void refetchSession() }
     window.addEventListener("focus", onFocus)
     return () => window.removeEventListener("focus", onFocus)
   }, [refetchSession])
@@ -43,150 +36,140 @@ export function PlatformNav() {
     router.refresh()
   }
 
-  function handleNavClick(href: string, closeMobileMenu = false) {
-    if (closeMobileMenu) {
-      setIsOpen(false)
-    }
-    if (pathname === href) {
-      window.scrollTo({ top: 0, behavior: "smooth" })
-    }
-  }
-
   const user = sessionData?.user ?? null
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#d9e3f1]/80 bg-white/90 backdrop-blur-xl">
-      <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex flex-col leading-tight">
-          <span className="font-[var(--font-playfair)] text-xl font-bold tracking-tight text-[#0f172a] sm:text-2xl">
-            EasyMove<span className="font-semibold text-[#155eef]">Zone</span>
-          </span>
-          <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#64748b]">Scout · Secure · Settle</span>
+    <header className="emz-nav-glow sticky top-0 z-50 border-b border-white/70 bg-white/90 backdrop-blur-xl backdrop-saturate-150">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#155eef]/35 to-transparent" />
+      <div className="mx-auto flex h-[76px] w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-xl bg-[#155eef] flex items-center justify-center">
+            <ShieldCheck className="h-5 w-5 text-white" />
+          </div>
+          <div className="flex flex-col leading-tight">
+            <span className="font-[var(--font-playfair)] text-[19px] font-bold tracking-tight text-[#0f172a]">
+              EasyMove<span className="bg-gradient-to-r from-[#155eef] to-[#0f766e] bg-clip-text text-transparent">Zone</span>
+            </span>
+            <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#64748b]">
+              Trusted African Property
+            </span>
+          </div>
         </Link>
 
+        {/* Desktop Nav */}
         <nav className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
-            const isHub = "highlight" in item && item.highlight
+            const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                scroll
-                onClick={() => handleNavClick(item.href)}
-                className={
-                  isHub
-                    ? `rounded-full px-4 py-2 text-[14px] font-semibold transition ${
-                        isActive
-                          ? "bg-[#155eef] text-white shadow-md"
-                          : "bg-[#155eef] text-white hover:bg-[#0d4bc9] shadow-sm"
-                      }`
-                    : `rounded-full px-3.5 py-2 text-[14px] font-medium transition ${
-                        isActive
-                          ? "bg-[#eaf1ff] text-[#155eef]"
-                          : "text-[#475569] hover:bg-[#eef4ff] hover:text-[#0f172a]"
-                      }`
-                }
+                className={`rounded-full px-4 py-2 text-[14px] font-medium transition-all duration-200 ${
+                  isActive
+                    ? "bg-[#155eef]/8 text-[#155eef] font-semibold"
+                    : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a]"
+                }`}
               >
                 {item.label}
               </Link>
             )
           })}
+
+          <div className="ml-2 h-5 w-px bg-[#e2e8f0]" />
+
           {sessionPending ? (
-            <div className="h-10 w-24 animate-pulse rounded-full bg-[#eef4ff]" />
+            <div className="ml-2 h-10 w-24 animate-pulse rounded-full bg-[#f1f5f9]" />
           ) : user ? (
-            <>
+            <div className="ml-2 flex items-center gap-2">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#155eef] px-4 py-2 text-[14px] font-semibold text-white transition-colors hover:bg-[#1249d1]"
+              >
+                <LayoutDashboard className="h-3.5 w-3.5" />
+                Dashboard
+              </Link>
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="inline-flex items-center gap-1 rounded-full bg-[#0f172a] px-4 py-2 text-[14px] font-semibold text-white transition hover:bg-[#1e293b]"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#e2e8f0] px-3 py-2 text-[13px] font-medium text-[#64748b] transition-colors hover:bg-[#f8fafc] hover:text-[#0f172a]"
               >
-                <LogOut className="h-4 w-4" />
-                Sign out
+                <LogOut className="h-3.5 w-3.5" />
               </button>
-            </>
+            </div>
           ) : (
-            <>
+            <div className="ml-2 flex items-center gap-2">
               <Link
                 href="/auth"
-                className="ml-2 rounded-full border border-[#c8d8f0] px-4 py-2 text-[14px] font-semibold text-[#0f172a]"
+                className="rounded-full border border-[#e2e8f0] px-4 py-2 text-[14px] font-medium text-[#0f172a] transition-colors hover:bg-[#f8fafc]"
               >
                 Sign in
               </Link>
               <Link
-                href="/contact?direction=Buy%20first%20home"
-                className="emz-pill-cta rounded-full px-4 py-2 text-[14px] font-semibold"
+                href="/auth?mode=signup"
+                className="rounded-full bg-[#155eef] px-4 py-2 text-[14px] font-semibold text-white transition-colors hover:bg-[#1249d1]"
               >
-                Start Your Move
+                Get Started
               </Link>
-            </>
+            </div>
           )}
         </nav>
 
+        {/* Mobile toggle */}
         <button
           type="button"
           className="inline-flex items-center justify-center rounded-lg p-2 text-[#0f172a] md:hidden"
-          onClick={() => setIsOpen((prev) => !prev)}
+          onClick={() => setIsOpen((p) => !p)}
           aria-label="Toggle menu"
         >
           {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {isOpen ? (
-        <div className="border-t border-[#d9e3f1] bg-white px-4 py-3 md:hidden">
-          <div className="flex flex-col gap-2">
+      {/* Mobile menu */}
+      {isOpen && (
+        <div className="border-t border-[#e2e8f0] bg-white px-4 py-4 md:hidden">
+          <div className="flex flex-col gap-1">
             {navItems.map((item) => {
-              const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
-              const isHub = "highlight" in item && item.highlight
+              const isActive = pathname === item.href
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  scroll
-                  onClick={() => handleNavClick(item.href, true)}
-                  className={`rounded-lg px-3 py-2 text-base ${
-                    isHub ? "bg-[#155eef] text-white font-semibold" : isActive ? "bg-[#eaf1ff] text-[#155eef]" : "text-[#475569]"
+                  onClick={() => setIsOpen(false)}
+                  className={`rounded-xl px-4 py-3 text-[15px] font-medium ${
+                    isActive ? "bg-[#155eef]/8 text-[#155eef]" : "text-[#475569]"
                   }`}
                 >
                   {item.label}
                 </Link>
               )
             })}
+            <div className="my-2 h-px bg-[#e2e8f0]" />
             {sessionPending ? (
-              <div className="h-10 animate-pulse rounded-full bg-[#eef4ff]" />
+              <div className="h-11 animate-pulse rounded-xl bg-[#f1f5f9]" />
             ) : user ? (
               <>
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="inline-flex items-center justify-center gap-1 rounded-full bg-[#0f172a] px-4 py-2 text-center text-base font-medium text-white"
-                >
-                  <LogOut className="h-4 w-4" />
+                <Link href="/dashboard" onClick={() => setIsOpen(false)} className="rounded-xl bg-[#155eef] px-4 py-3 text-center text-[15px] font-semibold text-white">
+                  Dashboard
+                </Link>
+                <button type="button" onClick={handleSignOut} className="mt-1 rounded-xl border border-[#e2e8f0] px-4 py-3 text-[15px] font-medium text-[#64748b]">
                   Sign out
                 </button>
               </>
             ) : (
               <>
-                <Link
-                  href="/auth"
-                  onClick={() => setIsOpen(false)}
-                  className="rounded-full border border-[#c8d8f0] px-4 py-2 text-center text-base text-[#0f172a]"
-                >
+                <Link href="/auth" onClick={() => setIsOpen(false)} className="rounded-xl border border-[#e2e8f0] px-4 py-3 text-center text-[15px] font-medium text-[#0f172a]">
                   Sign in
                 </Link>
-                <Link
-                  href="/contact?direction=Buy%20first%20home"
-                  onClick={() => setIsOpen(false)}
-                  className="emz-pill-cta rounded-full px-4 py-2 text-center text-base font-semibold"
-                >
-                  Start Your Move
+                <Link href="/auth?mode=signup" onClick={() => setIsOpen(false)} className="rounded-xl bg-[#155eef] px-4 py-3 text-center text-[15px] font-semibold text-white">
+                  Get Started
                 </Link>
               </>
             )}
           </div>
         </div>
-      ) : null}
+      )}
     </header>
   )
 }
