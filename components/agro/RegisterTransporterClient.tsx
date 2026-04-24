@@ -263,7 +263,7 @@ export function RegisterTransporterClient() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.35, ease: easeOut }}
-                className="min-w-[240px] snap-start"
+                className="min-w-[220px] snap-start sm:min-w-[260px]"
               >
                 <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-amber-200 hover:shadow-lg">
                   <p className="text-sm text-slate-600">“{t.quote}”</p>
@@ -299,7 +299,7 @@ export function RegisterTransporterClient() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-slate-700">Base state *</label>
                   <div className="relative">
@@ -536,7 +536,7 @@ export function RegisterTransporterClient() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.35, ease: easeOut }}
-                className="min-w-[240px] snap-start"
+                className="min-w-[220px] snap-start sm:min-w-[260px]"
               >
                 <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-amber-200 hover:shadow-lg">
                   <div className="flex items-center justify-between">

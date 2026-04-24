@@ -64,7 +64,7 @@ export default async function AgroDashboardPage() {
         <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
 
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
             <div>
               <p className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/70 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-700">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -77,7 +77,7 @@ export default async function AgroDashboardPage() {
             </div>
             <Link
               href="/produce/list"
-              className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-200/70 transition hover:bg-emerald-500 hover:-translate-y-0.5"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-200/70 transition hover:bg-emerald-500 hover:-translate-y-0.5 sm:w-auto"
             >
               <Plus className="h-4 w-4" />
               New listing
@@ -118,7 +118,7 @@ export default async function AgroDashboardPage() {
                 </div>
                 <div className="space-y-3">
                   {myListings.map((l) => (
-                    <div key={l.id} className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+                    <div key={l.id} className="flex flex-col gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex items-start gap-3">
                         <Sprout className="mt-0.5 h-5 w-5 text-emerald-500 shrink-0" strokeWidth={1.75} />
                         <div>
@@ -129,7 +129,7 @@ export default async function AgroDashboardPage() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end gap-1">
+                      <div className="flex flex-row items-center gap-2 sm:flex-col sm:items-end sm:gap-1">
                         <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${l.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
                           {l.status}
                         </span>
@@ -156,7 +156,7 @@ export default async function AgroDashboardPage() {
                   {myShipments.map((s) => {
                     const cfg = statusConfig[s.status]
                     return (
-                      <Link key={s.id} href="/shipments" className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition hover:shadow-sm">
+                      <Link key={s.id} href="/shipments" className="flex flex-col gap-3 rounded-xl border border-slate-100 p-4 transition hover:shadow-sm sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-start gap-3">
                           <div className={`mt-0.5 rounded-lg p-1.5 ${cfg.bg}`}>
                             <cfg.icon className={`h-4 w-4 ${cfg.color}`} strokeWidth={1.75} />
@@ -167,7 +167,7 @@ export default async function AgroDashboardPage() {
                             <p className="text-xs text-slate-500">{s.from} → {s.to}</p>
                           </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-left sm:text-right">
                           <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
                           <p className="mt-1 text-[11px] text-slate-400">ETA {s.eta}</p>
                         </div>

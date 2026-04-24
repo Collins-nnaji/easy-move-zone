@@ -330,7 +330,7 @@ export function ProduceMarketClient() {
           </div>
 
           {/* Search */}
-          <div className="relative mt-7 flex gap-2">
+          <div className="relative mt-7 flex flex-col gap-2 sm:flex-row">
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
@@ -348,7 +348,7 @@ export function ProduceMarketClient() {
             </div>
             <button
               onClick={() => setShowFilters((p) => !p)}
-              className={`flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold shadow-lg transition ${showFilters ? "bg-emerald-400 text-slate-900" : "bg-white/95 text-slate-700 hover:bg-white"}`}
+              className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold shadow-lg transition sm:w-auto ${showFilters ? "bg-emerald-400 text-slate-900" : "bg-white/95 text-slate-700 hover:bg-white"}`}
             >
               <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden sm:inline">Filters</span>
@@ -402,7 +402,7 @@ export function ProduceMarketClient() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.35, ease: easeOut }}
-                className="min-w-[240px] snap-start"
+                className="min-w-[220px] snap-start sm:min-w-[260px]"
               >
                 <div className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg">
                   <div className="flex items-center justify-between">

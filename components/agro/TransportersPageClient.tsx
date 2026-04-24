@@ -353,7 +353,7 @@ export function TransportersPageClient() {
             </Link>
           </div>
 
-          <div className="relative mt-7">
+          <div className="relative mt-7 max-w-lg">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
@@ -363,7 +363,7 @@ export function TransportersPageClient() {
               className="w-full max-w-lg rounded-xl border-0 bg-white/95 py-3.5 pl-11 pr-10 text-sm text-slate-800 shadow-lg placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
             {search && (
-              <button onClick={() => setSearch("")} className="absolute left-[calc(min(100%,28rem)-2.5rem)] top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700">
+              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700">
                 <X className="h-4 w-4" />
               </button>
             )}
@@ -411,7 +411,7 @@ export function TransportersPageClient() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.35, ease: easeOut }}
-                className="min-w-[240px] snap-start"
+                className="min-w-[220px] snap-start sm:min-w-[260px]"
               >
                 <div className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-amber-200 hover:shadow-lg">
                   <div className="flex items-center justify-between">

@@ -193,7 +193,7 @@ export function ListProduceClient() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-slate-700">Quantity *</label>
                   <input
@@ -261,7 +261,7 @@ export function ListProduceClient() {
                 <h2 className="text-lg font-semibold text-slate-900">Location & pickup timing</h2>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-slate-700">State *</label>
                   <div className="relative">
@@ -303,7 +303,7 @@ export function ListProduceClient() {
                   <Calendar className="h-4 w-4 text-slate-400" />
                   Pickup window
                 </label>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <p className="mb-1 text-[11px] text-slate-500">From</p>
                     <input

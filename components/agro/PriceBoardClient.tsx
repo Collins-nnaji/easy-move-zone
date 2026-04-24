@@ -247,7 +247,7 @@ export function PriceBoardClient() {
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Filters */}
         <div className="mb-7 flex flex-col gap-4 rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur sm:flex-row sm:items-center sm:flex-wrap">
-          <div className="relative flex-1 max-w-xs">
+          <div className="relative flex-1 w-full sm:max-w-xs">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
@@ -263,11 +263,11 @@ export function PriceBoardClient() {
             )}
           </div>
 
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <select
               value={market}
               onChange={(e) => setMarket(e.target.value)}
-              className="appearance-none rounded-xl border border-slate-200 bg-white/90 py-2.5 pl-3 pr-8 text-sm font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full appearance-none rounded-xl border border-slate-200 bg-white/90 py-2.5 pl-3 pr-8 text-sm font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 sm:w-auto"
             >
               {MARKETS.map((m) => <option key={m}>{m}</option>)}
             </select>
