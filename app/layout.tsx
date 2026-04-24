@@ -40,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="overflow-x-hidden" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${outfit.variable} ${spaceGrotesk.variable} ${playfairDisplay.variable} min-h-screen min-w-0 flex flex-col overflow-x-hidden antialiased`}
       >

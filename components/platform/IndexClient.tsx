@@ -21,47 +21,49 @@ export function IndexClient() {
   return (
     <div className="grid lg:grid-cols-[1fr_400px] gap-8 mt-12">
       {/* Left: Table */}
-      <div className="bg-slate-900/50 rounded-3xl border border-white/10 overflow-hidden h-fit">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-white/10 text-slate-400 text-sm">
-              <th className="py-4 px-6 font-medium">Rank</th>
-              <th className="py-4 px-6 font-medium">City</th>
-              <th className="py-4 px-6 font-medium">Move Score™</th>
-              <th className="py-4 px-6 font-medium hidden sm:table-cell">Category</th>
-              <th className="py-4 px-6 font-medium">Trend</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {topCities.map((city) => {
-              const isActive = activeCity.name === city.name
-              return (
-                <tr 
-                  key={city.rank} 
-                  onClick={() => setActiveCity(city)}
-                  className={`cursor-pointer transition-colors ${isActive ? "bg-white/10" : "hover:bg-white/5"}`}
-                >
-                  <td className="py-4 px-6 text-2xl font-[var(--font-playfair)] text-slate-500">#{city.rank}</td>
-                  <td className="py-4 px-6 font-bold text-lg flex items-center gap-2">
-                     {city.name}
-                     {isActive && <MapPin className="h-4 w-4 text-[#00D4FF]" />}
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className="bg-[#00D4FF]/20 text-[#00D4FF] py-1 px-3 rounded-md font-bold text-sm">
-                      {city.score}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 text-slate-400 text-sm hidden sm:table-cell">{city.category}</td>
-                  <td className="py-4 px-6 text-sm">
-                    <span className={`${city.trend.startsWith('+') ? 'text-green-400' : city.trend.startsWith('-') && city.trend !== '--' ? 'text-red-400' : 'text-slate-400'}`}>
-                      {city.trend}
-                    </span>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+      <div className="bg-slate-900/50 rounded-3xl border border-white/10 overflow-x-auto h-fit [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:display-none">
+        <div className="min-w-[500px]">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-white/10 text-slate-400 text-sm">
+                <th className="py-4 px-6 font-medium">Rank</th>
+                <th className="py-4 px-6 font-medium">City</th>
+                <th className="py-4 px-6 font-medium">Move Score™</th>
+                <th className="py-4 px-6 font-medium hidden sm:table-cell">Category</th>
+                <th className="py-4 px-6 font-medium">Trend</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {topCities.map((city) => {
+                const isActive = activeCity.name === city.name
+                return (
+                  <tr 
+                    key={city.rank} 
+                    onClick={() => setActiveCity(city)}
+                    className={`cursor-pointer transition-colors ${isActive ? "bg-white/10" : "hover:bg-white/5"}`}
+                  >
+                    <td className="py-4 px-6 text-2xl font-[var(--font-playfair)] text-slate-500">#{city.rank}</td>
+                    <td className="py-4 px-6 font-bold text-lg flex items-center gap-2">
+                       {city.name}
+                       {isActive && <MapPin className="h-4 w-4 text-[#00D4FF]" />}
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className="bg-[#00D4FF]/20 text-[#00D4FF] py-1 px-3 rounded-md font-bold text-sm">
+                        {city.score}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-slate-400 text-sm hidden sm:table-cell">{city.category}</td>
+                    <td className="py-4 px-6 text-sm">
+                      <span className={`${city.trend.startsWith('+') ? 'text-green-400' : city.trend.startsWith('-') && city.trend !== '--' ? 'text-red-400' : 'text-slate-400'}`}>
+                        {city.trend}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Right: Map */}

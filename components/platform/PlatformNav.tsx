@@ -96,8 +96,8 @@ export function PlatformNav() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 ring-1 ring-emerald-400/30 transition group-hover:bg-emerald-500/30 group-hover:ring-emerald-300/60">
               <Wheat className="h-5 w-5 text-emerald-300" strokeWidth={2} />
             </div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-[17px] font-bold tracking-tight">
+            <div className="flex flex-col leading-tight sm:flex-row sm:items-center sm:gap-2">
+              <span className="text-[15px] font-bold tracking-tight sm:text-[17px]">
                 EasyMove<span className="text-emerald-400">Zone</span>
               </span>
               <span className="text-[8.5px] font-bold uppercase tracking-[0.24em] text-emerald-500/80 hidden sm:flex items-center gap-2">

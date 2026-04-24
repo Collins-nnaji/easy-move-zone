@@ -206,7 +206,7 @@ export function HomePageClient() {
 
               <motion.h1
                 {...fadeUp(reduceMotion ? 0 : 0.07, 24)}
-                className="text-[2.3rem] font-bold leading-[1.05] tracking-tight text-white sm:text-5xl sm:leading-[1.04] lg:text-[3.4rem]"
+                className="text-[1.65rem] font-bold leading-[1.1] tracking-tight text-white sm:text-5xl sm:leading-[1.04] lg:text-[3.4rem]"
               >
                 Move your harvest
                 <br />
@@ -230,14 +230,14 @@ export function HomePageClient() {
               >
                 <Link
                   href="/produce/list"
-                  className="group inline-flex items-center gap-2.5 rounded-full bg-emerald-500 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-emerald-900/40 transition-all hover:bg-emerald-400 hover:shadow-emerald-900/50 active:scale-[0.97]"
+                  className="group inline-flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-full bg-emerald-500 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-emerald-900/40 transition-all hover:bg-emerald-400 hover:shadow-emerald-900/50 active:scale-[0.97]"
                 >
                   <Sprout className="h-4 w-4 transition-transform group-hover:scale-110" />
                   List your produce
                 </Link>
                 <Link
                   href="/produce"
-                  className="inline-flex items-center justify-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition-all hover:bg-white/[0.16] hover:border-white/30"
+                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition-all hover:bg-white/[0.16] hover:border-white/30"
                 >
                   <Search className="h-4 w-4" />
                   Browse the market
@@ -291,7 +291,7 @@ export function HomePageClient() {
                   </Link>
                 </div>
 
-                <div className="relative mt-5 grid grid-cols-3 gap-2">
+                <div className="relative mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
                   {hubs.map((hub, i) => (
                     <motion.div
                       key={hub.name}
@@ -354,7 +354,7 @@ export function HomePageClient() {
                             <div className={`mb-3 inline-flex items-center gap-2 rounded-full bg-gradient-to-r ${story.accent} px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white`}>
                               {story.title}
                             </div>
-                            <p className="text-xs leading-relaxed text-slate-300/90">{story.body}</p>
+                            <p className="text-[11px] leading-relaxed text-slate-300/90 sm:text-xs">{story.body}</p>
                           </div>
                         </div>
                       ))}
@@ -372,7 +372,7 @@ export function HomePageClient() {
             transition={{ delay: 0.38, duration: 0.65, ease: easeOut }}
             className="mt-16 w-full border-t border-white/[0.08] pt-10 lg:mt-24"
           >
-            <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
               {trustStats.map((s, i) => (
                 <motion.div
                   key={s.label}
@@ -497,7 +497,7 @@ export function HomePageClient() {
               <h2 className="mt-2.5 text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
                 Today&apos;s commodity prices
               </h2>
-              <p className="mt-1.5 text-sm text-slate-500">Crowdsourced from major markets across Nigeria. Updated daily.</p>
+              <p className="mt-1.5 text-xs text-slate-500 sm:text-sm">Crowdsourced from major markets across Nigeria. Updated daily.</p>
             </div>
             <Link
               href="/price-board"
@@ -508,47 +508,49 @@ export function HomePageClient() {
             </Link>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Commodity</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Unit</th>
-                  <th className="px-6 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-slate-400">Price</th>
-                  <th className="px-6 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-slate-400">Change</th>
-                </tr>
-              </thead>
-              <tbody>
-                {commodityPrices.map((c, i) => (
-                  <tr
-                    key={c.crop}
-                    className={`transition hover:bg-slate-50/80 ${i < commodityPrices.length - 1 ? "border-b border-slate-50" : ""}`}
-                  >
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-800">{c.crop}</td>
-                    <td className="px-6 py-4 text-sm text-slate-500">{c.unit}</td>
-                    <td className="px-6 py-4 text-right text-sm font-bold text-slate-900 tabular-nums">{c.price}</td>
-                    <td className="px-6 py-4 text-right">
-                      <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${
-                        c.trend === "up"
-                          ? "bg-emerald-50 text-emerald-700"
-                          : c.trend === "down"
-                          ? "bg-red-50 text-red-600"
-                          : "bg-slate-100 text-slate-500"
-                      }`}>
-                        {c.trend === "up" ? (
-                          <TrendingUp className="h-3 w-3" />
-                        ) : c.trend === "down" ? (
-                          <TrendingDown className="h-3 w-3" />
-                        ) : (
-                          <Minus className="h-3 w-3" />
-                        )}
-                        {c.change}
-                      </span>
-                    </td>
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:display-none">
+            <div className="min-w-[500px]">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50">
+                    <th className="px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Commodity</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Unit</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-slate-400">Price</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-slate-400">Change</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {commodityPrices.map((c, i) => (
+                    <tr
+                      key={c.crop}
+                      className={`transition hover:bg-slate-50/80 ${i < commodityPrices.length - 1 ? "border-b border-slate-50" : ""}`}
+                    >
+                      <td className="px-6 py-4 text-sm font-semibold text-slate-800">{c.crop}</td>
+                      <td className="px-6 py-4 text-sm text-slate-500">{c.unit}</td>
+                      <td className="px-6 py-4 text-right text-sm font-bold text-slate-900 tabular-nums">{c.price}</td>
+                      <td className="px-6 py-4 text-right">
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${
+                          c.trend === "up"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : c.trend === "down"
+                            ? "bg-red-50 text-red-600"
+                            : "bg-slate-100 text-slate-500"
+                        }`}>
+                          {c.trend === "up" ? (
+                            <TrendingUp className="h-3 w-3" />
+                          ) : c.trend === "down" ? (
+                            <TrendingDown className="h-3 w-3" />
+                          ) : (
+                            <Minus className="h-3 w-3" />
+                          )}
+                          {c.change}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </motion.section>
@@ -590,7 +592,7 @@ export function HomePageClient() {
               </ul>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {[
                 { label: "Post-harvest loss prevented", value: "₦2.4B", icon: Zap, gradient: "from-emerald-500 to-green-500", bg: "bg-emerald-50", border: "border-emerald-100", text: "text-emerald-800" },
                 { label: "Average delivery time", value: "18 hrs", icon: Clock, gradient: "from-amber-500 to-orange-500", bg: "bg-amber-50", border: "border-amber-100", text: "text-amber-800" },
