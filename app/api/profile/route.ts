@@ -139,18 +139,26 @@ export async function GET() {
           agent_bio,
           agent_verified
         from user_profiles
-        where auth_user_id = $1
+        where user_id = $1
         limit 1`,
         [authUserId],
       ),
+      // user_saved_searches may not exist yet — graceful fallback
       sql.query(
-        `select id, name, city_slug, listing_type, budget_min, budget_max, bedrooms_min, created_at
-         from user_saved_searches
-         where auth_user_id = $1
-         order by created_at desc
-         limit 50`,
-        [authUserId],
-      ),
+        `select table_name from information_schema.tables
+         where table_name = 'user_saved_searches' limit 1`,
+        [],
+      ).then(async (exists) => {
+        if (!Array.isArray(exists) || exists.length === 0) return []
+        return sql.query(
+          `select id, name, city_slug, listing_type, budget_min, budget_max, bedrooms_min, created_at
+           from user_saved_searches
+           where user_id = $1
+           order by created_at desc
+           limit 50`,
+          [authUserId],
+        )
+      }),
     ])
 
     const profileRows = profileRaw as Array<{
@@ -243,7 +251,7 @@ export async function PUT(request: Request) {
 
     const rowsRaw = await sql.query(
       `insert into user_profiles (
-        auth_user_id,
+        user_id,
         role,
         full_name,
         phone,
@@ -267,7 +275,7 @@ export async function PUT(request: Request) {
       ) values (
         $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,now()
       )
-      on conflict (auth_user_id) do update set
+      on conflict (user_id) do update set
         role = excluded.role,
         full_name = excluded.full_name,
         phone = excluded.phone,
