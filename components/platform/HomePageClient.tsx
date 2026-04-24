@@ -206,7 +206,7 @@ export function HomePageClient() {
 
               <motion.h1
                 {...fadeUp(reduceMotion ? 0 : 0.07, 24)}
-                className="text-[2.1rem] font-bold leading-[1.05] tracking-tight text-white sm:text-5xl sm:leading-[1.04] lg:text-[3.4rem]"
+                className="text-[2.3rem] font-bold leading-[1.05] tracking-tight text-white sm:text-5xl sm:leading-[1.04] lg:text-[3.4rem]"
               >
                 Move your harvest
                 <br />
@@ -226,7 +226,7 @@ export function HomePageClient() {
 
               <motion.div
                 {...fadeUp(reduceMotion ? 0 : 0.19, 18)}
-                className="mt-9 flex flex-wrap gap-3.5 justify-center lg:justify-start"
+                className="mt-10 flex flex-col sm:flex-row flex-wrap gap-4 justify-center lg:justify-start"
               >
                 <Link
                   href="/produce/list"
@@ -237,7 +237,7 @@ export function HomePageClient() {
                 </Link>
                 <Link
                   href="/produce"
-                  className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition-all hover:bg-white/[0.16] hover:border-white/30"
+                  className="inline-flex items-center justify-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition-all hover:bg-white/[0.16] hover:border-white/30"
                 >
                   <Search className="h-4 w-4" />
                   Browse the market
@@ -442,7 +442,7 @@ export function HomePageClient() {
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="mx-auto grid max-w-xl gap-6 md:max-w-none md:grid-cols-3">
             {howItWorks.map((step, idx) => (
               <motion.div
                 key={step.step}
@@ -669,7 +669,7 @@ export function HomePageClient() {
             </div>
           </div>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mx-auto mt-8 grid max-w-xl gap-4 sm:grid-cols-2 md:max-w-none lg:grid-cols-4">
             {quickActions.map((action, i) => (
               <motion.div
                 key={action.label}

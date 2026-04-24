@@ -35,9 +35,9 @@ export function PlatformFooter() {
       </div>
 
       <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
           {/* Brand */}
-          <div>
+          <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 ring-1 ring-emerald-500/30">
                 <Wheat className="h-4.5 w-4.5 text-emerald-400" strokeWidth={2} />
@@ -46,12 +46,12 @@ export function PlatformFooter() {
                 EasyMove<span className="text-emerald-400">Zone</span>
               </span>
             </div>
-            <p className="mt-3 text-sm leading-relaxed text-slate-400 max-w-xs">
+            <p className="mt-4 text-sm leading-relaxed text-slate-400 max-w-xs">
               Africa&apos;s agro logistics platform — connecting farmers, transporters, and buyers. Reducing post-harvest loss across the continent.
             </p>
 
-            <div className="mt-4">
-              <p className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500">Contact</p>
+            <div className="mt-6">
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">Contact</p>
               <a
                 href={`mailto:${PUBLIC_CONTACT_EMAIL}`}
                 className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-400/90 transition hover:text-emerald-300"
@@ -61,7 +61,7 @@ export function PlatformFooter() {
               </a>
             </div>
 
-            <div className="mt-4 flex items-center gap-1.5 text-[11px] text-slate-500">
+            <div className="mt-5 flex items-center gap-1.5 text-[11px] text-slate-500">
               <MapPin className="h-3.5 w-3.5 text-slate-600" />
               Nigeria · Ghana · Kenya · Africa
             </div>
@@ -69,9 +69,9 @@ export function PlatformFooter() {
 
           {/* Link columns */}
           {Object.entries(footerLinks).map(([title, links]) => (
-            <div key={title}>
-              <h4 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">{title}</h4>
-              <ul className="space-y-2">
+            <div key={title} className="flex flex-col items-center text-center sm:items-start sm:text-left">
+              <h4 className="mb-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">{title}</h4>
+              <ul className="space-y-3">
                 {links.map((link) => (
                   <li key={link.label}>
                     <Link

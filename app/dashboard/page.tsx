@@ -85,22 +85,22 @@ export default async function AgroDashboardPage() {
           </div>
 
           {/* Quick stats */}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-8">
+          <div className="mx-auto grid max-w-xl grid-cols-1 gap-4 sm:max-w-none sm:grid-cols-2 lg:grid-cols-4 mb-8">
             {[
-              { icon: Sprout, label: "Active listings", value: myListings.filter((l) => l.status === "active").length, color: "bg-emerald-100 text-emerald-700" },
-              { icon: Truck, label: "Shipments", value: myShipments.length, color: "bg-amber-100 text-amber-700" },
-              { icon: Package, label: "Delivered", value: myShipments.filter((s) => s.status === "delivered").length, color: "bg-blue-100 text-blue-700" },
-              { icon: Bell, label: "Unread alerts", value: notifications.filter((n) => !n.read).length, color: "bg-red-100 text-red-700" },
+              { icon: Sprout, label: "Active listings", value: myListings.filter((l) => l.status === "active").length, color: "bg-emerald-500/10 text-emerald-600 ring-1 ring-emerald-500/20" },
+              { icon: Truck, label: "Shipments", value: myShipments.length, color: "bg-amber-500/10 text-amber-600 ring-1 ring-amber-500/20" },
+              { icon: Package, label: "Delivered", value: myShipments.filter((s) => s.status === "delivered").length, color: "bg-blue-500/10 text-blue-600 ring-1 ring-blue-500/20" },
+              { icon: Bell, label: "Unread alerts", value: notifications.filter((n) => !n.read).length, color: "bg-red-500/10 text-red-600 ring-1 ring-red-500/20" },
             ].map((s) => (
               <div
                 key={s.label}
-                className="rounded-2xl border border-white/60 bg-white/80 p-5 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:shadow-lg"
+                className="rounded-2xl border border-white/60 bg-white/40 p-5 shadow-sm backdrop-blur-md transition-all hover:bg-white/60 hover:shadow-lg active:scale-[0.98]"
               >
-                <div className={`mb-3 inline-flex h-9 w-9 items-center justify-center rounded-xl ${s.color}`}>
-                  <s.icon className="h-5 w-5" strokeWidth={1.75} />
+                <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl ${s.color}`}>
+                  <s.icon className="h-5 w-5" strokeWidth={2} />
                 </div>
-                <div className="text-2xl font-bold text-slate-900">{s.value}</div>
-                <div className="mt-0.5 text-xs text-slate-500">{s.label}</div>
+                <div className="text-2xl font-bold tracking-tight text-slate-900">{s.value}</div>
+                <div className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">{s.label}</div>
               </div>
             ))}
           </div>
