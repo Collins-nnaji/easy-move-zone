@@ -160,7 +160,7 @@ export function HomePageClient() {
   return (
     <>
       {/* ── HERO ── */}
-      <section ref={heroRef} className="relative min-h-[92vh] overflow-hidden md:min-h-[94vh]">
+      <section ref={heroRef} className="relative min-h-[85vh] overflow-hidden md:min-h-[94vh]">
         <motion.div className="pointer-events-none absolute inset-0" style={{ y: heroParallax, opacity: heroOpacity }}>
           <Image
             src={heroBg}
@@ -187,7 +187,7 @@ export function HomePageClient() {
           />
         </motion.div>
 
-        <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center px-4 pb-16 pt-24 sm:px-6 md:min-h-[94vh] lg:px-8 lg:pb-24 lg:pt-32">
+        <div className="relative z-10 mx-auto flex min-h-[85vh] max-w-7xl flex-col justify-center px-4 pb-10 pt-20 sm:px-6 md:min-h-[94vh] lg:px-8 lg:pb-24 lg:pt-32">
           <div className="grid w-full items-center gap-12 lg:grid-cols-12 lg:gap-16">
             {/* Left copy */}
             <div className="mx-auto max-w-3xl text-center lg:col-span-7 lg:mx-0 lg:max-w-none lg:text-left">
@@ -206,7 +206,7 @@ export function HomePageClient() {
 
               <motion.h1
                 {...fadeUp(reduceMotion ? 0 : 0.07, 24)}
-                className="text-[1.65rem] font-bold leading-[1.1] tracking-tight text-white sm:text-5xl sm:leading-[1.04] lg:text-[3.4rem]"
+                className="text-[1.5rem] font-bold leading-[1.1] tracking-tight text-white sm:text-5xl sm:leading-[1.04] lg:text-[3.4rem]"
               >
                 Move your harvest
                 <br />
@@ -226,18 +226,18 @@ export function HomePageClient() {
 
               <motion.div
                 {...fadeUp(reduceMotion ? 0 : 0.19, 18)}
-                className="mt-10 flex flex-col gap-3.5 px-4 sm:flex-row sm:px-0 lg:justify-start"
+                className="mt-8 flex flex-col gap-3 px-4 sm:flex-row sm:px-0 lg:justify-start"
               >
                 <Link
                   href="/produce/list"
-                  className="group inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-emerald-500 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-emerald-900/40 transition-all hover:bg-emerald-400 hover:shadow-emerald-900/50 active:scale-[0.97] sm:w-auto"
+                  className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-500 px-5 py-2.5 text-[13px] font-bold text-white shadow-xl shadow-emerald-900/40 transition-all hover:bg-emerald-400 hover:shadow-emerald-900/50 active:scale-[0.97] sm:w-auto sm:px-6 sm:py-3.5 sm:text-sm"
                 >
                   <Sprout className="h-4 w-4 transition-transform group-hover:scale-110" />
                   List your produce
                 </Link>
                 <Link
                   href="/produce"
-                  className="inline-flex w-full items-center justify-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition-all hover:bg-white/[0.16] hover:border-white/30 sm:w-auto"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-[13px] font-bold text-white backdrop-blur-sm transition-all hover:bg-white/[0.16] hover:border-white/30 sm:w-auto sm:px-6 sm:py-3.5 sm:text-sm"
                 >
                   <Search className="h-4 w-4" />
                   Browse the market
@@ -301,17 +301,17 @@ export function HomePageClient() {
                     >
                       <Link
                         href={`/produce?hub=${hub.name.toLowerCase()}`}
-                        className={`group flex items-center justify-between rounded-xl border border-white/8 bg-gradient-to-br ${hub.color} px-4 py-3 transition hover:border-emerald-400/30 hover:bg-white/[0.1] sm:flex-col sm:items-start sm:py-2.5`}
+                        className={`group flex items-center justify-between rounded-xl border border-white/8 bg-gradient-to-br ${hub.color} px-3.5 py-2 transition hover:border-emerald-400/30 hover:bg-white/[0.1] sm:flex-col sm:items-start sm:py-2.5`}
                       >
                         <div className="flex flex-col">
-                          <span className="text-[14px] font-bold text-white group-hover:text-emerald-100 transition sm:text-[13px] sm:font-semibold">
+                          <span className="text-[13px] font-bold text-white group-hover:text-emerald-100 transition sm:font-semibold">
                             {hub.name}
                           </span>
-                          <span className="mt-0.5 text-[11px] font-medium text-slate-400 sm:text-[10px] sm:text-slate-500">
+                          <span className="text-[10px] font-medium text-slate-400 sm:mt-0.5 sm:text-slate-500">
                             {hub.state}
                           </span>
                         </div>
-                        <ChevronRight className="h-4 w-4 text-white/30 transition-transform group-hover:translate-x-0.5 sm:hidden" />
+                        <ChevronRight className="h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-0.5 sm:hidden" />
                       </Link>
                     </motion.div>
                   ))}
@@ -400,7 +400,7 @@ export function HomePageClient() {
       </section>
 
       {/* ── TRUSTED BY STRIP ── */}
-      <motion.section {...viewFade(!!reduceMotion)} className="border-y border-slate-100 bg-white py-10">
+      <motion.section {...viewFade(!!reduceMotion)} className="border-y border-slate-100 bg-white py-6 md:py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -480,10 +480,10 @@ export function HomePageClient() {
             ))}
           </div>
 
-          <div className="mt-12 text-center">
+          <div className="mt-8 text-center">
             <Link
               href="/auth?mode=signup"
-              className="inline-flex items-center gap-2.5 rounded-full bg-emerald-600 px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-500 active:scale-[0.97]"
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-xs font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-500 active:scale-[0.97] sm:px-8 sm:py-3.5 sm:text-sm"
             >
               Get started free
               <ArrowRight className="h-4 w-4" />
@@ -493,7 +493,7 @@ export function HomePageClient() {
       </motion.section>
 
       {/* ── COMMODITY PRICE BOARD PREVIEW ── */}
-      <motion.section {...viewFade(!!reduceMotion)} className="border-t border-slate-100 bg-slate-50/60 py-20 md:py-24">
+      <motion.section {...viewFade(!!reduceMotion)} className="border-t border-slate-100 bg-slate-50/60 py-12 md:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-10">
             <div>
@@ -563,7 +563,7 @@ export function HomePageClient() {
       </motion.section>
 
       {/* ── WHY EASYMOVEZONE ── */}
-      <motion.section {...viewFade(!!reduceMotion)} className="bg-white py-20 md:py-28">
+      <motion.section {...viewFade(!!reduceMotion)} className="bg-white py-12 md:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
             <div>

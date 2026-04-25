@@ -440,7 +440,7 @@ function ListingCard({
   return (
     <div className="group/card flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-[#0033A1]/20 hover:shadow-lg hover:shadow-[#0033A1]/[0.06] hover:ring-2 hover:ring-[#0033A1]/10">
       <Link href={`/properties/${listing.id}`} className="flex min-h-0 flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0072CE]/35">
-        <div className="relative h-52 overflow-hidden">
+        <div className="relative h-40 overflow-hidden sm:h-52">
           <div
             className="absolute inset-0 transition duration-700 group-hover/card:scale-[1.03]"
             style={listingHeroStyle(listing)}
@@ -481,7 +481,7 @@ function ListingCard({
             <p className="text-xs text-white/85">{listing.neighborhood ?? "—"}</p>
           </div>
         </div>
-        <div className="flex flex-1 flex-col p-5">
+        <div className="flex flex-1 flex-col p-4 sm:p-5">
           <h3 className="font-semibold leading-snug text-[#0f172a] transition-colors group-hover/card:text-[#0033A1]">{listing.title}</h3>
           {listing.category === "home" && listing.bedrooms != null && (
             <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-slate-500">
@@ -494,7 +494,7 @@ function ListingCard({
             </p>
           )}
           <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-            <div className="text-lg font-bold tabular-nums text-[#0f172a]">{listing.price}</div>
+            <div className="text-base font-bold tabular-nums text-[#0f172a] sm:text-lg">{listing.price}</div>
             <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">{listing.size}</span>
           </div>
           {listing.aiValue && (

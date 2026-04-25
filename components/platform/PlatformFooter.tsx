@@ -34,7 +34,7 @@ export function PlatformFooter() {
         <div className="absolute -left-32 bottom-0 h-[240px] w-[240px] rounded-full bg-lime-500/10 blur-[120px]" />
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6 md:py-12 lg:px-8">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
