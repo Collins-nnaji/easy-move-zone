@@ -168,10 +168,11 @@ export function PlatformNav() {
                 </Link>
                 <Link
                   href="/auth"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3.5 py-1.5 text-[13px] font-bold text-white shadow-sm shadow-emerald-900/40 transition hover:bg-emerald-400 active:scale-[0.97]"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3 py-1.5 text-[13px] font-bold text-white shadow-sm shadow-emerald-900/40 transition hover:bg-emerald-400 active:scale-[0.97] sm:px-3.5"
                 >
                   <UserRound className="h-3.5 w-3.5 shrink-0" />
-                  Sign in
+                  <span className="hidden xs:inline">Sign in</span>
+                  <span className="inline xs:hidden sr-only">Sign in</span>
                 </Link>
               </div>
             )}

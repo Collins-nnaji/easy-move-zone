@@ -226,18 +226,18 @@ export function HomePageClient() {
 
               <motion.div
                 {...fadeUp(reduceMotion ? 0 : 0.19, 18)}
-                className="mt-10 flex flex-col sm:flex-row flex-wrap gap-4 justify-center lg:justify-start"
+                className="mt-10 flex flex-col gap-3.5 px-4 sm:flex-row sm:px-0 lg:justify-start"
               >
                 <Link
                   href="/produce/list"
-                  className="group inline-flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-full bg-emerald-500 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-emerald-900/40 transition-all hover:bg-emerald-400 hover:shadow-emerald-900/50 active:scale-[0.97]"
+                  className="group inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-emerald-500 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-emerald-900/40 transition-all hover:bg-emerald-400 hover:shadow-emerald-900/50 active:scale-[0.97] sm:w-auto"
                 >
                   <Sprout className="h-4 w-4 transition-transform group-hover:scale-110" />
                   List your produce
                 </Link>
                 <Link
                   href="/produce"
-                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition-all hover:bg-white/[0.16] hover:border-white/30"
+                  className="inline-flex w-full items-center justify-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition-all hover:bg-white/[0.16] hover:border-white/30 sm:w-auto"
                 >
                   <Search className="h-4 w-4" />
                   Browse the market
@@ -246,13 +246,13 @@ export function HomePageClient() {
 
               <motion.div
                 {...fadeUp(reduceMotion ? 0 : 0.23, 18)}
-                className="mt-5 flex flex-wrap gap-5 justify-center lg:justify-start"
+                className="mt-6 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap lg:justify-start"
               >
-                <Link href="/transporters/register" className="group flex items-center gap-1.5 text-sm font-medium text-emerald-300/90 transition hover:text-white">
-                  Register as transporter
+                <Link href="/transporters/register" className="group flex items-center justify-center gap-1.5 rounded-lg bg-white/5 py-2 text-sm font-medium text-emerald-300/90 transition hover:text-white sm:bg-transparent sm:py-0 sm:justify-start">
+                  Register
                   <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                 </Link>
-                <Link href="/price-board" className="group flex items-center gap-1.5 text-sm font-medium text-emerald-300/90 transition hover:text-white">
+                <Link href="/price-board" className="group flex items-center justify-center gap-1.5 rounded-lg bg-white/5 py-2 text-sm font-medium text-emerald-300/90 transition hover:text-white sm:bg-transparent sm:py-0 sm:justify-start">
                   Today&apos;s prices
                   <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                 </Link>
@@ -301,10 +301,17 @@ export function HomePageClient() {
                     >
                       <Link
                         href={`/produce?hub=${hub.name.toLowerCase()}`}
-                        className={`group flex flex-col rounded-xl border border-white/8 bg-gradient-to-br ${hub.color} px-3 py-2.5 transition hover:border-emerald-400/30 hover:bg-white/[0.1]`}
+                        className={`group flex items-center justify-between rounded-xl border border-white/8 bg-gradient-to-br ${hub.color} px-4 py-3 transition hover:border-emerald-400/30 hover:bg-white/[0.1] sm:flex-col sm:items-start sm:py-2.5`}
                       >
-                        <span className="text-[13px] font-semibold text-white group-hover:text-emerald-100 transition">{hub.name}</span>
-                        <span className="mt-0.5 text-[10px] font-medium text-slate-500">{hub.state}</span>
+                        <div className="flex flex-col">
+                          <span className="text-[14px] font-bold text-white group-hover:text-emerald-100 transition sm:text-[13px] sm:font-semibold">
+                            {hub.name}
+                          </span>
+                          <span className="mt-0.5 text-[11px] font-medium text-slate-400 sm:text-[10px] sm:text-slate-500">
+                            {hub.state}
+                          </span>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-white/30 transition-transform group-hover:translate-x-0.5 sm:hidden" />
                       </Link>
                     </motion.div>
                   ))}
