@@ -179,7 +179,7 @@
   }
   .fintech-card:hover {
     @apply border-primary/30 shadow-md;
-    transform: translateY(-4px);
+    transform: translateY(-2px);
   }
   .fintech-card:focus-visible {
     @apply border-primary/50;
@@ -556,33 +556,29 @@
     overflow: hidden;
     border: 1px solid rgba(0, 0, 0, 0.08);
     background:
-      linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.92) 100%);
-    box-shadow: 
-      0 1px 0 rgba(255, 255, 255, 0.8) inset,
-      0 14px 34px -24px rgba(0, 0, 0, 0.3);
-    transition: transform 320ms var(--ease-out-expo), box-shadow 320ms var(--ease-out-expo), border-color 320ms var(--ease-out-expo);
+      linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.9) 100%);
+    box-shadow: 0 14px 34px -24px rgba(0, 0, 0, 0.35);
+    transition: transform 260ms var(--ease-out-expo), box-shadow 260ms var(--ease-out-expo), border-color 260ms var(--ease-out-expo);
   }
 
   .emz-gloss-card::after {
     content: "";
     position: absolute;
     inset: 0;
-    width: 45%;
-    background: linear-gradient(100deg, transparent 5%, rgba(255, 255, 255, 0.5) 50%, transparent 95%);
-    transform: translateX(-150%);
+    width: 35%;
+    background: linear-gradient(100deg, transparent 10%, rgba(255, 255, 255, 0.6) 50%, transparent 90%);
+    transform: translateX(-140%);
     pointer-events: none;
   }
 
   .emz-gloss-card:hover {
-    transform: translateY(-6px);
-    border-color: rgba(201, 168, 76, 0.3);
-    box-shadow: 
-      0 1px 0 rgba(255, 255, 255, 0.9) inset,
-      0 28px 54px -28px rgba(0, 0, 0, 0.35);
+    transform: translateY(-4px);
+    border-color: rgba(201, 168, 76, 0.35);
+    box-shadow: 0 22px 44px -24px rgba(0, 0, 0, 0.38);
   }
 
   .emz-gloss-card:hover::after {
-    animation: emz-sheen 1100ms ease;
+    animation: emz-sheen 920ms ease;
   }
 
   .emz-hero-float {
@@ -596,25 +592,20 @@
   .emz-pill-cta {
     position: relative;
     overflow: hidden;
-    transition: transform 280ms var(--ease-out-expo), box-shadow 280ms var(--ease-out-expo);
   }
 
   .emz-pill-cta::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
-    transform: translateX(-180%);
-    transition: transform 550ms var(--ease-out-expo);
+    background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.25) 50%, transparent 100%);
+    transform: translateX(-160%);
+    transition: transform 420ms var(--ease-out-expo);
     pointer-events: none;
   }
 
-  .emz-pill-cta:hover {
-    transform: translateY(-3px);
-  }
-
   .emz-pill-cta:hover::after {
-    transform: translateX(180%);
+    transform: translateX(160%);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -765,16 +756,16 @@
   }
 
   .home-glow-a {
-    width: min(840px, 100vw);
-    height: min(840px, 100vw);
+    width: 840px;
+    height: 840px;
     background: radial-gradient(circle, rgba(21, 86, 176, 0.2) 0%, transparent 68%);
     top: -300px;
     right: -240px;
   }
 
   .home-glow-b {
-    width: min(500px, 100vw);
-    height: min(500px, 100vw);
+    width: 500px;
+    height: 500px;
     background: radial-gradient(circle, rgba(62, 198, 245, 0.12) 0%, transparent 70%);
     bottom: -130px;
     left: 60px;
@@ -789,39 +780,20 @@
   }
 
   @keyframes home-float-a {
-    0%, 100% { transform: translateY(0) rotate(-0.5deg); }
-    50% { transform: translateY(-8px) rotate(-0.5deg); }
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-10px) rotate(-2deg); }
   }
   @keyframes home-float-b {
-    0%, 100% { transform: translateY(0) rotate(0.4deg); }
-    50% { transform: translateY(-6px) rotate(0.4deg); }
+    0%, 100% { transform: translateY(0) rotate(1.5deg); }
+    50% { transform: translateY(-8px) rotate(1.5deg); }
   }
   @keyframes home-float-c {
-    0%, 100% { transform: translateY(0) rotate(-0.4deg); }
-    50% { transform: translateY(-10px) rotate(-0.4deg); }
+    0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+    50% { transform: translateY(-12px) rotate(-1.5deg); }
   }
   @keyframes home-float-d {
-    0%, 100% { transform: translateY(0) rotate(0.5deg); }
-    50% { transform: translateY(-5px) rotate(0.5deg); }
-  }
-
-  @media (min-width: 1024px) {
-    @keyframes home-float-a {
-      0%, 100% { transform: translateY(0) rotate(-2deg); }
-      50% { transform: translateY(-10px) rotate(-2deg); }
-    }
-    @keyframes home-float-b {
-      0%, 100% { transform: translateY(0) rotate(1.5deg); }
-      50% { transform: translateY(-8px) rotate(1.5deg); }
-    }
-    @keyframes home-float-c {
-      0%, 100% { transform: translateY(0) rotate(-1.5deg); }
-      50% { transform: translateY(-12px) rotate(-1.5deg); }
-    }
-    @keyframes home-float-d {
-      0%, 100% { transform: translateY(0) rotate(2deg); }
-      50% { transform: translateY(-7px) rotate(2deg); }
-    }
+    0%, 100% { transform: translateY(0) rotate(2deg); }
+    50% { transform: translateY(-7px) rotate(2deg); }
   }
 
   .home-float-card-a { animation: home-float-a 5.5s ease-in-out infinite; }
@@ -952,17 +924,17 @@
     border: 1px solid rgba(219, 228, 240, 0.95);
     background: linear-gradient(165deg, #ffffff 0%, #fafcff 55%, #f4f7fc 100%);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.95) inset,
-      0 26px 52px -30px rgba(15, 23, 42, 0.25);
-    transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1), border-color 350ms ease;
+      0 1px 0 rgba(255, 255, 255, 0.9) inset,
+      0 22px 48px -28px rgba(15, 23, 42, 0.28);
+    transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1), border-color 280ms ease;
   }
 
   .emz-rich-card:hover {
-    transform: translateY(-7px);
-    border-color: rgba(21, 94, 239, 0.3);
+    transform: translateY(-5px);
+    border-color: rgba(21, 94, 239, 0.28);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 1) inset,
-      0 32px 64px -28px rgba(21, 94, 239, 0.2);
+      0 1px 0 rgba(255, 255, 255, 0.95) inset,
+      0 28px 56px -24px rgba(21, 94, 239, 0.22);
   }
 
   .emz-hero-bento {

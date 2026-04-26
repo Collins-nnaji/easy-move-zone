@@ -43,7 +43,7 @@ export function HomeFeaturedListings() {
       whileInView={reduceMotion ? undefined : { opacity: 1 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.6, ease: easeOut }}
-      className="relative overflow-hidden border-y border-white/[0.08] bg-[#030712] py-10 md:py-20"
+      className="relative overflow-hidden border-y border-white/[0.08] bg-[#030712] py-14 md:py-20"
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_120%_60%_at_30%_0%,rgba(0,51,161,0.35),transparent)]" aria-hidden />
       <motion.div

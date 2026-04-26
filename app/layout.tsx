@@ -29,9 +29,9 @@ const playfairDisplay = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Africa's Agro Logistics Platform",
+  title: "EasyMoveZone — Trusted Land & Property in Africa",
   description:
-    "Move your harvest, not just your home. EasyMoveZone connects African farmers, transporters, and buyers — trusted agro logistics across Nigeria and beyond.",
+    "The trusted land and property platform for African professionals, diaspora, and returnees. Every listing is title-verified. Every transaction is guided end to end.",
 };
 
 export default function RootLayout({
@@ -40,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="overflow-x-hidden" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${outfit.variable} ${spaceGrotesk.variable} ${playfairDisplay.variable} min-h-screen min-w-0 flex flex-col overflow-x-hidden antialiased`}
       >

@@ -246,8 +246,8 @@ export function CitiesPageClient({
     <div className="mx-auto w-full max-w-7xl px-4 pb-16 pt-4 sm:px-6 lg:px-8">
 
       {/* ── Top bar: city selector ───────────────────────────────────────── */}
-      <div className="mb-6 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-        <span className="w-full text-center text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b] sm:w-auto sm:text-left">Select city</span>
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#64748b]">Select city</span>
         {allMarketsForList.map((market) => {
           const row = cityRows.find((r) => r.market.id === market.id)
           const isActive = market.id === activeCityId
@@ -256,16 +256,16 @@ export function CitiesPageClient({
               key={market.id}
               type="button"
               onClick={() => { setActiveCityId(market.id); setActiveTab("overview") }}
-              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-bold transition-all ${
+              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition ${
                 isActive
-                  ? "border-[#155eef] bg-[#155eef] text-white shadow-lg shadow-[#155eef]/20"
-                  : "border-[#dbe4f0] bg-white text-[#334155] hover:border-[#155eef] hover:bg-[#eef4ff]"
+                  ? "border-[#155eef] bg-[#155eef] text-white shadow-md"
+                  : "border-[#dbe4f0] bg-white text-[#0f172a] hover:border-[#155eef] hover:bg-[#eef4ff]"
               }`}
             >
               <span>{market.flagEmoji}</span>
               {market.name}
               {row && (
-                <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${isActive ? "bg-white/20 text-white" : "bg-[#f0f4fa] text-[#64748b]"}`}>
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${isActive ? "bg-white/20 text-white" : "bg-[#f0f4fa] text-[#334155]"}`}>
                   {row.valueScore}
                 </span>
               )}
@@ -332,9 +332,9 @@ export function CitiesPageClient({
           {activeTab === "overview" && (
             <div className="space-y-4">
               {/* Score rings */}
-              <div className="rounded-2xl border border-[#dbe4f0] bg-white p-6 shadow-sm">
-                <p className="mb-6 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-[#155eef] sm:text-left">City scorecard</p>
-                <div className="grid grid-cols-2 gap-y-6 sm:flex sm:flex-wrap sm:justify-around sm:gap-4">
+              <div className="rounded-2xl border border-[#dbe4f0] bg-white p-5">
+                <p className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-[#155eef]">City scorecard</p>
+                <div className="flex flex-wrap justify-around gap-4">
                   <ScoreRing score={activeCity.securityScore} label="Safety" />
                   <ScoreRing score={activeRow?.growthScore ?? 0} label="Growth" />
                   <ScoreRing score={activeCity.lifestyleScore} label="Community" />

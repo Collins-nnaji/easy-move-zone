@@ -148,7 +148,7 @@ export function SearchPageClient() {
                 initial={reduceMotion ? false : { opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.55, ease: easeOut }}
-                className="mt-4 max-w-xl text-balance text-sm leading-relaxed text-slate-400 sm:text-base"
+                className="mt-4 max-w-xl text-sm leading-relaxed text-slate-400 sm:text-base"
               >
                 Every property is{" "}
                 <strong className="font-semibold text-white">listed and managed by EasyMoveZone</strong> — verified in-house
@@ -166,7 +166,7 @@ export function SearchPageClient() {
                 className="mt-8"
               >
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">I want to</p>
-                <div className="mt-3 flex flex-wrap gap-2 justify-center lg:justify-start">
+                <div className="mt-2 flex flex-wrap gap-2">
                   {modes.map((m) => {
                     const Icon = m.icon
                     const active = browseMode === m.id
@@ -176,7 +176,7 @@ export function SearchPageClient() {
                         type="button"
                         onClick={() => setBrowseMode(m.id)}
                         className={clsx(
-                          "inline-flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition duration-200",
+                          "inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-left text-sm font-semibold transition duration-200",
                           active
                             ? "border-[#0072CE] bg-[#0072CE] text-white shadow-lg shadow-[#0033A1]/30"
                             : "border-white/15 bg-white/[0.06] text-slate-300 hover:border-white/25 hover:bg-white/[0.1]",
@@ -185,6 +185,7 @@ export function SearchPageClient() {
                         <Icon className="h-4 w-4 shrink-0 opacity-90" />
                         <span>
                           {m.label}
+                          <span className="ml-1.5 hidden font-normal text-[11px] opacity-80 sm:inline">· {m.hint}</span>
                         </span>
                       </button>
                     )
@@ -218,7 +219,7 @@ export function SearchPageClient() {
                     Filters
                   </button>
                 </div>
-                <div className="mt-3 flex flex-wrap gap-2 justify-center lg:justify-start border-t border-white/10 pt-3">
+                <div className="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-3">
                   {cities.map((city) => {
                     const active = cityFilter === city
                     return (
@@ -227,7 +228,7 @@ export function SearchPageClient() {
                         type="button"
                         onClick={() => setCityFilter(city)}
                         className={clsx(
-                          "rounded-full px-3.5 py-1.5 text-[11px] font-semibold transition",
+                          "rounded-full px-3.5 py-1.5 text-xs font-semibold transition",
                           active
                             ? "bg-[#0072CE] text-white shadow-md shadow-black/20"
                             : "border border-white/12 bg-black/20 text-slate-300 hover:border-cyan-400/30 hover:text-white",
@@ -244,13 +245,13 @@ export function SearchPageClient() {
                 initial={reduceMotion ? false : { opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.28, duration: 0.45 }}
-                className="mt-6 flex flex-wrap items-center justify-center lg:justify-start gap-3 text-xs text-slate-500"
+                className="mt-6 flex flex-wrap items-center gap-3 text-xs text-slate-500"
               >
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 font-semibold text-emerald-300">
                   <Home className="h-3.5 w-3.5" strokeWidth={2.5} />
                   Platform-managed
                 </span>
-                <span className="text-slate-500">Live database · AI estimates</span>
+                <span className="text-slate-500">Live database · AI ranges when available</span>
               </motion.p>
             </div>
 
@@ -337,7 +338,7 @@ export function SearchPageClient() {
               </div>
 
               <AnimatePresence mode="popLayout">
-                <motion.div layout className="mx-auto grid max-w-xl gap-5 sm:max-w-none sm:grid-cols-2">
+                <motion.div layout className="grid gap-5 sm:grid-cols-2">
                   {filtered.map((listing, i) => (
                     <motion.div
                       key={listing.id}
@@ -440,7 +441,7 @@ function ListingCard({
   return (
     <div className="group/card flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-[#0033A1]/20 hover:shadow-lg hover:shadow-[#0033A1]/[0.06] hover:ring-2 hover:ring-[#0033A1]/10">
       <Link href={`/properties/${listing.id}`} className="flex min-h-0 flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0072CE]/35">
-        <div className="relative h-40 overflow-hidden sm:h-52">
+        <div className="relative h-52 overflow-hidden">
           <div
             className="absolute inset-0 transition duration-700 group-hover/card:scale-[1.03]"
             style={listingHeroStyle(listing)}
@@ -481,7 +482,7 @@ function ListingCard({
             <p className="text-xs text-white/85">{listing.neighborhood ?? "—"}</p>
           </div>
         </div>
-        <div className="flex flex-1 flex-col p-4 sm:p-5">
+        <div className="flex flex-1 flex-col p-5">
           <h3 className="font-semibold leading-snug text-[#0f172a] transition-colors group-hover/card:text-[#0033A1]">{listing.title}</h3>
           {listing.category === "home" && listing.bedrooms != null && (
             <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-slate-500">
@@ -494,7 +495,7 @@ function ListingCard({
             </p>
           )}
           <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-            <div className="text-base font-bold tabular-nums text-[#0f172a] sm:text-lg">{listing.price}</div>
+            <div className="text-lg font-bold tabular-nums text-[#0f172a]">{listing.price}</div>
             <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">{listing.size}</span>
           </div>
           {listing.aiValue && (
