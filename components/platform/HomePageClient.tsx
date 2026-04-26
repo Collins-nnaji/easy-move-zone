@@ -2,86 +2,129 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion"
+import { motion, useReducedMotion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import {
   Home,
   Search,
   ArrowRight,
-  Handshake,
-  Building2,
-  BadgeCheck,
   Sparkles,
-  Scale,
   Banknote,
-  Landmark,
-  Users,
   Check,
-  MapPin,
+  HardHat,
+  ShieldCheck,
+  ArrowUpRight,
+  Play,
+  ChevronLeft,
+  ChevronRight,
+  Zap,
+  KeyRound,
+  ArrowLeftRight,
 } from "lucide-react"
 import { HomeFeaturedListings } from "@/components/platform/HomeFeaturedListings"
-import { useRef } from "react"
+import { useRef, useState, useCallback } from "react"
 
-const heroBg =
-  "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=2400&q=80"
+const heroVideos = [
+  "/emz construction.mp4",
+  "/emz construction 2.mp4",
+  "/emz construction 3.mp4",
+  "/emz construction 4.mp4",
+  "/emzbuilding one.mp4",
+]
 
-const partnersSectionBg =
-  "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=2400&q=80"
-
-const partnerPillars = [
+const services = [
   {
-    title: "Government & agencies",
-    description:
-      "Verification aligned with land registries, cadastral data, and planning authorities — listings that map to public records.",
-    icon: Landmark,
+    label: "OUTRIGHT PURCHASE",
+    title: "Buy a Verified Property",
+    description: "Own it outright from day one. Every listing passes a full title check against state registries and family histories — no Omonile disputes, no government acquisition surprises.",
+    icon: ShieldCheck,
+    href: "/search",
+    cta: "Browse verified homes",
+    gradient: "from-cyan-500 to-blue-500",
+    glow: "bg-cyan-500/20",
+    accent: "text-cyan-400",
+    border: "border-cyan-500/20",
+    photo: "/emzheropic.png",
+    photoPosition: "60% center",
   },
   {
-    title: "Developers & estates",
-    description:
-      "Title-backed inventory from licensed developers and master-plan communities — surfaced to local and diaspora buyers.",
-    icon: Building2,
+    label: "BUILD",
+    title: "Managed Build-to-Suit",
+    description: "You own the land — we handle everything else. Architectural design, government building permits, and quality-controlled construction with digital milestone updates.",
+    icon: HardHat,
+    href: "/build",
+    cta: "Start your build",
+    gradient: "from-amber-500 to-orange-500",
+    glow: "bg-amber-500/20",
+    accent: "text-amber-400",
+    border: "border-amber-500/20",
+    photo: null,
+    photoPosition: "",
   },
   {
-    title: "Legal & professionals",
-    description:
-      "Surveyors, conveyancing, and compliance partners integrated from document intake to buyer-ready diligence.",
-    icon: Scale,
+    label: "FINANCE",
+    title: "Mortgage & NHF Pathways",
+    description: "Move in now, pay over 10–30 years. We broker applications through Access Bank, Stanbic IBTC, and the National Housing Fund for Diaspora and local buyers.",
+    icon: Banknote,
+    href: "/finance",
+    cta: "Explore financing",
+    gradient: "from-emerald-500 to-teal-500",
+    glow: "bg-emerald-500/20",
+    accent: "text-emerald-400",
+    border: "border-emerald-500/20",
+    photo: null,
+    photoPosition: "",
+  },
+  {
+    label: "UPGRADE",
+    title: "Smart Move-In Fit-out",
+    description: "Don't wait for the national grid. We install off-grid solar power, smart security locks, and water treatment systems before you move in — fully functional from Day 1.",
+    icon: Zap,
+    href: "/upgrade",
+    cta: "See upgrade packages",
+    gradient: "from-yellow-400 to-orange-400",
+    glow: "bg-yellow-500/20",
+    accent: "text-yellow-400",
+    border: "border-yellow-500/20",
+    photo: null,
+    photoPosition: "",
+  },
+  {
+    label: "RENT TO OWN",
+    title: "Lease-Purchase Pathway",
+    description: "Stop wasting money on traditional rent. Move into a verified home as a tenant — a portion of every monthly payment builds toward your purchase price.",
+    icon: KeyRound,
+    href: "/own",
+    cta: "View rent-to-own homes",
+    gradient: "from-purple-500 to-indigo-500",
+    glow: "bg-purple-500/20",
+    accent: "text-purple-400",
+    border: "border-purple-500/20",
+    photo: "/homepage pic 2.png",
+    photoPosition: "center",
+  },
+  {
+    label: "SWAP & RELOCATE",
+    title: "Sell, Match & Move",
+    description: "Changing city? We sell your current home, find you an equivalent verified property in your new location, and coordinate the full relocation — one team, one process.",
+    icon: ArrowLeftRight,
+    href: "/swap",
+    cta: "Start your relocation",
+    gradient: "from-rose-500 to-pink-500",
+    glow: "bg-rose-500/20",
+    accent: "text-rose-400",
+    border: "border-rose-500/20",
+    photo: null,
+    photoPosition: "",
   },
 ] as const
 
 const cities = [
-  { name: "Lagos", state: "Lagos" },
-  { name: "Abuja", state: "FCT" },
-  { name: "Port Harcourt", state: "Rivers" },
-  { name: "Ibadan", state: "Oyo" },
-  { name: "Enugu", state: "Enugu" },
-  { name: "Kano", state: "Kano" },
+  { name: "Lagos", state: "Lagos", count: "120+ Properties" },
+  { name: "Abuja", state: "FCT", count: "85+ Properties" },
+  { name: "Port Harcourt", state: "Rivers", count: "40+ Properties" },
+  { name: "Ibadan", state: "Oyo", count: "35+ Properties" },
+  { name: "Enugu", state: "Enugu", count: "25+ Properties" },
 ]
-
-const trustStats = [
-  { value: "2,400+", label: "Verified listings", icon: BadgeCheck },
-  { value: "98.7%", label: "Fraud signals caught", icon: Home },
-  { value: "₦45B+", label: "Value guided", icon: Sparkles },
-  { value: "12,000+", label: "Buyers supported", icon: Users },
-]
-
-const mortgageWriteups = [
-  {
-    title: "Nigeria-first home finance",
-    body: "EasyMoveZone focuses on Nigerian buyers and the diaspora: we help you understand what documentation lenders expect alongside a verified purchase, so you are not guessing in isolation.",
-  },
-  {
-    title: "Major bank pathways",
-    body: "We facilitate introductions and coordination with trusted partners including Access Bank, Stanbic IBTC, and First Bank — aligned to how each institution underwrites verified property deals.",
-  },
-  {
-    title: "Diaspora NHF & public schemes",
-    body: "Where you qualify, we support navigation of Diaspora NHF and related FMBN / NiDCOM pathways, so offshore contributors can connect structured savings and contributions to an eligible home purchase.",
-  },
-  {
-    title: "Tied to your verified deal",
-    body: "Financing conversations run in parallel with title verification and your transaction timeline — not as a generic product pitch disconnected from the actual file you are buying.",
-  },
-] as const
 
 const easeOut = [0.16, 1, 0.3, 1] as const
 
@@ -91,16 +134,10 @@ const fadeUp = (delay = 0, y = 20) => ({
   transition: { duration: 0.6, delay, ease: easeOut },
 })
 
-const viewFade = (reduce: boolean, delay = 0) => ({
-  initial: reduce ? false : { opacity: 0, y: 24 },
-  whileInView: reduce ? undefined : { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-80px" },
-  transition: { duration: 0.55, delay, ease: easeOut },
-})
-
 export function HomePageClient() {
   const reduceMotion = useReducedMotion()
   const heroRef = useRef<HTMLElement>(null)
+  const [activeVideo, setActiveVideo] = useState(0)
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -108,352 +145,348 @@ export function HomePageClient() {
   const heroParallax = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [0, 80])
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.35])
 
+  const prevVideo = useCallback(() => setActiveVideo((v) => (v - 1 + heroVideos.length) % heroVideos.length), [])
+  const nextVideo = useCallback(() => setActiveVideo((v) => (v + 1) % heroVideos.length), [])
+
   return (
     <>
-      {/* Hero */}
-      <section ref={heroRef} className="relative min-h-[88vh] overflow-hidden md:min-h-[90vh]">
+      {/* Hero Section */}
+      <section ref={heroRef} className="relative min-h-[90vh] overflow-hidden flex items-center bg-[#020617]">
         <motion.div className="pointer-events-none absolute inset-0" style={{ y: heroParallax, opacity: heroOpacity }}>
           <Image
-            src={heroBg}
-            alt=""
+            src="/homepage pic.png"
+            alt="EMZ easymovezone — verified Nigerian property with moving truck"
             fill
             priority
-            className="object-cover object-center scale-105"
+            className="object-cover scale-105"
+            style={{ objectPosition: "30% center" }}
             sizes="100vw"
           />
           <div
-            className="absolute inset-0 bg-gradient-to-br from-[#020617]/92 via-[#0f172a]/78 to-[#0033A1]/55"
+            className="absolute inset-0 bg-gradient-to-br from-[#020617]/92 via-[#0f172a]/78 to-[#002880]/55"
             aria-hidden
           />
-          <motion.div
-            className="absolute -right-20 top-1/4 h-[min(55vw,520px)] w-[min(55vw,520px)] rounded-full bg-[#0072CE]/25 blur-[100px]"
-            animate={
-              reduceMotion
-                ? undefined
-                : {
-                    scale: [1, 1.08, 1],
-                    opacity: [0.35, 0.5, 0.35],
-                  }
-            }
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            aria-hidden
-          />
-          <div className="home-hero-grid absolute inset-0 opacity-[0.12]" aria-hidden />
+          <div className="absolute -right-40 top-1/4 h-[600px] w-[600px] rounded-full bg-[#0072CE]/20 blur-[120px]" aria-hidden />
+          <div className="absolute -left-40 bottom-1/4 h-[600px] w-[600px] rounded-full bg-emerald-500/10 blur-[120px]" aria-hidden />
         </motion.div>
 
-        <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-6xl flex-col justify-center px-4 pb-16 pt-24 sm:px-6 md:min-h-[90vh] lg:px-8 lg:pb-20 lg:pt-28">
-          <div className="grid w-full items-start gap-10 lg:grid-cols-12 lg:gap-12">
-            <div className="mx-auto max-w-3xl text-center lg:col-span-7 lg:mx-0 lg:max-w-none lg:text-left">
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-24 sm:px-6 lg:px-8 flex flex-col justify-center">
+          <div className="grid items-center gap-12 lg:grid-cols-12">
+            <div className="lg:col-span-7 text-center lg:text-left">
               <motion.div
                 {...fadeUp(0, 14)}
-                className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xs font-medium tracking-wide text-white/90 backdrop-blur-md"
+                className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-cyan-200 backdrop-blur-md"
               >
-                <motion.span
-                  animate={reduceMotion ? undefined : { rotate: [0, 12, -12, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <Sparkles className="h-3.5 w-3.5 text-cyan-200" />
-                </motion.span>
-                In-house verified · No syndicated feeds
+                <Sparkles className="h-3.5 w-3.5" />
+                The Complete Homeownership Ecosystem
               </motion.div>
 
               <motion.h1
-                {...fadeUp(reduceMotion ? 0 : 0.06, 22)}
-                className="text-[2rem] font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl sm:leading-[1.05] lg:text-[3.25rem]"
+                {...fadeUp(0.06, 22)}
+                className="display-title text-5xl text-white sm:text-6xl lg:text-[4rem]"
               >
-                Property in Nigeria,
-                <br />
-                <span className="bg-gradient-to-r from-white via-cyan-100 to-emerald-200/90 bg-clip-text text-transparent">
-                  cleared before you commit.
+                Your path to owning
+                <span className="block bg-gradient-to-r from-cyan-200 via-indigo-200 to-emerald-200 bg-clip-text text-transparent mt-2">
+                  property in Africa.
                 </span>
               </motion.h1>
 
               <motion.p
-                {...fadeUp(reduceMotion ? 0 : 0.12, 18)}
-                className="mx-auto mt-5 max-w-lg text-pretty text-sm leading-relaxed text-slate-300 sm:text-base lg:mx-0"
+                {...fadeUp(0.12, 18)}
+                className="mt-6 text-base leading-relaxed text-slate-300 max-w-xl mx-auto lg:mx-0"
               >
-                We list and manage every property ourselves — verified in-house, with transparent checks and guided support
-                for diaspora and local buyers.
+                We solve the trust and affordability gap. Secure verified land, access shared ownership schemes, track your build, and broker your mortgage — all in one place.
               </motion.p>
 
-              <motion.div {...fadeUp(reduceMotion ? 0 : 0.18, 18)} className="mx-auto mt-8 max-w-xl lg:mx-0">
+              <motion.div {...fadeUp(0.18, 18)} className="mt-10 max-w-xl mx-auto lg:mx-0">
                 <form
                   action="/search"
                   method="get"
-                  className="group relative rounded-2xl border border-white/20 bg-white/[0.12] p-1.5 shadow-2xl shadow-black/20 backdrop-blur-xl transition-[box-shadow,transform] duration-300 focus-within:border-white/35 focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.12)] sm:rounded-3xl sm:p-2"
+                  className="group relative rounded-2xl border border-white/20 bg-white/[0.08] p-2 shadow-2xl shadow-black/40 backdrop-blur-xl transition-all duration-300 focus-within:border-white/40 focus-within:bg-white/[0.12]"
                 >
-                  <Search className="pointer-events-none absolute left-5 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-[#0072CE] sm:left-6" />
+                  <Search className="pointer-events-none absolute left-6 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-cyan-400" />
                   <input
                     type="text"
                     name="q"
-                    placeholder="City, neighbourhood, or budget…"
-                    className="w-full rounded-2xl border-0 bg-white py-4 pl-12 pr-[6.5rem] text-[15px] text-[#0f172a] shadow-none placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:rounded-[1.35rem] sm:pl-14 sm:pr-36"
+                    placeholder="Search verified locations or schemes…"
+                    className="w-full rounded-xl border-0 bg-white py-4 pl-14 pr-36 text-[15px] text-[#0f172a] shadow-none placeholder:text-slate-500 focus:outline-none focus:ring-0"
                   />
                   <button
                     type="submit"
-                    className="absolute right-1.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-1.5 rounded-xl bg-[#0072CE] px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 active:scale-[0.98] sm:right-2 sm:px-6"
+                    className="absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center gap-1.5 rounded-lg bg-[#0033A1] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-[#002880]"
                   >
-                    Search
-                    <ArrowRight className="h-4 w-4 opacity-90" />
+                    Explore
+                    <ArrowRight className="h-4 w-4" />
                   </button>
                 </form>
               </motion.div>
             </div>
 
-            {/* Markets — hero right */}
+            {/* Right-side — transparent stats overlay */}
             <motion.div
-              initial={reduceMotion ? false : { opacity: 0, y: 20, scale: 0.98 }}
-              animate={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.22, duration: 0.65, ease: easeOut }}
-              className="relative mx-auto w-full max-w-md lg:col-span-5 lg:mx-0 lg:max-w-none lg:pt-4"
+              {...fadeUp(0.24, 20)}
+              className="lg:col-span-5 hidden lg:flex flex-col justify-center gap-6"
             >
-              <div className="absolute -inset-px rounded-[1.35rem] bg-gradient-to-br from-white/35 via-cyan-300/20 to-[#0072CE]/30 opacity-80 blur-[1px]" aria-hidden />
-              <div className="relative overflow-hidden rounded-3xl border border-white/20 bg-white/[0.09] p-6 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.65)] backdrop-blur-2xl sm:p-7">
-                <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#0072CE]/20 blur-3xl" aria-hidden />
-                <div className="relative flex items-start justify-between gap-4">
-                  <div>
-                    <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200/90">
-                      <MapPin className="h-3.5 w-3.5" />
-                      Markets
-                    </span>
-                    <h2 className="mt-2 text-xl font-semibold tracking-tight text-white sm:text-2xl">Explore by city</h2>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-400">
-                      Filter verified inventory by hub — then scroll featured listings below.
-                    </p>
+              {/* Eyebrow label */}
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-400/80">
+                Why EasyMoveZone
+              </p>
+
+              {/* Feature rows — no card background, text floats over photo */}
+              <div className="space-y-5">
+                {[
+                  { label: "100% Title & Deed Verification", sub: "Every plot checked against state registries" },
+                  { label: "Flexible Shared Equity", sub: "Start with what you have, buy out over time" },
+                  { label: "End-to-End Build Oversight", sub: "Digital milestone tracking from your portal" },
+                  { label: "Diaspora-Optimised Financing", sub: "NHF & tier-1 mortgage brokering" },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-cyan-400/20 ring-1 ring-cyan-400/30">
+                      <Check className="h-3 w-3 text-cyan-300" />
+                    </div>
+                    <div>
+                      <p className="text-[15px] font-bold text-white leading-snug">{item.label}</p>
+                      <p className="text-[12px] text-slate-400 mt-0.5">{item.sub}</p>
+                    </div>
                   </div>
-                  <Link
-                    href="/search"
-                    className="shrink-0 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white transition hover:border-cyan-300/40 hover:bg-white/15"
-                  >
-                    All listings
-                  </Link>
-                </div>
-                <div className="relative mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5">
-                  {cities.map((city, i) => (
-                    <motion.div
-                      key={city.name}
-                      initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-                      animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                      transition={{ delay: 0.32 + i * 0.04, duration: 0.4, ease: easeOut }}
-                    >
-                      <Link
-                        href={`/search?city=${city.name.toLowerCase()}`}
-                        className="flex flex-col rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-left transition hover:border-cyan-400/35 hover:bg-white/[0.08]"
-                      >
-                        <span className="text-sm font-semibold text-white">{city.name}</span>
-                        {city.name.toLowerCase() !== city.state.toLowerCase() && (
-                          <span className="mt-0.5 text-[11px] font-medium text-slate-500">{city.state}</span>
-                        )}
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
+                ))}
+              </div>
+
+              {/* CTA row */}
+              <div className="flex items-center gap-4 pt-2 border-t border-white/10">
+                <Link href="/search" className="inline-flex items-center gap-2 text-sm font-bold text-cyan-300 hover:text-white transition">
+                  Browse verified homes <ArrowUpRight className="h-4 w-4" />
+                </Link>
+                <span className="text-white/20">·</span>
+                <Link href="/own" className="text-sm font-semibold text-white/50 hover:text-white transition">
+                  Rent-to-Own
+                </Link>
               </div>
             </motion.div>
           </div>
-
-          {/* Trust strip — no cards */}
-          <motion.div
-            initial={reduceMotion ? false : { opacity: 0, y: 28 }}
-            animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.65, ease: easeOut }}
-            className="mt-14 w-full border-t border-white/10 pt-10 lg:mt-20"
-          >
-            <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 sm:gap-4">
-              {trustStats.map((s, i) => (
-                <motion.div
-                  key={s.label}
-                  initial={reduceMotion ? false : { opacity: 0, y: 12 }}
-                  whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.06, duration: 0.45, ease: easeOut }}
-                  className="text-center sm:text-left"
-                >
-                  <s.icon className="mx-auto mb-2 h-4 w-4 text-cyan-300/80 sm:mx-0" strokeWidth={1.75} />
-                  <div className="text-2xl font-semibold tabular-nums tracking-tight text-white sm:text-[1.65rem]">{s.value}</div>
-                  <div className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-500">{s.label}</div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
         </div>
-
-        <motion.div
-          className="pointer-events-none absolute bottom-8 left-1/2 hidden -translate-x-1/2 md:block"
-          animate={reduceMotion ? undefined : { y: [0, 6, 0] }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-          aria-hidden
-        >
-          <div className="h-9 w-5 rounded-full border-2 border-white/25">
-            <motion.div
-              className="mx-auto mt-2 h-1.5 w-0.5 rounded-full bg-white/50"
-              animate={reduceMotion ? undefined : { y: [0, 8, 0], opacity: [1, 0.3, 1] }}
-              transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-            />
-          </div>
-        </motion.div>
       </section>
 
-      {/* Ecosystem + trust — two columns on large screens */}
-      <motion.section {...viewFade(!!reduceMotion)} className="relative overflow-hidden py-12 md:py-16">
-        <div className="pointer-events-none absolute inset-0">
-          <Image src={partnersSectionBg} alt="" fill className="object-cover object-center opacity-[0.18]" sizes="100vw" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#f8fafc] via-white to-[#f1f5f9]" aria-hidden />
-        </div>
-        <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12 lg:items-start">
-            {/* Left — ecosystem */}
-            <div className="lg:col-span-7">
-              <motion.p
-                {...viewFade(!!reduceMotion, 0)}
-                className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#0033A1]/80"
-              >
-                <Handshake className="h-4 w-4 opacity-70" />
-                Ecosystem
-              </motion.p>
-              <motion.h2
-                {...viewFade(!!reduceMotion, 0.03)}
-                className="mt-3 text-balance text-2xl font-semibold tracking-tight text-[#0f172a] md:text-3xl"
-              >
-                One pipeline from registry data to buyer-ready listings
-              </motion.h2>
-              <motion.p
-                {...viewFade(!!reduceMotion, 0.06)}
-                className="mt-3 text-sm leading-relaxed text-slate-600 md:text-[15px]"
-              >
-                We sit between official land context, professional verification, and curated inventory — not a scraped marketplace.
-              </motion.p>
-
-              <div className="mt-8 space-y-8">
-                {partnerPillars.map((pillar, idx) => (
-                  <motion.div
-                    key={pillar.title}
-                    initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-                    whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-40px" }}
-                    transition={{ delay: idx * 0.06, duration: 0.45, ease: easeOut }}
-                    className="relative pl-5 md:pl-6"
-                  >
-                    <span className="absolute left-0 top-1 bottom-0 w-px bg-gradient-to-b from-[#0033A1] via-[#0072CE]/50 to-transparent" />
-                    <pillar.icon className="mb-2 h-4 w-4 text-[#0033A1]" strokeWidth={1.5} />
-                    <h3 className="text-base font-semibold text-[#0f172a]">{pillar.title}</h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{pillar.description}</p>
-                  </motion.div>
+      {/* Construction Video Showcase */}
+      <section className="bg-[#020617] py-20 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">Active Developments</span>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Built with care.<br />
+                <span className="text-slate-400">Watch it happen.</span>
+              </h2>
+              <p className="mt-4 text-slate-400 text-base max-w-md">
+                Every property on EasyMoveZone comes with live construction visibility. Tour active sites, review milestones, and invest with confidence.
+              </p>
+              <div className="mt-8 flex flex-col gap-4">
+                {[
+                  { label: "5 Active Sites", sub: "Currently under construction" },
+                  { label: "Real-time Updates", sub: "Video & photo milestone logs" },
+                  { label: "Verified Contractors", sub: "All vetted through our registry" },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-start gap-3">
+                    <div className="mt-1 h-2 w-2 rounded-full bg-cyan-400 shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-white">{item.label}</p>
+                      <p className="text-xs text-slate-500">{item.sub}</p>
+                    </div>
+                  </div>
                 ))}
               </div>
-
-              <motion.div
-                initial={reduceMotion ? false : { opacity: 0 }}
-                whileInView={reduceMotion ? undefined : { opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1, duration: 0.45 }}
-                className="mt-8 flex flex-wrap gap-x-4 gap-y-2 text-xs"
-              >
-                {["Registry-aligned", "Developer partners", "In-house publishing"].map((t) => (
-                  <span key={t} className="inline-flex items-center gap-1.5 text-slate-600">
-                    <Check className="h-3.5 w-3.5 shrink-0 text-emerald-600" strokeWidth={2.5} />
-                    {t}
-                  </span>
-                ))}
-              </motion.div>
+              <div className="mt-8">
+                <Link
+                  href="/search?filter=build"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#0033A1] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-[#002880]"
+                >
+                  <HardHat className="h-4 w-4" />
+                  Browse Build Projects
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
             </div>
 
-            {/* Right — built for trust */}
-            <div className="border-t border-slate-200/80 pt-10 lg:col-span-5 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
-              <div className="flex items-start gap-3">
-                <Home className="mt-0.5 h-7 w-7 shrink-0 text-emerald-600/90" strokeWidth={2} />
-                <div>
-                  <h2 className="text-xl font-semibold tracking-tight text-[#0f172a] md:text-2xl">Built for trust, not volume</h2>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                    Every listing is reviewed by us before publish — diligence, not feeds.
-                  </p>
-                </div>
-              </div>
-              <motion.ul
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, margin: "-40px" }}
-                variants={{
-                  hidden: {},
-                  show: { transition: { staggerChildren: reduceMotion ? 0 : 0.05 } },
-                }}
-                className="mt-6 flex flex-col gap-3"
+            {/* Video carousel */}
+            <div className="relative rounded-3xl overflow-hidden bg-black shadow-2xl shadow-black/60 aspect-video">
+              <AnimatePresence mode="wait">
+                <motion.video
+                  key={activeVideo}
+                  src={heroVideos[activeVideo]}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                />
+              </AnimatePresence>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+
+              {/* Prev / Next controls */}
+              <button
+                onClick={prevVideo}
+                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70"
+                aria-label="Previous video"
               >
-                {[
-                  "Title and registry cross-checks before go-live",
-                  "Fraud and mismatch signals in the review pipeline",
-                  "Transparent AI-assisted valuation ranges",
-                  "Mortgage paths coordinated with your purchase",
-                  "Offer-to-close guidance with escrow options",
-                ].map((line) => (
-                  <motion.li
-                    key={line}
-                    variants={{
-                      hidden: { opacity: 0, x: -6 },
-                      show: { opacity: 1, x: 0, transition: { duration: 0.35, ease: easeOut } },
-                    }}
-                    className="flex gap-2.5 text-left text-sm leading-snug text-slate-700"
-                  >
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-to-br from-[#0033A1] to-[#0072CE]" />
-                    {line}
-                  </motion.li>
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                onClick={nextVideo}
+                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70"
+                aria-label="Next video"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+
+              {/* Dot indicators */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                {heroVideos.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveVideo(i)}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${i === activeVideo ? "w-6 bg-white" : "w-1.5 bg-white/40"}`}
+                    aria-label={`Go to video ${i + 1}`}
+                  />
                 ))}
-              </motion.ul>
+              </div>
+
+              {/* Label */}
+              <div className="absolute bottom-10 left-4 flex items-center gap-2 text-xs font-semibold text-white/80">
+                <Play className="h-3.5 w-3.5 fill-white text-white" />
+                Site {activeVideo + 1} of {heroVideos.length}
+              </div>
             </div>
           </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* Mortgage — four write-ups under ecosystem */}
-      <motion.section {...viewFade(!!reduceMotion)} className="border-t border-slate-200/80 bg-[#f8fafc] py-16 md:py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-12 max-w-2xl">
-            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#0033A1]">
-              <Banknote className="h-4 w-4" />
-              Financing
-            </span>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[#0f172a] md:text-3xl">
-              Mortgages &amp; Diaspora NHF, coordinated with your deal
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">
-              How we think about home finance alongside verified property — in four short reads.
+      {/* Everything You Need — uniform 5-card grid */}
+      <section className="py-24 bg-[#07090f] text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,51,161,0.22),transparent)]" aria-hidden />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_80%_80%,rgba(139,92,246,0.08),transparent)]" aria-hidden />
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+          {/* Header */}
+          <div className="mb-16 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-400">
+                <Sparkles className="h-3 w-3" />
+                Everything you need
+              </div>
+              <h2 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
+                Six ways we get
+                <span className="bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent"> you home.</span>
+              </h2>
+            </div>
+            <p className="max-w-sm text-[15px] leading-relaxed text-slate-400 lg:text-right">
+              From finding the land to moving in fully powered — we own every step of your property journey.
             </p>
           </div>
-          <div className="grid gap-10 sm:grid-cols-2 lg:gap-12">
-            {mortgageWriteups.map((block, idx) => (
-              <motion.article
-                key={block.title}
-                initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-                whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ delay: idx * 0.06, duration: 0.5, ease: easeOut }}
-                className="border-l-2 border-[#0033A1]/25 pl-5 md:pl-6"
+
+          {/* Uniform 5-card grid: 2 top, 3 bottom — all equal height */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {services.map((s, idx) => (
+              <motion.div
+                key={s.label}
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: idx * 0.07, duration: 0.6, ease: easeOut }}
+                className={`group relative min-h-[320px] overflow-hidden rounded-3xl border ${s.border} transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50 ${!s.photo ? "bg-white/[0.03] hover:bg-white/[0.055]" : ""}`}
               >
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#0072CE]">0{idx + 1}</p>
-                <h3 className="mt-2 text-lg font-semibold text-[#0f172a]">{block.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600 md:text-[15px]">{block.body}</p>
-              </motion.article>
+                {/* Photo background (BUY + RENT TO OWN) */}
+                {s.photo && (
+                  <>
+                    <Image
+                      src={s.photo}
+                      alt={s.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      style={{ objectPosition: s.photoPosition }}
+                      sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#07090f]/97 via-[#07090f]/60 to-[#07090f]/20" />
+                  </>
+                )}
+
+                {/* Glow blob for plain cards */}
+                {!s.photo && (
+                  <div className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full ${s.glow} blur-[70px]`} aria-hidden />
+                )}
+
+                {/* Card content */}
+                <div className="relative z-10 flex h-full min-h-[320px] flex-col p-7">
+                  <div className="flex items-center gap-3">
+                    <div className={`inline-flex rounded-xl bg-gradient-to-br p-2.5 ${s.gradient} text-white shadow-lg`}>
+                      <s.icon className="h-5 w-5" />
+                    </div>
+                    <span className={`text-[11px] font-black uppercase tracking-[0.22em] ${s.accent}`}>{s.label}</span>
+                  </div>
+
+                  <h3 className="mt-5 text-xl font-bold text-white">{s.title}</h3>
+                  <p className={`mt-2 text-sm leading-relaxed ${s.photo ? "text-slate-300" : "text-slate-400"}`}>
+                    {s.description}
+                  </p>
+
+                  <div className="mt-auto pt-6">
+                    <Link
+                      href={s.href}
+                      className={`inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r ${s.gradient} px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:opacity-90`}
+                    >
+                      {s.cta} <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
             ))}
           </div>
-          <motion.div
-            initial={reduceMotion ? false : { opacity: 0 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1 }}
-            viewport={{ once: true }}
-            className="mt-12 flex flex-wrap items-center gap-4 border-t border-slate-200/90 pt-10"
-          >
-            <Link
-              href="/mortgage"
-              className="inline-flex items-center gap-2 rounded-full bg-[#0033A1] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#002880]"
-            >
-              Full mortgage guide
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link href="/search" className="text-sm font-semibold text-[#0033A1] hover:underline">
-              Browse listings →
-            </Link>
-          </motion.div>
         </div>
-      </motion.section>
+      </section>
+
+      {/* Featured Markets / Cities */}
+      <section className="py-20 bg-[#f8fafc]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#0033A1]">Locations</span>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#0f172a] sm:text-4xl">Explore Verified Markets</h2>
+            </div>
+            <Link href="/search" className="mt-4 md:mt-0 inline-flex items-center gap-2 text-sm font-semibold text-[#0033A1] hover:underline">
+              View all locations <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            {cities.map((city, idx) => (
+              <motion.div
+                key={city.name}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.05, duration: 0.4 }}
+              >
+                <Link
+                  href={`/search?city=${city.name.toLowerCase()}`}
+                  className="group block rounded-2xl border border-slate-200 bg-white p-6 hover:border-[#0033A1]/30 hover:shadow-md transition-all duration-300"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-bold text-[#0f172a] text-lg group-hover:text-[#0033A1] transition-colors">{city.name}</h3>
+                      <p className="text-xs text-slate-500 mt-1">{city.state}</p>
+                    </div>
+                    <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-2 py-1 rounded-md">{city.count}</span>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <HomeFeaturedListings />
     </>

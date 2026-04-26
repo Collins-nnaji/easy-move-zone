@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
@@ -113,20 +114,30 @@ export function SearchPageClient() {
 
   return (
     <>
-      {/* Hero — dark, matches homepage */}
-      <section className="relative overflow-hidden border-b border-white/[0.08] bg-[#030712]">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_20%_-20%,rgba(0,51,161,0.45),transparent)]" aria-hidden />
-        <motion.div
-          className="pointer-events-none absolute -right-24 top-1/4 h-[min(60vw,420px)] w-[min(60vw,420px)] rounded-full bg-[#0072CE]/20 blur-[100px]"
-          animate={reduceMotion ? undefined : { scale: [1, 1.06, 1], opacity: [0.35, 0.5, 0.35] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          aria-hidden
+      {/* Hero — photo background */}
+      <section className="relative overflow-hidden border-b border-white/[0.08] bg-[#030712] min-h-[520px] lg:min-h-[580px]">
+        {/* Real photo — family outside their EMZ home */}
+        <Image
+          src="/emzheropic.png"
+          alt="EMZ family outside their new home"
+          fill
+          priority
+          className="object-cover"
+          style={{ objectPosition: "60% center" }}
+          sizes="100vw"
         />
-        <div className="home-hero-grid pointer-events-none absolute inset-0 opacity-[0.08]" aria-hidden />
+        {/* Dark overlay — heavy on left for text readability, lighter on right */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#030712]/95 via-[#030712]/80 to-[#030712]/50" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#030712]/30 via-transparent to-[#030712]/70" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_20%_-20%,rgba(0,51,161,0.35),transparent)]" aria-hidden />
+        <div className="home-hero-grid pointer-events-none absolute inset-0 opacity-[0.05]" aria-hidden />
 
-        <div className="relative z-10 mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-          <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-12">
-            <div className="lg:col-span-7">
+        {/* Two-column flex: left = padded content, right = full-height frosted panel */}
+        <div className="relative z-10 flex min-h-[inherit]">
+
+          {/* LEFT — main content */}
+          <div className="flex-1 px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+            <div className="mx-auto max-w-2xl">
               <motion.div
                 initial={reduceMotion ? false : { opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -254,41 +265,58 @@ export function SearchPageClient() {
                 <span className="text-slate-500">Live database · AI ranges when available</span>
               </motion.p>
             </div>
-
-            {/* Hero right — catalogue snapshot */}
-            <motion.div
-              initial={reduceMotion ? false : { opacity: 0, y: 20, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.6, ease: easeOut }}
-              className="relative lg:col-span-5"
-            >
-              <div className="absolute -inset-px rounded-3xl bg-gradient-to-br from-white/25 via-cyan-400/15 to-[#0072CE]/30 opacity-70 blur-[1px]" aria-hidden />
-              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/[0.06] p-6 backdrop-blur-2xl sm:p-7">
-                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200/80">Catalogue</p>
-                <p className="mt-2 text-4xl font-semibold tabular-nums tracking-tight text-white sm:text-5xl">
-                  {loadState === "loading" ? (
-                    <span className="inline-flex items-center gap-2 text-2xl text-slate-400">
-                      <Loader2 className="h-7 w-7 animate-spin" />
-                    </span>
-                  ) : loadState === "error" ? (
-                    <span className="text-lg text-amber-300">—</span>
-                  ) : (
-                    allListings.length
-                  )}
-                </p>
-                <p className="mt-1 text-sm text-slate-400">Published listings in this view</p>
-                <div className="mt-6 space-y-3 border-t border-white/10 pt-5 text-sm text-slate-400">
-                  <p className="leading-snug">
-                    <strong className="text-slate-200">No syndication.</strong> We verify titles and details before anything
-                    appears here.
-                  </p>
-                  <p className="text-xs leading-relaxed text-slate-500">
-                    Use modes and cities above, then scroll for full cards — buy-and-build estimator stays pinned on desktop.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
           </div>
+
+          {/* RIGHT — full-height frosted panel, flush to screen edge, hidden below lg */}
+          <motion.aside
+            initial={reduceMotion ? false : { opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2, duration: 0.6, ease: easeOut }}
+            className="hidden lg:flex lg:w-[360px] lg:shrink-0 xl:w-[420px]"
+          >
+            <div className="flex w-full flex-col border-l border-white/15 bg-white/[0.06] px-8 pt-10 pb-12 backdrop-blur-2xl xl:px-10">
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200/80">Catalogue</p>
+              <p className="mt-3 text-6xl font-semibold tabular-nums tracking-tight text-white">
+                {loadState === "loading" ? (
+                  <span className="inline-flex items-center gap-2 text-2xl text-slate-400">
+                    <Loader2 className="h-7 w-7 animate-spin" />
+                  </span>
+                ) : loadState === "error" ? (
+                  <span className="text-lg text-amber-300">—</span>
+                ) : (
+                  allListings.length
+                )}
+              </p>
+              <p className="mt-1 text-sm text-slate-400">Verified properties available now</p>
+
+              <div className="mt-8 space-y-3 border-t border-white/10 pt-6">
+                {[
+                  { icon: BadgeCheck, label: "100% title-verified", sub: "Every listing cleared in-house" },
+                  { icon: Home, label: "No syndication", sub: "Only EMZ-managed properties" },
+                  { icon: TrendingUp, label: "AI price ranges", sub: "Market estimates where available" },
+                ].map(({ icon: Icon, label, sub }) => (
+                  <div key={label} className="flex items-start gap-3 rounded-xl bg-white/[0.05] px-4 py-3">
+                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" />
+                    <div>
+                      <p className="text-sm font-semibold text-white">{label}</p>
+                      <p className="text-xs text-slate-500">{sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-auto pt-8">
+                <Link
+                  href="/contact"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0072CE] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#0033A1]/30 transition hover:bg-[#005fad]"
+                >
+                  Talk to an advisor <ArrowRight className="h-4 w-4" />
+                </Link>
+                <p className="mt-3 text-center text-[11px] text-slate-600">Free consultation · No commitment</p>
+              </div>
+            </div>
+          </motion.aside>
+
         </div>
       </section>
 

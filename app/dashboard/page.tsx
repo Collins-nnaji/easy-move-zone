@@ -31,6 +31,15 @@ const transactions = [
   { id: "t1", property: "800sqm Plot — Lekki Phase 2", status: "in-progress", amount: "₦85,000,000", date: "March 15, 2026" },
 ]
 
+const equityDeals = [
+  { id: "e1", property: "3BR Apartment — Victoria Island", equityOwned: 25, totalValue: "₦85,000,000", nextBuyout: "June 2026", ownedValue: "₦21,250,000" },
+]
+
+const activeBuilds = [
+  { id: "b1", property: "4BR Duplex — Guzape", progress: 40, currentPhase: "Brickwork & Plastering", estHandover: "Dec 2026" },
+]
+
+
 const notifications = [
   { id: "n1", message: "Your enquiry on Lekki Phase 2 plot received a response", time: "2 hours ago", read: false },
   { id: "n2", message: "New verified listing in Ikoyi matches your search", time: "1 day ago", read: false },
@@ -122,7 +131,77 @@ export default async function BuyerDashboardPage() {
                 </div>
               </div>
 
+              {/* Shared Ownership (Equity Tracker) */}
+              <div className="rounded-2xl border border-[#e2e8f0] bg-white p-6">
+                <h2 className="text-lg font-bold text-[#0f172a] mb-5">Shared Ownership Tracker</h2>
+                <div className="space-y-4">
+                  {equityDeals.map((deal) => (
+                    <div key={deal.id} className="rounded-xl border border-[#e2e8f0] p-4 bg-[#f8fafc]">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <div className="font-semibold text-[#0f172a] text-sm">{deal.property}</div>
+                          <div className="text-xs text-[#64748b] mt-0.5">Total Value: {deal.totalValue}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs font-medium text-slate-500">Next Buyout Window</div>
+                          <div className="text-xs font-bold text-[#0033A1] mt-0.5">{deal.nextBuyout}</div>
+                        </div>
+                      </div>
+                      <div className="relative pt-1">
+                        <div className="flex mb-2 items-center justify-between">
+                          <div>
+                            <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-[#0033A1] bg-blue-50">
+                              Your Equity
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xs font-semibold inline-block text-[#0033A1]">
+                              {deal.equityOwned}% ({deal.ownedValue})
+                            </span>
+                          </div>
+                        </div>
+                        <div className="overflow-hidden h-2 mb-1 text-xs flex rounded bg-slate-200">
+                          <div style={{ width: `${deal.equityOwned}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-[#0072CE]"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Build Management Tracker */}
+              <div className="rounded-2xl border border-[#e2e8f0] bg-white p-6">
+                <h2 className="text-lg font-bold text-[#0f172a] mb-5">Build Progress Management</h2>
+                <div className="space-y-4">
+                  {activeBuilds.map((build) => (
+                    <div key={build.id} className="rounded-xl border border-[#e2e8f0] p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <div className="font-semibold text-[#0f172a] text-sm">{build.property}</div>
+                          <div className="text-xs text-[#64748b] mt-0.5">Est. Handover: {build.estHandover}</div>
+                        </div>
+                        <span className="rounded-full bg-[#fff7ed] px-2.5 py-1 text-[11px] font-semibold text-[#c2410c] border border-[#ffedd5]">
+                          {build.currentPhase}
+                        </span>
+                      </div>
+                      <div className="relative pt-1">
+                        <div className="overflow-hidden h-2 mb-1 text-xs flex rounded bg-slate-100">
+                          <div style={{ width: `${build.progress}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-amber-500"></div>
+                        </div>
+                        <div className="flex text-[10px] text-slate-400 mt-1 justify-between">
+                          <span>Foundation</span>
+                          <span className="text-amber-600 font-medium">Brickwork</span>
+                          <span>Roofing</span>
+                          <span>Finishing</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Transaction Tracker */}
+
               <div className="rounded-2xl border border-[#e2e8f0] bg-white p-6">
                 <h2 className="text-lg font-bold text-[#0f172a] mb-5">Transaction Tracker</h2>
                 {transactions.length === 0 ? (

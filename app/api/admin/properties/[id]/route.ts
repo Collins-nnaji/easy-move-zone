@@ -30,6 +30,24 @@ type PatchBody = {
   ai_valuation_ngn?: number | null
 }
 
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const admin = await requireAdmin()
+  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  if (!DATABASE_URL) return NextResponse.json({ error: "Database not configured" }, { status: 500 })
+
+  const { id } = await params
+  if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 })
+
+  const sql = neon(DATABASE_URL)
+  try {
+    await sql`DELETE FROM properties WHERE id = ${id}`
+    return NextResponse.json({ ok: true })
+  } catch (e) {
+    console.error("[admin/properties DELETE]", e)
+    return NextResponse.json({ error: "Failed to delete property" }, { status: 500 })
+  }
+}
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const admin = await requireAdmin()
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 })

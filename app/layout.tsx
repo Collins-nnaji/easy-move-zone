@@ -1,30 +1,21 @@
 import type { Metadata } from "next";
-import { Inter, Manrope, Cormorant_Garamond, Sora } from "next/font/google";
+import { Plus_Jakarta_Sans, Bricolage_Grotesque } from "next/font/google";
 import { AppChrome } from "@/components/layout/AppChrome";
 import "./globals.css";
 
-const inter = Inter({
+// Body / UI text — clean, modern, excellent readability
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-jakarta",
+  weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-const outfit = Manrope({
+// Display headings — geometric, bold, contemporary
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-outfit",
-  display: "swap",
-});
-
-const spaceGrotesk = Sora({
-  subsets: ["latin"],
-  variable: "--font-space",
-  display: "swap",
-});
-
-const playfairDisplay = Cormorant_Garamond({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  weight: ["500", "600", "700"],
+  variable: "--font-bricolage",
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -42,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${outfit.variable} ${spaceGrotesk.variable} ${playfairDisplay.variable} min-h-screen min-w-0 flex flex-col overflow-x-hidden antialiased`}
+        className={`${jakarta.variable} ${bricolage.variable} min-h-screen min-w-0 flex flex-col overflow-x-hidden antialiased`}
       >
         <AppChrome>{children}</AppChrome>
       </body>
