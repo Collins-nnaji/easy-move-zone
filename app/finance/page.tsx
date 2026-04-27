@@ -9,7 +9,7 @@ import {
 export const metadata: Metadata = {
   title: "Mortgage & NHF Financing | EasyMoveZone",
   description:
-    "Access Bank, Stanbic IBTC, and Diaspora NHF loans brokered for you. Move in now, pay over 10–30 years at competitive rates.",
+    "Access Bank, Stanbic IBTC, and Diaspora NHF loans brokered for you. Flexible terms and variable rates tailored to your financial profile.",
 }
 
 const partners = [
@@ -50,11 +50,11 @@ export default function FinancePage() {
             <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               Move in now.{" "}
               <span className="bg-gradient-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent">
-                Pay over 30 years.
+                Flexible pathways.
               </span>
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-slate-300 max-w-2xl">
-              Most Nigerians can't pay 100% cash for a home — that's why financing exists. We act as your mortgage broker, matching your profile to the best lender and handling the entire application so you can focus on picking your home.
+              Most Nigerians prefer not to tie up 100% cash in a home. With variable mortgages and diverse interest rates available, we act as your broker to secure the best structure for your unique profile.
             </p>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link href="/mortgage"
@@ -71,40 +71,52 @@ export default function FinancePage() {
       </section>
 
       {/* Partner lenders */}
-      <section className="bg-[#f8fafc] py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-12 text-center">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">Our lending partners</span>
-            <h2 className="mt-3 text-3xl font-bold text-[#0f172a] sm:text-4xl">Tier-1 banks. Real rates.</h2>
-            <p className="mt-3 text-slate-500">We have active relationships with Nigeria's leading mortgage lenders and the Federal Mortgage Bank of Nigeria.</p>
+      <section className="relative overflow-hidden bg-slate-950 py-24 text-white">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(16,185,129,0.1),transparent)]" aria-hidden />
+        <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-16 text-center">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-400">Our lending partners</span>
+            <h2 className="mt-3 text-3xl font-bold text-white sm:text-4xl">Tier-1 banks. Real structures.</h2>
+            <p className="mt-4 text-sm text-slate-400 max-w-xl mx-auto">We broker active applications through Nigeria's top commercial mortgage providers and the NHF network.</p>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {partners.map((p) => (
               <div key={p.name}
-                className={`rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-md ${p.highlight ? "border-emerald-400 ring-2 ring-emerald-400/30" : "border-slate-100"}`}>
+                className={`group relative rounded-3xl border p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
+                  p.highlight 
+                    ? "border-emerald-500/30 bg-slate-900/80 shadow-lg shadow-emerald-500/5" 
+                    : "border-white/10 bg-slate-900/40 hover:border-white/20"
+                }`}>
                 {p.highlight && (
-                  <span className="mb-3 inline-block rounded-full bg-emerald-50 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700">Top pick</span>
+                  <span className="absolute -top-3 left-6 rounded-full bg-emerald-500 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-950 shadow-md">Top pick</span>
                 )}
-                <h3 className="text-lg font-bold text-[#0f172a]">{p.name}</h3>
-                <p className="mt-1 text-xs text-slate-500">{p.type}</p>
-                <div className="mt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Interest rate</span>
-                    <span className="font-bold text-[#0033A1]">{p.rate}</span>
+                <h3 className="text-xl font-bold text-white mt-2">{p.name}</h3>
+                <p className="mt-1 text-xs text-slate-400">{p.type}</p>
+                
+                <div className="mt-6 space-y-3 rounded-2xl bg-white/[0.03] p-4 ring-1 ring-white/5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-slate-500">Rate profile</span>
+                    <span className="text-sm font-bold text-emerald-400">{p.rate}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Max term</span>
-                    <span className="font-semibold text-[#0f172a]">{p.term}</span>
+                  <div className="flex justify-between items-center border-t border-white/[0.05] pt-2">
+                    <span className="text-xs text-slate-500">Tenor available</span>
+                    <span className="text-sm font-semibold text-slate-300">{p.term}</span>
                   </div>
                 </div>
+                
                 <Link href="/contact"
-                  className="mt-5 block w-full rounded-xl border border-slate-200 py-2.5 text-center text-sm font-semibold text-[#0033A1] transition hover:border-[#0033A1]/30 hover:bg-slate-50">
-                  Apply via us
+                  className={`mt-6 flex items-center justify-center gap-2 w-full rounded-2xl py-3.5 text-sm font-bold transition-all ${
+                    p.highlight 
+                      ? "bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-lg shadow-emerald-500/20" 
+                      : "border border-white/10 text-white hover:bg-white/5"
+                  }`}>
+                  Initialize profile
                 </Link>
               </div>
             ))}
           </div>
-          <p className="mt-6 text-center text-xs text-slate-400">Rates shown are indicative. Actual rates depend on your profile and the lender's current offers. NHF rate of 6% requires prior contribution.</p>
+          <p className="mt-8 text-center text-xs text-slate-500">Variable rate updates apply. Final criteria based on aggregate debt-to-income evaluations.</p>
         </div>
       </section>
 

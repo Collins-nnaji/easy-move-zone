@@ -16,6 +16,7 @@ import {
   Zap,
   KeyRound,
   ArrowLeftRight,
+  Truck,
 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { authClient } from "@/lib/auth/client"
@@ -74,6 +75,14 @@ const navPillars = [
     accent: "text-rose-300",
     desc: "Sell your home, find an equivalent, move city",
   },
+  {
+    href: "/logistics",
+    label: "LOGISTICS",
+    sublabel: "Standalone Moving Engine",
+    icon: Truck,
+    accent: "text-rose-400",
+    desc: "Secure cross-city moving & full inventory management",
+  },
 ]
 
 function navIsActive(pathname: string, href: string) {
@@ -118,7 +127,7 @@ export function PlatformNav() {
         <div className="mx-auto flex h-[52px] w-full max-w-7xl items-center justify-between gap-3 px-4 sm:h-14 sm:px-6 lg:px-8">
 
           {/* Logo */}
-          <Link href="/" className="flex shrink-0 items-center gap-2 text-white">
+          <Link href="/" className="flex shrink-0 items-center text-white">
             <Image
               src="/emz.png"
               alt="EMZ easymovezone logo"
@@ -127,9 +136,6 @@ export function PlatformNav() {
               className="h-8 w-auto object-contain brightness-0 invert"
               priority
             />
-            <span className="hidden font-display text-[17px] font-bold tracking-tight sm:block">
-              EasyMoveZone
-            </span>
           </Link>
 
           {/* Desktop nav — direct pillar links */}
@@ -192,7 +198,7 @@ export function PlatformNav() {
                 </Link>
                 <Link
                   href="/auth"
-                  className="pill-cta pill-cta-white text-[13px] shadow-none"
+                  className="flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-[13px] font-bold text-[#0033A1] transition hover:bg-slate-100 shrink-0 shadow-sm"
                 >
                   <UserRound className="h-4 w-4 shrink-0 opacity-90" />
                   Sign in

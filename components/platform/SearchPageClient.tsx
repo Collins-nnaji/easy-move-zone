@@ -321,7 +321,8 @@ export function SearchPageClient() {
       </section>
 
       {/* Results */}
-      <section className="relative bg-[#f4f4f4] py-10 md:py-14">
+      <section className="relative bg-slate-50/60 py-12 md:py-16 isolation-auto">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#0072CE]/5 via-transparent to-transparent opacity-70" aria-hidden />
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-12 lg:items-start lg:gap-10 xl:gap-12">
             <div className="min-w-0 lg:col-span-8">
@@ -395,7 +396,7 @@ export function SearchPageClient() {
                 <motion.div
                   initial={reduceMotion ? false : { opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center shadow-sm"
+                  className="rounded-3xl border border-dashed border-slate-200 bg-white/80 backdrop-blur-sm py-20 text-center shadow-[0_8px_30px_rgba(0,0,0,0.02)]"
                 >
                   <p className="font-semibold text-[#0f172a]">No listings match</p>
                   <p className="mx-auto mt-2 max-w-md text-sm text-slate-600">
@@ -409,16 +410,17 @@ export function SearchPageClient() {
                 whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, ease: easeOut }}
-                className="relative mt-12 overflow-hidden rounded-2xl border border-[#0072CE]/20 bg-[#030712] p-8 text-center shadow-xl md:p-10"
+                className="relative mt-16 overflow-hidden rounded-3xl border border-[#0072CE]/30 bg-gradient-to-br from-[#030712] via-[#0a1128] to-[#020617] p-10 text-center shadow-2xl md:p-14 ring-1 ring-white/10"
               >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(0,114,206,0.25),transparent)]" aria-hidden />
-                <p className="relative text-xl font-semibold text-white md:text-2xl">Not seeing a perfect match?</p>
-                <p className="relative mx-auto mt-2 max-w-lg text-sm text-slate-400">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(0,114,206,0.3),transparent)]" aria-hidden />
+                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_50%,transparent_75%)] bg-[length:250%_250%] animate-pulse" aria-hidden />
+                <p className="relative text-2xl font-bold tracking-tight text-white md:text-3xl">Not seeing a perfect match?</p>
+                <p className="relative mx-auto mt-3 max-w-lg text-sm text-slate-400 leading-relaxed">
                   Tell us what you need — we prioritise new verified inventory on the platform.
                 </p>
                 <Link
                   href="/contact"
-                  className="relative mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-[#0f172a] transition hover:bg-slate-100"
+                  className="relative mt-8 inline-flex items-center gap-2 rounded-full bg-[#0072CE] px-8 py-3 text-sm font-bold text-white shadow-lg shadow-[#0072CE]/30 transition-all duration-200 hover:bg-[#005fad] hover:shadow-[#0072CE]/40 hover:-translate-y-0.5"
                 >
                   Contact us <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -467,7 +469,7 @@ function ListingCard({
   }, [listing])
 
   return (
-    <div className="group/card flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-[#0033A1]/20 hover:shadow-lg hover:shadow-[#0033A1]/[0.06] hover:ring-2 hover:ring-[#0033A1]/10">
+    <div className="group/card flex h-full flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white/95 backdrop-blur-sm shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[#0072CE]/30 hover:shadow-[0_20px_40px_rgba(0,51,161,0.08)] hover:ring-1 hover:ring-[#0072CE]/20">
       <Link href={`/properties/${listing.id}`} className="flex min-h-0 flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0072CE]/35">
         <div className="relative h-52 overflow-hidden">
           <div
@@ -522,9 +524,9 @@ function ListingCard({
               <MapPin className="h-3.5 w-3.5" /> {listing.size}
             </p>
           )}
-          <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-            <div className="text-lg font-bold tabular-nums text-[#0f172a]">{listing.price}</div>
-            <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">{listing.size}</span>
+          <div className="mt-auto flex items-center justify-between border-t border-slate-100/80 pt-4">
+            <div className="text-xl font-extrabold tabular-nums text-[#0f172a] tracking-tight">{listing.price}</div>
+            <span className="rounded-xl bg-slate-100/80 px-3 py-1.5 text-[11px] font-bold text-slate-600 uppercase tracking-wider">{listing.size}</span>
           </div>
           {listing.aiValue && (
             <div className="mt-3 flex items-center gap-1.5 rounded-xl border border-emerald-200/80 bg-emerald-50/90 px-3 py-2 text-xs">

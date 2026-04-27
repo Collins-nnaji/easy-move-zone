@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Home, Mail, ShieldCheck, HardHat, Banknote, Zap, KeyRound, ArrowLeftRight } from "lucide-react"
+import { Home, Mail, ShieldCheck, HardHat, Banknote, Zap, KeyRound, ArrowLeftRight, Truck } from "lucide-react"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 
 const services = [
@@ -9,6 +9,7 @@ const services = [
   { href: "/upgrade", label: "UPGRADE — Solar & Smart Home",   icon: Zap },
   { href: "/own",     label: "RENT TO OWN — Lease-Purchase",    icon: KeyRound },
   { href: "/swap",    label: "SWAP — Sell, Match & Relocate",   icon: ArrowLeftRight },
+  { href: "/logistics", label: "LOGISTICS — Standalone Move",   icon: Truck },
 ]
 
 const cities = [
@@ -111,7 +112,7 @@ export function PlatformFooter() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-white/[0.06] pt-6 text-center sm:flex-row sm:text-left">
           <p className="text-[11px] text-[#64748b]">&copy; {new Date().getFullYear()} EasyMoveZone. Nigeria &middot; Lagos &middot; Abuja &middot; Port Harcourt</p>
-          <p className="text-[11px] text-[#64748b]">BUY &middot; BUILD &middot; FINANCE &middot; UPGRADE &middot; RENT TO OWN &middot; SWAP</p>
+          <p className="text-[11px] text-[#64748b]">BUY &middot; BUILD &middot; FINANCE &middot; UPGRADE &middot; RENT TO OWN &middot; SWAP &middot; LOGISTICS</p>
         </div>
       </div>
     </footer>

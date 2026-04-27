@@ -187,7 +187,7 @@ export function HomePageClient() {
               >
                 Your path to owning
                 <span className="block bg-gradient-to-r from-cyan-200 via-indigo-200 to-emerald-200 bg-clip-text text-transparent mt-2">
-                  property in Africa.
+                  property in Nigeria.
                 </span>
               </motion.h1>
 

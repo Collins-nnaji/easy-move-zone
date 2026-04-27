@@ -20,9 +20,9 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Trusted Land & Property in Africa",
+  title: "EasyMoveZone — Trusted Land & Property in Nigeria",
   description:
-    "The trusted land and property platform for African professionals, diaspora, and returnees. Every listing is title-verified. Every transaction is guided end to end.",
+    "The trusted land and property platform for Nigerian professionals, diaspora, and returnees. Every listing is title-verified. Every transaction is guided end to end.",
 };
 
 export default function RootLayout({

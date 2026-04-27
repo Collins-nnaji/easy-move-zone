@@ -89,10 +89,10 @@ function scoreColor(score: number) {
 }
 
 const STARTER_PROMPTS = [
-  "I'm looking to buy a house in Lagos, Nigeria. I earn about $2,500/month.",
-  "I live in the UK but want to buy property in Nairobi. Budget around $80,000.",
-  "Looking for a mortgage in Accra. First-time buyer, government employee.",
-  "I want to buy in Cape Town, South Africa. Property is about $120,000.",
+  "I'm looking to buy a house in Lagos, Nigeria. I earn about ₦1.5M/month.",
+  "I live in the UK but want to buy property in Abuja. Budget around ₦80M.",
+  "Looking for a mortgage in Ibadan. First-time buyer, government employee.",
+  "I want to buy in Port Harcourt. Property is about ₦120M.",
 ]
 
 // ─── Contact form (after lender is selected) ──────────────────────────────────
