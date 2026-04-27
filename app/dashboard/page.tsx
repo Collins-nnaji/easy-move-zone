@@ -21,36 +21,12 @@ import {
   Eye,
 } from "lucide-react"
 
-const savedProperties = [
-  { id: "1", title: "Verified 800sqm Plot — Lekki Phase 2", city: "Lagos", price: "₦85M", status: "verified", gradient: "linear-gradient(135deg, #0a1628, #1a4a7a)" },
-  { id: "2", title: "Title-Clear 3BR Detached — Maitama", city: "Abuja", price: "₦120M", status: "verified", gradient: "linear-gradient(135deg, #0a2818, #1a6a4a)" },
-  { id: "5", title: "4BR Semi-Detached — Gwarinpa", city: "Abuja", price: "₦75M", status: "verified", gradient: "linear-gradient(135deg, #0a2828, #1a6a6a)" },
-]
-
-const transactions = [
-  { id: "t1", property: "800sqm Plot — Lekki Phase 2", status: "in-progress", amount: "₦85,000,000", date: "March 15, 2026" },
-]
-
-const equityDeals = [
-  { id: "e1", property: "3BR Apartment — Victoria Island", equityOwned: 25, totalValue: "₦85,000,000", nextBuyout: "June 2026", ownedValue: "₦21,250,000" },
-]
-
-const activeBuilds = [
-  { id: "b1", property: "4BR Duplex — Guzape", progress: 40, currentPhase: "Brickwork & Plastering", estHandover: "Dec 2026" },
-]
-
-
-const notifications = [
-  { id: "n1", message: "Your enquiry on Lekki Phase 2 plot received a response", time: "2 hours ago", read: false },
-  { id: "n2", message: "New verified listing in Ikoyi matches your search", time: "1 day ago", read: false },
-  { id: "n3", message: "Verification complete for your saved property in Maitama", time: "3 days ago", read: true },
-]
-
-const documents = [
-  { name: "Purchase Agreement — Lekki Plot", type: "PDF", date: "March 15, 2026" },
-  { name: "Due Diligence Report — Maitama House", type: "PDF", date: "March 10, 2026" },
-  { name: "Payment Receipt — Initial Deposit", type: "PDF", date: "March 16, 2026" },
-]
+const savedProperties: any[] = []
+const transactions: any[] = []
+const equityDeals: any[] = []
+const activeBuilds: any[] = []
+const notifications: any[] = []
+const documents: any[] = []
 
 const txStatusConfig: Record<string, { color: string; icon: typeof CheckCircle2 }> = {
   "in-progress": { color: "#d97706", icon: Clock },
@@ -112,22 +88,26 @@ export default async function BuyerDashboardPage() {
                   </Link>
                 </div>
                 <div className="space-y-3">
-                  {savedProperties.map((p) => (
-                    <Link key={p.id} href={`/properties/${p.id}`} className="flex items-center gap-4 rounded-xl border border-[#e2e8f0] p-3 transition-all hover:shadow-sm hover:border-[#155eef]/20">
-                      <div className="h-16 w-20 rounded-lg flex-shrink-0" style={{ background: p.gradient }} />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-[#0f172a] text-sm truncate">{p.title}</div>
-                        <div className="text-xs text-[#64748b] flex items-center gap-1 mt-0.5"><MapPin className="h-3 w-3" />{p.city}</div>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <div className="font-bold text-[#0f172a] text-sm">{p.price}</div>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <BadgeCheck className="h-3 w-3 text-[#059669]" />
-                          <span className="text-[11px] text-[#059669] font-semibold">Verified</span>
+                  {savedProperties.length === 0 ? (
+                    <div className="py-8 text-center text-sm text-[#64748b]">No saved properties yet.</div>
+                  ) : (
+                    savedProperties.map((p) => (
+                      <Link key={p.id} href={`/properties/${p.id}`} className="flex items-center gap-4 rounded-xl border border-[#e2e8f0] p-3 transition-all hover:shadow-sm hover:border-[#155eef]/20">
+                        <div className="h-16 w-20 rounded-lg flex-shrink-0" style={{ background: p.gradient }} />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-[#0f172a] text-sm truncate">{p.title}</div>
+                          <div className="text-xs text-[#64748b] flex items-center gap-1 mt-0.5"><MapPin className="h-3 w-3" />{p.city}</div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+                        <div className="text-right flex-shrink-0">
+                          <div className="font-bold text-[#0f172a] text-sm">{p.price}</div>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <BadgeCheck className="h-3 w-3 text-[#059669]" />
+                            <span className="text-[11px] text-[#059669] font-semibold">Verified</span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -135,37 +115,41 @@ export default async function BuyerDashboardPage() {
               <div className="rounded-2xl border border-[#e2e8f0] bg-white p-6">
                 <h2 className="text-lg font-bold text-[#0f172a] mb-5">Shared Ownership Tracker</h2>
                 <div className="space-y-4">
-                  {equityDeals.map((deal) => (
-                    <div key={deal.id} className="rounded-xl border border-[#e2e8f0] p-4 bg-[#f8fafc]">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <div className="font-semibold text-[#0f172a] text-sm">{deal.property}</div>
-                          <div className="text-xs text-[#64748b] mt-0.5">Total Value: {deal.totalValue}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-xs font-medium text-slate-500">Next Buyout Window</div>
-                          <div className="text-xs font-bold text-[#0033A1] mt-0.5">{deal.nextBuyout}</div>
-                        </div>
-                      </div>
-                      <div className="relative pt-1">
-                        <div className="flex mb-2 items-center justify-between">
+                  {equityDeals.length === 0 ? (
+                    <div className="py-8 text-center text-sm text-[#64748b]">No active equity allocations.</div>
+                  ) : (
+                    equityDeals.map((deal) => (
+                      <div key={deal.id} className="rounded-xl border border-[#e2e8f0] p-4 bg-[#f8fafc]">
+                        <div className="flex items-center justify-between mb-3">
                           <div>
-                            <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-[#0033A1] bg-blue-50">
-                              Your Equity
-                            </span>
+                            <div className="font-semibold text-[#0f172a] text-sm">{deal.property}</div>
+                            <div className="text-xs text-[#64748b] mt-0.5">Total Value: {deal.totalValue}</div>
                           </div>
                           <div className="text-right">
-                            <span className="text-xs font-semibold inline-block text-[#0033A1]">
-                              {deal.equityOwned}% ({deal.ownedValue})
-                            </span>
+                            <div className="text-xs font-medium text-slate-500">Next Buyout Window</div>
+                            <div className="text-xs font-bold text-[#0033A1] mt-0.5">{deal.nextBuyout}</div>
                           </div>
                         </div>
-                        <div className="overflow-hidden h-2 mb-1 text-xs flex rounded bg-slate-200">
-                          <div style={{ width: `${deal.equityOwned}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-[#0072CE]"></div>
+                        <div className="relative pt-1">
+                          <div className="flex mb-2 items-center justify-between">
+                            <div>
+                              <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-[#0033A1] bg-blue-50">
+                                Your Equity
+                              </span>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-xs font-semibold inline-block text-[#0033A1]">
+                                {deal.equityOwned}% ({deal.ownedValue})
+                              </span>
+                            </div>
+                          </div>
+                          <div className="overflow-hidden h-2 mb-1 text-xs flex rounded bg-slate-200">
+                            <div style={{ width: `${deal.equityOwned}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-[#0072CE]"></div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -173,39 +157,42 @@ export default async function BuyerDashboardPage() {
               <div className="rounded-2xl border border-[#e2e8f0] bg-white p-6">
                 <h2 className="text-lg font-bold text-[#0f172a] mb-5">Build Progress Management</h2>
                 <div className="space-y-4">
-                  {activeBuilds.map((build) => (
-                    <div key={build.id} className="rounded-xl border border-[#e2e8f0] p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <div className="font-semibold text-[#0f172a] text-sm">{build.property}</div>
-                          <div className="text-xs text-[#64748b] mt-0.5">Est. Handover: {build.estHandover}</div>
+                  {activeBuilds.length === 0 ? (
+                    <div className="py-8 text-center text-sm text-[#64748b]">No active construction builds.</div>
+                  ) : (
+                    activeBuilds.map((build) => (
+                      <div key={build.id} className="rounded-xl border border-[#e2e8f0] p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <div className="font-semibold text-[#0f172a] text-sm">{build.property}</div>
+                            <div className="text-xs text-[#64748b] mt-0.5">Est. Handover: {build.estHandover}</div>
+                          </div>
+                          <span className="rounded-full bg-[#fff7ed] px-2.5 py-1 text-[11px] font-semibold text-[#c2410c] border border-[#ffedd5]">
+                            {build.currentPhase}
+                          </span>
                         </div>
-                        <span className="rounded-full bg-[#fff7ed] px-2.5 py-1 text-[11px] font-semibold text-[#c2410c] border border-[#ffedd5]">
-                          {build.currentPhase}
-                        </span>
+                        <div className="relative pt-1">
+                          <div className="overflow-hidden h-2 mb-1 text-xs flex rounded bg-slate-100">
+                            <div style={{ width: `${build.progress}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-amber-500"></div>
+                          </div>
+                          <div className="flex text-[10px] text-slate-400 mt-1 justify-between">
+                            <span>Foundation</span>
+                            <span className="text-amber-600 font-medium">Brickwork</span>
+                            <span>Roofing</span>
+                            <span>Finishing</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="relative pt-1">
-                        <div className="overflow-hidden h-2 mb-1 text-xs flex rounded bg-slate-100">
-                          <div style={{ width: `${build.progress}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-amber-500"></div>
-                        </div>
-                        <div className="flex text-[10px] text-slate-400 mt-1 justify-between">
-                          <span>Foundation</span>
-                          <span className="text-amber-600 font-medium">Brickwork</span>
-                          <span>Roofing</span>
-                          <span>Finishing</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
 
               {/* Transaction Tracker */}
-
               <div className="rounded-2xl border border-[#e2e8f0] bg-white p-6">
                 <h2 className="text-lg font-bold text-[#0f172a] mb-5">Transaction Tracker</h2>
                 {transactions.length === 0 ? (
-                  <p className="text-sm text-[#64748b]">No transactions yet.</p>
+                  <div className="py-8 text-center text-sm text-[#64748b]">No transactions yet.</div>
                 ) : (
                   <div className="space-y-3">
                     {transactions.map((tx) => {
@@ -236,18 +223,22 @@ export default async function BuyerDashboardPage() {
               <div className="rounded-2xl border border-[#e2e8f0] bg-white p-6">
                 <h2 className="text-lg font-bold text-[#0f172a] mb-5">Document Vault</h2>
                 <div className="space-y-3">
-                  {documents.map((doc) => (
-                    <div key={doc.name} className="flex items-center justify-between rounded-xl border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <FileText className="h-5 w-5 text-[#155eef]" />
-                        <div>
-                          <div className="text-sm font-medium text-[#0f172a]">{doc.name}</div>
-                          <div className="text-xs text-[#94a3b8]">{doc.date}</div>
+                  {documents.length === 0 ? (
+                    <div className="py-8 text-center text-sm text-[#64748b]">No documents loaded.</div>
+                  ) : (
+                    documents.map((doc) => (
+                      <div key={doc.name} className="flex items-center justify-between rounded-xl border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <FileText className="h-5 w-5 text-[#155eef]" />
+                          <div>
+                            <div className="text-sm font-medium text-[#0f172a]">{doc.name}</div>
+                            <div className="text-xs text-[#94a3b8]">{doc.date}</div>
+                          </div>
                         </div>
+                        <span className="rounded-full bg-[#f1f5f9] px-2.5 py-0.5 text-[11px] font-semibold text-[#475569]">{doc.type}</span>
                       </div>
-                      <span className="rounded-full bg-[#f1f5f9] px-2.5 py-0.5 text-[11px] font-semibold text-[#475569]">{doc.type}</span>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
             </div>
@@ -258,12 +249,16 @@ export default async function BuyerDashboardPage() {
               <div className="rounded-2xl border border-[#e2e8f0] bg-white p-6">
                 <h3 className="text-sm font-bold text-[#0f172a] mb-4">Notifications</h3>
                 <div className="space-y-3">
-                  {notifications.map((n) => (
-                    <div key={n.id} className={`rounded-lg p-3 text-sm ${n.read ? "bg-white" : "bg-[#eff6ff] border border-[#155eef]/10"}`}>
-                      <p className="text-[#0f172a] text-xs leading-relaxed">{n.message}</p>
-                      <p className="text-[11px] text-[#94a3b8] mt-1">{n.time}</p>
-                    </div>
-                  ))}
+                  {notifications.length === 0 ? (
+                    <div className="py-4 text-center text-xs text-[#94a3b8]">Clean slate.</div>
+                  ) : (
+                    notifications.map((n) => (
+                      <div key={n.id} className={`rounded-lg p-3 text-sm ${n.read ? "bg-white" : "bg-[#eff6ff] border border-[#155eef]/10"}`}>
+                        <p className="text-[#0f172a] text-xs leading-relaxed">{n.message}</p>
+                        <p className="text-[11px] text-[#94a3b8] mt-1">{n.time}</p>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
