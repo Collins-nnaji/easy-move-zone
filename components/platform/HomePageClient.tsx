@@ -4,7 +4,6 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion, useReducedMotion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import {
-  Home,
   Search,
   ArrowRight,
   Sparkles,
@@ -16,12 +15,10 @@ import {
   Play,
   ChevronLeft,
   ChevronRight,
-  Zap,
   KeyRound,
-  ArrowLeftRight,
 } from "lucide-react"
 import { HomeFeaturedListings } from "@/components/platform/HomeFeaturedListings"
-import { useRef, useState, useCallback } from "react"
+import { useRef, useState, useCallback, useEffect } from "react"
 import { clsx } from "clsx"
 
 const heroVideos = [
@@ -32,13 +29,18 @@ const heroVideos = [
   "/emzbuilding one.mp4",
 ]
 
+const heroImages = [
+  { src: "/homepage pic.png", position: "30% center" },
+  { src: "/emzheropic.png", position: "60% center" },
+]
+
 const services = [
   {
     label: "OUTRIGHT PURCHASE",
     title: "Buy a Verified Property",
     description: "Own it outright from day one. Every listing passes a full title check against state registries and family histories — no Omonile disputes, no government acquisition surprises.",
     icon: ShieldCheck,
-    href: "/search",
+    href: "/purchase",
     cta: "Browse verified homes",
     gradient: "from-cyan-500 to-blue-500",
     glow: "bg-cyan-500/20",
@@ -76,20 +78,6 @@ const services = [
     photoPosition: "",
   },
   {
-    label: "UPGRADE",
-    title: "Smart Move-In Fit-out",
-    description: "Don't wait for the national grid. We install off-grid solar power, smart security locks, and water treatment systems before you move in — fully functional from Day 1.",
-    icon: Zap,
-    href: "/upgrade",
-    cta: "See upgrade packages",
-    gradient: "from-yellow-400 to-orange-400",
-    glow: "bg-yellow-500/20",
-    accent: "text-yellow-400",
-    border: "border-yellow-500/20",
-    photo: null,
-    photoPosition: "",
-  },
-  {
     label: "RENT TO OWN",
     title: "Lease-Purchase Pathway",
     description: "Stop wasting money on traditional rent. Move into a verified home as a tenant — a portion of every monthly payment builds toward your purchase price.",
@@ -103,29 +91,7 @@ const services = [
     photo: "/homepage pic 2.png",
     photoPosition: "center",
   },
-  {
-    label: "SWAP & RELOCATE",
-    title: "Sell, Match & Move",
-    description: "Changing city? We sell your current home, find you an equivalent verified property in your new location, and coordinate the full relocation — one team, one process.",
-    icon: ArrowLeftRight,
-    href: "/swap",
-    cta: "Start your relocation",
-    gradient: "from-rose-500 to-pink-500",
-    glow: "bg-rose-500/20",
-    accent: "text-rose-400",
-    border: "border-rose-500/20",
-    photo: null,
-    photoPosition: "",
-  },
 ] as const
-
-const cities = [
-  { name: "Lagos", state: "Lagos", count: "120+ Properties" },
-  { name: "Abuja", state: "FCT", count: "85+ Properties" },
-  { name: "Port Harcourt", state: "Rivers", count: "40+ Properties" },
-  { name: "Ibadan", state: "Oyo", count: "35+ Properties" },
-  { name: "Enugu", state: "Enugu", count: "25+ Properties" },
-]
 
 const easeOut = [0.16, 1, 0.3, 1] as const
 
@@ -135,11 +101,37 @@ const fadeUp = (delay = 0, y = 20) => ({
   transition: { duration: 0.6, delay, ease: easeOut },
 })
 
-export function HomePageClient() {
+interface HomePageClientProps {
+  cityCounts?: Record<string, number>
+}
+
+export function HomePageClient({ cityCounts = {} }: HomePageClientProps) {
+  const cities = [
+    { name: "Lagos", state: "Lagos", count: `${cityCounts["lagos"] || 0} Properties` },
+    { name: "Abuja", state: "FCT", count: `${cityCounts["abuja"] || 0} Properties` },
+    { name: "Port Harcourt", state: "Rivers", count: `${cityCounts["port-harcourt"] || 0} Properties` },
+    { name: "Ibadan", state: "Oyo", count: `${cityCounts["ibadan"] || 0} Properties` },
+    { name: "Enugu", state: "Enugu", count: `${cityCounts["enugu"] || 0} Properties` },
+  ]
+
   const reduceMotion = useReducedMotion()
   const heroRef = useRef<HTMLElement>(null)
   const [activeVideo, setActiveVideo] = useState(0)
-  const [activeService, setActiveService] = useState(0)
+  const [activeHeroImg, setActiveHeroImg] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveVideo((v) => (v + 1) % heroVideos.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [activeVideo])
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveHeroImg((v) => (v + 1) % heroImages.length)
+    }, 2000)
+    return () => clearInterval(timer)
+  }, [])
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -155,15 +147,26 @@ export function HomePageClient() {
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-[90vh] overflow-hidden flex items-center bg-[#020617]">
         <motion.div className="pointer-events-none absolute inset-0" style={{ y: heroParallax, opacity: heroOpacity }}>
-          <Image
-            src="/homepage pic.png"
-            alt="EMZ easymovezone — verified Nigerian property with moving truck"
-            fill
-            priority
-            className="object-cover scale-105"
-            style={{ objectPosition: "30% center" }}
-            sizes="100vw"
-          />
+          <AnimatePresence mode="sync">
+            <motion.div
+              key={activeHeroImg}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2, ease: "easeInOut" }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={heroImages[activeHeroImg].src}
+                alt="EMZ easymovezone — verified Nigerian property"
+                fill
+                priority={activeHeroImg === 0}
+                className="object-cover scale-105"
+                style={{ objectPosition: heroImages[activeHeroImg].position }}
+                sizes="100vw"
+              />
+            </motion.div>
+          </AnimatePresence>
           <div
             className="absolute inset-0 bg-gradient-to-br from-[#020617]/92 via-[#0f172a]/78 to-[#002880]/55"
             aria-hidden
@@ -202,7 +205,7 @@ export function HomePageClient() {
 
               <motion.div {...fadeUp(0.18, 18)} className="mt-10 max-w-xl mx-auto lg:mx-0">
                 <form
-                  action="/search"
+                  action="/purchase"
                   method="get"
                   className="group relative rounded-2xl border border-white/20 bg-white/[0.08] p-2 shadow-2xl shadow-black/40 backdrop-blur-xl transition-all duration-300 focus-within:border-white/40 focus-within:bg-white/[0.12]"
                 >
@@ -256,7 +259,7 @@ export function HomePageClient() {
 
               {/* CTA row */}
               <div className="flex items-center gap-4 pt-2 border-t border-white/10">
-                <Link href="/search" className="inline-flex items-center gap-2 text-sm font-bold text-cyan-300 hover:text-white transition">
+                <Link href="/purchase" className="inline-flex items-center gap-2 text-sm font-bold text-cyan-300 hover:text-white transition">
                   Browse verified homes <ArrowUpRight className="h-4 w-4" />
                 </Link>
                 <span className="text-white/20">·</span>
@@ -299,7 +302,7 @@ export function HomePageClient() {
               </div>
               <div className="mt-8">
                 <Link
-                  href="/search?filter=build"
+                  href="/build"
                   className="inline-flex items-center gap-2 rounded-xl bg-[#0033A1] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-[#002880]"
                 >
                   <HardHat className="h-4 w-4" />
@@ -390,115 +393,61 @@ export function HomePageClient() {
             </p>
           </div>
 
-          {/* Tabs and Carousel */}
-          <div className="grid gap-8 lg:grid-cols-12 items-stretch">
-            {/* Left Tabs (List) */}
-            <div className="lg:col-span-4 flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-4 lg:pb-0 scrollbar-none">
-              {services.map((s, idx) => {
-                const Icon = s.icon
-                const isActive = idx === activeService
-                return (
-                  <button
-                    key={s.label}
-                    onClick={() => setActiveService(idx)}
-                    className={clsx(
-                      "flex items-center gap-4 rounded-2xl p-4 text-left transition-all duration-300 shrink-0 lg:shrink w-auto",
-                      isActive 
-                        ? "bg-white shadow-lg shadow-slate-200/50 border border-slate-200/60 scale-[1.02]" 
-                        : "hover:bg-slate-100/80 border border-transparent"
-                    )}
-                  >
-                    <div className={clsx(
-                      "flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br shadow-sm text-white",
-                      s.gradient
-                    )}>
-                      <Icon className="h-5 w-5" />
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((s) => {
+              const Icon = s.icon
+              return (
+                <div
+                  key={s.label}
+                  className={clsx(
+                    "w-full flex flex-col justify-between rounded-3xl bg-white border border-slate-200/60 shadow-lg shadow-slate-200/50 p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-slate-200/60 relative overflow-hidden",
+                  )}
+                >
+                  {/* Subtle decorative glow based on service */}
+                  <div className={clsx(
+                    "absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-10 blur-[50px] pointer-events-none transition-all duration-700",
+                    s.glow
+                  )} />
+                  
+                  <div className="relative z-10 flex flex-col h-full justify-between">
                     <div>
-                      <span className={clsx("text-[10px] font-black uppercase tracking-[0.2em]", isActive ? s.accent : "text-slate-400")}>
-                        {s.label}
-                      </span>
-                      <p className={clsx("text-sm font-bold mt-0.5", isActive ? "text-slate-900" : "text-slate-600")}>
-                        {s.title}
+                      <div className="flex items-center gap-4">
+                        <div className={clsx(
+                          "flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br shadow-md text-white",
+                          s.gradient
+                        )}>
+                          <Icon className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <span className={clsx("text-[10px] font-bold uppercase tracking-[0.25em]", s.accent)}>
+                            {s.label}
+                          </span>
+                          <h3 className="text-xl font-bold text-slate-900 mt-0.5">
+                            {s.title}
+                          </h3>
+                        </div>
+                      </div>
+
+                      <p className="mt-6 text-sm md:text-base leading-relaxed text-slate-600">
+                        {s.description}
                       </p>
                     </div>
-                  </button>
-                )
-              })}
-            </div>
 
-            {/* Right Carousel (Active Content) */}
-            <div className="lg:col-span-8 relative min-h-[380px] rounded-3xl bg-white border border-slate-200/60 shadow-xl shadow-slate-200/40 p-8 md:p-12 flex flex-col justify-between overflow-hidden">
-              {/* Subtle decorative glow based on active service */}
-              <div className={clsx(
-                "absolute -right-20 -top-20 h-64 w-64 rounded-full opacity-20 blur-[80px] pointer-events-none transition-all duration-700",
-                services[activeService].glow
-              )} />
-              
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeService}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.4, ease: easeOut }}
-                  className="relative z-10 flex flex-col h-full justify-between"
-                >
-                  <div>
-                    <div className="flex items-center gap-4">
-                      <div className={clsx(
-                        "flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br shadow-md text-white",
-                        services[activeService].gradient
-                      )}>
-                        {(() => {
-                          const Icon = services[activeService].icon
-                          return <Icon className="h-7 w-7" />
-                        })()}
-                      </div>
-                      <div>
-                        <span className={clsx("text-xs font-bold uppercase tracking-[0.25em]", services[activeService].accent)}>
-                          {services[activeService].label}
-                        </span>
-                        <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mt-1">
-                          {services[activeService].title}
-                        </h3>
-                      </div>
-                    </div>
-
-                    <p className="mt-8 text-base md:text-lg leading-relaxed text-slate-600 max-w-2xl">
-                      {services[activeService].description}
-                    </p>
-                  </div>
-
-                  <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center gap-4">
-                    <Link
-                      href={services[activeService].href}
-                      className={clsx(
-                        "inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r px-6 py-3 text-sm font-bold text-white shadow-md transition hover:opacity-90 hover:shadow-lg",
-                        services[activeService].gradient
-                      )}
-                    >
-                      {services[activeService].cta} <ArrowRight className="h-4 w-4" />
-                    </Link>
-                    
-                    {/* Carousel dot indicators */}
-                    <div className="flex gap-1.5 mx-auto sm:mx-0 sm:ml-auto">
-                      {services.map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setActiveService(i)}
-                          className={clsx(
-                            "h-2 rounded-full transition-all duration-300",
-                            i === activeService ? "w-6 bg-slate-800" : "w-2 bg-slate-200 hover:bg-slate-300"
-                          )}
-                          aria-label={`Go to slide ${i + 1}`}
-                        />
-                      ))}
+                    <div className="mt-8 pt-4 border-t border-slate-100">
+                      <Link
+                        href={s.href}
+                        className={clsx(
+                          "inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:opacity-90 hover:shadow-lg w-full sm:w-auto",
+                          s.gradient
+                        )}
+                      >
+                        {s.cta} <ArrowRight className="h-4 w-4" />
+                      </Link>
                     </div>
                   </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -511,7 +460,7 @@ export function HomePageClient() {
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#0033A1]">Locations</span>
               <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#0f172a] sm:text-4xl">Explore Verified Markets</h2>
             </div>
-            <Link href="/search" className="mt-4 md:mt-0 inline-flex items-center gap-2 text-sm font-semibold text-[#0033A1] hover:underline">
+            <Link href="/purchase" className="mt-4 md:mt-0 inline-flex items-center gap-2 text-sm font-semibold text-[#0033A1] hover:underline">
               View all locations <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -526,7 +475,7 @@ export function HomePageClient() {
                 transition={{ delay: idx * 0.05, duration: 0.4 }}
               >
                 <Link
-                  href={`/search?city=${city.name.toLowerCase()}`}
+                  href={`/purchase?city=${city.name.toLowerCase()}`}
                   className="group block rounded-2xl border border-slate-200 bg-white p-6 hover:border-[#0033A1]/30 hover:shadow-md transition-all duration-300"
                 >
                   <div className="flex justify-between items-start">

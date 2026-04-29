@@ -12,11 +12,10 @@ import {
   TrendingUp,
   ArrowRight,
   BadgeCheck,
-  Sparkles,
   Trees,
-  LayoutGrid,
   BedDouble,
   Loader2,
+  CheckCircle2,
 } from "lucide-react"
 import { BuyBuildEstimator } from "@/components/platform/BuyBuildEstimator"
 import type { BrowseMode } from "@/lib/search/demo-listings"
@@ -30,6 +29,8 @@ import {
   type PublicListingCard,
 } from "@/lib/property/map-public"
 import { clsx } from "clsx"
+import { BuildGuidedForm } from "@/components/platform/BuildGuidedForm"
+import { HardHat } from "lucide-react"
 
 const cities = ["All Cities", "Lagos", "Abuja", "Port Harcourt", "Ibadan", "Enugu", "Kano"]
 
@@ -40,9 +41,8 @@ const statusStyles: Record<string, { bg: string; color: string }> = {
 }
 
 const modes: { id: BrowseMode; label: string; hint: string; icon: typeof Home }[] = [
-  { id: "all", label: "All listings", hint: "Homes & land", icon: LayoutGrid },
-  { id: "homes", label: "Full homes", hint: "Move-in ready", icon: Home },
-  { id: "land", label: "Buy & build", hint: "Plots & land", icon: Trees },
+  { id: "homes", label: "Buy Finished Homes", hint: "Ready to close", icon: Home },
+  { id: "land", label: "Build From Scratch", hint: "Find land & build", icon: Trees },
 ]
 
 const easeOut = [0.16, 1, 0.3, 1] as const
@@ -57,13 +57,33 @@ function sortListings(list: PublicListingCard[], sort: string): PublicListingCar
 
 export function SearchPageClient() {
   const reduceMotion = useReducedMotion()
-  const [browseMode, setBrowseMode] = useState<BrowseMode>("all")
+  const [browseMode, setBrowseMode] = useState<BrowseMode>("homes")
+  const showEstimator = browseMode === "land" || browseMode === "all"
   const [cityFilter, setCityFilter] = useState<string>("All Cities")
   const [sort, setSort] = useState("relevant")
   const [query, setQuery] = useState("")
   const [allListings, setAllListings] = useState<PublicListingCard[]>([])
   const [loadState, setLoadState] = useState<"loading" | "ok" | "error">("loading")
   const [estimatorLandNgn, setEstimatorLandNgn] = useState(85_000_000)
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      const m = params.get("mode")
+      if (m === "homes" || m === "land" || m === "all") {
+        setBrowseMode(m)
+      }
+      const c = params.get("city")
+      if (c) {
+        const match = cities.find((item) => item.toLowerCase() === c.toLowerCase())
+        if (match) setCityFilter(match)
+      }
+      const q = params.get("q")
+      if (q) {
+        setQuery(q)
+      }
+    }
+  }, [])
 
   const fetchListings = useCallback(async () => {
     setLoadState("loading")
@@ -114,213 +134,106 @@ export function SearchPageClient() {
 
   return (
     <>
-      {/* Hero — photo background */}
-      <section className="relative overflow-hidden border-b border-white/[0.08] bg-[#030712] min-h-[520px] lg:min-h-[580px]">
-        {/* Real photo — family outside their EMZ home */}
-        <Image
-          src="/emzheropic.png"
-          alt="EMZ family outside their new home"
-          fill
-          priority
-          className="object-cover"
-          style={{ objectPosition: "60% center" }}
-          sizes="100vw"
-        />
-        {/* Dark overlay — heavy on left for text readability, lighter on right */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#030712]/95 via-[#030712]/80 to-[#030712]/50" aria-hidden />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#030712]/30 via-transparent to-[#030712]/70" aria-hidden />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_20%_-20%,rgba(0,51,161,0.35),transparent)]" aria-hidden />
-        <div className="home-hero-grid pointer-events-none absolute inset-0 opacity-[0.05]" aria-hidden />
+      {/* Compact page header — no photo */}
+      <section className="border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-10">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#0033A1] mb-1">Browse</p>
+              <h1 className="text-2xl font-bold tracking-tight text-[#0f172a] sm:text-3xl">
+                Verified homes &amp; land
+              </h1>
+              <p className="mt-1.5 text-sm text-slate-500 max-w-md">
+                Transparent pricing, guaranteed quality. Every listing is title-checked before it goes live.
+              </p>
+            </div>
 
-        {/* Two-column flex: left = padded content, right = full-height frosted panel */}
-        <div className="relative z-10 flex min-h-[inherit]">
-
-          {/* LEFT — main content */}
-          <div className="flex-1 px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-            <div className="mx-auto max-w-2xl">
-              <motion.div
-                initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, ease: easeOut }}
-                className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/90"
-              >
-                <Sparkles className="h-3.5 w-3.5 text-amber-300" />
-                Browse
-              </motion.div>
-              <motion.h1
-                initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05, duration: 0.55, ease: easeOut }}
-                className="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight text-white sm:text-4xl lg:text-[2.35rem]"
-              >
-                Affordable verified homes &amp; land
-              </motion.h1>
-              <motion.p
-                initial={reduceMotion ? false : { opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.55, ease: easeOut }}
-                className="mt-4 max-w-xl text-sm leading-relaxed text-slate-400 sm:text-base"
-              >
-                Every property features{" "}
-                <strong className="font-semibold text-white">transparent pricing and guaranteed quality</strong>. We help you own your house the cheapest way possible with zero rip-offs.
-              </motion.p>
-
-              <motion.div
-                initial={reduceMotion ? false : { opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.14, duration: 0.5, ease: easeOut }}
-                className="mt-8"
-              >
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">I want to</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {modes.map((m) => {
-                    const Icon = m.icon
-                    const active = browseMode === m.id
-                    return (
-                      <button
-                        key={m.id}
-                        type="button"
-                        onClick={() => setBrowseMode(m.id)}
-                        className={clsx(
-                          "inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-left text-sm font-semibold transition duration-200",
-                          active
-                            ? "border-[#0072CE] bg-[#0072CE] text-white shadow-lg shadow-[#0033A1]/30"
-                            : "border-white/15 bg-white/[0.06] text-slate-300 hover:border-white/25 hover:bg-white/[0.1]",
-                        )}
-                      >
-                        <Icon className="h-4 w-4 shrink-0 opacity-90" />
-                        <span>
-                          {m.label}
-                          <span className="ml-1.5 hidden font-normal text-[11px] opacity-80 sm:inline">· {m.hint}</span>
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={reduceMotion ? false : { opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.18, duration: 0.5, ease: easeOut }}
-                className="mt-8 rounded-2xl border border-white/15 bg-white/[0.07] p-1.5 shadow-2xl backdrop-blur-xl sm:p-2"
-              >
-                <div className="flex flex-col gap-2 md:flex-row md:items-stretch md:gap-2">
-                  <div className="relative flex-1">
-                    <Search className="pointer-events-none absolute left-4 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-slate-500" />
-                    <input
-                      type="search"
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                      placeholder="City, neighbourhood, title, or type…"
-                      className="w-full rounded-xl border-0 bg-white py-3.5 pl-12 pr-4 text-[15px] text-[#0f172a] shadow-none placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0072CE]/25 md:rounded-2xl"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.08] px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-white/[0.12] md:rounded-2xl"
-                    aria-label="Filters coming soon"
-                  >
-                    <SlidersHorizontal className="h-4 w-4" />
-                    Filters
-                  </button>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-3">
-                  {cities.map((city) => {
-                    const active = cityFilter === city
-                    return (
-                      <button
-                        key={city}
-                        type="button"
-                        onClick={() => setCityFilter(city)}
-                        className={clsx(
-                          "rounded-full px-3.5 py-1.5 text-xs font-semibold transition",
-                          active
-                            ? "bg-[#0072CE] text-white shadow-md shadow-black/20"
-                            : "border border-white/12 bg-black/20 text-slate-300 hover:border-cyan-400/30 hover:text-white",
-                        )}
-                      >
-                        {city}
-                      </button>
-                    )
-                  })}
-                </div>
-              </motion.div>
-
-              <motion.p
-                initial={reduceMotion ? false : { opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.28, duration: 0.45 }}
-                className="mt-6 flex flex-wrap items-center gap-3 text-xs text-slate-500"
-              >
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 font-semibold text-emerald-300">
-                  <Home className="h-3.5 w-3.5" strokeWidth={2.5} />
-                  Platform-managed
-                </span>
-                <span className="text-slate-500">Live database · AI ranges when available</span>
-              </motion.p>
+            {/* Buy outright vs Buy & Build toggle */}
+            <div className="flex flex-col gap-2">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">What are you looking for?</p>
+              <div className="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200 shadow-sm">
+                {modes.map((m) => {
+                  const Icon = m.icon
+                  const active = browseMode === m.id
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setBrowseMode(m.id)}
+                      className={clsx(
+                        "flex items-center gap-2 px-4 py-2.5 rounded-lg font-bold text-sm transition-all duration-200",
+                        active
+                          ? m.id === "homes"
+                            ? "bg-[#0033A1] text-white shadow"
+                            : "bg-amber-500 text-white shadow"
+                          : "text-slate-500 hover:text-[#0f172a]"
+                      )}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span>{m.label}</span>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
 
-          {/* RIGHT — full-height frosted panel, flush to screen edge, hidden below lg */}
-          <motion.aside
-            initial={reduceMotion ? false : { opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2, duration: 0.6, ease: easeOut }}
-            className="hidden lg:flex lg:w-[360px] lg:shrink-0 xl:w-[420px]"
-          >
-            <div className="flex w-full flex-col border-l border-white/15 bg-white/[0.06] px-8 pt-10 pb-12 backdrop-blur-2xl xl:px-10">
-              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200/80">Catalogue</p>
-              <p className="mt-3 text-6xl font-semibold tabular-nums tracking-tight text-white">
-                {loadState === "loading" ? (
-                  <span className="inline-flex items-center gap-2 text-2xl text-slate-400">
-                    <Loader2 className="h-7 w-7 animate-spin" />
-                  </span>
-                ) : loadState === "error" ? (
-                  <span className="text-lg text-amber-300">—</span>
-                ) : (
-                  allListings.length
-                )}
-              </p>
-              <p className="mt-1 text-sm text-slate-400">Verified properties available now</p>
-
-              <div className="mt-8 space-y-3 border-t border-white/10 pt-6">
-                {[
-                  { icon: BadgeCheck, label: "100% title-verified", sub: "Every listing cleared in-house" },
-                  { icon: Home, label: "No syndication", sub: "Only EMZ-managed properties" },
-                  { icon: TrendingUp, label: "AI price ranges", sub: "Market estimates where available" },
-                ].map(({ icon: Icon, label, sub }) => (
-                  <div key={label} className="flex items-start gap-3 rounded-xl bg-white/[0.05] px-4 py-3">
-                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" />
-                    <div>
-                      <p className="text-sm font-semibold text-white">{label}</p>
-                      <p className="text-xs text-slate-500">{sub}</p>
-                    </div>
-                  </div>
-                ))}
+          {/* Search + filters */}
+          <div className="mt-6 flex flex-col gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-4 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="City, neighbourhood, title, or type…"
+                  className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-[14px] text-[#0f172a] placeholder:text-slate-400 focus:border-[#0033A1]/40 focus:outline-none focus:ring-2 focus:ring-[#0033A1]/10 shadow-sm"
+                />
               </div>
-
-              <div className="mt-auto pt-8">
-                <Link
-                  href="/contact"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0072CE] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#0033A1]/30 transition hover:bg-[#005fad]"
-                >
-                  Talk to an advisor <ArrowRight className="h-4 w-4" />
-                </Link>
-                <p className="mt-3 text-center text-[11px] text-slate-600">Free consultation · No commitment</p>
-              </div>
+              <button
+                type="button"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 shadow-sm"
+                aria-label="Filters coming soon"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Filters
+              </button>
             </div>
-          </motion.aside>
-
+            <div className="flex flex-wrap gap-2">
+              {cities.map((city) => {
+                const active = cityFilter === city
+                return (
+                  <button
+                    key={city}
+                    type="button"
+                    onClick={() => setCityFilter(city)}
+                    className={clsx(
+                      "rounded-full px-3.5 py-1.5 text-xs font-semibold border transition",
+                      active
+                        ? "bg-[#0033A1] text-white border-[#0033A1] shadow-sm"
+                        : "bg-white text-slate-500 border-slate-200 hover:border-[#0033A1]/30 hover:text-[#0033A1]",
+                    )}
+                  >
+                    {city}
+                  </button>
+                )
+              })}
+              <span className="ml-auto self-center text-xs text-slate-400">
+                {allListings.length} properties live
+              </span>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Results */}
       <section className="relative bg-slate-50/60 py-12 md:py-16 isolation-auto">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#0072CE]/5 via-transparent to-transparent opacity-70" aria-hidden />
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
           <div className="lg:grid lg:grid-cols-12 lg:items-start lg:gap-10 xl:gap-12">
-            <div className="min-w-0 lg:col-span-8">
+            <div className={clsx("min-w-0 transition-all duration-300", showEstimator ? "lg:col-span-8" : "lg:col-span-12")}>
+
               <div className="mb-8 flex flex-col gap-4 border-b border-slate-200/90 pb-6 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="text-sm text-slate-600">
@@ -422,24 +335,87 @@ export function SearchPageClient() {
               </motion.div>
             </div>
 
-            <aside className="mt-10 lg:sticky lg:top-24 lg:col-span-4 lg:mt-0">
-              <BuyBuildEstimator
-                landPriceNgn={estimatorLandNgn}
-                onLandPriceChange={setEstimatorLandNgn}
-                cityLabel={comparableForEstimator.city}
-                comparableHome={
-                  comparableForEstimator.home
-                    ? {
-                        priceNgn: comparableForEstimator.home.priceNgn,
-                        title: comparableForEstimator.home.title,
+            {showEstimator && (
+              <aside className="mt-10 lg:sticky lg:top-24 lg:mt-0 flex flex-col lg:col-span-4">
+                <div className="space-y-6">
+                  {browseMode === "land" && (
+                      <div className="space-y-6">
+                        {/* 1. Guided Form */}
+                        <div className="rounded-3xl border border-amber-500/20 bg-[#0a0f1e] p-6 text-white shadow-xl">
+                          <div className="flex items-center gap-2.5 mb-4">
+                            <HardHat className="h-5 w-5 text-amber-400" />
+                            <h3 className="text-lg font-bold">Managed Build-to-Suit</h3>
+                          </div>
+                          <p className="text-xs text-slate-400 mb-6">Answer a few questions to get an accurate fixed price scope.</p>
+                          <BuildGuidedForm />
+                        </div>
+
+                        {/* 2. How it Works & Our Promise merged & compact */}
+                        <div className="rounded-3xl bg-white border border-slate-200/80 p-6 shadow-sm">
+                          <h4 className="text-sm font-bold text-[#0f172a] mb-4 flex items-center gap-2">
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-600">1</span>
+                            Blueprint to Handover
+                          </h4>
+                          <div className="grid gap-3.5 text-[13px]">
+                            {[
+                              "Architectural Design — Match vision & codes",
+                              "Government Permits — Filed & chased on your behalf",
+                              "Quality-Controlled Build — Supervised engineering",
+                              "Digital Milestone Logs — Follow along remotely",
+                              "Snagging & Handover — Strict quality inspections",
+                              "12-Month Structural Warranty — Protected asset",
+                            ].map((step, i) => (
+                              <div key={i} className="flex items-center gap-2 text-slate-600">
+                                <div className="h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
+                                <span>{step}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="rounded-3xl bg-white border border-slate-200/80 p-6 shadow-sm">
+                          <h4 className="text-sm font-bold text-[#0f172a] mb-4 flex items-center gap-2">
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-cyan-100 text-xs font-bold text-cyan-600">2</span>
+                            Our Promise
+                          </h4>
+                          <div className="grid gap-3.5 text-[13px]">
+                            {[
+                              "Pre-vetted licensed contractors only",
+                              "Independent site engineers on every project",
+                              "Fixed-price contracts — zero escalation",
+                              "Milestone-based escrow fund management",
+                              "Diaspora-friendly portal integration",
+                              "Zero-compromise material controls",
+                            ].map((p, i) => (
+                              <div key={i} className="flex items-center gap-2 text-slate-600">
+                                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+                                <span>{p}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <BuyBuildEstimator
+                      landPriceNgn={estimatorLandNgn}
+                      onLandPriceChange={setEstimatorLandNgn}
+                      cityLabel={comparableForEstimator.city}
+                      comparableHome={
+                        comparableForEstimator.home
+                          ? {
+                              priceNgn: comparableForEstimator.home.priceNgn,
+                              title: comparableForEstimator.home.title,
+                            }
+                          : undefined
                       }
-                    : undefined
-                }
-              />
-              <p className="mt-3 text-center text-[11px] text-slate-500 lg:text-left">
-                On a land card, use <span className="font-semibold text-slate-700">&quot;Use this land price&quot;</span> to load it here.
-              </p>
-            </aside>
+                    />
+                    <p className="text-center text-[11px] text-slate-500 lg:text-left">
+                      On a land card, use <span className="font-semibold text-slate-700">&quot;Use this land price&quot;</span> to load it here.
+                    </p>
+                  </div>
+              </aside>
+            )}
           </div>
         </div>
       </section>

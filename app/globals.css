@@ -496,6 +496,15 @@
     }
     .emz-gloss-card::after, .emz-pill-cta::after, .pill-cta::after { display: none; }
   }
+
+  /* Hide scrollbar */
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
 }
 
 /* ─────────────────────────────────────────────

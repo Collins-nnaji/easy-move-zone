@@ -260,3 +260,34 @@ export async function getResourceGuides(): Promise<ResourceGuide[]> {
   }
 }
 
+export async function getPropertyCountsByCity(): Promise<Record<string, number>> {
+  if (!sql) {
+    const counts: Record<string, number> = {}
+    seedListings.forEach((l) => {
+      const city = l.citySlug.toLowerCase()
+      counts[city] = (counts[city] || 0) + 1
+    })
+    return counts
+  }
+
+  try {
+    const rows = await sql`
+      SELECT city_slug, COUNT(*) as count
+      FROM property_listings
+      GROUP BY city_slug
+    `
+    const counts: Record<string, number> = {}
+    rows.forEach((row) => {
+      counts[String(row.city_slug).toLowerCase()] = Number(row.count)
+    })
+    return counts
+  } catch {
+    const counts: Record<string, number> = {}
+    seedListings.forEach((l) => {
+      const city = l.citySlug.toLowerCase()
+      counts[city] = (counts[city] || 0) + 1
+    })
+    return counts
+  }
+}
+

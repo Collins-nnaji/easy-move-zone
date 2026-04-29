@@ -1,30 +1,21 @@
 import Link from "next/link"
-import { Home, Mail, ShieldCheck, HardHat, Banknote, Zap, KeyRound, ArrowLeftRight, Truck } from "lucide-react"
+import Image from "next/image"
+import { Mail } from "lucide-react"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 
-const services = [
-  { href: "/search",  label: "BUY — Verified Properties",     icon: ShieldCheck },
-  { href: "/build",   label: "BUILD — Managed Construction",   icon: HardHat },
-  { href: "/finance", label: "FINANCE — Mortgage & NHF",       icon: Banknote },
-  { href: "/upgrade", label: "UPGRADE — Solar & Smart Home",   icon: Zap },
-  { href: "/own",     label: "RENT TO OWN — Lease-Purchase",    icon: KeyRound },
-  { href: "/swap",    label: "SWAP — Sell, Match & Relocate",   icon: ArrowLeftRight },
-  { href: "/logistics", label: "LOGISTICS — Standalone Move",   icon: Truck },
-]
-
 const cities = [
-  { href: "/search?city=lagos",        label: "Lagos" },
-  { href: "/search?city=abuja",        label: "Abuja" },
-  { href: "/search?city=port harcourt",label: "Port Harcourt" },
-  { href: "/search?city=ibadan",       label: "Ibadan" },
-  { href: "/search?city=enugu",        label: "Enugu" },
+  { href: "/purchase?city=lagos",         label: "Lagos" },
+  { href: "/purchase?city=abuja",         label: "Abuja" },
+  { href: "/purchase?city=port harcourt", label: "Port Harcourt" },
+  { href: "/purchase?city=ibadan",        label: "Ibadan" },
+  { href: "/purchase?city=enugu",         label: "Enugu" },
 ]
 
 const company = [
-  { href: "/mortgage",        label: "Mortgage calculator" },
-  { href: "/contact",         label: "Contact us" },
-  { href: "/auth?mode=signup",label: "Create account" },
-  { href: "/auth",            label: "Sign in" },
+  { href: "/mortgage",         label: "Mortgage calculator" },
+  { href: "/contact",          label: "Contact us" },
+  { href: "/auth?mode=signup", label: "Create account" },
+  { href: "/auth",             label: "Sign in" },
 ]
 
 export function PlatformFooter() {
@@ -36,20 +27,21 @@ export function PlatformFooter() {
       <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-[#0033A1] via-[#0072CE] to-emerald-600/80 opacity-90" />
 
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-[1.6fr_1fr_1fr_1fr]">
+        <div className="grid gap-10 lg:grid-cols-[1.6fr_1fr_1fr]">
 
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#0033A1] to-[#0072CE]">
-                <Home className="h-4 w-4 text-white" strokeWidth={2.25} />
-              </div>
-              <span className="text-lg font-bold tracking-tight">
-                EasyMove<span className="text-cyan-300">Zone</span>
-              </span>
+              <Image
+                src="/emz.png"
+                alt="EasyMoveZone Logo"
+                width={140}
+                height={36}
+                className="h-9 w-auto object-contain brightness-0 invert"
+              />
             </div>
             <p className="mt-3 text-[13px] leading-relaxed text-slate-400 max-w-xs">
-              Nigeria's complete homeownership ecosystem — verified land, managed construction, mortgage brokering, smart fit-outs, and rent-to-own pathways.
+              Nigeria's complete homeownership ecosystem — verified land, managed construction, mortgage brokering, and rent-to-own pathways.
             </p>
             <a
               href={`mailto:${PUBLIC_CONTACT_EMAIL}`}
@@ -64,21 +56,6 @@ export function PlatformFooter() {
                 contact form
               </Link>.
             </p>
-          </div>
-
-          {/* Services */}
-          <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Services</h4>
-            <ul className="space-y-2.5">
-              {services.map(({ href, label, icon: Icon }) => (
-                <li key={href}>
-                  <Link href={href} className="flex items-center gap-2 text-[13px] text-slate-400 transition hover:text-white">
-                    <Icon className="h-3.5 w-3.5 shrink-0 text-slate-600" />
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </div>
 
           {/* Cities */}
@@ -112,7 +89,7 @@ export function PlatformFooter() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-white/[0.06] pt-6 text-center sm:flex-row sm:text-left">
           <p className="text-[11px] text-[#64748b]">&copy; {new Date().getFullYear()} EasyMoveZone. Nigeria &middot; Lagos &middot; Abuja &middot; Port Harcourt</p>
-          <p className="text-[11px] text-[#64748b]">BUY &middot; BUILD &middot; FINANCE &middot; UPGRADE &middot; RENT TO OWN &middot; SWAP &middot; LOGISTICS</p>
+          <p className="text-[11px] text-[#64748b]">PURCHASE &middot; BUILD &middot; FINANCE &middot; RENT TO OWN</p>
         </div>
       </div>
     </footer>

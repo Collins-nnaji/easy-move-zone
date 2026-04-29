@@ -1,10 +1,6 @@
-import { PublicShell } from "@/components/platform/PublicShell"
-import { SearchPageClient } from "@/components/platform/SearchPageClient"
+import { redirect } from "next/navigation"
 
-export default function SearchPage() {
-  return (
-    <PublicShell>
-      <SearchPageClient />
-    </PublicShell>
-  )
+export default function SearchPage({ searchParams }: { searchParams: Record<string, string> }) {
+  const q = searchParams.q ? `?q=${searchParams.q}` : ""
+  redirect(`/purchase${q}`)
 }
