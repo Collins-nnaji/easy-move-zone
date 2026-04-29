@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { HomeFeaturedListings } from "@/components/platform/HomeFeaturedListings"
 import { useRef, useState, useCallback } from "react"
+import { clsx } from "clsx"
 
 const heroVideos = [
   "/emz construction.mp4",
@@ -138,6 +139,7 @@ export function HomePageClient() {
   const reduceMotion = useReducedMotion()
   const heroRef = useRef<HTMLElement>(null)
   const [activeVideo, setActiveVideo] = useState(0)
+  const [activeService, setActiveService] = useState(0)
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -178,16 +180,16 @@ export function HomePageClient() {
                 className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-cyan-200 backdrop-blur-md"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                The Complete Homeownership Ecosystem
+                Affordable Homes & Moving Solutions
               </motion.div>
 
               <motion.h1
                 {...fadeUp(0.06, 22)}
                 className="display-title text-5xl text-white sm:text-6xl lg:text-[4rem]"
               >
-                Your path to owning
+                Own & move to your home
                 <span className="block bg-gradient-to-r from-cyan-200 via-indigo-200 to-emerald-200 bg-clip-text text-transparent mt-2">
-                  property in Nigeria.
+                  the cheapest way.
                 </span>
               </motion.h1>
 
@@ -195,7 +197,7 @@ export function HomePageClient() {
                 {...fadeUp(0.12, 18)}
                 className="mt-6 text-base leading-relaxed text-slate-300 max-w-xl mx-auto lg:mx-0"
               >
-                We solve the trust and affordability gap. Secure verified land, access shared ownership schemes, track your build, and broker your mortgage — all in one place.
+                We help you own and move to your house the cheapest way possible. No rip-offs, no hidden fees — just 100% transparent pricing and unmatched quality across every service.
               </motion.p>
 
               <motion.div {...fadeUp(0.18, 18)} className="mt-10 max-w-xl mx-auto lg:mx-0">
@@ -235,10 +237,10 @@ export function HomePageClient() {
               {/* Feature rows — no card background, text floats over photo */}
               <div className="space-y-5">
                 {[
-                  { label: "100% Title & Deed Verification", sub: "Every plot checked against state registries" },
-                  { label: "Flexible Shared Equity", sub: "Start with what you have, buy out over time" },
-                  { label: "End-to-End Build Oversight", sub: "Digital milestone tracking from your portal" },
-                  { label: "Diaspora-Optimised Financing", sub: "NHF & tier-1 mortgage brokering" },
+                  { label: "100% Transparent Pricing", sub: "Zero hidden fees, zero rip-offs" },
+                  { label: "Cheapest Pathway to Ownership", sub: "Optimized moving & buying strategies" },
+                  { label: "Guaranteed Quality Homes", sub: "Strict vetting and material standards" },
+                  { label: "100% Title Verification", sub: "Every plot checked against state registries" },
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-cyan-400/20 ring-1 ring-cyan-400/30">
@@ -364,86 +366,139 @@ export function HomePageClient() {
         </div>
       </section>
 
-      {/* Everything You Need — uniform 5-card grid */}
-      <section className="py-24 bg-[#07090f] text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,51,161,0.22),transparent)]" aria-hidden />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_80%_80%,rgba(139,92,246,0.08),transparent)]" aria-hidden />
+      {/* Everything You Need — interactive carousel */}
+      <section className="py-24 bg-slate-50 text-slate-900 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,51,161,0.05),transparent)]" aria-hidden />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_80%_80%,rgba(139,92,246,0.03),transparent)]" aria-hidden />
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
           {/* Header */}
           <div className="mb-16 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-400">
-                <Sparkles className="h-3 w-3" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-800">
+                <Sparkles className="h-3 w-3 text-cyan-600" />
                 Everything you need
               </div>
-              <h2 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
-                Six ways we get
-                <span className="bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent"> you home.</span>
+              <h2 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl text-slate-900">
+                The cheapest way to
+                <span className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent"> own & move.</span>
               </h2>
             </div>
-            <p className="max-w-sm text-[15px] leading-relaxed text-slate-400 lg:text-right">
-              From finding the land to moving in fully powered — we own every step of your property journey.
+            <p className="max-w-sm text-[15px] leading-relaxed text-slate-600 lg:text-right">
+              We provide affordable homes with fully transparent pricing. No rip-off costs, just verified quality from start to finish.
             </p>
           </div>
 
-          {/* Uniform 5-card grid: 2 top, 3 bottom — all equal height */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((s, idx) => (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0, y: 28 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ delay: idx * 0.07, duration: 0.6, ease: easeOut }}
-                className={`group relative min-h-[320px] overflow-hidden rounded-3xl border ${s.border} transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50 ${!s.photo ? "bg-white/[0.03] hover:bg-white/[0.055]" : ""}`}
-              >
-                {/* Photo background (BUY + RENT TO OWN) */}
-                {s.photo && (
-                  <>
-                    <Image
-                      src={s.photo}
-                      alt={s.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                      style={{ objectPosition: s.photoPosition }}
-                      sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#07090f]/97 via-[#07090f]/60 to-[#07090f]/20" />
-                  </>
-                )}
-
-                {/* Glow blob for plain cards */}
-                {!s.photo && (
-                  <div className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full ${s.glow} blur-[70px]`} aria-hidden />
-                )}
-
-                {/* Card content */}
-                <div className="relative z-10 flex h-full min-h-[320px] flex-col p-7">
-                  <div className="flex items-center gap-3">
-                    <div className={`inline-flex rounded-xl bg-gradient-to-br p-2.5 ${s.gradient} text-white shadow-lg`}>
-                      <s.icon className="h-5 w-5" />
+          {/* Tabs and Carousel */}
+          <div className="grid gap-8 lg:grid-cols-12 items-stretch">
+            {/* Left Tabs (List) */}
+            <div className="lg:col-span-4 flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-4 lg:pb-0 scrollbar-none">
+              {services.map((s, idx) => {
+                const Icon = s.icon
+                const isActive = idx === activeService
+                return (
+                  <button
+                    key={s.label}
+                    onClick={() => setActiveService(idx)}
+                    className={clsx(
+                      "flex items-center gap-4 rounded-2xl p-4 text-left transition-all duration-300 shrink-0 lg:shrink w-auto",
+                      isActive 
+                        ? "bg-white shadow-lg shadow-slate-200/50 border border-slate-200/60 scale-[1.02]" 
+                        : "hover:bg-slate-100/80 border border-transparent"
+                    )}
+                  >
+                    <div className={clsx(
+                      "flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br shadow-sm text-white",
+                      s.gradient
+                    )}>
+                      <Icon className="h-5 w-5" />
                     </div>
-                    <span className={`text-[11px] font-black uppercase tracking-[0.22em] ${s.accent}`}>{s.label}</span>
+                    <div>
+                      <span className={clsx("text-[10px] font-black uppercase tracking-[0.2em]", isActive ? s.accent : "text-slate-400")}>
+                        {s.label}
+                      </span>
+                      <p className={clsx("text-sm font-bold mt-0.5", isActive ? "text-slate-900" : "text-slate-600")}>
+                        {s.title}
+                      </p>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Right Carousel (Active Content) */}
+            <div className="lg:col-span-8 relative min-h-[380px] rounded-3xl bg-white border border-slate-200/60 shadow-xl shadow-slate-200/40 p-8 md:p-12 flex flex-col justify-between overflow-hidden">
+              {/* Subtle decorative glow based on active service */}
+              <div className={clsx(
+                "absolute -right-20 -top-20 h-64 w-64 rounded-full opacity-20 blur-[80px] pointer-events-none transition-all duration-700",
+                services[activeService].glow
+              )} />
+              
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeService}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.4, ease: easeOut }}
+                  className="relative z-10 flex flex-col h-full justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-4">
+                      <div className={clsx(
+                        "flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br shadow-md text-white",
+                        services[activeService].gradient
+                      )}>
+                        {(() => {
+                          const Icon = services[activeService].icon
+                          return <Icon className="h-7 w-7" />
+                        })()}
+                      </div>
+                      <div>
+                        <span className={clsx("text-xs font-bold uppercase tracking-[0.25em]", services[activeService].accent)}>
+                          {services[activeService].label}
+                        </span>
+                        <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mt-1">
+                          {services[activeService].title}
+                        </h3>
+                      </div>
+                    </div>
+
+                    <p className="mt-8 text-base md:text-lg leading-relaxed text-slate-600 max-w-2xl">
+                      {services[activeService].description}
+                    </p>
                   </div>
 
-                  <h3 className="mt-5 text-xl font-bold text-white">{s.title}</h3>
-                  <p className={`mt-2 text-sm leading-relaxed ${s.photo ? "text-slate-300" : "text-slate-400"}`}>
-                    {s.description}
-                  </p>
-
-                  <div className="mt-auto pt-6">
+                  <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center gap-4">
                     <Link
-                      href={s.href}
-                      className={`inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r ${s.gradient} px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:opacity-90`}
+                      href={services[activeService].href}
+                      className={clsx(
+                        "inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r px-6 py-3 text-sm font-bold text-white shadow-md transition hover:opacity-90 hover:shadow-lg",
+                        services[activeService].gradient
+                      )}
                     >
-                      {s.cta} <ArrowRight className="h-4 w-4" />
+                      {services[activeService].cta} <ArrowRight className="h-4 w-4" />
                     </Link>
+                    
+                    {/* Carousel dot indicators */}
+                    <div className="flex gap-1.5 mx-auto sm:mx-0 sm:ml-auto">
+                      {services.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setActiveService(i)}
+                          className={clsx(
+                            "h-2 rounded-full transition-all duration-300",
+                            i === activeService ? "w-6 bg-slate-800" : "w-2 bg-slate-200 hover:bg-slate-300"
+                          )}
+                          aria-label={`Go to slide ${i + 1}`}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </section>

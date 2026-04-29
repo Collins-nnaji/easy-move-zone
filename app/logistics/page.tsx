@@ -21,13 +21,13 @@ export default function LogisticsPage() {
               <span className="text-xs font-bold uppercase tracking-[0.18em] text-rose-300">LOGISTICS ENGINE</span>
             </div>
             <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-              Moving assets.{" "}
+              Move to your house{" "}
               <span className="bg-gradient-to-r from-rose-300 to-pink-300 bg-clip-text text-transparent">
-                Across cities.
+                the cheapest way.
               </span>
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-slate-300">
-              Scale up without slowing down. EasyMove logistics orchestrates standard, premium, and commercial moves via tracked secure transport lines.
+              We help you relocate without the stress or the rip-off costs. Enjoy 100% transparent pricing, verified moving quality, and the most affordable rates in the market.
             </p>
           </div>
         </div>

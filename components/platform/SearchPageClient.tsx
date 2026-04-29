@@ -153,7 +153,7 @@ export function SearchPageClient() {
                 transition={{ delay: 0.05, duration: 0.55, ease: easeOut }}
                 className="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight text-white sm:text-4xl lg:text-[2.35rem]"
               >
-                Verified homes &amp; land in Nigeria
+                Affordable verified homes &amp; land
               </motion.h1>
               <motion.p
                 initial={reduceMotion ? false : { opacity: 0, y: 14 }}
@@ -161,13 +161,8 @@ export function SearchPageClient() {
                 transition={{ delay: 0.1, duration: 0.55, ease: easeOut }}
                 className="mt-4 max-w-xl text-sm leading-relaxed text-slate-400 sm:text-base"
               >
-                Every property is{" "}
-                <strong className="font-semibold text-white">listed and managed by EasyMoveZone</strong> — verified in-house
-                before publish. No third-party feeds. For mortgages see{" "}
-                <Link href="/mortgage" className="font-semibold text-cyan-300 underline decoration-cyan-500/40 underline-offset-2 hover:text-white">
-                  NHF &amp; bank partners
-                </Link>
-                .
+                Every property features{" "}
+                <strong className="font-semibold text-white">transparent pricing and guaranteed quality</strong>. We help you own your house the cheapest way possible with zero rip-offs.
               </motion.p>
 
               <motion.div
