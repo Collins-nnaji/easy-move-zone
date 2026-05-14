@@ -115,7 +115,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               {PUBLIC_CONTACT_EMAIL}
             </a>
             <Link
-              href="/search"
+              href="/explore"
               className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-200/90 underline decoration-cyan-500/35 underline-offset-4 hover:text-white"
             >
               Browse listings

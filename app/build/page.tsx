@@ -1,10 +1,5 @@
-import { PublicShell } from "@/components/platform/PublicShell"
-import { BuildPageClient } from "@/components/platform/BuildPageClient"
+import { redirect } from "next/navigation"
 
-export default function BuildPage() {
-  return (
-    <PublicShell>
-      <BuildPageClient />
-    </PublicShell>
-  )
+export default function BuildRedirect() {
+  redirect("/explore")
 }

@@ -55,7 +55,7 @@ export function PropertyDetailServer({ property: p }: { property: PropertyRow })
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <Link
-        href="/search"
+        href="/explore"
         className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-[#64748b] transition-colors hover:text-[#0f172a]"
       >
         <ArrowLeft className="h-4 w-4" /> Back to listings

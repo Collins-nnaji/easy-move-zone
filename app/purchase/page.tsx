@@ -1,10 +1,5 @@
-import { PublicShell } from "@/components/platform/PublicShell"
-import { PurchasePageClient } from "@/components/platform/PurchasePageClient"
+import { redirect } from "next/navigation"
 
-export default function PurchasePage() {
-  return (
-    <PublicShell>
-      <PurchasePageClient />
-    </PublicShell>
-  )
+export default function PurchaseRedirect() {
+  redirect("/explore")
 }

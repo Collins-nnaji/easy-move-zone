@@ -1,498 +1,421 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
-import { motion, useReducedMotion, useScroll, useTransform, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import {
-  Search,
   ArrowRight,
   Sparkles,
-  Banknote,
+  MapPin,
+  Home,
+  Users,
+  Bot,
+  Building2,
+  Briefcase,
   Check,
-  HardHat,
-  ShieldCheck,
-  ArrowUpRight,
-  Play,
-  ChevronLeft,
   ChevronRight,
-  KeyRound,
+  Star,
 } from "lucide-react"
-import { HomeFeaturedListings } from "@/components/platform/HomeFeaturedListings"
-import { useRef, useState, useCallback, useEffect } from "react"
-import { clsx } from "clsx"
+import { useState } from "react"
 
-const heroVideos = [
-  "/emz construction.mp4",
-  "/emz construction 2.mp4",
-  "/emz construction 3.mp4",
-  "/emz construction 4.mp4",
-  "/emzbuilding one.mp4",
-]
-
-const heroImages = [
-  { src: "/homepage pic.png", position: "30% center" },
-  { src: "/emzheropic.png", position: "60% center" },
-]
-
-const services = [
-  {
-    label: "OUTRIGHT PURCHASE",
-    title: "Buy a Verified Property",
-    description: "Own it outright from day one. Every listing passes a full title check against state registries and family histories — no Omonile disputes, no government acquisition surprises.",
-    icon: ShieldCheck,
-    href: "/purchase",
-    cta: "Browse verified homes",
-    gradient: "from-cyan-500 to-blue-500",
-    glow: "bg-cyan-500/20",
-    accent: "text-cyan-400",
-    border: "border-cyan-500/20",
-    photo: "/emzheropic.png",
-    photoPosition: "60% center",
-  },
-  {
-    label: "BUILD",
-    title: "Managed Build-to-Suit",
-    description: "You own the land — we handle everything else. Architectural design, government building permits, and quality-controlled construction with digital milestone updates.",
-    icon: HardHat,
-    href: "/build",
-    cta: "Start your build",
-    gradient: "from-amber-500 to-orange-500",
-    glow: "bg-amber-500/20",
-    accent: "text-amber-400",
-    border: "border-amber-500/20",
-    photo: null,
-    photoPosition: "",
-  },
-  {
-    label: "FINANCE",
-    title: "Mortgage & NHF Pathways",
-    description: "Move in now, pay over 10–30 years. We broker applications through Access Bank, Stanbic IBTC, and the National Housing Fund for Diaspora and local buyers.",
-    icon: Banknote,
-    href: "/finance",
-    cta: "Explore financing",
-    gradient: "from-emerald-500 to-teal-500",
-    glow: "bg-emerald-500/20",
-    accent: "text-emerald-400",
-    border: "border-emerald-500/20",
-    photo: null,
-    photoPosition: "",
-  },
-  {
-    label: "RENT TO OWN",
-    title: "Lease-Purchase Pathway",
-    description: "Stop wasting money on traditional rent. Move into a verified home as a tenant — a portion of every monthly payment builds toward your purchase price.",
-    icon: KeyRound,
-    href: "/own",
-    cta: "View rent-to-own homes",
-    gradient: "from-purple-500 to-indigo-500",
-    glow: "bg-purple-500/20",
-    accent: "text-purple-400",
-    border: "border-purple-500/20",
-    photo: "/homepage pic 2.png",
-    photoPosition: "center",
-  },
-] as const
-
-const easeOut = [0.16, 1, 0.3, 1] as const
-
-const fadeUp = (delay = 0, y = 20) => ({
-  initial: { opacity: 0, y },
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, delay, ease: easeOut },
+  transition: { duration: 0.6, delay, ease: "easeOut" as const },
 })
+
+const popularCities = ["Manchester", "Berlin", "Lisbon", "Toronto", "Dubai", "London", "Amsterdam"]
+
+const journeySteps = [
+  { step: "01", label: "Explore", desc: "Discover areas that match your budget & lifestyle" },
+  { step: "02", label: "Housing", desc: "AI-curated listings, viewings & references" },
+  { step: "03", label: "Documents", desc: "Visa, bank, SIM card — guided checklist" },
+  { step: "04", label: "Arrival", desc: "Move logistics, transport, first week setup" },
+  { step: "05", label: "Settled", desc: "Local community, services, and life sorted" },
+]
+
+const userTypes = [
+  {
+    icon: Home,
+    label: "Mover",
+    desc: "Personal relocation dashboard, housing matches, AI concierge",
+    href: "/onboarding",
+    cta: "Start your journey",
+    accent: "#E85C2D",
+  },
+  {
+    icon: Building2,
+    label: "Landlord",
+    desc: "List properties, manage inquiries & tenant pipeline",
+    href: "/landlord",
+    cta: "List a property",
+    accent: "#0033A1",
+  },
+  {
+    icon: Briefcase,
+    label: "Partner",
+    desc: "Take relocation cases, earn commission, grow your reputation",
+    href: "/partner",
+    cta: "Join as partner",
+    accent: "#4A7C59",
+  },
+]
+
+const stats = [
+  { value: "42k+", label: "movers onboarded" },
+  { value: "180+", label: "cities mapped" },
+  { value: "4.8★", label: "avg. rating" },
+  { value: "94%", label: "settled within target" },
+]
 
 interface HomePageClientProps {
   cityCounts?: Record<string, number>
 }
 
 export function HomePageClient({ cityCounts = {} }: HomePageClientProps) {
-  const cities = [
-    { name: "Lagos", state: "Lagos", count: `${cityCounts["lagos"] || 0} Properties` },
-    { name: "Abuja", state: "FCT", count: `${cityCounts["abuja"] || 0} Properties` },
-    { name: "Port Harcourt", state: "Rivers", count: `${cityCounts["port-harcourt"] || 0} Properties` },
-    { name: "Ibadan", state: "Oyo", count: `${cityCounts["ibadan"] || 0} Properties` },
-    { name: "Enugu", state: "Enugu", count: `${cityCounts["enugu"] || 0} Properties` },
-  ]
-
-  const reduceMotion = useReducedMotion()
-  const heroRef = useRef<HTMLElement>(null)
-  const [activeVideo, setActiveVideo] = useState(0)
-  const [activeHeroImg, setActiveHeroImg] = useState(0)
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveVideo((v) => (v + 1) % heroVideos.length)
-    }, 5000)
-    return () => clearInterval(timer)
-  }, [activeVideo])
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveHeroImg((v) => (v + 1) % heroImages.length)
-    }, 2000)
-    return () => clearInterval(timer)
-  }, [])
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  })
-  const heroParallax = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [0, 80])
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.35])
-
-  const prevVideo = useCallback(() => setActiveVideo((v) => (v - 1 + heroVideos.length) % heroVideos.length), [])
-  const nextVideo = useCallback(() => setActiveVideo((v) => (v + 1) % heroVideos.length), [])
+  const [destination, setDestination] = useState("")
 
   return (
-    <>
-      {/* Hero Section */}
-      <section ref={heroRef} className="relative min-h-[90vh] overflow-hidden flex items-center bg-[#020617]">
-        <motion.div className="pointer-events-none absolute inset-0" style={{ y: heroParallax, opacity: heroOpacity }}>
-          <AnimatePresence mode="sync">
-            <motion.div
-              key={activeHeroImg}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.2, ease: "easeInOut" }}
-              className="absolute inset-0"
-            >
-              <Image
-                src={heroImages[activeHeroImg].src}
-                alt="EMZ easymovezone — verified Nigerian property"
-                fill
-                priority={activeHeroImg === 0}
-                className="object-cover scale-105"
-                style={{ objectPosition: heroImages[activeHeroImg].position }}
-                sizes="100vw"
-              />
-            </motion.div>
-          </AnimatePresence>
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-[#020617]/92 via-[#0f172a]/78 to-[#002880]/55"
-            aria-hidden
-          />
-          <div className="absolute -right-40 top-1/4 h-[600px] w-[600px] rounded-full bg-[#0072CE]/20 blur-[120px]" aria-hidden />
-          <div className="absolute -left-40 bottom-1/4 h-[600px] w-[600px] rounded-full bg-emerald-500/10 blur-[120px]" aria-hidden />
-        </motion.div>
+    <div className="bg-[#F7F5F0] min-h-screen">
 
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-24 sm:px-6 lg:px-8 flex flex-col justify-center">
-          <div className="grid items-center gap-12 lg:grid-cols-12">
-            <div className="lg:col-span-7 text-center lg:text-left">
-              <motion.div
-                {...fadeUp(0, 14)}
-                className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-cyan-200 backdrop-blur-md"
-              >
+      {/* ── Hero ─────────────────────────────── */}
+      <section className="relative overflow-hidden pt-20 pb-16 lg:pt-28 lg:pb-24">
+        {/* Subtle background pattern */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-gradient-radial from-[rgba(232,92,45,0.08)] to-transparent rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-[500px] h-[400px] bg-gradient-radial from-[rgba(0,51,161,0.05)] to-transparent rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <motion.div {...fadeUp(0)} className="inline-flex items-center gap-2 relo-chip relo-chip-accent mb-6">
                 <Sparkles className="h-3.5 w-3.5" />
-                Affordable Homes & Moving Solutions
+                The Relocation OS
               </motion.div>
 
-              <motion.h1
-                {...fadeUp(0.06, 22)}
-                className="display-title text-5xl text-white sm:text-6xl lg:text-[4rem]"
-              >
-                Own & move to your home
-                <span className="block bg-gradient-to-r from-cyan-200 via-indigo-200 to-emerald-200 bg-clip-text text-transparent mt-2">
-                  the cheapest way.
-                </span>
+              <motion.h1 {...fadeUp(0.06)} className="font-display text-4xl sm:text-6xl lg:text-[4.2rem] font-bold tracking-tight text-[#1A1612] leading-[1.04]">
+                Where are you<br />
+                <span className="text-[#E85C2D]">moving to?</span>
               </motion.h1>
 
-              <motion.p
-                {...fadeUp(0.12, 18)}
-                className="mt-6 text-base leading-relaxed text-slate-300 max-w-xl mx-auto lg:mx-0"
-              >
-                We help you own and move to your house the cheapest way possible. No rip-offs, no hidden fees — just 100% transparent pricing and unmatched quality across every service.
+              <motion.p {...fadeUp(0.12)} className="mt-6 text-lg text-[#6B6460] leading-relaxed max-w-lg">
+                Tell us where you're going. We'll build your personal relocation
+                dashboard — areas, housing, paperwork, settling in.
               </motion.p>
 
-              <motion.div {...fadeUp(0.18, 18)} className="mt-10 max-w-xl mx-auto lg:mx-0">
-                <form
-                  action="/purchase"
-                  method="get"
-                  className="group relative rounded-2xl border border-white/20 bg-white/[0.08] p-2 shadow-2xl shadow-black/40 backdrop-blur-xl transition-all duration-300 focus-within:border-white/40 focus-within:bg-white/[0.12]"
-                >
-                  <Search className="pointer-events-none absolute left-6 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-cyan-400" />
-                  <input
-                    type="text"
-                    name="q"
-                    placeholder="Search verified locations or schemes…"
-                    className="w-full rounded-xl border-0 bg-white py-4 pl-14 pr-36 text-[15px] text-[#0f172a] shadow-none placeholder:text-slate-500 focus:outline-none focus:ring-0"
-                  />
-                  <button
-                    type="submit"
-                    className="absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center gap-1.5 rounded-lg bg-[#0033A1] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-[#002880]"
-                  >
-                    Explore
-                    <ArrowRight className="h-4 w-4" />
+              {/* Search input */}
+              <motion.div {...fadeUp(0.18)} className="mt-10">
+                <form action="/onboarding" method="get" className="flex max-w-xl flex-col gap-2 sm:flex-row">
+                  <div className="flex flex-1 items-center gap-3 rounded-xl border border-[#E4DFDA] bg-white px-4 py-3 shadow-sm transition-all focus-within:border-[#E85C2D] focus-within:ring-2 focus-within:ring-[rgba(232,92,45,0.12)]">
+                    <MapPin className="h-4 w-4 shrink-0 text-[#E85C2D]" />
+                    <input
+                      type="text"
+                      name="destination"
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
+                      placeholder="e.g. Manchester, UK"
+                      className="min-w-0 flex-1 bg-transparent text-[15px] text-[#1A1612] placeholder:text-[#A8A4A0] outline-none"
+                    />
+                  </div>
+                  <button type="submit" className="relo-btn-primary w-full shrink-0 rounded-xl px-5 py-3 text-sm sm:w-auto">
+                    Begin <ArrowRight className="h-4 w-4" />
                   </button>
                 </form>
+
+                <div className="mt-4 flex items-center gap-2 flex-wrap">
+                  <span className="text-xs text-[#A8A4A0] font-medium">Popular:</span>
+                  {popularCities.map((city) => (
+                    <button
+                      type="button"
+                      key={city}
+                      onClick={() => setDestination(city)}
+                      className="relo-chip text-xs hover:bg-[rgba(232,92,45,0.1)] hover:text-[#C44520] transition-colors cursor-pointer"
+                    >
+                      {city}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Stats row */}
+              <motion.div {...fadeUp(0.24)} className="mt-12 flex items-center gap-8 flex-wrap">
+                {stats.map((s, i) => (
+                  <div key={i}>
+                    <div className="text-2xl font-bold font-display text-[#1A1612] tracking-tight">{s.value}</div>
+                    <div className="text-xs text-[#6B6460] font-medium mt-0.5">{s.label}</div>
+                  </div>
+                ))}
               </motion.div>
             </div>
 
-            {/* Right-side — transparent stats overlay */}
-            <motion.div
-              {...fadeUp(0.24, 20)}
-              className="lg:col-span-5 hidden lg:flex flex-col justify-center gap-6"
-            >
-              {/* Eyebrow label */}
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-400/80">
-                Why EasyMoveZone
-              </p>
-
-              {/* Feature rows — no card background, text floats over photo */}
-              <div className="space-y-5">
-                {[
-                  { label: "100% Transparent Pricing", sub: "Zero hidden fees, zero rip-offs" },
-                  { label: "Cheapest Pathway to Ownership", sub: "Optimized moving & buying strategies" },
-                  { label: "Guaranteed Quality Homes", sub: "Strict vetting and material standards" },
-                  { label: "100% Title Verification", sub: "Every plot checked against state registries" },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-cyan-400/20 ring-1 ring-cyan-400/30">
-                      <Check className="h-3 w-3 text-cyan-300" />
-                    </div>
-                    <div>
-                      <p className="text-[15px] font-bold text-white leading-snug">{item.label}</p>
-                      <p className="text-[12px] text-slate-400 mt-0.5">{item.sub}</p>
-                    </div>
+            {/* Right: live dashboard preview cards */}
+            <motion.div {...fadeUp(0.1)} className="relative hidden lg:block h-[480px]">
+              {/* Main dashboard card */}
+              <div className="absolute top-0 right-0 w-[340px] relo-card p-5 shadow-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <div className="text-xs text-[#6B6460] font-medium">YOUR DASHBOARD</div>
+                    <div className="text-lg font-semibold text-[#1A1612] mt-0.5">Hi Amira 👋</div>
+                    <div className="text-xs text-[#6B6460]">4 tasks · 12 days until move</div>
                   </div>
-                ))}
+                  <div className="w-9 h-9 rounded-full bg-[#E85C2D] flex items-center justify-center text-white text-sm font-bold">A</div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  {[["HOUSING", "23"], ["BUDGET", "£1.2k"], ["TASKS", "3/8"]].map(([k, v]) => (
+                    <div key={k} className="bg-[#F7F5F0] rounded-lg p-2.5">
+                      <div className="text-[9px] text-[#A8A4A0] font-bold tracking-wide">{k}</div>
+                      <div className="text-base font-bold text-[#1A1612] mt-0.5">{v}</div>
+                    </div>
+                  ))}
+                </div>
+                {/* Progress bar */}
+                <div className="text-[9px] text-[#6B6460] font-bold mb-1.5">JOURNEY · STEP 2 OF 5</div>
+                <div className="flex gap-1">
+                  {["Explore", "Housing", "Docs", "Arrive", "Settled"].map((s, i) => (
+                    <div key={s} className="flex-1">
+                      <div className={`h-1.5 rounded-full ${i <= 1 ? "bg-[#E85C2D]" : "bg-[#E4DFDA]"}`} />
+                      <div className={`text-[8px] mt-1 font-medium ${i <= 1 ? "text-[#E85C2D]" : "text-[#C8C3BE]"}`}>{s}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* CTA row */}
-              <div className="flex items-center gap-4 pt-2 border-t border-white/10">
-                <Link href="/purchase" className="inline-flex items-center gap-2 text-sm font-bold text-cyan-300 hover:text-white transition">
-                  Browse verified homes <ArrowUpRight className="h-4 w-4" />
-                </Link>
-                <span className="text-white/20">·</span>
-                <Link href="/own" className="text-sm font-semibold text-white/50 hover:text-white transition">
-                  Rent-to-Own
-                </Link>
+              {/* AI Concierge card */}
+              <div className="absolute top-[190px] left-0 w-[300px] relo-ai-card shadow-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-6 h-6 rounded-full bg-[#E85C2D] flex items-center justify-center">
+                    <Sparkles className="h-3 w-3 text-white" />
+                  </div>
+                  <span className="text-xs font-bold text-[#E85C2D] tracking-wide">AI CONCIERGE</span>
+                </div>
+                <div className="bg-[#F7F5F0] rounded-lg p-3 mb-2">
+                  <p className="text-xs text-[#6B6460]">"£1,200/mo, no car — where in Manchester?"</p>
+                </div>
+                <div className="bg-white border border-[#E4DFDA] rounded-lg p-3">
+                  <p className="text-xs text-[#1A1612]">3 areas match — <span className="font-semibold text-[#E85C2D]">Chorlton tops</span> on transit + cafés. Levenshulme is cheaper.</p>
+                </div>
+              </div>
+
+              {/* Area match card */}
+              <div className="absolute bottom-0 right-8 w-[260px] relo-card p-4 shadow-lg">
+                <div className="text-[9px] text-[#A8A4A0] font-bold mb-2">TOP AREA MATCH</div>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#E85C2D]/20 to-[#E85C2D]/5 flex items-center justify-center">
+                    <MapPin className="h-5 w-5 text-[#E85C2D]" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-[#1A1612]">Chorlton</div>
+                    <div className="text-xs text-[#6B6460]">£950–1,200/mo · 18min</div>
+                    <div className="mt-1 inline-flex items-center gap-1 bg-[rgba(232,92,45,0.1)] text-[#C44520] text-[10px] font-bold px-1.5 py-0.5 rounded">92/100</div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Construction Video Showcase */}
-      <section className="bg-[#020617] py-20 overflow-hidden">
+      {/* ── User type tabs ─────────────────── */}
+      <section className="py-20 bg-white border-y border-[#E4DFDA]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">Active Developments</span>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                Built with care.<br />
-                <span className="text-slate-400">Watch it happen.</span>
-              </h2>
-              <p className="mt-4 text-slate-400 text-base max-w-md">
-                Every property on EasyMoveZone comes with live construction visibility. Tour active sites, review milestones, and invest with confidence.
-              </p>
-              <div className="mt-8 flex flex-col gap-4">
-                {[
-                  { label: "5 Active Sites", sub: "Currently under construction" },
-                  { label: "Real-time Updates", sub: "Video & photo milestone logs" },
-                  { label: "Verified Contractors", sub: "All vetted through our registry" },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-start gap-3">
-                    <div className="mt-1 h-2 w-2 rounded-full bg-cyan-400 shrink-0" />
-                    <div>
-                      <p className="text-sm font-semibold text-white">{item.label}</p>
-                      <p className="text-xs text-slate-500">{item.sub}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-8">
-                <Link
-                  href="/build"
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#0033A1] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-[#002880]"
-                >
-                  <HardHat className="h-4 w-4" />
-                  Browse Build Projects
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Video carousel */}
-            <div className="relative rounded-3xl overflow-hidden bg-black shadow-2xl shadow-black/60 aspect-video">
-              <AnimatePresence mode="wait">
-                <motion.video
-                  key={activeVideo}
-                  src={heroVideos[activeVideo]}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  className="w-full h-full object-cover"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                />
-              </AnimatePresence>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-
-              {/* Prev / Next controls */}
-              <button
-                onClick={prevVideo}
-                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70"
-                aria-label="Previous video"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                onClick={nextVideo}
-                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70"
-                aria-label="Next video"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-
-              {/* Dot indicators */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                {heroVideos.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveVideo(i)}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${i === activeVideo ? "w-6 bg-white" : "w-1.5 bg-white/40"}`}
-                    aria-label={`Go to video ${i + 1}`}
-                  />
-                ))}
-              </div>
-
-              {/* Label */}
-              <div className="absolute bottom-10 left-4 flex items-center gap-2 text-xs font-semibold text-white/80">
-                <Play className="h-3.5 w-3.5 fill-white text-white" />
-                Site {activeVideo + 1} of {heroVideos.length}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Everything You Need — interactive carousel */}
-      <section className="py-24 bg-slate-50 text-slate-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,51,161,0.05),transparent)]" aria-hidden />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_80%_80%,rgba(139,92,246,0.03),transparent)]" aria-hidden />
-
-        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
-          {/* Header */}
-          <div className="mb-16 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-800">
-                <Sparkles className="h-3 w-3 text-cyan-600" />
-                Everything you need
-              </div>
-              <h2 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl text-slate-900">
-                The cheapest way to
-                <span className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent"> own & move.</span>
-              </h2>
-            </div>
-            <p className="max-w-sm text-[15px] leading-relaxed text-slate-600 lg:text-right">
-              We provide affordable homes with fully transparent pricing. No rip-off costs, just verified quality from start to finish.
-            </p>
+          <div className="text-center mb-12">
+            <div className="text-[10px] font-bold tracking-widest text-[#E85C2D] uppercase mb-3">Who is this for?</div>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-[#1A1612] tracking-tight">One platform, three dashboards</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((s) => {
-              const Icon = s.icon
+          <div className="grid md:grid-cols-3 gap-6">
+            {userTypes.map((type) => {
+              const Icon = type.icon
               return (
-                <div
-                  key={s.label}
-                  className={clsx(
-                    "w-full flex flex-col justify-between rounded-3xl bg-white border border-slate-200/60 shadow-lg shadow-slate-200/50 p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-slate-200/60 relative overflow-hidden",
-                  )}
-                >
-                  {/* Subtle decorative glow based on service */}
-                  <div className={clsx(
-                    "absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-10 blur-[50px] pointer-events-none transition-all duration-700",
-                    s.glow
-                  )} />
-                  
-                  <div className="relative z-10 flex flex-col h-full justify-between">
-                    <div>
-                      <div className="flex items-center gap-4">
-                        <div className={clsx(
-                          "flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br shadow-md text-white",
-                          s.gradient
-                        )}>
-                          <Icon className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <span className={clsx("text-[10px] font-bold uppercase tracking-[0.25em]", s.accent)}>
-                            {s.label}
-                          </span>
-                          <h3 className="text-xl font-bold text-slate-900 mt-0.5">
-                            {s.title}
-                          </h3>
-                        </div>
-                      </div>
-
-                      <p className="mt-6 text-sm md:text-base leading-relaxed text-slate-600">
-                        {s.description}
-                      </p>
-                    </div>
-
-                    <div className="mt-8 pt-4 border-t border-slate-100">
-                      <Link
-                        href={s.href}
-                        className={clsx(
-                          "inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:opacity-90 hover:shadow-lg w-full sm:w-auto",
-                          s.gradient
-                        )}
-                      >
-                        {s.cta} <ArrowRight className="h-4 w-4" />
-                      </Link>
-                    </div>
+                <Link key={type.label} href={type.href} className="group relo-card p-7 block hover:no-underline">
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center mb-5"
+                    style={{ background: `${type.accent}18` }}
+                  >
+                    <Icon className="h-5 w-5" style={{ color: type.accent }} />
                   </div>
-                </div>
+                  <div className="text-xl font-bold text-[#1A1612] mb-2">{type.label}</div>
+                  <p className="text-sm text-[#6B6460] leading-relaxed mb-6">{type.desc}</p>
+                  <div className="flex items-center gap-1 text-sm font-semibold" style={{ color: type.accent }}>
+                    {type.cta}
+                    <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
               )
             })}
           </div>
         </div>
       </section>
 
-      {/* Featured Markets / Cities */}
-      <section className="py-20 bg-[#f8fafc]">
+      {/* ── How it works ───────────────────── */}
+      <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#0033A1]">Locations</span>
-              <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#0f172a] sm:text-4xl">Explore Verified Markets</h2>
+              <div className="text-[10px] font-bold tracking-widest text-[#E85C2D] uppercase mb-3">Your relocation journey</div>
+              <h2 className="font-display text-3xl sm:text-4xl font-bold text-[#1A1612] tracking-tight mb-4">
+                From "thinking about it"<br />to fully settled.
+              </h2>
+              <p className="text-[#6B6460] leading-relaxed mb-8">
+                Every step of your move is guided, tracked, and AI-assisted. Your dashboard shows exactly where you are and what to do next.
+              </p>
+              <Link href="/onboarding" className="relo-btn-primary inline-flex px-6 py-3 rounded-xl">
+                Build my dashboard <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
-            <Link href="/purchase" className="mt-4 md:mt-0 inline-flex items-center gap-2 text-sm font-semibold text-[#0033A1] hover:underline">
-              View all locations <ArrowRight className="h-4 w-4" />
-            </Link>
+
+            <div className="space-y-4">
+              {journeySteps.map((step, i) => (
+                <div key={step.step} className="flex items-start gap-4">
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${i === 0 ? "bg-[#E85C2D] text-white" : "bg-white border-2 border-[#E4DFDA] text-[#6B6460]"}`}>
+                    {i === 0 ? <Check className="h-4 w-4" /> : step.step}
+                  </div>
+                  <div className="flex-1 py-1">
+                    <div className={`font-semibold text-[15px] ${i === 0 ? "text-[#E85C2D]" : "text-[#1A1612]"}`}>{step.label}</div>
+                    <div className="text-sm text-[#6B6460] mt-0.5">{step.desc}</div>
+                  </div>
+                  {i < journeySteps.length - 1 && (
+                    <div className="absolute left-9 mt-10 w-px h-4 bg-[#E4DFDA]" aria-hidden />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Feature showcase ───────────────── */}
+      <section className="py-20 bg-white border-y border-[#E4DFDA]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <div className="text-[10px] font-bold tracking-widest text-[#E85C2D] uppercase mb-3">Platform features</div>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-[#1A1612] tracking-tight">Everything built into one OS</h2>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
-            {cities.map((city, idx) => (
-              <motion.div
-                key={city.name}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.05, duration: 0.4 }}
-              >
-                <Link
-                  href={`/purchase?city=${city.name.toLowerCase()}`}
-                  className="group block rounded-2xl border border-slate-200 bg-white p-6 hover:border-[#0033A1]/30 hover:shadow-md transition-all duration-300"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-bold text-[#0f172a] text-lg group-hover:text-[#0033A1] transition-colors">{city.name}</h3>
-                      <p className="text-xs text-slate-500 mt-1">{city.state}</p>
-                    </div>
-                    <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-2 py-1 rounded-md">{city.count}</span>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                icon: MapPin,
+                title: "City Explorer",
+                desc: "Compare areas by rent, commute, safety, and vibe. Map-first or grid comparison — your call.",
+                link: "/explore",
+              },
+              {
+                icon: Home,
+                title: "Housing Matches",
+                desc: "AI-curated listings filtered to your exact budget, timeline, and preferences. Updated daily.",
+                link: "/explore",
+              },
+              {
+                icon: Bot,
+                title: "AI Concierge",
+                desc: "Ask anything about your move. Get area recommendations, cost breakdowns, and landlord messages drafted.",
+                link: "/ai",
+              },
+              {
+                icon: Check,
+                title: "Settlement Checklist",
+                desc: "28 tasks from passport to SIM card — auto-prioritised for your move date.",
+                link: "/dashboard",
+              },
+              {
+                icon: Users,
+                title: "Community",
+                desc: "Connect with people moving to the same city. Share tips, find flatmates, get insider advice.",
+                link: "/community",
+              },
+              {
+                icon: Star,
+                title: "Cost Tracker",
+                desc: "See your projected vs actual relocation spend. Deposit, movers, setup — all in one view.",
+                link: "/dashboard",
+              },
+            ].map((feature) => {
+              const Icon = feature.icon
+              return (
+                <Link key={feature.title} href={feature.link} className="group relo-card p-6 block hover:no-underline">
+                  <div className="w-9 h-9 rounded-lg bg-[rgba(232,92,45,0.1)] flex items-center justify-center mb-4">
+                    <Icon className="h-4 w-4 text-[#E85C2D]" />
                   </div>
+                  <div className="font-semibold text-[#1A1612] mb-2">{feature.title}</div>
+                  <p className="text-sm text-[#6B6460] leading-relaxed">{feature.desc}</p>
                 </Link>
-              </motion.div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Social proof ───────────────────── */}
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <div className="text-[10px] font-bold tracking-widest text-[#E85C2D] uppercase mb-3">Movers trust us</div>
+            <h2 className="font-display text-3xl font-bold text-[#1A1612] tracking-tight">Stories from the OS</h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                quote: "Found my flat in Chorlton in 3 days. The AI concierge drafted all my landlord messages — I just clicked send.",
+                name: "Amira K.",
+                move: "London → Manchester",
+                rating: 5,
+              },
+              {
+                quote: "The area comparison grid saved me weeks of research. I knew Didsbury wasn't right before I even visited.",
+                name: "Tom L.",
+                move: "Berlin → Amsterdam",
+                rating: 5,
+              },
+              {
+                quote: "My relocation partner used this for my corporate move. The case management made it seamless.",
+                name: "Priya R.",
+                move: "Bangalore → Berlin",
+                rating: 5,
+              },
+            ].map((review, i) => (
+              <div key={i} className="relo-card p-6">
+                <div className="flex gap-0.5 mb-4">
+                  {Array.from({ length: review.rating }).map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-[#E85C2D] text-[#E85C2D]" />
+                  ))}
+                </div>
+                <p className="text-[#1A1612] text-sm leading-relaxed mb-5">"{review.quote}"</p>
+                <div>
+                  <div className="font-semibold text-[#1A1612] text-sm">{review.name}</div>
+                  <div className="text-xs text-[#6B6460] mt-0.5">{review.move}</div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      <HomeFeaturedListings />
-    </>
+      {/* ── CTA band ───────────────────────── */}
+      <section className="py-20 bg-[#1A1612]">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="font-display text-4xl sm:text-5xl font-bold text-white tracking-tight mb-5">
+            Ready to start your<br />
+            <span className="text-[#E85C2D]">relocation journey?</span>
+          </h2>
+          <p className="text-[#9A9490] text-lg mb-10 max-w-2xl mx-auto">
+            Answer 6 quick questions. We'll build your personalised relocation dashboard in under 90 seconds.
+          </p>
+          <Link
+            href="/onboarding"
+            className="inline-flex items-center gap-2 bg-[#E85C2D] text-white font-bold text-base px-8 py-4 rounded-xl hover:bg-[#D44E22] transition-colors shadow-lg shadow-[rgba(232,92,45,0.35)]"
+          >
+            Build my relocation dashboard
+            <ArrowRight className="h-5 w-5" />
+          </Link>
+          <div className="mt-6 flex items-center justify-center gap-6 text-sm text-[#6B6460]">
+            <span>✓ Free to start</span>
+            <span>✓ No credit card</span>
+            <span>✓ 90 seconds</span>
+          </div>
+        </div>
+      </section>
+    </div>
   )
 }

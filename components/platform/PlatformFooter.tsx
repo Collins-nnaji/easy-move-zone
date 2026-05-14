@@ -3,70 +3,73 @@ import Image from "next/image"
 import { Mail } from "lucide-react"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 
-const cities = [
-  { href: "/purchase?city=lagos",         label: "Lagos" },
-  { href: "/purchase?city=abuja",         label: "Abuja" },
-  { href: "/purchase?city=port harcourt", label: "Port Harcourt" },
-  { href: "/purchase?city=ibadan",        label: "Ibadan" },
-  { href: "/purchase?city=enugu",         label: "Enugu" },
+const productLinks = [
+  { href: "/onboarding", label: "Get started" },
+  { href: "/explore",    label: "City explorer" },
+  { href: "/community",  label: "Community" },
+  { href: "/ai",         label: "AI concierge" },
+  { href: "/dashboard",  label: "Dashboard" },
 ]
 
-const company = [
-  { href: "/mortgage",         label: "Mortgage calculator" },
-  { href: "/contact",          label: "Contact us" },
-  { href: "/auth?mode=signup", label: "Create account" },
+const forLinks = [
+  { href: "/onboarding", label: "Movers" },
+  { href: "/landlord",   label: "Landlords" },
+  { href: "/partner",    label: "Relocation partners" },
+]
+
+const companyLinks = [
   { href: "/auth",             label: "Sign in" },
+  { href: "/auth?mode=signup", label: "Create account" },
+  { href: "/contact",          label: "Contact us" },
 ]
 
 export function PlatformFooter() {
   return (
-    <footer
-      id="contact"
-      className="relative z-[45] border-t border-white/10 bg-[#0b1220] text-white scroll-mt-24"
-    >
-      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-[#0033A1] via-[#0072CE] to-emerald-600/80 opacity-90" />
-
-      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-[1.6fr_1fr_1fr]">
-
+    <footer className="bg-[#1A1612] text-white border-t border-[#2A2520]">
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+        <div className="grid gap-10 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2.5">
+            <Link href="/" className="mb-4 inline-block transition hover:opacity-90">
               <Image
-                src="/emz.png"
-                alt="EasyMoveZone Logo"
-                width={140}
-                height={36}
-                className="h-9 w-auto object-contain brightness-0 invert"
+                src="/emz.svg"
+                alt="EasyMoveZone"
+                width={160}
+                height={40}
+                className="h-9 w-auto max-w-[200px] object-contain object-left brightness-0 invert"
               />
-            </div>
-            <p className="mt-3 text-[13px] leading-relaxed text-slate-400 max-w-xs">
-              Nigeria's complete homeownership ecosystem — verified land, managed construction, mortgage brokering, and rent-to-own pathways.
+            </Link>
+            <p className="text-sm text-[#6B6460] leading-relaxed max-w-xs">
+              The operating system for moving and settling. From "I think I want to move" to "I live here now" — in one personalised dashboard.
             </p>
             <a
               href={`mailto:${PUBLIC_CONTACT_EMAIL}`}
-              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-cyan-200/90 transition hover:text-white"
+              className="mt-4 inline-flex items-center gap-2 text-sm text-[#6B6460] hover:text-white transition-colors"
             >
-              <Mail className="h-4 w-4 text-cyan-400/80" aria-hidden />
+              <Mail className="h-4 w-4" />
               {PUBLIC_CONTACT_EMAIL}
             </a>
-            <p className="mt-2 text-xs text-slate-600">
-              For listings, verification & diaspora buying support. Or use the{" "}
-              <Link href="/contact" className="font-semibold text-cyan-200/80 underline decoration-cyan-500/30 underline-offset-2 hover:text-white">
-                contact form
-              </Link>.
-            </p>
           </div>
 
-          {/* Cities */}
+          {/* Product */}
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Cities</h4>
-            <ul className="space-y-2.5">
-              {cities.map(({ href, label }) => (
-                <li key={href}>
-                  <Link href={href} className="text-[13px] text-slate-400 transition hover:text-white">
-                    {label}
-                  </Link>
+            <div className="text-[10px] font-bold tracking-widest text-[#4A4440] uppercase mb-4">Product</div>
+            <ul className="flex flex-col gap-3">
+              {productLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-sm text-[#6B6460] hover:text-white transition-colors">{l.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* For */}
+          <div>
+            <div className="text-[10px] font-bold tracking-widest text-[#4A4440] uppercase mb-4">For</div>
+            <ul className="flex flex-col gap-3">
+              {forLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-sm text-[#6B6460] hover:text-white transition-colors">{l.label}</Link>
                 </li>
               ))}
             </ul>
@@ -74,22 +77,26 @@ export function PlatformFooter() {
 
           {/* Company */}
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Company</h4>
-            <ul className="space-y-2.5">
-              {company.map(({ href, label }) => (
-                <li key={href}>
-                  <Link href={href} className="text-[13px] text-slate-400 transition hover:text-white">
-                    {label}
-                  </Link>
+            <div className="text-[10px] font-bold tracking-widest text-[#4A4440] uppercase mb-4">Company</div>
+            <ul className="flex flex-col gap-3">
+              {companyLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-sm text-[#6B6460] hover:text-white transition-colors">{l.label}</Link>
                 </li>
               ))}
             </ul>
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-white/[0.06] pt-6 text-center sm:flex-row sm:text-left">
-          <p className="text-[11px] text-[#64748b]">&copy; {new Date().getFullYear()} EasyMoveZone. Nigeria &middot; Lagos &middot; Abuja &middot; Port Harcourt</p>
-          <p className="text-[11px] text-[#64748b]">PURCHASE &middot; BUILD &middot; FINANCE &middot; RENT TO OWN</p>
+        <div className="mt-12 pt-6 border-t border-[#2A2520] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-[#4A4440]">© 2026 EasyMoveZone. The relocation OS.</p>
+          <div className="flex items-center gap-4 text-xs text-[#4A4440]">
+            <span>42k+ movers</span>
+            <span>·</span>
+            <span>180+ cities</span>
+            <span>·</span>
+            <span>4.8★ rated</span>
+          </div>
         </div>
       </div>
     </footer>

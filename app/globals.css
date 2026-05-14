@@ -1,14 +1,17 @@
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────
-   Design tokens
+   Design tokens — Relocation OS
 ───────────────────────────────────────────── */
 @theme {
   /* Fonts */
-  --font-sans:    var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-bricolage), var(--font-jakarta), ui-sans-serif, sans-serif;
+  --font-sans:    var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-dm-sans), var(--font-inter), ui-sans-serif, sans-serif;
+  /* Legacy compat */
+  --font-jakarta:   var(--font-inter);
+  --font-bricolage: var(--font-dm-sans);
 
-  /* Brand palette */
+  /* Brand palette — Relocation OS */
   --color-emz-blue:    #0033A1;
   --color-emz-mid:     #0072CE;
   --color-emz-cyan:    #06b6d4;
@@ -16,6 +19,15 @@
   --color-emz-ink:     #0f172a;
   --color-emz-muted:   #64748b;
   --color-emz-surface: #f6f8fb;
+  /* New relocation palette */
+  --color-relo-accent:   #E85C2D;
+  --color-relo-accent-soft: rgba(232,92,45,0.1);
+  --color-relo-bg:       #F7F5F0;
+  --color-relo-surface:  #FFFFFF;
+  --color-relo-ink:      #1A1612;
+  --color-relo-muted:    #6B6460;
+  --color-relo-border:   #E4DFDA;
+  --color-relo-sage:     #4A7C59;
 
   /* Motion */
   --ease-out-expo:     cubic-bezier(0.16, 1, 0.3, 1);
@@ -31,23 +43,23 @@
 }
 
 /* ─────────────────────────────────────────────
-   CSS variables (light theme)
+   CSS variables (light theme — Relocation OS)
 ───────────────────────────────────────────── */
 @layer base {
   :root {
-    --background: #f6f8fb;
-    --foreground: #0f172a;
+    --background: #F7F5F0;
+    --foreground: #1A1612;
     --card: #ffffff;
-    --card-foreground: #0f172a;
-    --border: #dbe4f0;
-    --input: #dbe4f0;
-    --primary: #0033A1;
+    --card-foreground: #1A1612;
+    --border: #E4DFDA;
+    --input: #E4DFDA;
+    --primary: #E85C2D;
     --primary-foreground: #ffffff;
-    --secondary: #0072CE;
-    --muted: #e9eff7;
-    --muted-foreground: #64748b;
-    --accent: #06b6d4;
-    --ring: #0033A1;
+    --secondary: #0033A1;
+    --muted: #EDE9E4;
+    --muted-foreground: #6B6460;
+    --accent: #E85C2D;
+    --ring: #E85C2D;
     --radius: 0.875rem;
   }
 }
@@ -66,29 +78,25 @@
   }
 
   body {
-    font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
     font-size: 16px;
     line-height: 1.6;
-    color: #0f172a;
-    background-color: #f6f8fb;
-    background-image:
-      radial-gradient(ellipse 70% 40% at 0% 0%,   rgba(0, 51, 161, 0.07) 0%, transparent 55%),
-      radial-gradient(ellipse 55% 35% at 100% 0%,  rgba(0, 114, 206, 0.05) 0%, transparent 50%);
+    color: #1A1612;
+    background-color: #F7F5F0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Display headings use Bricolage Grotesque */
+  /* Display headings use DM Sans */
   h1, h2 {
-    font-family: var(--font-bricolage), var(--font-jakarta), ui-sans-serif, sans-serif;
+    font-family: var(--font-dm-sans), var(--font-inter), ui-sans-serif, sans-serif;
     font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 1.05;
   }
 
-  /* Sub-headings stay in Jakarta but tighter */
   h3, h4, h5, h6 {
-    font-family: var(--font-jakarta), ui-sans-serif, sans-serif;
+    font-family: var(--font-inter), ui-sans-serif, sans-serif;
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.2;
@@ -116,21 +124,207 @@
 }
 
 /* ─────────────────────────────────────────────
+   Relocation OS components
+───────────────────────────────────────────── */
+@layer components {
+
+  /* App shell — full-screen layout used by dashboard, explore, etc. */
+  .relo-app-shell {
+    display: flex;
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    background: #F7F5F0;
+  }
+  .relo-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: #FFFFFF;
+    border-right: 1px solid #E4DFDA;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 0.75rem;
+    overflow-y: auto;
+  }
+  .relo-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .relo-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+  }
+  .relo-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    height: 60px;
+    flex-shrink: 0;
+    border-bottom: 1px solid #E4DFDA;
+    background: #FFFFFF;
+  }
+
+  @media (max-width: 1023px) {
+    .relo-content {
+      padding: 0.75rem 0.875rem;
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+    .relo-widget,
+    .relo-ai-card {
+      padding: 1rem;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .relo-card:hover {
+      transform: none;
+    }
+  }
+
+  /* Cards */
+  .relo-card {
+    background: #ffffff;
+    border: 1px solid #E4DFDA;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px -4px rgba(0,0,0,0.06);
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  }
+  .relo-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(232,92,45,0.25);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px -8px rgba(232,92,45,0.15);
+  }
+  .relo-widget {
+    background: #ffffff;
+    border: 1px solid #E4DFDA;
+    border-radius: 1rem;
+    padding: 1.25rem;
+  }
+  .relo-ai-card {
+    background: #ffffff;
+    border: 1px solid #E85C2D;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    box-shadow: 0 0 0 3px rgba(232,92,45,0.06);
+  }
+
+  /* Buttons */
+  .relo-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #E85C2D;
+    color: #ffffff;
+    border-radius: 0.625rem;
+    padding: 0.625rem 1.25rem;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+    transition: background 180ms ease, box-shadow 180ms ease;
+    box-shadow: 0 4px 12px -4px rgba(232,92,45,0.4);
+    cursor: pointer;
+  }
+  .relo-btn-primary:hover {
+    background: #D44E22;
+    box-shadow: 0 6px 18px -6px rgba(232,92,45,0.5);
+  }
+  .relo-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: #1A1612;
+    border: 1px solid #E4DFDA;
+    border-radius: 0.625rem;
+    padding: 0.625rem 1.25rem;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background 180ms ease, border-color 180ms ease;
+    cursor: pointer;
+  }
+  .relo-btn-secondary:hover {
+    background: #F0EDE8;
+    border-color: #C8C3BE;
+  }
+
+  /* Chips */
+  .relo-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #EDE9E4;
+    color: #4A4440;
+    border-radius: 9999px;
+    padding: 0.25rem 0.65rem;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .relo-chip-accent {
+    background: rgba(232,92,45,0.12);
+    color: #C44520;
+  }
+
+  /* Progress */
+  .relo-progress-bar {
+    height: 6px;
+    background: #EDE9E4;
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+  .relo-progress-bar-fill {
+    height: 100%;
+    background: #E85C2D;
+    border-radius: 9999px;
+  }
+
+  /* Sidebar nav */
+  .relo-sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6B6460;
+    transition: background 150ms ease, color 150ms ease;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .relo-sidebar-nav-item:hover {
+    background: #EDE9E4;
+    color: #1A1612;
+  }
+  .relo-sidebar-nav-item.active {
+    background: rgba(232,92,45,0.1);
+    color: #E85C2D;
+    font-weight: 600;
+  }
+}
+
+/* ─────────────────────────────────────────────
    Utility classes
 ───────────────────────────────────────────── */
 @layer utilities {
 
   /* Typography */
   .font-display {
-    font-family: var(--font-bricolage), var(--font-jakarta), ui-sans-serif, sans-serif;
+    font-family: var(--font-dm-sans), var(--font-inter), ui-sans-serif, sans-serif;
   }
   .font-body {
-    font-family: var(--font-jakarta), ui-sans-serif, sans-serif;
+    font-family: var(--font-inter), ui-sans-serif, sans-serif;
   }
 
-  /* Display heading helper — use on big hero h1s */
+  /* Display heading helper */
   .display-title {
-    font-family: var(--font-bricolage), var(--font-jakarta), ui-sans-serif, sans-serif;
+    font-family: var(--font-dm-sans), var(--font-inter), ui-sans-serif, sans-serif;
     font-weight: 800;
     letter-spacing: -0.035em;
     line-height: 1.0;
