@@ -101,19 +101,7 @@ const fadeUp = (delay = 0, y = 20) => ({
   transition: { duration: 0.6, delay, ease: easeOut },
 })
 
-interface HomePageClientProps {
-  cityCounts?: Record<string, number>
-}
-
-export function HomePageClient({ cityCounts = {} }: HomePageClientProps) {
-  const cities = [
-    { name: "Lagos", state: "Lagos", count: `${cityCounts["lagos"] || 0} Properties` },
-    { name: "Abuja", state: "FCT", count: `${cityCounts["abuja"] || 0} Properties` },
-    { name: "Port Harcourt", state: "Rivers", count: `${cityCounts["port-harcourt"] || 0} Properties` },
-    { name: "Ibadan", state: "Oyo", count: `${cityCounts["ibadan"] || 0} Properties` },
-    { name: "Enugu", state: "Enugu", count: `${cityCounts["enugu"] || 0} Properties` },
-  ]
-
+export function HomePageClient() {
   const reduceMotion = useReducedMotion()
   const heroRef = useRef<HTMLElement>(null)
   const [activeVideo, setActiveVideo] = useState(0)
@@ -393,47 +381,49 @@ export function HomePageClient({ cityCounts = {} }: HomePageClientProps) {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {services.map((s) => {
               const Icon = s.icon
+              // Map service href to listing_type key
               return (
                 <div
                   key={s.label}
                   className={clsx(
-                    "w-full flex flex-col justify-between rounded-3xl bg-white border border-slate-200/60 shadow-lg shadow-slate-200/50 p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-slate-200/60 relative overflow-hidden",
+                    "w-full flex flex-col justify-between rounded-2xl bg-white border border-slate-200/60 shadow-lg shadow-slate-200/50 p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-slate-200/60 relative overflow-hidden",
                   )}
                 >
-                  {/* Subtle decorative glow based on service */}
                   <div className={clsx(
                     "absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-10 blur-[50px] pointer-events-none transition-all duration-700",
                     s.glow
                   )} />
-                  
+
                   <div className="relative z-10 flex flex-col h-full justify-between">
                     <div>
-                      <div className="flex items-center gap-4">
-                        <div className={clsx(
-                          "flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br shadow-md text-white",
-                          s.gradient
-                        )}>
-                          <Icon className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <span className={clsx("text-[10px] font-bold uppercase tracking-[0.25em]", s.accent)}>
-                            {s.label}
-                          </span>
-                          <h3 className="text-xl font-bold text-slate-900 mt-0.5">
-                            {s.title}
-                          </h3>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-4">
+                          <div className={clsx(
+                            "flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br shadow-md text-white shrink-0",
+                            s.gradient
+                          )}>
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <span className={clsx("text-[9px] font-bold uppercase tracking-[0.2em]", s.accent)}>
+                              {s.label}
+                            </span>
+                            <h3 className="text-base font-bold text-slate-900 mt-0.5 leading-tight">
+                              {s.title}
+                            </h3>
+                          </div>
                         </div>
                       </div>
 
-                      <p className="mt-6 text-sm md:text-base leading-relaxed text-slate-600">
+                      <p className="mt-4 text-sm leading-relaxed text-slate-600">
                         {s.description}
                       </p>
                     </div>
 
-                    <div className="mt-8 pt-4 border-t border-slate-100">
+                    <div className="mt-5 pt-4 border-t border-slate-100">
                       <Link
                         href={s.href}
                         className={clsx(
@@ -448,46 +438,6 @@ export function HomePageClient({ cityCounts = {} }: HomePageClientProps) {
                 </div>
               )
             })}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Markets / Cities */}
-      <section className="py-20 bg-[#f8fafc]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#0033A1]">Locations</span>
-              <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#0f172a] sm:text-4xl">Explore Verified Markets</h2>
-            </div>
-            <Link href="/purchase" className="mt-4 md:mt-0 inline-flex items-center gap-2 text-sm font-semibold text-[#0033A1] hover:underline">
-              View all locations <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
-            {cities.map((city, idx) => (
-              <motion.div
-                key={city.name}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.05, duration: 0.4 }}
-              >
-                <Link
-                  href={`/purchase?city=${city.name.toLowerCase()}`}
-                  className="group block rounded-2xl border border-slate-200 bg-white p-6 hover:border-[#0033A1]/30 hover:shadow-md transition-all duration-300"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-bold text-[#0f172a] text-lg group-hover:text-[#0033A1] transition-colors">{city.name}</h3>
-                      <p className="text-xs text-slate-500 mt-1">{city.state}</p>
-                    </div>
-                    <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-2 py-1 rounded-md">{city.count}</span>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
           </div>
         </div>
       </section>

@@ -4,30 +4,31 @@ import Link from "next/link"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-  Search,
-  TrendingUp,
-  ArrowRight,
-  BadgeCheck,
-  BedDouble,
-  Loader2,
-  ShieldCheck,
-  SlidersHorizontal,
-  X,
+  Search, TrendingUp, ArrowRight, BadgeCheck, BedDouble,
+  Loader2, ShieldCheck, SlidersHorizontal, X,
+  TreePine, Home, Building2, Store, Layers,
 } from "lucide-react"
 import type { PropertyRow } from "@/lib/property/db-row"
-import {
-  listingHeroStyle,
-  rowToPublicCard,
-  type PublicListingCard,
-} from "@/lib/property/map-public"
+import { listingHeroStyle, rowToPublicCard, type PublicListingCard } from "@/lib/property/map-public"
 import { clsx } from "clsx"
 
 const cities = ["All Cities", "Lagos", "Abuja", "Port Harcourt", "Ibadan", "Enugu", "Kano"]
 
+const PROPERTY_TYPES = [
+  { value: "all",        label: "All types",   icon: null        },
+  { value: "house",      label: "House",       icon: Home        },
+  { value: "apartment",  label: "Apartment",   icon: Building2   },
+  { value: "land",       label: "Land",        icon: TreePine    },
+  { value: "commercial", label: "Commercial",  icon: Store       },
+  { value: "mixed-use",  label: "Mixed Use",   icon: Layers      },
+] as const
+
+type PropertyTypeFilter = (typeof PROPERTY_TYPES)[number]["value"]
+
 const statusStyles: Record<string, { bg: string; dot: string; label: string }> = {
-  verified:   { bg: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",  dot: "bg-emerald-500", label: "Verified"   },
-  pending:    { bg: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",        dot: "bg-amber-400",   label: "Pending"    },
-  unverified: { bg: "bg-slate-100 text-slate-500 ring-1 ring-slate-200",       dot: "bg-slate-400",   label: "Unverified" },
+  verified:   { bg: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200", dot: "bg-emerald-500", label: "Verified"   },
+  pending:    { bg: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",       dot: "bg-amber-400",   label: "Pending"    },
+  unverified: { bg: "bg-slate-100 text-slate-500 ring-1 ring-slate-200",      dot: "bg-slate-400",   label: "Unverified" },
 }
 
 const PRICE_MIN = 0
@@ -48,13 +49,14 @@ function sortListings(list: PublicListingCard[], sort: string) {
 }
 
 export function PurchasePageClient() {
-  const [cityFilter, setCityFilter] = useState("All Cities")
-  const [sort, setSort] = useState("relevant")
-  const [query, setQuery] = useState("")
-  const [priceRange, setPriceRange] = useState<[number, number]>([PRICE_MIN, PRICE_MAX])
+  const [cityFilter, setCityFilter]   = useState("All Cities")
+  const [typeFilter, setTypeFilter]   = useState<PropertyTypeFilter>("all")
+  const [sort, setSort]               = useState("relevant")
+  const [query, setQuery]             = useState("")
+  const [priceRange, setPriceRange]   = useState<[number, number]>([PRICE_MIN, PRICE_MAX])
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [allListings, setAllListings] = useState<PublicListingCard[]>([])
-  const [loadState, setLoadState] = useState<"loading" | "ok" | "error">("loading")
+  const [loadState, setLoadState]     = useState<"loading" | "ok" | "error">("loading")
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -87,16 +89,22 @@ export function PurchasePageClient() {
 
   useEffect(() => { void fetchListings() }, [fetchListings])
 
-  // Derive actual price bounds from fetched data
   const { dataMin, dataMax } = useMemo(() => {
     if (!allListings.length) return { dataMin: PRICE_MIN, dataMax: PRICE_MAX }
     const prices = allListings.map((l) => l.priceNgn)
     return { dataMin: Math.min(...prices), dataMax: Math.max(...prices) }
   }, [allListings])
 
+  // suppress unused-variable lint — dataMin/dataMax kept for potential future use
+  void dataMin; void dataMax
+
   const filtered = useMemo(() => {
     let list = allListings
     if (cityFilter !== "All Cities") list = list.filter((l) => l.city === cityFilter)
+    if (typeFilter !== "all") list = list.filter((l) =>
+      l.type.toLowerCase().replace(/\s+/g, "-") === typeFilter ||
+      l.type.toLowerCase() === typeFilter
+    )
     list = list.filter((l) => l.priceNgn >= priceRange[0] && l.priceNgn <= priceRange[1])
     const q = query.trim().toLowerCase()
     if (q) list = list.filter((l) =>
@@ -106,13 +114,18 @@ export function PurchasePageClient() {
       l.type.toLowerCase().includes(q)
     )
     return sort !== "relevant" ? sortListings(list, sort) : list
-  }, [allListings, cityFilter, query, sort, priceRange])
+  }, [allListings, cityFilter, typeFilter, query, sort, priceRange])
 
   const priceFiltered = priceRange[0] !== PRICE_MIN || priceRange[1] !== PRICE_MAX
-  const activeFilters = (cityFilter !== "All Cities" ? 1 : 0) + (priceFiltered ? 1 : 0) + (query ? 1 : 0)
+  const activeFilters =
+    (cityFilter !== "All Cities" ? 1 : 0) +
+    (priceFiltered ? 1 : 0) +
+    (query ? 1 : 0) +
+    (typeFilter !== "all" ? 1 : 0)
 
   function clearAll() {
     setCityFilter("All Cities")
+    setTypeFilter("all")
     setPriceRange([PRICE_MIN, PRICE_MAX])
     setQuery("")
   }
@@ -128,7 +141,7 @@ export function PurchasePageClient() {
                 Outright Purchase
               </p>
               <h1 className="text-2xl font-bold tracking-tight text-[#0f172a] sm:text-3xl">
-                Verified homes for sale
+                Verified properties for sale
               </h1>
               <p className="mt-1 text-sm text-slate-500">
                 Every listing is title-checked. Transparent pricing, no hidden fees.
@@ -142,7 +155,7 @@ export function PurchasePageClient() {
             </Link>
           </div>
 
-          {/* Search bar row */}
+          {/* Search + filter row */}
           <div className="mt-5 flex gap-2">
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -184,6 +197,26 @@ export function PurchasePageClient() {
             </select>
           </div>
 
+          {/* Property type tabs */}
+          <div className="mt-4 flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
+            {PROPERTY_TYPES.map(({ value, label, icon: Icon }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setTypeFilter(value)}
+                className={clsx(
+                  "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-all",
+                  typeFilter === value
+                    ? "border-[#0033A1] bg-[#0033A1] text-white shadow-sm"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-[#0033A1]/40 hover:text-[#0033A1]"
+                )}
+              >
+                {Icon && <Icon className="h-3.5 w-3.5 shrink-0" />}
+                {label}
+              </button>
+            ))}
+          </div>
+
           {/* Expandable filter panel */}
           <AnimatePresence>
             {filtersOpen && (
@@ -217,7 +250,7 @@ export function PurchasePageClient() {
                     </div>
                   </div>
 
-                  {/* Price range slider */}
+                  {/* Price range */}
                   <div>
                     <div className="flex items-center justify-between mb-2.5">
                       <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Price range</p>
@@ -225,15 +258,9 @@ export function PurchasePageClient() {
                         {formatPrice(priceRange[0])} — {formatPrice(priceRange[1])}
                       </p>
                     </div>
-                    <PriceRangeSlider
-                      min={PRICE_MIN}
-                      max={PRICE_MAX}
-                      value={priceRange}
-                      onChange={setPriceRange}
-                    />
+                    <PriceRangeSlider min={PRICE_MIN} max={PRICE_MAX} value={priceRange} onChange={setPriceRange} />
                     <div className="flex justify-between mt-1.5 text-[10px] text-slate-400">
-                      <span>₦0</span>
-                      <span>₦500M+</span>
+                      <span>₦0</span><span>₦500M+</span>
                     </div>
                   </div>
 
@@ -254,19 +281,16 @@ export function PurchasePageClient() {
           {/* Result count */}
           {loadState === "ok" && (
             <p className="mt-3 text-xs text-slate-400">
-              {filtered.length} {filtered.length === 1 ? "home" : "homes"} found
-              {activeFilters > 0 && " · "}
+              {filtered.length} {filtered.length === 1 ? "property" : "properties"} found
               {activeFilters > 0 && (
-                <button type="button" onClick={clearAll} className="text-[#0033A1] font-semibold hover:underline">
-                  Clear filters
-                </button>
+                <> · <button type="button" onClick={clearAll} className="text-[#0033A1] font-semibold hover:underline">Clear filters</button></>
               )}
             </p>
           )}
         </div>
       </section>
 
-      {/* Listings */}
+      {/* Grid */}
       <section className="bg-slate-50/60 py-10 md:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {loadState === "loading" && (
@@ -283,8 +307,8 @@ export function PurchasePageClient() {
           {loadState === "ok" && filtered.length === 0 && (
             <div className="rounded-3xl border border-dashed border-slate-200 bg-white py-24 text-center">
               <ShieldCheck className="mx-auto mb-3 h-8 w-8 text-slate-300" />
-              <p className="font-semibold text-[#0f172a]">No homes match your filters</p>
-              <p className="mt-2 text-sm text-slate-500">Try adjusting the price range or clearing the city filter.</p>
+              <p className="font-semibold text-[#0f172a]">No verified properties match your filters</p>
+              <p className="mt-2 text-sm text-slate-500">Try a different property type, city, or price range.</p>
               <button
                 type="button"
                 onClick={clearAll}
@@ -315,9 +339,9 @@ export function PurchasePageClient() {
 
           {loadState === "ok" && (
             <div className="mt-16 rounded-3xl border border-[#0072CE]/20 bg-gradient-to-br from-[#030a1a] to-[#0a1428] p-10 text-center shadow-xl ring-1 ring-white/5">
-              <p className="text-xl font-bold text-white sm:text-2xl">Don't see the right fit?</p>
+              <p className="text-xl font-bold text-white sm:text-2xl">Don&apos;t see the right fit?</p>
               <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
-                Tell us what you need and we'll source a verified match from our off-market inventory.
+                Tell us what you need and we&apos;ll source a verified match from our off-market inventory.
               </p>
               <Link
                 href="/contact"
@@ -333,66 +357,39 @@ export function PurchasePageClient() {
   )
 }
 
-// ── Price range dual-handle slider ──────────────────────────────────────────
+// ── Price range slider ──────────────────────────────────────────────────────
 function PriceRangeSlider({
   min, max, value, onChange,
 }: {
-  min: number
-  max: number
-  value: [number, number]
-  onChange: (v: [number, number]) => void
+  min: number; max: number; value: [number, number]; onChange: (v: [number, number]) => void
 }) {
   const [low, high] = value
   const pct = (v: number) => ((v - min) / (max - min)) * 100
-
-  function clamp(v: number) { return Math.max(min, Math.min(max, v)) }
-
-  function handleLow(e: React.ChangeEvent<HTMLInputElement>) {
-    const next = clamp(Number(e.target.value))
-    if (next <= high) onChange([next, high])
-  }
-  function handleHigh(e: React.ChangeEvent<HTMLInputElement>) {
-    const next = clamp(Number(e.target.value))
-    if (next >= low) onChange([low, next])
-  }
-
+  const clamp = (v: number) => Math.max(min, Math.min(max, v))
   const step = 5_000_000
 
   return (
     <div className="relative h-8 flex items-center">
-      {/* Track */}
       <div className="absolute inset-x-0 h-1.5 rounded-full bg-slate-200" />
-      {/* Fill */}
       <div
         className="absolute h-1.5 rounded-full bg-[#0033A1]"
         style={{ left: `${pct(low)}%`, right: `${100 - pct(high)}%` }}
       />
-      {/* Low thumb */}
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={low}
-        onChange={handleLow}
-        className="absolute inset-x-0 h-1.5 w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-2 [&::-webkit-slider-thumb]:ring-[#0033A1] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110"
+      <input type="range" min={min} max={max} step={step} value={low}
+        onChange={e => { const n = clamp(Number(e.target.value)); if (n <= high) onChange([n, high]) }}
+        className="absolute inset-x-0 h-1.5 w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-2 [&::-webkit-slider-thumb]:ring-[#0033A1] [&::-webkit-slider-thumb]:hover:scale-110"
         style={{ zIndex: low >= high - step ? 5 : 3 }}
       />
-      {/* High thumb */}
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={high}
-        onChange={handleHigh}
-        className="absolute inset-x-0 h-1.5 w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-2 [&::-webkit-slider-thumb]:ring-[#0033A1] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110"
+      <input type="range" min={min} max={max} step={step} value={high}
+        onChange={e => { const n = clamp(Number(e.target.value)); if (n >= low) onChange([low, n]) }}
+        className="absolute inset-x-0 h-1.5 w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-2 [&::-webkit-slider-thumb]:ring-[#0033A1] [&::-webkit-slider-thumb]:hover:scale-110"
         style={{ zIndex: 4 }}
       />
     </div>
   )
 }
 
+// ── Listing card ────────────────────────────────────────────────────────────
 function ListingCard({ listing }: { listing: PublicListingCard }) {
   const s = statusStyles[listing.status] ?? statusStyles.unverified
 
@@ -414,7 +411,7 @@ function ListingCard({ listing }: { listing: PublicListingCard }) {
           <span className={clsx("h-1.5 w-1.5 rounded-full", s.dot)} />
           {s.label}
         </div>
-        <div className="absolute right-3 top-3 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm">
+        <div className="absolute right-3 top-3 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm capitalize">
           {listing.type}
         </div>
         <div className="absolute bottom-3 left-3">

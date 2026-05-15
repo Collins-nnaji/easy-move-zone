@@ -291,3 +291,32 @@ export async function getPropertyCountsByCity(): Promise<Record<string, number>>
   }
 }
 
+export async function getListingTypeCounts(): Promise<Record<string, number>> {
+  const fallback: Record<string, number> = {
+    "outright-purchase": 0,
+    "rent-to-own": 0,
+    "build": 0,
+    "mortgage-eligible": 0,
+  }
+
+  if (!sql) return fallback
+
+  try {
+    const rows = await sql`
+      SELECT listing_type, COUNT(*) as count
+      FROM property_listings
+      WHERE is_published = true AND listing_type IS NOT NULL
+      GROUP BY listing_type
+    `
+    const counts = { ...fallback }
+    rows.forEach((row) => {
+      if (row.listing_type && row.listing_type in counts) {
+        counts[row.listing_type as string] = Number(row.count)
+      }
+    })
+    return counts
+  } catch {
+    return fallback
+  }
+}
+

@@ -449,6 +449,10 @@ export function AdminListingsClient() {
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-50">
             <RefreshCw className={clsx("h-4 w-4", loading && "animate-spin")} /> Refresh
           </button>
+          <Link href="/admin/submissions"
+            className="inline-flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 shadow-sm hover:bg-amber-100">
+            <BadgeCheck className="h-4 w-4" /> Review submissions
+          </Link>
           <Link href="/search"
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-50">
             <ExternalLink className="h-4 w-4" /> Public site

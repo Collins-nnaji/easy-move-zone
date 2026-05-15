@@ -9,21 +9,18 @@ import {
   X,
   LayoutDashboard,
   UserRound,
-  ShieldCheck,
-  HardHat,
-  Banknote,
-  KeyRound,
+  User,
 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { authClient } from "@/lib/auth/client"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 import { clsx } from "clsx"
 
 const navLinks = [
-  { href: "/purchase", label: "Purchase",    icon: ShieldCheck, accent: "text-cyan-400"   },
-  { href: "/build",    label: "Build",       icon: HardHat,     accent: "text-amber-400"  },
-  { href: "/finance",  label: "Finance",     icon: Banknote,    accent: "text-emerald-400"},
-  { href: "/own",      label: "Rent to Own", icon: KeyRound,    accent: "text-purple-400" },
+  { href: "/purchase", label: "Purchase"    },
+  { href: "/build",    label: "Build"       },
+  { href: "/finance",  label: "Finance"     },
+  { href: "/own",      label: "Rent to Own" },
 ]
 
 function isActive(pathname: string, href: string) {
@@ -58,6 +55,30 @@ export function PlatformNav() {
   }
 
   const user = sessionData?.user ?? null
+  const [avatarOpen, setAvatarOpen] = useState(false)
+  const avatarRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) {
+        setAvatarOpen(false)
+      }
+    }
+    if (avatarOpen) document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [avatarOpen])
+
+  function getInitials(name?: string | null, email?: string | null) {
+    if (name) {
+      const parts = name.trim().split(/\s+/)
+      return parts.length >= 2
+        ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+        : parts[0].slice(0, 2).toUpperCase()
+    }
+    return email ? email[0].toUpperCase() : "U"
+  }
+
+  const initials = getInitials(user?.name, user?.email)
 
   return (
     <header
@@ -79,22 +100,20 @@ export function PlatformNav() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="Main">
+        <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Main">
           {navLinks.map((link) => {
-            const Icon = link.icon
             const active = isActive(pathname, link.href)
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 className={clsx(
-                  "group flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-semibold tracking-wide transition-all duration-200",
+                  "rounded-full px-4 py-2 text-[13px] font-semibold tracking-wide transition-all duration-200",
                   active
-                    ? "bg-white/10 text-white ring-1 ring-white/20"
-                    : "text-slate-400 hover:bg-white/[0.06] hover:text-white"
+                    ? "bg-white/10 text-white"
+                    : "text-slate-400 hover:text-white hover:bg-white/[0.06]"
                 )}
               >
-                <Icon className={clsx("h-3.5 w-3.5 shrink-0 transition-colors", active ? "text-white" : link.accent)} />
                 {link.label}
               </Link>
             )
@@ -106,22 +125,51 @@ export function PlatformNav() {
           {sessionPending ? (
             <div className="h-9 w-24 animate-pulse rounded-full bg-white/10" />
           ) : user ? (
-            <div className="flex items-center gap-1.5">
-              <Link
-                href="/dashboard"
-                className="hidden items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white sm:inline-flex"
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                Dashboard
-              </Link>
+            <div className="relative flex items-center gap-1.5" ref={avatarRef}>
               <button
                 type="button"
-                onClick={handleSignOut}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-slate-400 transition hover:bg-white/10 hover:text-white"
-                aria-label="Sign out"
+                onClick={() => setAvatarOpen((p) => !p)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-[13px] font-bold text-white shadow-md ring-2 ring-white/10 transition hover:ring-white/30 hover:shadow-cyan-500/30"
+                aria-label="Account menu"
+                aria-expanded={avatarOpen}
               >
-                <LogOut className="h-4 w-4" />
+                {initials}
               </button>
+
+              {avatarOpen && (
+                <div className="absolute right-0 top-11 z-50 min-w-[200px] rounded-2xl border border-white/10 bg-[#0f1b33] py-2 shadow-2xl shadow-black/50">
+                  <div className="border-b border-white/10 px-4 pb-2.5 pt-1">
+                    <p className="text-[13px] font-semibold text-white truncate">{user.name ?? "Account"}</p>
+                    <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
+                  </div>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setAvatarOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+                  >
+                    <LayoutDashboard className="h-4 w-4 text-cyan-400" />
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/profile"
+                    onClick={() => setAvatarOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+                  >
+                    <User className="h-4 w-4 text-slate-400" />
+                    Profile
+                  </Link>
+                  <div className="mt-1 border-t border-white/10 pt-1">
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-[13px] text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex items-center gap-2">
@@ -158,7 +206,6 @@ export function PlatformNav() {
         <div className="border-t border-white/[0.08] bg-[#060d1f]/95 px-4 py-4 lg:hidden">
           <nav className="flex flex-col gap-1" aria-label="Mobile">
             {navLinks.map((link) => {
-              const Icon = link.icon
               const active = isActive(pathname, link.href)
               return (
                 <Link
@@ -166,13 +213,12 @@ export function PlatformNav() {
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
                   className={clsx(
-                    "flex items-center gap-3 rounded-xl px-4 py-3 text-[14px] font-semibold transition",
+                    "rounded-xl px-4 py-3 text-[14px] font-semibold transition",
                     active
                       ? "bg-white/10 text-white"
                       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
                   )}
                 >
-                  <Icon className={clsx("h-4.5 w-4.5 shrink-0", active ? "text-white" : link.accent)} />
                   {link.label}
                 </Link>
               )
