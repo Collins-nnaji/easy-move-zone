@@ -58,7 +58,7 @@ export function PlatformNav() {
 
   return (
     <header
-      className="sticky top-0 z-50 bg-white border-b border-[#E4DFDA]"
+      className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#E4DFDA] shadow-[0_1px_0_0_rgba(228,223,218,0.8)]"
       data-emz-support-email={PUBLIC_CONTACT_EMAIL}
     >
       <div className="mx-auto flex h-[60px] w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
