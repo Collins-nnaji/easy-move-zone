@@ -448,10 +448,14 @@ export function CitiesPageClient({
                 </Link>
               </div>
               {cityListings.length === 0 ? (
-                <div className="rounded-2xl border border-[#dbe4f0] bg-white p-8 text-center">
-                  <p className="text-sm text-[#64748b]">No listings yet for {activeCity.name}.</p>
-                  <Link href="/contact" className="mt-2 inline-block text-xs font-semibold text-[#155eef] hover:underline">
-                    Speak to an advisor
+                <div className="rounded-2xl border border-[#155eef]/20 bg-gradient-to-br from-white to-slate-50 p-8 text-center shadow-sm">
+                  <span className="inline-block rounded-full bg-[#155eef]/10 border border-[#155eef]/20 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-[#155eef] mb-3">
+                    Coming Soon
+                  </span>
+                  <p className="text-sm font-bold text-[#0f172a]">New Properties &amp; Prices Dropping Soon</p>
+                  <p className="mt-1 text-xs text-[#64748b]">We&apos;re adding listings for {activeCity.name} now.</p>
+                  <Link href="/contact" className="mt-3 inline-block text-xs font-semibold text-[#155eef] hover:underline">
+                    Get notified
                   </Link>
                 </div>
               ) : (

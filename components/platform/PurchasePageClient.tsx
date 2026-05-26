@@ -305,14 +305,20 @@ export function PurchasePageClient() {
             </p>
           )}
           {loadState === "ok" && filtered.length === 0 && (
-            <div className="rounded-3xl border border-dashed border-slate-200 bg-white py-24 text-center">
-              <ShieldCheck className="mx-auto mb-3 h-8 w-8 text-slate-300" />
-              <p className="font-semibold text-[#0f172a]">No verified properties match your filters</p>
-              <p className="mt-2 text-sm text-slate-500">Try a different property type, city, or price range.</p>
+            <div className="rounded-3xl border border-[#0033A1]/20 bg-gradient-to-br from-white to-slate-50 py-24 text-center shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+              <span className="inline-block rounded-full bg-[#0033A1]/10 border border-[#0033A1]/20 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-[#0033A1] mb-4">
+                Coming Soon
+              </span>
+              <p className="text-xl font-bold text-[#0f172a]">New Properties &amp; Prices Dropping Soon</p>
+              <p className="mt-2 text-sm text-slate-500 max-w-md mx-auto">
+                We&apos;re adding verified listings now. Clear your filters or{" "}
+                <a href="/contact" className="text-[#0033A1] hover:underline underline-offset-2">contact us</a>{" "}
+                to be notified when new properties go live.
+              </p>
               <button
                 type="button"
                 onClick={clearAll}
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#0033A1] px-5 py-2.5 text-sm font-bold text-white shadow transition hover:bg-[#002880]"
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0033A1] px-5 py-2.5 text-sm font-bold text-white shadow transition hover:bg-[#002880]"
               >
                 Clear filters
               </button>

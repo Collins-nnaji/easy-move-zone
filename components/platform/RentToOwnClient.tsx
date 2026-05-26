@@ -79,12 +79,16 @@ export function RentToOwnClient() {
         )}
 
         {loadState === "ok" && filtered.length === 0 && (
-          <div className="rounded-3xl border border-dashed border-slate-200 bg-white py-20 text-center">
-            <KeyRound className="mx-auto h-8 w-8 text-purple-300 mb-3" />
-            <p className="font-semibold text-[#0f172a]">No homes in this city yet</p>
-            <p className="mt-2 text-sm text-slate-500">New rent-to-own listings are added regularly. Try another city or contact us.</p>
+          <div className="rounded-3xl border border-purple-200 bg-gradient-to-br from-white to-purple-50 py-20 text-center shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+            <span className="inline-block rounded-full bg-purple-100 border border-purple-200 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-purple-600 mb-4">
+              Coming Soon
+            </span>
+            <p className="text-xl font-bold text-[#0f172a]">New Properties &amp; Prices Dropping Soon</p>
+            <p className="mt-2 text-sm text-slate-500 max-w-md mx-auto">
+              We&apos;re adding rent-to-own listings now. Try another city or contact us to be the first to know.
+            </p>
             <Link href="/contact" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-bold text-white shadow transition hover:bg-purple-500">
-              Contact us <ArrowRight className="h-4 w-4" />
+              Get Notified <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         )}
