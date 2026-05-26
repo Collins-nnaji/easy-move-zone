@@ -304,11 +304,18 @@ export function SearchPageClient() {
                 <motion.div
                   initial={reduceMotion ? false : { opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-3xl border border-dashed border-slate-200 bg-white/80 backdrop-blur-sm py-20 text-center shadow-[0_8px_30px_rgba(0,0,0,0.02)]"
+                  className="rounded-3xl border border-[#0072CE]/20 bg-gradient-to-br from-white to-slate-50 py-20 text-center shadow-[0_8px_30px_rgba(0,0,0,0.04)]"
                 >
-                  <p className="font-semibold text-[#0f172a]">No listings match</p>
-                  <p className="mx-auto mt-2 max-w-md text-sm text-slate-600">
-                    Try another city or search term. New verified listings appear here as they are published.
+                  <span className="inline-block rounded-full bg-[#0072CE]/10 border border-[#0072CE]/20 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-[#0072CE] mb-4">
+                    Coming Soon
+                  </span>
+                  <p className="text-xl font-bold text-[#0f172a]">New Properties &amp; Prices Dropping Soon</p>
+                  <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
+                    We&apos;re adding verified listings now. Try a different search, or{" "}
+                    <a href="/contact" className="text-[#0072CE] hover:underline underline-offset-2">
+                      contact us
+                    </a>{" "}
+                    to be notified when new properties go live.
                   </p>
                 </motion.div>
               )}

@@ -263,18 +263,28 @@ export function HomeFeaturedListings() {
           <motion.div
             initial={reduceMotion ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl border border-dashed border-white/15 bg-white/[0.03] px-6 py-14 text-center backdrop-blur-sm"
+            className="rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-[#0a1a3a] to-[#0d2250] px-6 py-14 text-center backdrop-blur-sm shadow-lg"
           >
-            <p className="font-medium text-white">
-              {activeCity ? `No listings in ${CITIES.find(c => c.slug === activeCity)?.name ?? activeCity} yet` : "No featured listings yet"}
+            <span className="inline-block rounded-full bg-cyan-400/10 border border-cyan-400/30 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-cyan-400 mb-4">
+              Coming Soon
+            </span>
+            <p className="text-xl font-bold text-white">New Properties &amp; Prices Dropping Soon</p>
+            <p className="mt-2 text-sm text-slate-400 max-w-sm mx-auto">
+              We&apos;re adding verified listings now. Check back shortly or{" "}
+              <a href="/contact" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
+                get notified
+              </a>{" "}
+              when they go live.
             </p>
-            <p className="mt-2 text-sm text-slate-500">
-              {activeCity ? (
-                <button type="button" onClick={() => setActiveCity("")} className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
-                  View all cities
-                </button>
-              ) : "Featured properties will appear here once published."}
-            </p>
+            {activeCity && (
+              <button
+                type="button"
+                onClick={() => setActiveCity("")}
+                className="mt-5 text-sm text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
+              >
+                View all cities instead
+              </button>
+            )}
           </motion.div>
         ) : (
           <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-visible px-4 pb-3 pt-1 [scrollbar-width:thin] sm:-mx-6 sm:px-6 lg:gap-5">
