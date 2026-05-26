@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   title: "EasyMoveZone — Trusted Land & Property in Nigeria",
   description:
     "The trusted land and property platform for Nigerian professionals, diaspora, and returnees. Every listing is title-verified. Every transaction is guided end to end.",
+  icons: {
+    icon: "/emz.png",
+    shortcut: "/emz.png",
+    apple: "/emz.png",
+  },
 };
 
 export default function RootLayout({
