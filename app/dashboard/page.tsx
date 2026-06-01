@@ -21,12 +21,40 @@ import {
   Eye,
 } from "lucide-react"
 
-const savedProperties: any[] = []
-const transactions: any[] = []
-const equityDeals: any[] = []
-const activeBuilds: any[] = []
-const notifications: any[] = []
-const documents: any[] = []
+const savedProperties = [
+  { id: "prop-001", title: "3-Bed Detached Home, Lekki Phase 1", city: "Lagos", price: "₦85,000,000", gradient: "linear-gradient(135deg,#0072CE22,#00C6FF22)" },
+  { id: "prop-002", title: "4-Bed Semi-Detached, Maitama", city: "Abuja", price: "₦120,000,000", gradient: "linear-gradient(135deg,#7c3aed22,#a78bfa22)" },
+  { id: "prop-003", title: "2-Bed Apartment, Ikeja GRA", city: "Lagos", price: "₦42,500,000", gradient: "linear-gradient(135deg,#05966922,#34d39922)" },
+]
+
+const transactions = [
+  { id: "tx-001", property: "3-Bed Detached Home, Lekki Phase 1", date: "12 May 2025", amount: "₦85,000,000", status: "in-progress" },
+  { id: "tx-002", property: "Land Purchase — Epe Corridor", date: "3 Feb 2025", amount: "₦18,000,000", status: "completed" },
+  { id: "tx-003", property: "2-Bed Apartment, Ikeja GRA", date: "28 Jan 2025", amount: "₦42,500,000", status: "initiated" },
+]
+
+const equityDeals = [
+  { id: "eq-001", property: "4-Bed Semi-Detached, Maitama", totalValue: "₦120,000,000", equityOwned: 35, ownedValue: "₦42,000,000", nextBuyout: "Jan 2026" },
+  { id: "eq-002", property: "Commercial Unit, Victoria Island", totalValue: "₦200,000,000", equityOwned: 15, ownedValue: "₦30,000,000", nextBuyout: "Jun 2026" },
+]
+
+const activeBuilds = [
+  { id: "bld-001", property: "3-Bed Bungalow — Lugbe, Abuja", estHandover: "Q4 2025", currentPhase: "Brickwork", progress: 45 },
+  { id: "bld-002", property: "Duplex — Sangotedo, Lagos", estHandover: "Q1 2026", currentPhase: "Foundation", progress: 18 },
+]
+
+const notifications = [
+  { id: "n-001", message: "Your offer on Lekki Phase 1 property has been accepted. Proceed to payment to secure the property.", time: "2 hours ago", read: false },
+  { id: "n-002", message: "Build update: Brickwork phase on your Lugbe property is 45% complete.", time: "Yesterday", read: false },
+  { id: "n-003", message: "Document request: Please upload your proof of funds for the Maitama transaction.", time: "3 days ago", read: true },
+]
+
+const documents = [
+  { name: "Certificate of Occupancy — Lekki Phase 1", date: "12 May 2025", type: "C of O" },
+  { name: "Sale Agreement — Ikeja GRA Apartment", date: "28 Jan 2025", type: "Agreement" },
+  { name: "Survey Plan — Lugbe Build Plot", date: "10 Dec 2024", type: "Survey" },
+  { name: "NHF Pre-Approval Letter", date: "5 Nov 2024", type: "Finance" },
+]
 
 const txStatusConfig: Record<string, { color: string; icon: typeof CheckCircle2 }> = {
   "in-progress": { color: "#d97706", icon: Clock },

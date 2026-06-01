@@ -358,7 +358,7 @@ export function HomePageClient() {
       </section>
 
       {/* Everything You Need — interactive carousel */}
-      <section className="py-24 bg-slate-50 text-slate-900 relative overflow-hidden">
+      <section id="services" className="py-24 bg-slate-50 text-slate-900 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,51,161,0.05),transparent)]" aria-hidden />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_80%_80%,rgba(139,92,246,0.03),transparent)]" aria-hidden />
 
