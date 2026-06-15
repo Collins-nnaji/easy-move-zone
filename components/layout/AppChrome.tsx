@@ -7,10 +7,11 @@ import { PlatformFooter } from "@/components/platform/PlatformFooter"
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
-  // Auth pages get no chrome — full-screen layout
+  // Auth pages and the immersive /move experience get no chrome — full-screen layout
   const isAuthPage = pathname === "/auth" || pathname.startsWith("/auth/")
+  const isImmersive = pathname === "/move" || pathname.startsWith("/move/")
 
-  if (isAuthPage) {
+  if (isAuthPage || isImmersive) {
     return <main className="flex-1 min-w-0">{children}</main>
   }
 
