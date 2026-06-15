@@ -8,6 +8,7 @@ const services = [
   { href: "/own",      label: "Rent to Own",           badge: null         },
   { href: "/build",    label: "Build to Suit",         badge: null         },
   { href: "/finance",  label: "Mortgage & NHF",        badge: null         },
+  { href: "/relocate/hub", label: "Relocation Hub",    badge: null         },
   { href: "/sell",     label: "List / Sell Property",  badge: "Sell"       },
 ]
 

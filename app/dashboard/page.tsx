@@ -1,16 +1,15 @@
 import { redirect } from "next/navigation"
 import { authServer } from "@/lib/auth/server"
+import { getBuyerDashboard } from "@/lib/dashboard/data"
 import Link from "next/link"
 import { PublicShell } from "@/components/platform/PublicShell"
 import {
   Heart,
   FileText,
-  MessageSquare,
   Bell,
   Folder,
   ArrowRight,
   MapPin,
-  TrendingUp,
   Clock,
   CheckCircle2,
   Circle,
@@ -18,43 +17,18 @@ import {
   Home,
   Settings,
   BadgeCheck,
-  Eye,
 } from "lucide-react"
 
-const savedProperties = [
-  { id: "prop-001", title: "3-Bed Detached Home, Lekki Phase 1", city: "Lagos", price: "₦85,000,000", gradient: "linear-gradient(135deg,#0072CE22,#00C6FF22)" },
-  { id: "prop-002", title: "4-Bed Semi-Detached, Maitama", city: "Abuja", price: "₦120,000,000", gradient: "linear-gradient(135deg,#7c3aed22,#a78bfa22)" },
-  { id: "prop-003", title: "2-Bed Apartment, Ikeja GRA", city: "Lagos", price: "₦42,500,000", gradient: "linear-gradient(135deg,#05966922,#34d39922)" },
+const SAVED_GRADIENTS = [
+  "linear-gradient(135deg,#0072CE22,#00C6FF22)",
+  "linear-gradient(135deg,#7c3aed22,#a78bfa22)",
+  "linear-gradient(135deg,#05966922,#34d39922)",
+  "linear-gradient(135deg,#f59e0b22,#fde68a22)",
 ]
 
-const transactions = [
-  { id: "tx-001", property: "3-Bed Detached Home, Lekki Phase 1", date: "12 May 2025", amount: "₦85,000,000", status: "in-progress" },
-  { id: "tx-002", property: "Land Purchase — Epe Corridor", date: "3 Feb 2025", amount: "₦18,000,000", status: "completed" },
-  { id: "tx-003", property: "2-Bed Apartment, Ikeja GRA", date: "28 Jan 2025", amount: "₦42,500,000", status: "initiated" },
-]
-
-const equityDeals = [
-  { id: "eq-001", property: "4-Bed Semi-Detached, Maitama", totalValue: "₦120,000,000", equityOwned: 35, ownedValue: "₦42,000,000", nextBuyout: "Jan 2026" },
-  { id: "eq-002", property: "Commercial Unit, Victoria Island", totalValue: "₦200,000,000", equityOwned: 15, ownedValue: "₦30,000,000", nextBuyout: "Jun 2026" },
-]
-
-const activeBuilds = [
-  { id: "bld-001", property: "3-Bed Bungalow — Lugbe, Abuja", estHandover: "Q4 2025", currentPhase: "Brickwork", progress: 45 },
-  { id: "bld-002", property: "Duplex — Sangotedo, Lagos", estHandover: "Q1 2026", currentPhase: "Foundation", progress: 18 },
-]
-
-const notifications = [
-  { id: "n-001", message: "Your offer on Lekki Phase 1 property has been accepted. Proceed to payment to secure the property.", time: "2 hours ago", read: false },
-  { id: "n-002", message: "Build update: Brickwork phase on your Lugbe property is 45% complete.", time: "Yesterday", read: false },
-  { id: "n-003", message: "Document request: Please upload your proof of funds for the Maitama transaction.", time: "3 days ago", read: true },
-]
-
-const documents = [
-  { name: "Certificate of Occupancy — Lekki Phase 1", date: "12 May 2025", type: "C of O" },
-  { name: "Sale Agreement — Ikeja GRA Apartment", date: "28 Jan 2025", type: "Agreement" },
-  { name: "Survey Plan — Lugbe Build Plot", date: "10 Dec 2024", type: "Survey" },
-  { name: "NHF Pre-Approval Letter", date: "5 Nov 2024", type: "Finance" },
-]
+// No backing tables yet — shown as empty-state sections.
+const equityDeals: { id: string; property: string; totalValue: string; equityOwned: number; ownedValue: string; nextBuyout: string }[] = []
+const activeBuilds: { id: string; property: string; estHandover: string; currentPhase: string; progress: number }[] = []
 
 const txStatusConfig: Record<string, { color: string; icon: typeof CheckCircle2 }> = {
   "in-progress": { color: "#d97706", icon: Clock },
@@ -68,6 +42,41 @@ export default async function BuyerDashboardPage() {
   if (!session?.data?.user) redirect("/auth?redirect=/dashboard")
   const { user } = session.data
   const displayName = user.name || user.email?.split("@")[0] || "there"
+
+  const data = await getBuyerDashboard(String(user.id))
+  const savedProperties = data.saved.map((s, i) => ({
+    id: s.id,
+    title: s.title,
+    city: s.city,
+    price: s.price,
+    verified: s.verified,
+    gradient: SAVED_GRADIENTS[i % SAVED_GRADIENTS.length],
+  }))
+  const transactions = data.transactions.map((t) => ({
+    id: t.id,
+    property: t.title,
+    date: t.date,
+    amount: t.amount,
+    status: t.status,
+  }))
+  const documents = data.documents
+  // Notifications derived from real enquiries + transactions.
+  const notifications = [
+    ...data.enquiries.map((e) => ({
+      id: `enq-${e.id}`,
+      message: e.status === "replied"
+        ? `Your enquiry on “${e.title}” has a reply from the agent.`
+        : `Enquiry sent on “${e.title}”. We'll notify you when the agent responds.`,
+      time: e.date,
+      read: e.status === "replied",
+    })),
+    ...data.transactions.map((t) => ({
+      id: `tx-${t.id}`,
+      message: `Transaction on “${t.title}” is ${t.status.replace("-", " ")}.`,
+      time: t.date,
+      read: t.status === "completed",
+    })),
+  ].slice(0, 6)
 
   return (
     <PublicShell>
@@ -128,10 +137,12 @@ export default async function BuyerDashboardPage() {
                         </div>
                         <div className="text-right flex-shrink-0">
                           <div className="font-bold text-[#0f172a] text-sm">{p.price}</div>
-                          <div className="flex items-center gap-1 mt-0.5">
-                            <BadgeCheck className="h-3 w-3 text-[#059669]" />
-                            <span className="text-[11px] text-[#059669] font-semibold">Verified</span>
-                          </div>
+                          {p.verified && (
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <BadgeCheck className="h-3 w-3 text-[#059669]" />
+                              <span className="text-[11px] text-[#059669] font-semibold">Verified</span>
+                            </div>
+                          )}
                         </div>
                       </Link>
                     ))

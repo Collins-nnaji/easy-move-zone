@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useRouter } from "next/navigation";
 import {
   DESTINATIONS,
   MODE_LABEL,
@@ -12,6 +13,32 @@ import {
 } from "./data";
 import { ImageSlot } from "./ImageSlot";
 import { IOSDeviceFrame } from "./IOSDeviceFrame";
+import { authClient } from "@/lib/auth/client";
+import { savePlan, addTask } from "@/lib/relocate/client";
+import type { TaskCategory, WorkMode } from "@/lib/relocate/types";
+
+// Map a /move work answer to a relocation work mode.
+function workModeFromAnswer(answer: string | undefined): WorkMode {
+  switch (answer) {
+    case "On a work assignment": return "onsite";
+    case "Studying": return "student";
+    case "Taking a break": return "hybrid";
+    case "Remote, my own hours":
+    default: return "remote";
+  }
+}
+
+// Best-effort category for a checklist item so saved tasks group sensibly.
+function categoryForItem(title: string): TaskCategory {
+  const t = title.toLowerCase();
+  if (/(visa|entry|passport|residen|permit)/.test(t)) return "visa";
+  if (/(apostille|translat|document|notar|lease|legal)/.test(t)) return "legal";
+  if (/(bank|budget|cost|tax|insurance|money)/.test(t)) return "finance";
+  if (/(employer|client|work|notice|career|coworking)/.test(t)) return "career";
+  if (/(school|family|pet|partner|childcare)/.test(t)) return "family";
+  if (/(sim|utility|utilities|community|neighbo|register|healthcare|local)/.test(t)) return "settling";
+  return "logistics";
+}
 
 const PRIMARY = "#e0511f";
 const INK = "#1b231e";
@@ -40,6 +67,11 @@ export function EasyMoveZoneApp() {
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [shareOpen, setShareOpen] = useState(false);
   const [photos, setPhotos] = useState<Record<string, string>>({});
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+
+  const router = useRouter();
+  const { data: sessionData } = authClient.useSession();
+  const signedIn = !!sessionData?.user;
 
   // Responsive: framed device on desktop ("web"), full-bleed on mobile.
   const [isDesktop, setIsDesktop] = useState(false);
@@ -84,6 +116,38 @@ export function EasyMoveZoneApp() {
       else n[key] = true;
       return n;
     });
+  }
+
+  async function saveMyPlan() {
+    if (!signedIn) {
+      router.push("/auth?redirect=/relocate/hub");
+      return;
+    }
+    if (saveState === "saving") return;
+    setSaveState("saving");
+    try {
+      await savePlan({
+        planName: `${dest.city} move`,
+        destinationCity: dest.city,
+        destinationCountry: dest.country,
+        moveReason: modeInfo.name,
+        workMode: workModeFromAnswer(answers.work),
+        status: "planning",
+      });
+      // Seed the saved plan with this mode's checklist items as tasks.
+      const items = plan.phases.flatMap((ph) => ph.items);
+      for (const title of items) {
+        try {
+          await addTask({ title, category: categoryForItem(title) });
+        } catch {
+          /* keep going — a failed task shouldn't abort the save */
+        }
+      }
+      setSaveState("saved");
+      router.push("/relocate/hub");
+    } catch {
+      setSaveState("idle");
+    }
   }
 
   // ── Move Meter math (driven by ticked plan items) ─────────────────────
@@ -312,6 +376,11 @@ export function EasyMoveZoneApp() {
 
           <button onClick={() => setScreen("plan")} style={{ width: "100%", marginTop: 22, padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>{planCta} →</button>
           <button onClick={() => setScreen("settle")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 18, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Explore living in {dest.city}</button>
+
+          <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+            <button onClick={() => router.push(`/purchase?q=${encodeURIComponent(dest.city)}`)} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Browse property</button>
+            <button onClick={() => router.push("/vendor")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Find movers</button>
+          </div>
         </div>
       </div>
     );
@@ -381,7 +450,11 @@ export function EasyMoveZoneApp() {
           })}
         </div>
 
-        <div onClick={() => setShareOpen(true)} style={{ marginTop: 18, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: 14, border: "1px dashed #cbc5b8", borderRadius: 16, color: "#6e746b", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+        <button onClick={saveMyPlan} disabled={saveState === "saving"} style={{ width: "100%", marginTop: 18, padding: 16, border: "none", borderRadius: 16, background: INK, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: saveState === "saving" ? "default" : "pointer", opacity: saveState === "saving" ? 0.7 : 1 }}>
+          {saveState === "saving" ? "Saving…" : signedIn ? "Save my plan to my workspace →" : "Sign in to save my plan →"}
+        </button>
+
+        <div onClick={() => setShareOpen(true)} style={{ marginTop: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: 14, border: "1px dashed #cbc5b8", borderRadius: 16, color: "#6e746b", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
           <span style={{ fontSize: 15 }}>↗</span> Share my Move Meter
         </div>
       </div>

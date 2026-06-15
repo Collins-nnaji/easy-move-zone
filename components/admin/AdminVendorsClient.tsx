@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import {
-  Truck, Search, CheckCircle2, Clock, XCircle, Eye,
-  MoreHorizontal, Star, MapPin, RefreshCw,
+  Search, CheckCircle2, Clock, XCircle,
+  MoreHorizontal, Star, MapPin,
 } from "lucide-react"
 import { clsx } from "clsx"
 
@@ -11,22 +11,13 @@ interface VendorRow {
   id: string
   business_name: string
   service_type: string
-  city: string
+  city: string | null
   status: "live" | "pending" | "rejected"
   rating: number | null
   enquiries: number
   submitted_at: string
-  contact_email: string
+  contact_email: string | null
 }
-
-// Placeholder data until API is wired up
-const MOCK: VendorRow[] = [
-  { id: "1", business_name: "Swift Movers MCR",   service_type: "removals",   city: "Manchester", status: "live",    rating: 4.8, enquiries: 24, submitted_at: "2026-05-01", contact_email: "swift@example.com" },
-  { id: "2", business_name: "CleanSlate Ltd",      service_type: "cleaning",   city: "London",     status: "live",    rating: 4.5, enquiries: 11, submitted_at: "2026-04-20", contact_email: "clean@example.com" },
-  { id: "3", business_name: "AbokiPack NG",        service_type: "packing",    city: "Lagos",      status: "pending", rating: null, enquiries: 0, submitted_at: "2026-05-14", contact_email: "abokie@example.com" },
-  { id: "4", business_name: "GlobalShip Intl",     service_type: "international", city: "London", status: "pending", rating: null, enquiries: 0, submitted_at: "2026-05-13", contact_email: "global@example.com" },
-  { id: "5", business_name: "FixIt Handymen",      service_type: "handyman",   city: "Birmingham", status: "rejected",rating: null, enquiries: 0, submitted_at: "2026-04-10", contact_email: "fixit@example.com" },
-]
 
 const STATUS_CONFIG = {
   live:     { label: "Live",     className: "bg-emerald-900/40 text-emerald-300", icon: CheckCircle2 },
@@ -40,20 +31,55 @@ function fmtDate(s: string) {
 }
 
 export function AdminVendorsClient() {
-  const [vendors, setVendors] = useState<VendorRow[]>(MOCK)
+  const [vendors, setVendors] = useState<VendorRow[]>([])
+  const [loadState, setLoadState] = useState<"loading" | "ok" | "error">("loading")
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [busyId, setBusyId] = useState<string | null>(null)
 
-  function approve(id: string) {
-    setVendors((prev) => prev.map((v) => v.id === id ? { ...v, status: "live" } : v))
-  }
-  function reject(id: string) {
-    setVendors((prev) => prev.map((v) => v.id === id ? { ...v, status: "rejected" } : v))
+  const load = useCallback(async () => {
+    setLoadState("loading")
+    try {
+      const res = await fetch("/api/admin/vendors")
+      if (!res.ok) throw new Error("bad")
+      const data = (await res.json()) as { vendors: VendorRow[] }
+      setVendors(
+        data.vendors.map((v) => ({
+          ...v,
+          rating: v.rating != null ? Number(v.rating) : null,
+          enquiries: Number(v.enquiries ?? 0),
+        })),
+      )
+      setLoadState("ok")
+    } catch {
+      setLoadState("error")
+    }
+  }, [])
+
+  useEffect(() => { void load() }, [load])
+
+  async function review(id: string, action: "approve" | "reject") {
+    setBusyId(id)
+    const nextStatus = action === "approve" ? "live" : "rejected"
+    // optimistic
+    setVendors((prev) => prev.map((v) => (v.id === id ? { ...v, status: nextStatus } : v)))
+    try {
+      const res = await fetch("/api/admin/vendors", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action }),
+      })
+      if (!res.ok) throw new Error("bad")
+    } catch {
+      void load() // revert to server truth on failure
+    } finally {
+      setBusyId(null)
+    }
   }
 
   const filtered = vendors.filter((v) => {
     const q = search.toLowerCase()
-    const matchSearch = !q || v.business_name.toLowerCase().includes(q) || v.city.toLowerCase().includes(q)
+    const matchSearch = !q || v.business_name.toLowerCase().includes(q) || (v.city ?? "").toLowerCase().includes(q)
     const matchStatus = statusFilter === "all" || v.status === statusFilter
     return matchSearch && matchStatus
   })
@@ -116,7 +142,16 @@ export function AdminVendorsClient() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {filtered.map((v) => {
+            {loadState === "loading" && (
+              <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-white/40">Loading vendors…</td></tr>
+            )}
+            {loadState === "error" && (
+              <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-red-300">Couldn’t load vendors. <button onClick={() => void load()} className="underline">Retry</button></td></tr>
+            )}
+            {loadState === "ok" && filtered.length === 0 && (
+              <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-white/40">No vendors match.</td></tr>
+            )}
+            {loadState === "ok" && filtered.map((v) => {
               const cfg = STATUS_CONFIG[v.status]
               const StatusIcon = cfg.icon
               return (
@@ -150,12 +185,12 @@ export function AdminVendorsClient() {
                     <div className="flex items-center gap-2 justify-end">
                       {v.status === "pending" && (
                         <>
-                          <button onClick={() => approve(v.id)}
-                            className="rounded-lg bg-emerald-900/40 px-2.5 py-1 text-xs font-semibold text-emerald-300 hover:bg-emerald-900/60 transition-all">
+                          <button onClick={() => review(v.id, "approve")} disabled={busyId === v.id}
+                            className="rounded-lg bg-emerald-900/40 px-2.5 py-1 text-xs font-semibold text-emerald-300 hover:bg-emerald-900/60 transition-all disabled:opacity-50">
                             Approve
                           </button>
-                          <button onClick={() => reject(v.id)}
-                            className="rounded-lg bg-red-900/40 px-2.5 py-1 text-xs font-semibold text-red-300 hover:bg-red-900/60 transition-all">
+                          <button onClick={() => review(v.id, "reject")} disabled={busyId === v.id}
+                            className="rounded-lg bg-red-900/40 px-2.5 py-1 text-xs font-semibold text-red-300 hover:bg-red-900/60 transition-all disabled:opacity-50">
                             Reject
                           </button>
                         </>

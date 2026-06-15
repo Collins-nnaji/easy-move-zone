@@ -21,6 +21,7 @@ const navLinks = [
   { href: "/build",    label: "Build"       },
   { href: "/finance",  label: "Finance"     },
   { href: "/own",      label: "Rent to Own" },
+  { href: "/relocate/hub", label: "Relocate" },
 ]
 
 function isActive(pathname: string, href: string) {
