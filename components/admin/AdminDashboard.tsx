@@ -208,7 +208,7 @@ function AgentsTab({ agents }: { agents: AgentRow[] }) {
             className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition ${
               agent.agent_verified
                 ? "border border-[#dbe4f0] text-[#64748b] hover:border-red-300 hover:text-red-600"
-                : "bg-[#e0511f] text-white hover:bg-[#1347c8]"
+                : "bg-[#e0511f] text-white hover:bg-[#e0511f]"
             } disabled:opacity-40`}
           >
             {updating === agent.auth_user_id ? "…" : agent.agent_verified ? "Revoke verification" : "Verify agent"}

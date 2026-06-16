@@ -335,7 +335,7 @@ export function SearchPageClient() {
                 </p>
                 <Link
                   href="/contact"
-                  className="relative mt-8 inline-flex items-center gap-2 rounded-full bg-[#bf6a3c] px-8 py-3 text-sm font-bold text-white shadow-lg shadow-[#bf6a3c]/30 transition-all duration-200 hover:bg-[#005fad] hover:shadow-[#bf6a3c]/40 hover:-translate-y-0.5"
+                  className="relative mt-8 inline-flex items-center gap-2 rounded-full bg-[#bf6a3c] px-8 py-3 text-sm font-bold text-white shadow-lg shadow-[#bf6a3c]/30 transition-all duration-200 hover:bg-[#c8451a] hover:shadow-[#bf6a3c]/40 hover:-translate-y-0.5"
                 >
                   Contact us <ArrowRight className="h-4 w-4" />
                 </Link>

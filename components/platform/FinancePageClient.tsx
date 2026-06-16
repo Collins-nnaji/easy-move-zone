@@ -507,7 +507,7 @@ export function FinancePageClient() {
 
                   <div className="mt-8">
                     <Link href="/contact"
-                      className="inline-flex items-center gap-2 rounded-2xl bg-[#bf6a3c] px-7 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#005fad]">
+                      className="inline-flex items-center gap-2 rounded-2xl bg-[#bf6a3c] px-7 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#c8451a]">
                       Talk to diaspora team <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>

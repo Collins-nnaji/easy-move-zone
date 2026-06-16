@@ -43,7 +43,7 @@ export default function LandlordPage() {
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/landlord/post"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#005fa8]"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#c8451a]"
             >
               Post a Listing <ArrowRight className="h-4 w-4" />
             </Link>
@@ -97,7 +97,7 @@ export default function LandlordPage() {
             </p>
             <Link
               href="/landlord/post"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#005fa8]"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#c8451a]"
             >
               Post a Listing <ArrowRight className="h-4 w-4" />
             </Link>

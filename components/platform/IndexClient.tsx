@@ -44,10 +44,10 @@ export function IndexClient() {
                   <td className="py-4 px-6 text-2xl font-[var(--font-playfair)] text-slate-500">#{city.rank}</td>
                   <td className="py-4 px-6 font-bold text-lg flex items-center gap-2">
                      {city.name}
-                     {isActive && <MapPin className="h-4 w-4 text-[#00D4FF]" />}
+                     {isActive && <MapPin className="h-4 w-4 text-[#f3aa79]" />}
                   </td>
                   <td className="py-4 px-6">
-                    <span className="bg-[#00D4FF]/20 text-[#00D4FF] py-1 px-3 rounded-md font-bold text-sm">
+                    <span className="bg-[#f3aa79]/20 text-[#f3aa79] py-1 px-3 rounded-md font-bold text-sm">
                       {city.score}
                     </span>
                   </td>
@@ -77,18 +77,18 @@ export function IndexClient() {
             allowFullScreen
           />
           <div className="pointer-events-none absolute left-4 bottom-4 flex items-center gap-2 rounded-xl border border-white/20 bg-[#0A0F1E]/90 px-4 py-3 shadow-lg backdrop-blur-md">
-            <MapPin className="h-5 w-5 text-[#00D4FF]" />
+            <MapPin className="h-5 w-5 text-[#f3aa79]" />
             <div>
               <p className="text-sm font-bold text-white">{activeCity.name}</p>
               <p className="text-[10px] text-slate-400">{activeCity.country}</p>
             </div>
             <div className="ml-4 pl-4 border-l border-white/20">
-              <p className="text-2xl font-[var(--font-playfair)] font-bold text-[#00D4FF]">{activeCity.score}</p>
+              <p className="text-2xl font-[var(--font-playfair)] font-bold text-[#f3aa79]">{activeCity.score}</p>
             </div>
           </div>
         </div>
         
-        <Link href="/auth?type=individual" className="flex w-full justify-center py-4 px-8 rounded-xl bg-[#00D4FF] text-slate-900 font-bold hover:bg-[#00D4FF]/90 transition-colors">
+        <Link href="/auth?type=individual" className="flex w-full justify-center py-4 px-8 rounded-xl bg-[#f3aa79] text-slate-900 font-bold hover:bg-[#f3aa79]/90 transition-colors">
           Get Your Personalised Index
         </Link>
       </div>

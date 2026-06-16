@@ -385,7 +385,7 @@
   .home-city-name  { position: relative; z-index: 2; font-family: var(--font-bricolage), sans-serif; font-size: 1.7rem; color: white; line-height: 1.05; margin-top: 2px; }
   .home-city-count { position: relative; z-index: 2; margin-top: 6px; font-size: 11px; font-weight: 600; color: #8ed8ff; }
 
-  .home-city-gradient-1 { background: linear-gradient(145deg, #0a2040, #1456b0); }
+  .home-city-gradient-1 { background: linear-gradient(145deg, #0a2040, #e0511f); }
   .home-city-gradient-2 { background: linear-gradient(145deg, #0f2a1a, #18794a); }
   .home-city-gradient-3 { background: linear-gradient(145deg, #220a38, #6b28b0); }
   .home-city-gradient-4 { background: linear-gradient(145deg, #2a1500, #7a3a00); }

@@ -575,7 +575,7 @@ export function CitiesPageClient({
                 <button
                   type="submit"
                   disabled={aiLoading || !aiInput.trim()}
-                  className="flex items-center gap-1.5 rounded-xl bg-[#e0511f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1249c2] disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-xl bg-[#e0511f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#e0511f] disabled:opacity-50"
                 >
                   <Send className="h-3.5 w-3.5" />
                   Ask

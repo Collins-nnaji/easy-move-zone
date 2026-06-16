@@ -299,7 +299,7 @@ export function ProfileWorkspace({
                     <button
                       onClick={saveProfile}
                       disabled={saving}
-                      className="flex items-center gap-2 rounded-xl bg-[#e0511f] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#e0511f]/20 transition hover:bg-[#1255d9] disabled:opacity-50"
+                      className="flex items-center gap-2 rounded-xl bg-[#e0511f] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#e0511f]/20 transition hover:bg-[#e0511f] disabled:opacity-50"
                     >
                       <Save className="h-4 w-4" />
                       {saving ? "Saving..." : "Save changes"}

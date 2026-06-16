@@ -306,7 +306,7 @@ function AiSidebar({
             type="button"
             onClick={() => void handleChat()}
             disabled={loading || !input.trim()}
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#bf6a3c] text-white hover:bg-[#0060b0] disabled:opacity-40 transition-colors shrink-0"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#bf6a3c] text-white hover:bg-[#c8451a] disabled:opacity-40 transition-colors shrink-0"
           >
             <Send className="h-3.5 w-3.5" />
           </button>
@@ -530,7 +530,7 @@ export function SellForm() {
             {submittedId && <> · Ref: <code className="text-slate-400">{submittedId.slice(0, 8)}</code></>}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/" className="rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-semibold text-white hover:bg-[#0060b0] transition-colors">
+            <Link href="/" className="rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-semibold text-white hover:bg-[#c8451a] transition-colors">
               Back to home
             </Link>
             <button onClick={resetForm} className="rounded-xl border border-white/15 px-6 py-3 text-sm font-semibold text-white hover:bg-white/5 transition-colors">
@@ -639,7 +639,7 @@ export function SellForm() {
 
                 <div className="mt-8 flex justify-end">
                   <button type="button" disabled={!listingType} onClick={() => setStep("details")}
-                    className="flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white hover:bg-[#0060b0] disabled:opacity-40 disabled:pointer-events-none transition-colors">
+                    className="flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white hover:bg-[#c8451a] disabled:opacity-40 disabled:pointer-events-none transition-colors">
                     Continue <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -843,7 +843,7 @@ export function SellForm() {
                     <ChevronLeft className="h-4 w-4" /> Back
                   </button>
                   <button type="button" disabled={!form.title || !form.city} onClick={() => setStep("media")}
-                    className="flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white hover:bg-[#0060b0] disabled:opacity-40 disabled:pointer-events-none transition-colors">
+                    className="flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white hover:bg-[#c8451a] disabled:opacity-40 disabled:pointer-events-none transition-colors">
                     Continue <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -931,7 +931,7 @@ export function SellForm() {
                     <ChevronLeft className="h-4 w-4" /> Back
                   </button>
                   <button type="button" onClick={() => setStep("contact")}
-                    className="flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white hover:bg-[#0060b0] transition-colors">
+                    className="flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white hover:bg-[#c8451a] transition-colors">
                     Continue <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -996,7 +996,7 @@ export function SellForm() {
                     <ChevronLeft className="h-4 w-4" /> Back
                   </button>
                   <button type="button" onClick={() => void handleSubmit()} disabled={submitting || !seller.name || !seller.phone}
-                    className="flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-7 py-3 text-sm font-bold text-white hover:bg-[#0060b0] disabled:opacity-50 disabled:pointer-events-none transition-colors">
+                    className="flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-7 py-3 text-sm font-bold text-white hover:bg-[#c8451a] disabled:opacity-50 disabled:pointer-events-none transition-colors">
                     {submitting
                       ? <><Loader2 className="h-4 w-4 animate-spin" />Submitting…</>
                       : <><CheckCircle2 className="h-4 w-4" />Submit for review</>

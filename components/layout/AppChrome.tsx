@@ -7,12 +7,23 @@ import { PlatformFooter } from "@/components/platform/PlatformFooter"
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
-  // Auth pages and the immersive /move experience get no chrome — full-screen layout
+  // Auth pages get no chrome at all — full-screen layout
   const isAuthPage = pathname === "/auth" || pathname.startsWith("/auth/")
-  const isImmersive = pathname === "/move" || pathname.startsWith("/move/")
+  // The /move "find a city" experience keeps the nav (so you can always get
+  // home) but drops the footer to stay app-like and immersive.
+  const isMove = pathname === "/move" || pathname.startsWith("/move/")
 
-  if (isAuthPage || isImmersive) {
+  if (isAuthPage) {
     return <main className="flex-1 min-w-0">{children}</main>
+  }
+
+  if (isMove) {
+    return (
+      <>
+        <PlatformNav />
+        <main className="flex-1 min-w-0">{children}</main>
+      </>
+    )
   }
 
   return (

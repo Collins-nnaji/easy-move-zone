@@ -20,7 +20,7 @@ import {
 } from "lucide-react"
 
 const SAVED_GRADIENTS = [
-  "linear-gradient(135deg,#bf6a3c22,#00C6FF22)",
+  "linear-gradient(135deg,#bf6a3c22,#f3aa7922)",
   "linear-gradient(135deg,#bf6a3c22,#f3aa7922)",
   "linear-gradient(135deg,#05966922,#34d39922)",
   "linear-gradient(135deg,#f59e0b22,#fde68a22)",

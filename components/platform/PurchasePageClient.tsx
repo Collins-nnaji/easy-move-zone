@@ -351,7 +351,7 @@ export function PurchasePageClient() {
               </p>
               <Link
                 href="/contact"
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#bf6a3c] px-7 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#005fad]"
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#bf6a3c] px-7 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#c8451a]"
               >
                 Contact us <ArrowRight className="h-4 w-4" />
               </Link>
