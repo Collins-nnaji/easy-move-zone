@@ -11,17 +11,16 @@ import {
   Share2,
   ArrowLeft,
   BadgeCheck,
-  Phone,
-  Mail,
   ChevronRight,
   Eye,
-  Building2,
   BedDouble,
   Bath,
+  Plane,
 } from "lucide-react"
 import type { PropertyRow } from "@/lib/property/db-row"
 import { formatAiRange, formatNgnPrice, parseImages } from "@/lib/property/db-row"
 import { listingHeroStyle, rowToPublicCard } from "@/lib/property/map-public"
+import { PropertyEnquiry } from "@/components/property/PropertyEnquiry"
 
 function parseStringArray(json: unknown): string[] {
   if (!Array.isArray(json)) return []
@@ -237,27 +236,18 @@ export function PropertyDetailServer({ property: p }: { property: PropertyRow })
 
         <div className="space-y-6">
           <div className="sticky top-24 space-y-5">
-            <div className="rounded-2xl border border-[#e2e8f0] bg-white p-6">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#e0511f]/10">
-                  <Building2 className="h-6 w-6 text-[#e0511f]" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-semibold text-[#0f172a]">EasyMoveZone</span>
-                    <BadgeCheck className="h-4 w-4 text-[#059669]" />
-                  </div>
-                  <div className="text-xs text-[#64748b]">Platform listing · verified in-house</div>
-                </div>
+            <PropertyEnquiry propertyId={p.id} city={p.city} />
+
+            <Link
+              href="/relocate/hub"
+              className="block rounded-2xl border border-[#e0511f]/20 bg-[#1b231e] p-5 text-white transition-all hover:shadow-md"
+            >
+              <div className="mb-2 flex items-center gap-2 text-[#f3aa79]">
+                <Plane className="h-5 w-5" strokeWidth={2.25} />
+                <span className="text-sm font-bold">Relocating to {p.city}?</span>
               </div>
-              <button
-                type="button"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#e0511f] py-3 text-sm font-bold text-white transition-colors hover:bg-[#c8451a]"
-              >
-                <MessageSquare className="h-4 w-4" /> Send enquiry
-              </button>
-              <p className="mt-3 text-center text-xs text-[#94a3b8]">We route enquiries to our closing team—not random agents.</p>
-            </div>
+              <p className="text-xs text-white/70">Plan your whole move — visa route, checklist and settling in — alongside this home.</p>
+            </Link>
 
             <div className="rounded-2xl border border-[#e2e8f0] bg-white p-5">
               <h3 className="mb-3 text-sm font-bold text-[#0f172a]">Activity</h3>

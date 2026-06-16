@@ -17,7 +17,6 @@ import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 import { clsx } from "clsx"
 
 const navLinks = [
-  { href: "/move",         label: "Find a City"  },
   { href: "/relocate/hub", label: "Relocate"     },
   { href: "/purchase",     label: "Buy a Home"   },
   { href: "/own",          label: "Rent to Own"  },
@@ -46,6 +45,8 @@ export function PlatformNav() {
     return () => window.removeEventListener("focus", onFocus)
   }, [refetchSession])
 
+  // Close the mobile menu whenever the route changes.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMobileOpen(false) }, [pathname])
 
   async function handleSignOut() {
