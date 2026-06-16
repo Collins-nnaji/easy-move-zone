@@ -304,6 +304,102 @@ export const PLAN: Record<Mode, PlanInfo> = {
   },
 };
 
+// ── Booking inventory ────────────────────────────────────────────────────
+// Illustrative options surfaced in the in-app booking flows. Prices are sample
+// figures for a prototype, not live availability.
+
+export interface TripOption {
+  id: string;
+  provider: string;
+  route: string;
+  duration: string;
+  price: string;
+}
+
+export interface StayOption {
+  id: string;
+  name: string;
+  area: string;
+  price: string;
+  rating: string;
+  forModes: Mode[];
+}
+
+export interface VisaService {
+  id: string;
+  title: string;
+  detail: string;
+  price: string;
+}
+
+// Trips keyed by destination id — the way to actually get there.
+export const TRIPS: Record<string, TripOption[]> = {
+  lisbon: [
+    { id: "lis-tap", provider: "TAP Air Portugal", route: "Direct flight", duration: "non-stop", price: "From £138" },
+    { id: "lis-ba", provider: "British Airways", route: "Direct flight", duration: "non-stop", price: "From £164" },
+    { id: "lis-rail", provider: "Rail + ferry", route: "Overland via Madrid", duration: "~22h", price: "From £190" },
+  ],
+  mexicocity: [
+    { id: "mex-aero", provider: "Aeroméxico", route: "Direct flight", duration: "non-stop", price: "From £498" },
+    { id: "mex-ba", provider: "British Airways", route: "Direct flight", duration: "non-stop", price: "From £540" },
+    { id: "mex-1stop", provider: "Iberia", route: "1 stop via Madrid", duration: "~14h", price: "From £430" },
+  ],
+  bangkok: [
+    { id: "bkk-thai", provider: "Thai Airways", route: "Direct flight", duration: "non-stop", price: "From £612" },
+    { id: "bkk-emi", provider: "Emirates", route: "1 stop via Dubai", duration: "~15h", price: "From £548" },
+    { id: "bkk-qat", provider: "Qatar Airways", route: "1 stop via Doha", duration: "~16h", price: "From £560" },
+  ],
+  tbilisi: [
+    { id: "tbs-wiz", provider: "Wizz Air", route: "1 stop via Warsaw", duration: "~9h", price: "From £176" },
+    { id: "tbs-tk", provider: "Turkish Airlines", route: "1 stop via Istanbul", duration: "~8h", price: "From £224" },
+    { id: "tbs-pgs", provider: "Pegasus", route: "1 stop via Istanbul", duration: "~10h", price: "From £158" },
+  ],
+};
+
+// Stays keyed by destination id; filtered by the active mode (hotels for a
+// trip, furnished flats / coliving for nomad & move).
+export const STAYS: Record<string, StayOption[]> = {
+  lisbon: [
+    { id: "lis-h1", name: "Baixa Boutique Hotel", area: "Baixa · central", price: "£128 / night", rating: "9.1", forModes: ["trip"] },
+    { id: "lis-h2", name: "Alfama River Suites", area: "Alfama", price: "£146 / night", rating: "9.3", forModes: ["trip"] },
+    { id: "lis-f1", name: "Príncipe Real 1-bed", area: "Príncipe Real", price: "£1,350 / month", rating: "9.0", forModes: ["nomad", "move"] },
+    { id: "lis-f2", name: "Selina Secret Garden coliving", area: "Cais do Sodré", price: "£890 / month", rating: "8.7", forModes: ["nomad"] },
+  ],
+  mexicocity: [
+    { id: "mex-h1", name: "Hotel Carlota", area: "Cuauhtémoc", price: "£118 / night", rating: "9.0", forModes: ["trip"] },
+    { id: "mex-f1", name: "Roma Norte studio", area: "Roma Norte", price: "£820 / month", rating: "8.9", forModes: ["nomad", "move"] },
+    { id: "mex-f2", name: "Condesa garden flat", area: "Condesa", price: "£1,040 / month", rating: "9.1", forModes: ["nomad", "move"] },
+  ],
+  bangkok: [
+    { id: "bkk-h1", name: "Ariyasom Villa", area: "Sukhumvit", price: "£72 / night", rating: "9.2", forModes: ["trip"] },
+    { id: "bkk-f1", name: "Thonglor serviced condo", area: "Thonglor", price: "£560 / month", rating: "8.8", forModes: ["nomad", "move"] },
+    { id: "bkk-f2", name: "Ari coliving loft", area: "Ari", price: "£480 / month", rating: "8.6", forModes: ["nomad"] },
+  ],
+  tbilisi: [
+    { id: "tbs-h1", name: "Stamba Hotel", area: "Vera", price: "£96 / night", rating: "9.3", forModes: ["trip"] },
+    { id: "tbs-f1", name: "Sololaki 1-bed", area: "Sololaki", price: "£620 / month", rating: "8.7", forModes: ["nomad", "move"] },
+    { id: "tbs-f2", name: "Vake coliving", area: "Vake", price: "£540 / month", rating: "8.5", forModes: ["nomad"] },
+  ],
+};
+
+// Visa assistance tiers, keyed by mode (the visa route depends on stay length).
+export const VISA_SERVICES: Record<Mode, VisaService[]> = {
+  trip: [
+    { id: "trip-checklist", title: "Self-serve entry checklist", detail: "Tailored entry requirements & document list for your passport.", price: "Free" },
+    { id: "trip-review", title: "Document review", detail: "An advisor checks your passport validity, onward tickets and proof of funds.", price: "£39" },
+  ],
+  nomad: [
+    { id: "nomad-checklist", title: "Nomad visa eligibility check", detail: "Confirm which long-stay or nomad route you qualify for.", price: "Free" },
+    { id: "nomad-review", title: "Application review", detail: "We review your income proof, insurance and forms before you submit.", price: "£89" },
+    { id: "nomad-full", title: "Guided application", detail: "End-to-end help preparing and lodging your nomad-visa application.", price: "£249" },
+  ],
+  move: [
+    { id: "move-checklist", title: "Residency route planner", detail: "Map the visa-to-residency pathway and the documents each step needs.", price: "Free" },
+    { id: "move-review", title: "Full document review", detail: "Apostilles, translations and forms checked by a relocation specialist.", price: "£149" },
+    { id: "move-full", title: "Full handling", detail: "We prepare, translate and lodge your residence application on your behalf.", price: "£399" },
+  ],
+};
+
 export interface SettleCard {
   tag: string;
   title: string;

@@ -115,10 +115,10 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               {PUBLIC_CONTACT_EMAIL}
             </a>
             <Link
-              href="/search"
+              href="/move"
               className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 underline decoration-orange-500/35 underline-offset-4 hover:text-white"
             >
-              Browse listings
+              Plan your move
               <ArrowRight className="h-4 w-4" />
             </Link>
           </motion.div>

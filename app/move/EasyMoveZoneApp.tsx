@@ -9,13 +9,29 @@ import {
   QUESTIONS,
   SETTLE,
   SPECTRUM,
+  STAYS,
+  TRIPS,
+  VISA_SERVICES,
   type Mode,
 } from "./data";
 import { ImageSlot } from "./ImageSlot";
 import { IOSDeviceFrame } from "./IOSDeviceFrame";
 import { authClient } from "@/lib/auth/client";
 import { savePlan, addTask } from "@/lib/relocate/client";
+import { createBooking } from "@/lib/bookings/client";
+import type { BookingType, MoveBooking } from "@/lib/bookings/types";
 import type { TaskCategory, WorkMode } from "@/lib/relocate/types";
+
+// A booking the user is about to confirm in the slide-up sheet.
+interface PendingBooking {
+  type: BookingType;
+  title: string;
+  provider: string;
+  price: string;
+  needsDates: boolean;
+  needsRange: boolean;
+  needsGuests: boolean;
+}
 
 // Map a /move work answer to a relocation work mode.
 function workModeFromAnswer(answer: string | undefined): WorkMode {
@@ -56,7 +72,12 @@ type Screen =
   | "detail"
   | "visa"
   | "settle"
-  | "plan";
+  | "plan"
+  | "book"
+  | "trips"
+  | "stays"
+  | "visaBook"
+  | "booked";
 
 export function EasyMoveZoneApp() {
   const [screen, setScreen] = useState<Screen>("welcome");
@@ -68,6 +89,14 @@ export function EasyMoveZoneApp() {
   const [shareOpen, setShareOpen] = useState(false);
   const [photos, setPhotos] = useState<Record<string, string>>({});
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+
+  // Booking flow state.
+  const [pending, setPending] = useState<PendingBooking | null>(null);
+  const [bookStart, setBookStart] = useState("");
+  const [bookEnd, setBookEnd] = useState("");
+  const [bookGuests, setBookGuests] = useState(1);
+  const [bookState, setBookState] = useState<"idle" | "saving">("idle");
+  const [lastBooking, setLastBooking] = useState<MoveBooking | null>(null);
 
   const router = useRouter();
   const { data: sessionData } = authClient.useSession();
@@ -150,6 +179,50 @@ export function EasyMoveZoneApp() {
     }
   }
 
+  // ── Booking flow ──────────────────────────────────────────────────────
+  function openBooking(p: PendingBooking) {
+    setBookStart("");
+    setBookEnd("");
+    setBookGuests(1);
+    setPending(p);
+  }
+
+  async function confirmBooking() {
+    if (!pending) return;
+    if (!signedIn) {
+      router.push("/auth?redirect=/move");
+      return;
+    }
+    if (bookState === "saving") return;
+    setBookState("saving");
+    try {
+      const booking = await createBooking({
+        bookingType: pending.type,
+        destinationCity: dest.city,
+        destinationCountry: dest.country,
+        itemTitle: pending.title,
+        provider: pending.provider,
+        priceLabel: pending.price,
+        startDate: pending.needsDates ? bookStart || null : null,
+        endDate: pending.needsRange ? bookEnd || null : null,
+        guests: pending.needsGuests ? bookGuests : 1,
+      });
+      setLastBooking(booking);
+      setPending(null);
+      setScreen("booked");
+    } catch {
+      // Leave the sheet open so the user can retry.
+    } finally {
+      setBookState("idle");
+    }
+  }
+
+  const bookTypeLabel: Record<BookingType, string> = {
+    trip: "Trip",
+    stay: "Stay",
+    visa: "Visa service",
+  };
+
   // ── Move Meter math (driven by ticked plan items) ─────────────────────
   const plan = PLAN[mode];
   const allKeys: string[] = [];
@@ -158,7 +231,7 @@ export function EasyMoveZoneApp() {
   const pct = allKeys.length ? Math.round((doneCount / allKeys.length) * 100) : 0;
   const meterMsg = pct === 0 ? "Let's get you started." : pct < 100 ? "You're on your way." : "All set — you're ready to go!";
 
-  const showNav = ["matches", "detail", "plan", "visa", "settle"].includes(screen);
+  const showNav = ["matches", "detail", "plan", "visa", "settle", "book", "trips", "stays", "visaBook", "booked"].includes(screen);
 
   // ───────────────────────────────── Screens ──────────────────────────────
   function Welcome() {
@@ -374,13 +447,14 @@ export function EasyMoveZoneApp() {
             </div>
           </div>
 
-          <button onClick={() => setScreen("plan")} style={{ width: "100%", marginTop: 22, padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>{planCta} →</button>
-          <button onClick={() => setScreen("settle")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 18, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Explore living in {dest.city}</button>
+          <button onClick={() => setScreen("book")} style={{ width: "100%", marginTop: 22, padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>Book your trip, stay &amp; visa →</button>
+          <button onClick={() => setScreen("plan")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 18, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>{planCta}</button>
 
           <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-            <button onClick={() => router.push(`/purchase?q=${encodeURIComponent(dest.city)}`)} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Browse property</button>
-            <button onClick={() => router.push("/vendor")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Find movers</button>
+            <button onClick={() => setScreen("trips")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Book a trip</button>
+            <button onClick={() => setScreen("stays")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Find a stay</button>
           </div>
+          <button onClick={() => setScreen("settle")} style={{ width: "100%", marginTop: 10, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Explore living in {dest.city}</button>
         </div>
       </div>
     );
@@ -528,6 +602,124 @@ export function EasyMoveZoneApp() {
     );
   }
 
+  function BookHub() {
+    const cards: { type: BookingType; go: Screen; title: string; sub: string; icon: string }[] = [
+      { type: "trip", go: "trips", title: "Book your trip", sub: "Flights & overland routes to get you there", icon: "✈" },
+      { type: "stay", go: "stays", title: "Find a stay", sub: mode === "trip" ? "Hotels for your visit" : "Furnished flats & coliving", icon: "⌂" },
+      { type: "visa", go: "visaBook", title: "Sort your visa", sub: "From a free checklist to full handling", icon: "✓" },
+    ];
+    return (
+      <div style={{ minHeight: "100%", padding: "70px 22px 28px" }}>
+        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Book · {dest.city}</div>
+        <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Trip, stay &amp; visa — all in one</h2>
+        <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.5 }}>Everything you need to actually go, tailored to a <b style={{ color: "#4a5047" }}>{cur.label}</b> stay.</p>
+
+        <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 14 }}>
+          {cards.map((c) => (
+            <div key={c.type} onClick={() => setScreen(c.go)} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20, boxShadow: "0 2px 10px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 16 }}>
+              <div style={{ width: 46, height: 46, borderRadius: 14, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#fbeae0", color: PRIMARY, fontSize: 22 }}>{c.icon}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 17, fontWeight: 800, letterSpacing: "-.01em" }}>{c.title}</div>
+                <div style={{ fontSize: 13, color: "#6e746b", marginTop: 3 }}>{c.sub}</div>
+              </div>
+              <span style={{ color: PRIMARY, fontSize: 18 }}>→</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  function BookListShell({ eyebrow, title, sub, children }: { eyebrow: string; title: string; sub: string; children: React.ReactNode }) {
+    return (
+      <div style={{ minHeight: "100%", padding: "70px 22px 28px" }}>
+        <div onClick={() => setScreen("book")} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 11, letterSpacing: ".1em", color: PRIMARY, cursor: "pointer" }}>← Book</div>
+        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE, marginTop: 14 }}>{eyebrow}</div>
+        <h2 style={{ fontSize: 25, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>{title}</h2>
+        <p style={{ fontSize: 14, color: "#6e746b", margin: "10px 0 0", lineHeight: 1.5 }}>{sub}</p>
+        <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 12 }}>{children}</div>
+      </div>
+    );
+  }
+
+  function PriceRow({ left, sub, price, onClick }: { left: string; sub: string; price: string; onClick: () => void }) {
+    return (
+      <div onClick={onClick} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 15.5, fontWeight: 700, letterSpacing: "-.01em" }}>{left}</div>
+          <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 3 }}>{sub}</div>
+        </div>
+        <div style={{ textAlign: "right", flexShrink: 0 }}>
+          <div style={{ fontFamily: MONO, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{price}</div>
+          <div style={{ fontSize: 11, color: MUTE, marginTop: 2 }}>Reserve →</div>
+        </div>
+      </div>
+    );
+  }
+
+  function Trips() {
+    const options = TRIPS[dest.id] ?? [];
+    return (
+      <BookListShell eyebrow={`Trips · ${dest.city}`} title="Get yourself there" sub="Sample routes and fares — reserve to hold your plan.">
+        {options.map((t) => (
+          <PriceRow key={t.id} left={`${t.provider} · ${t.route}`} sub={t.duration} price={t.price}
+            onClick={() => openBooking({ type: "trip", title: `${t.provider} · ${t.route}`, provider: t.provider, price: t.price, needsDates: true, needsRange: false, needsGuests: false })} />
+        ))}
+      </BookListShell>
+    );
+  }
+
+  function Stays() {
+    const options = (STAYS[dest.id] ?? []).filter((s) => s.forModes.includes(mode));
+    return (
+      <BookListShell eyebrow={`Stays · ${dest.city}`} title={mode === "trip" ? "Where to stay" : "A base for your stay"} sub={mode === "trip" ? "Hotels matched to a short visit." : "Furnished flats and coliving for a longer stay."}>
+        {options.map((s) => (
+          <PriceRow key={s.id} left={s.name} sub={`${s.area} · ★ ${s.rating}`} price={s.price}
+            onClick={() => openBooking({ type: "stay", title: s.name, provider: s.area, price: s.price, needsDates: true, needsRange: true, needsGuests: true })} />
+        ))}
+      </BookListShell>
+    );
+  }
+
+  function VisaBook() {
+    const options = VISA_SERVICES[mode] ?? [];
+    return (
+      <BookListShell eyebrow={`Visa · ${modeInfo.name}`} title="Sort your visa" sub={`Support tiers matched to a ${cur.label} stay in ${dest.country}.`}>
+        {options.map((v) => (
+          <PriceRow key={v.id} left={v.title} sub={v.detail} price={v.price}
+            onClick={() => openBooking({ type: "visa", title: v.title, provider: "EasyMoveZone", price: v.price, needsDates: false, needsRange: false, needsGuests: false })} />
+        ))}
+      </BookListShell>
+    );
+  }
+
+  function Booked() {
+    const b = lastBooking;
+    return (
+      <div style={{ minHeight: "100%", padding: "70px 22px 28px" }}>
+        <div style={{ width: 64, height: 64, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 30, fontWeight: 800, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}>✓</div>
+        <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "20px 0 0" }}>Reserved — you&apos;re sorted</h2>
+        <p style={{ fontSize: 14.5, color: "#6e746b", margin: "10px 0 0", lineHeight: 1.5 }}>We&apos;ve held this for you and saved it to your workspace. No payment taken yet.</p>
+
+        {b && (
+          <div style={{ marginTop: 22, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
+            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>{bookTypeLabel[b.bookingType]} · {b.destinationCity}</div>
+            <h3 style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-.01em", margin: "10px 0 0" }}>{b.itemTitle}</h3>
+            {b.provider && <div style={{ fontSize: 13, color: "#6e746b", marginTop: 4 }}>{b.provider}</div>}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
+              {b.priceLabel && <span style={{ background: "#f0ede4", borderRadius: 999, padding: "6px 11px", fontSize: 12, color: "#4a5047", fontWeight: 600, fontFamily: MONO }}>{b.priceLabel}</span>}
+              {b.startDate && <span style={{ background: "#f0ede4", borderRadius: 999, padding: "6px 11px", fontSize: 12, color: "#4a5047", fontWeight: 600, fontFamily: MONO }}>{b.startDate}{b.endDate ? ` → ${b.endDate}` : ""}</span>}
+              <span style={{ background: "#fbeae0", borderRadius: 999, padding: "6px 11px", fontSize: 12, color: "#9c3f15", fontWeight: 600, fontFamily: MONO }}>Ref {b.id.slice(0, 8)}</span>
+            </div>
+          </div>
+        )}
+
+        <button onClick={() => router.push("/relocate/hub")} style={{ width: "100%", marginTop: 22, padding: 16, border: "none", borderRadius: 16, background: INK, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>View in my workspace →</button>
+        <button onClick={() => setScreen("book")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Book something else</button>
+      </div>
+    );
+  }
+
   // Invoked as plain functions (not <Component/>) so their JSX inlines into this
   // render and the screens keep sharing the single state tree above.
   function screenBody() {
@@ -540,12 +732,18 @@ export function EasyMoveZoneApp() {
       case "plan": return Plan();
       case "visa": return Visa();
       case "settle": return Settle();
+      case "book": return BookHub();
+      case "trips": return Trips();
+      case "stays": return Stays();
+      case "visaBook": return VisaBook();
+      case "booked": return Booked();
     }
   }
 
   const tabs: { label: string; screens: Screen[]; go: Screen }[] = [
     { label: "Explore", screens: ["matches", "detail"], go: "matches" },
     { label: "Plan", screens: ["plan"], go: "plan" },
+    { label: "Book", screens: ["book", "trips", "stays", "visaBook", "booked"], go: "book" },
     { label: "Visa", screens: ["visa"], go: "visa" },
     { label: "Settle", screens: ["settle"], go: "settle" },
   ];
@@ -568,6 +766,46 @@ export function EasyMoveZoneApp() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {pending && (
+        <div onClick={() => setPending(null)} style={{ position: "absolute", inset: 0, zIndex: 50, background: "rgba(20,26,21,.55)", backdropFilter: "blur(3px)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: "#efece4", borderRadius: "26px 26px 0 0", padding: "26px 22px 30px", width: "100%", boxShadow: "0 -10px 40px rgba(0,0,0,.28)" }}>
+            <div style={{ width: 40, height: 4, borderRadius: 999, background: "#cbc5b8", margin: "0 auto 18px" }} />
+            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>{bookTypeLabel[pending.type]} · {dest.city}</div>
+            <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-.01em", margin: "10px 0 0" }}>{pending.title}</h3>
+            {pending.provider && <div style={{ fontSize: 13.5, color: "#6e746b", marginTop: 4 }}>{pending.provider}</div>}
+            <div style={{ fontFamily: MONO, fontSize: 15, fontWeight: 600, color: INK, marginTop: 10 }}>{pending.price}</div>
+
+            {(pending.needsDates || pending.needsGuests) && (
+              <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 12 }}>
+                {pending.needsDates && (
+                  <label style={{ display: "block" }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#6e746b" }}>{pending.needsRange ? "Check-in" : "Date"}</span>
+                    <input type="date" value={bookStart} onChange={(e) => setBookStart(e.target.value)} style={{ marginTop: 6, width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 15, color: INK }} />
+                  </label>
+                )}
+                {pending.needsRange && (
+                  <label style={{ display: "block" }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#6e746b" }}>Check-out</span>
+                    <input type="date" value={bookEnd} onChange={(e) => setBookEnd(e.target.value)} style={{ marginTop: 6, width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 15, color: INK }} />
+                  </label>
+                )}
+                {pending.needsGuests && (
+                  <label style={{ display: "block" }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#6e746b" }}>Guests</span>
+                    <input type="number" min={1} max={20} value={bookGuests} onChange={(e) => setBookGuests(Math.max(1, Number(e.target.value) || 1))} style={{ marginTop: 6, width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 15, color: INK }} />
+                  </label>
+                )}
+              </div>
+            )}
+
+            <button onClick={confirmBooking} disabled={bookState === "saving"} style={{ width: "100%", marginTop: 20, padding: 17, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: bookState === "saving" ? "default" : "pointer", opacity: bookState === "saving" ? 0.7 : 1, boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>
+              {bookState === "saving" ? "Reserving…" : signedIn ? "Confirm reservation" : "Sign in to reserve"}
+            </button>
+            <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "12px 0 0", lineHeight: 1.5 }}>No payment taken — this holds your choice in your workspace.</p>
+          </div>
         </div>
       )}
 

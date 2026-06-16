@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import { authServer } from "@/lib/auth/server"
 import { PublicShell } from "@/components/platform/PublicShell"
 import Link from "next/link"
-import { User, LayoutDashboard, Search, Home, Sparkles } from "lucide-react"
+import { User, MapPin, LayoutDashboard, Home, Sparkles } from "lucide-react"
 
 export default async function ProfilePage() {
   const session = await authServer.getSession()
@@ -13,17 +13,17 @@ export default async function ProfilePage() {
 
   const shortcuts = [
     {
-      href: "/dashboard",
-      title: "Buyer dashboard",
-      desc: "Saved homes, offers, and documents",
-      icon: LayoutDashboard,
+      href: "/move",
+      title: "Plan a move",
+      desc: "Trips, stays and visas in one flow",
+      icon: MapPin,
       style: "from-[#e0511f] to-[#c8451a] text-white shadow-lg shadow-[#e0511f]/25",
     },
     {
-      href: "/search",
-      title: "Browse properties",
-      desc: "Verified inventory across cities",
-      icon: Search,
+      href: "/relocate/hub",
+      title: "My workspace",
+      desc: "Saved plans, tasks and bookings",
+      icon: LayoutDashboard,
       style: "border border-[#e2e8f0] bg-white text-[#0f172a] hover:border-[#e0511f]/25 hover:shadow-md",
     },
   ] as const
@@ -80,14 +80,14 @@ export default async function ProfilePage() {
                 >
                   <span
                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-                      s.href === "/dashboard" ? "bg-white/15" : "bg-[#f8fafc] text-[#e0511f] group-hover:bg-[#e0511f]/8"
+                      s.href === "/move" ? "bg-white/15" : "bg-[#f8fafc] text-[#e0511f] group-hover:bg-[#e0511f]/8"
                     }`}
                   >
                     <s.icon className="h-5 w-5" />
                   </span>
                   <span className="min-w-0 text-left">
                     <span className="block text-[15px] font-bold">{s.title}</span>
-                    <span className={`mt-0.5 block text-xs ${s.href === "/dashboard" ? "text-white/85" : "text-[#64748b]"}`}>
+                    <span className={`mt-0.5 block text-xs ${s.href === "/move" ? "text-white/85" : "text-[#64748b]"}`}>
                       {s.desc}
                     </span>
                   </span>

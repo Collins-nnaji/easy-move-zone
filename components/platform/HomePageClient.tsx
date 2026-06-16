@@ -1,413 +1,305 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
-import { motion, useReducedMotion, useScroll, useTransform, AnimatePresence } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import {
   ArrowRight,
-  Sparkles,
-  Check,
   ArrowUpRight,
-  Play,
-  ChevronLeft,
-  ChevronRight,
+  Plane,
+  BedDouble,
+  Stamp,
+  Sparkles,
   MapPin,
-  Home,
+  Check,
 } from "lucide-react"
-import { HomeFeaturedListings } from "@/components/platform/HomeFeaturedListings"
-import { useRef, useState, useCallback, useEffect } from "react"
-import { clsx } from "clsx"
 
-const heroVideos = [
-  "/emz construction.mp4",
-  "/emz construction 2.mp4",
-  "/emz construction 3.mp4",
-  "/emz construction 4.mp4",
-  "/emzbuilding one.mp4",
-]
+// Brand palette shared with the in-app Move flow.
+const PRIMARY = "#e0511f"
+const INK = "#1b231e"
 
-const heroImages = [
-  { src: "/homepage pic.png", position: "30% center" },
-  { src: "/emzheropic.png", position: "60% center" },
-]
-
-const hubs = [
+const pillars = [
   {
-    label: "MOVE",
-    title: "Your relocation, sorted",
-    description: "Two weeks or two years — tell us how long you're staying and get a tailored plan: visa routes, logistics, settling in, and a checklist that actually fits your move.",
-    icon: MapPin,
-    href: "/move",
-    cta: "Start your move",
-    gradient: "from-[#e0511f] to-amber-500",
-    glow: "bg-orange-500/20",
-    accent: "text-orange-500",
-    border: "border-orange-500/20",
-    photo: "/homepage pic 2.png",
-    photoPosition: "center",
+    icon: Plane,
+    label: "Trips",
+    title: "Book the journey",
+    body: "Compare flights and overland routes to your destination and reserve in a tap — no twelve open tabs.",
   },
   {
-    label: "PROPERTIES",
-    title: "Homes you can trust",
-    description: "Search verified listings across Nigeria — buy outright, rent month-to-month, or sign a lease. Every property is title-checked, with transparent pricing and no hidden fees.",
-    icon: Home,
-    href: "/purchase",
-    cta: "Browse properties",
-    gradient: "from-cyan-500 to-blue-500",
-    glow: "bg-cyan-500/20",
-    accent: "text-cyan-600",
-    border: "border-cyan-500/20",
-    photo: "/emzheropic.png",
-    photoPosition: "60% center",
+    icon: BedDouble,
+    label: "Stays",
+    title: "Find a place to land",
+    body: "Hotels for a short visit, furnished flats and coliving for a longer one — matched to how long you're staying.",
+  },
+  {
+    icon: Stamp,
+    label: "Visas",
+    title: "Sort the paperwork",
+    body: "The right visa route for your trip, from a free entry checklist to a specialist handling it end to end.",
   },
 ] as const
 
-const heroHighlights = [
-  { label: "Plans that adapt to you", sub: "Short stay, long stay, or permanent — your checklist changes with you" },
-  { label: "Built for mobile", sub: "Answer a few questions, track your progress, stay organised on the go" },
-  { label: "Verified homes only", sub: "Title-checked listings — buy, rent, or lease with confidence" },
-  { label: "Made for movers", sub: "Diaspora, returnees, and anyone starting fresh in Nigeria" },
+const spectrum = [
+  { label: "2 weeks", sub: "A quick recce", mode: "Trip Pack" },
+  { label: "1 month", sub: "Test the waters", mode: "Trip Pack" },
+  { label: "1–3 months", sub: "A nomad stint", mode: "Nomad Mode" },
+  { label: "6 months", sub: "Settle for a season", mode: "Move Plan" },
+  { label: "Forever", sub: "Make it home", mode: "Move Plan" },
 ] as const
 
-const howItWorks = [
-  { step: "01", label: "Tell us about your move", sub: "How long you're staying, where you're headed, what matters to you" },
-  { step: "02", label: "Get your personalised plan", sub: "Visa guidance, logistics, settling-in tasks — all in one checklist" },
-  { step: "03", label: "Find your next home", sub: "Browse verified properties to buy, rent, or lease when you're ready" },
+const steps = [
+  { step: "01", label: "Tell us about your move", sub: "How long you're staying and what matters most to you." },
+  { step: "02", label: "Get matched & planned", sub: "Honest destination matches plus a checklist that fits your timeline." },
+  { step: "03", label: "Book trip, stay & visa", sub: "Reserve everything in one place and track it in your workspace." },
+] as const
+
+const heroPoints = [
+  "One app from first idea to landed",
+  "Plans that adapt to your stay length",
+  "Trips, stays and visas in one checkout",
 ] as const
 
 const easeOut = [0.16, 1, 0.3, 1] as const
 
-const fadeUp = (delay = 0, y = 20) => ({
-  initial: { opacity: 0, y },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, delay, ease: easeOut },
-})
-
 export function HomePageClient() {
   const reduceMotion = useReducedMotion()
-  const heroRef = useRef<HTMLElement>(null)
-  const [activeVideo, setActiveVideo] = useState(0)
-  const [activeHeroImg, setActiveHeroImg] = useState(0)
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveVideo((v) => (v + 1) % heroVideos.length)
-    }, 5000)
-    return () => clearInterval(timer)
-  }, [activeVideo])
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveHeroImg((v) => (v + 1) % heroImages.length)
-    }, 2000)
-    return () => clearInterval(timer)
-  }, [])
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  })
-  const heroParallax = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [0, 80])
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.35])
-
-  const prevVideo = useCallback(() => setActiveVideo((v) => (v - 1 + heroVideos.length) % heroVideos.length), [])
-  const nextVideo = useCallback(() => setActiveVideo((v) => (v + 1) % heroVideos.length), [])
+  const fadeUp = (delay = 0, y = 18) =>
+    reduceMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y },
+          whileInView: { opacity: 1, y: 0 },
+          viewport: { once: true, margin: "-80px" },
+          transition: { duration: 0.6, delay, ease: easeOut },
+        }
 
   return (
-    <>
-      {/* Hero Section */}
-      <section ref={heroRef} className="relative min-h-[90vh] overflow-hidden flex items-center bg-[#020617]">
-        <motion.div className="pointer-events-none absolute inset-0" style={{ y: heroParallax, opacity: heroOpacity }}>
-          <AnimatePresence mode="sync">
-            <motion.div
-              key={activeHeroImg}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.2, ease: "easeInOut" }}
-              className="absolute inset-0"
-            >
-              <Image
-                src={heroImages[activeHeroImg].src}
-                alt="EasyMoveZone — plan your move and find verified homes in Nigeria"
-                fill
-                priority={activeHeroImg === 0}
-                className="object-cover scale-105"
-                style={{ objectPosition: heroImages[activeHeroImg].position }}
-                sizes="100vw"
-              />
-            </motion.div>
-          </AnimatePresence>
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-[#020617]/92 via-[#0f172a]/78 to-[#002880]/55"
-            aria-hidden
-          />
-          <div className="absolute -right-40 top-1/4 h-[600px] w-[600px] rounded-full bg-[#0072CE]/20 blur-[120px]" aria-hidden />
-          <div className="absolute -left-40 bottom-1/4 h-[600px] w-[600px] rounded-full bg-emerald-500/10 blur-[120px]" aria-hidden />
-        </motion.div>
-
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-24 sm:px-6 lg:px-8 flex flex-col justify-center">
-          <div className="grid items-center gap-12 lg:grid-cols-12">
-            <div className="lg:col-span-7 text-center lg:text-left">
+    <div style={{ background: "#efece4", color: INK }} className="overflow-hidden">
+      {/* Hero — photo-free, gradient + typography only */}
+      <section className="relative">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(60% 50% at 12% 0%, rgba(224,81,31,0.16) 0%, transparent 60%), radial-gradient(55% 45% at 100% 10%, rgba(243,170,121,0.22) 0%, transparent 55%)",
+          }}
+        />
+        <div className="relative mx-auto max-w-7xl px-4 pt-20 pb-16 sm:px-6 lg:px-8 lg:pt-28 lg:pb-24">
+          <div className="grid items-center gap-14 lg:grid-cols-12">
+            <div className="lg:col-span-7">
               <motion.div
-                {...fadeUp(0, 14)}
-                className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-cyan-200 backdrop-blur-md"
+                {...fadeUp(0, 12)}
+                className="inline-flex items-center gap-2 rounded-full border border-[#e0511f]/20 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#bf5223] backdrop-blur"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                Move & property, one place
+                Trips · Stays · Visas — one app
               </motion.div>
 
               <motion.h1
                 {...fadeUp(0.06, 22)}
-                className="display-title text-5xl text-white sm:text-6xl lg:text-[4rem]"
+                className="mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl lg:text-[4.4rem]"
+                style={{ textWrap: "balance" } as React.CSSProperties}
               >
-                Plan your move.
-                <span className="block bg-gradient-to-r from-orange-300 via-cyan-200 to-blue-200 bg-clip-text text-transparent mt-2">
-                  Find your home.
+                Every kind of move,
+                <span className="block" style={{ color: PRIMARY }}>
+                  one app.
                 </span>
               </motion.h1>
 
-              <motion.p
-                {...fadeUp(0.12, 18)}
-                className="mt-6 text-base leading-relaxed text-slate-300 max-w-xl mx-auto lg:mx-0"
-              >
-                Whether you&apos;re relocating for a few weeks or putting down roots, EasyMoveZone guides you through every step — then connects you to verified homes you can buy, rent, or lease across Nigeria.
+              <motion.p {...fadeUp(0.12, 18)} className="mt-6 max-w-xl text-lg leading-relaxed text-[#5f655c]">
+                Book your trip, find a place to stay, and sort your visa — whether you&apos;re going for two
+                weeks or forever. EasyMoveZone plans the whole journey around how long you&apos;re staying.
               </motion.p>
 
-              <motion.div {...fadeUp(0.18, 18)} className="mt-10 flex flex-col sm:flex-row gap-3 max-w-xl mx-auto lg:mx-0">
+              <motion.div {...fadeUp(0.18, 18)} className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/move"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#e0511f] px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#c9451a]"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
+                  style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
                 >
-                  <MapPin className="h-4 w-4" />
-                  Plan your move
+                  <MapPin className="h-4.5 w-4.5" />
+                  Start your move
                 </Link>
-                <Link
-                  href="/purchase"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/20"
+                <a
+                  href="#how-it-works"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white/70 px-7 py-4 text-base font-semibold text-[#4a5047] backdrop-blur transition hover:bg-white"
                 >
-                  Browse properties
+                  How it works
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </a>
               </motion.div>
+
+              <motion.ul {...fadeUp(0.24, 16)} className="mt-9 flex flex-col gap-2.5">
+                {heroPoints.map((p) => (
+                  <li key={p} className="flex items-center gap-3 text-[15px] font-medium text-[#4a5047]">
+                    <span
+                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-white"
+                      style={{ background: PRIMARY }}
+                    >
+                      <Check className="h-3 w-3" strokeWidth={3} />
+                    </span>
+                    {p}
+                  </li>
+                ))}
+              </motion.ul>
             </div>
 
-            {/* Right-side — transparent stats overlay */}
-            <motion.div
-              {...fadeUp(0.24, 20)}
-              className="lg:col-span-5 hidden lg:flex flex-col justify-center gap-6"
-            >
-              {/* Eyebrow label */}
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-400/80">
-                Why people choose us
-              </p>
-
-              <div className="space-y-5">
-                {heroHighlights.map((item) => (
-                  <div key={item.label} className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-cyan-400/20 ring-1 ring-cyan-400/30">
-                      <Check className="h-3 w-3 text-cyan-300" />
+            {/* Right: spectrum preview card (no imagery) */}
+            <motion.div {...fadeUp(0.2, 24)} className="lg:col-span-5">
+              <div className="rounded-3xl border border-[#e4dfd5] bg-white/80 p-7 shadow-xl shadow-black/[0.06] backdrop-blur">
+                <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: PRIMARY }}>
+                  The Move Spectrum
+                </div>
+                <p className="mt-3 text-[15px] leading-relaxed text-[#5f655c]">
+                  Tell us how long you&apos;re staying. Everything — visa route, stay type, checklist —
+                  adapts from there.
+                </p>
+                <div className="mt-6 space-y-2.5">
+                  {spectrum.map((s) => (
+                    <div
+                      key={s.label}
+                      className="flex items-center justify-between rounded-2xl border border-[#ece6da] bg-[#faf8f3] px-4 py-3"
+                    >
+                      <div>
+                        <div className="text-[15px] font-bold">{s.label}</div>
+                        <div className="text-xs text-[#8a8f86]">{s.sub}</div>
+                      </div>
+                      <span className="rounded-full bg-[#fbeae0] px-3 py-1 font-mono text-[11px] font-semibold text-[#9c3f15]">
+                        {s.mode}
+                      </span>
                     </div>
-                    <div>
-                      <p className="text-[15px] font-bold text-white leading-snug">{item.label}</p>
-                      <p className="text-[12px] text-slate-400 mt-0.5">{item.sub}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* CTA row */}
-              <div className="flex items-center gap-4 pt-2 border-t border-white/10">
-                <Link href="/move" className="inline-flex items-center gap-2 text-sm font-bold text-orange-300 hover:text-white transition">
-                  Start your move <ArrowUpRight className="h-4 w-4" />
-                </Link>
-                <span className="text-white/20">·</span>
-                <Link href="/purchase" className="text-sm font-semibold text-white/50 hover:text-white transition">
-                  Buy, rent & lease
-                </Link>
+                  ))}
+                </div>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="bg-[#020617] py-20 overflow-hidden">
+      {/* Three pillars */}
+      <section className="relative border-t border-[#e4dfd5] bg-[#f6f3ec] py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-orange-400">How it works</span>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                From departure<br />
-                <span className="text-slate-400">to doorstep.</span>
-              </h2>
-              <p className="mt-4 text-slate-400 text-base max-w-md">
-                No spreadsheets, no guesswork. Open the move app, answer a few questions, and we build a plan around your timeline — then point you to homes when you&apos;re ready.
-              </p>
-              <div className="mt-8 flex flex-col gap-5">
-                {howItWorks.map((item) => (
-                  <div key={item.step} className="flex items-start gap-4">
-                    <span className="mt-0.5 font-mono text-xs font-bold text-orange-400/80">{item.step}</span>
-                    <div>
-                      <p className="text-sm font-semibold text-white">{item.label}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{item.sub}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-8">
-                <Link
-                  href="/move"
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#e0511f] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-[#c9451a]"
-                >
-                  <MapPin className="h-4 w-4" />
-                  Try the move app
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Video carousel */}
-            <div className="relative rounded-3xl overflow-hidden bg-black shadow-2xl shadow-black/60 aspect-video">
-              <AnimatePresence mode="wait">
-                <motion.video
-                  key={activeVideo}
-                  src={heroVideos[activeVideo]}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  className="w-full h-full object-cover"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                />
-              </AnimatePresence>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-
-              {/* Prev / Next controls */}
-              <button
-                onClick={prevVideo}
-                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70"
-                aria-label="Previous video"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                onClick={nextVideo}
-                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70"
-                aria-label="Next video"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-
-              {/* Dot indicators */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                {heroVideos.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveVideo(i)}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${i === activeVideo ? "w-6 bg-white" : "w-1.5 bg-white/40"}`}
-                    aria-label={`Go to video ${i + 1}`}
-                  />
-                ))}
-              </div>
-
-              {/* Label */}
-              <div className="absolute bottom-10 left-4 flex items-center gap-2 text-xs font-semibold text-white/80">
-                <Play className="h-3.5 w-3.5 fill-white text-white" />
-                Life in Nigeria
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Everything You Need — interactive carousel */}
-      <section className="py-24 bg-slate-50 text-slate-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,51,161,0.05),transparent)]" aria-hidden />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_80%_80%,rgba(139,92,246,0.03),transparent)]" aria-hidden />
-
-        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
-          {/* Header */}
-          <div className="mb-16 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-800">
-                <Sparkles className="h-3 w-3 text-cyan-600" />
-                Two ways in
-              </div>
-              <h2 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl text-slate-900">
-                Start with your move
-                <span className="bg-gradient-to-r from-orange-500 via-cyan-600 to-blue-600 bg-clip-text text-transparent"> or your next home.</span>
-              </h2>
-            </div>
-            <p className="max-w-sm text-[15px] leading-relaxed text-slate-600 lg:text-right">
-              Two hubs, one platform. Plan your relocation in a guided mobile flow, or jump straight to verified properties — buy, rent, or lease.
+          <motion.div {...fadeUp()} className="max-w-2xl">
+            <span className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: PRIMARY }}>
+              One checkout, three problems solved
+            </span>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+              The three things every move needs.
+            </h2>
+            <p className="mt-4 text-[15px] leading-relaxed text-[#5f655c]">
+              Stop stitching together flight sites, booking apps and visa forums. EasyMoveZone brings the
+              whole move into one flow.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {hubs.map((s) => {
-              const Icon = s.icon
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {pillars.map((p, i) => {
+              const Icon = p.icon
               return (
-                <div
-                  key={s.label}
-                  className={clsx(
-                    "w-full flex flex-col justify-between rounded-2xl bg-white border border-slate-200/60 shadow-lg shadow-slate-200/50 p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-slate-200/60 relative overflow-hidden",
-                  )}
+                <motion.div
+                  key={p.label}
+                  {...fadeUp(0.06 * i)}
+                  className="flex flex-col rounded-3xl border border-[#e4dfd5] bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-black/[0.06]"
                 >
-                  <div className={clsx(
-                    "absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-10 blur-[50px] pointer-events-none transition-all duration-700",
-                    s.glow
-                  )} />
-
-                  <div className="relative z-10 flex flex-col h-full justify-between">
-                    <div>
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-4">
-                          <div className={clsx(
-                            "flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br shadow-md text-white shrink-0",
-                            s.gradient
-                          )}>
-                            <Icon className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <span className={clsx("text-[9px] font-bold uppercase tracking-[0.2em]", s.accent)}>
-                              {s.label}
-                            </span>
-                            <h3 className="text-base font-bold text-slate-900 mt-0.5 leading-tight">
-                              {s.title}
-                            </h3>
-                          </div>
-                        </div>
-                      </div>
-
-                      <p className="mt-4 text-sm leading-relaxed text-slate-600">
-                        {s.description}
-                      </p>
-                    </div>
-
-                    <div className="mt-5 pt-4 border-t border-slate-100">
-                      <Link
-                        href={s.href}
-                        className={clsx(
-                          "inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:opacity-90 hover:shadow-lg w-full sm:w-auto",
-                          s.gradient
-                        )}
-                      >
-                        {s.cta} <ArrowRight className="h-4 w-4" />
-                      </Link>
-                    </div>
+                  <div
+                    className="flex h-12 w-12 items-center justify-center rounded-2xl text-white"
+                    style={{ background: PRIMARY }}
+                  >
+                    <Icon className="h-6 w-6" />
                   </div>
-                </div>
+                  <span className="mt-5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#bf6a3c]">
+                    {p.label}
+                  </span>
+                  <h3 className="mt-1.5 text-xl font-bold tracking-tight">{p.title}</h3>
+                  <p className="mt-3 text-[14.5px] leading-relaxed text-[#5f655c]">{p.body}</p>
+                </motion.div>
               )
             })}
           </div>
         </div>
       </section>
 
-      <HomeFeaturedListings />
-    </>
+      {/* How it works */}
+      <section id="how-it-works" className="scroll-mt-20 py-20" style={{ background: INK }}>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <motion.div {...fadeUp()}>
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#f3aa79]">How it works</span>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                From first idea
+                <br />
+                <span className="text-white/50">to landed.</span>
+              </h2>
+              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/60">
+                No spreadsheets, no guesswork. Answer a few questions and we build the plan — then you book
+                the trip, the stay and the visa right inside it.
+              </p>
+              <Link
+                href="/move"
+                className="mt-8 inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:opacity-90"
+                style={{ background: PRIMARY, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}
+              >
+                <MapPin className="h-4 w-4" />
+                Open the move app
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </motion.div>
+
+            <div className="flex flex-col gap-4">
+              {steps.map((s, i) => (
+                <motion.div
+                  key={s.step}
+                  {...fadeUp(0.06 * i)}
+                  className="flex items-start gap-5 rounded-3xl border border-white/10 bg-white/[0.04] p-6"
+                >
+                  <span className="font-mono text-sm font-bold text-[#f3aa79]">{s.step}</span>
+                  <div>
+                    <p className="text-base font-bold text-white">{s.label}</p>
+                    <p className="mt-1 text-sm text-white/55">{s.sub}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Closing CTA */}
+      <section className="relative overflow-hidden py-20" style={{ background: "#f6f3ec" }}>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(50% 60% at 50% 0%, rgba(224,81,31,0.14) 0%, transparent 60%)",
+          }}
+        />
+        <motion.div {...fadeUp()} className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
+          <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+            Wherever you&apos;re going, start here.
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-[#5f655c]">
+            Two weeks or forever — get a plan, book your trip, stay and visa, and land like you&apos;ve been
+            before.
+          </p>
+          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              href="/move"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
+              style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
+            >
+              Start your move
+              <ArrowUpRight className="h-4.5 w-4.5" />
+            </Link>
+            <Link
+              href="/settle"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white px-7 py-4 text-base font-semibold text-[#4a5047] transition hover:border-[#e0511f]/30"
+            >
+              Explore settling guides
+            </Link>
+          </div>
+        </motion.div>
+      </section>
+    </div>
   )
 }

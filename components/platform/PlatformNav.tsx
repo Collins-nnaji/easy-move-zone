@@ -17,8 +17,9 @@ import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 import { clsx } from "clsx"
 
 const navLinks = [
-  { href: "/move",     label: "Move"       },
-  { href: "/purchase", label: "Properties" },
+  { href: "/move",         label: "Plan a move" },
+  { href: "/relocate/hub", label: "Workspace"   },
+  { href: "/settle",       label: "Settle"      },
 ]
 
 function isActive(pathname: string, href: string) {

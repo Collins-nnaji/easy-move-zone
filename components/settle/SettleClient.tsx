@@ -143,11 +143,11 @@ export function SettleClient() {
               <Link href="/relocate/hub" className="flex items-center gap-2 rounded-xl border border-[#e4dfd5] px-3 py-3 text-sm font-medium text-[#4a5047] hover:border-[#e0511f]/30">
                 <Plane className="h-4 w-4 text-[#e0511f]" /> Open my relocation plan
               </Link>
-              <Link href="/purchase" className="flex items-center gap-2 rounded-xl border border-[#e4dfd5] px-3 py-3 text-sm font-medium text-[#4a5047] hover:border-[#e0511f]/30">
-                <Home className="h-4 w-4 text-[#e0511f]" /> Find a home here
+              <Link href="/move" className="flex items-center gap-2 rounded-xl border border-[#e4dfd5] px-3 py-3 text-sm font-medium text-[#4a5047] hover:border-[#e0511f]/30">
+                <Home className="h-4 w-4 text-[#e0511f]" /> Book a place to stay
               </Link>
-              <Link href="/vendor" className="flex items-center gap-2 rounded-xl border border-[#e4dfd5] px-3 py-3 text-sm font-medium text-[#4a5047] hover:border-[#e0511f]/30">
-                <MapPin className="h-4 w-4 text-[#e0511f]" /> Find movers
+              <Link href="/move" className="flex items-center gap-2 rounded-xl border border-[#e4dfd5] px-3 py-3 text-sm font-medium text-[#4a5047] hover:border-[#e0511f]/30">
+                <MapPin className="h-4 w-4 text-[#e0511f]" /> Sort your visa &amp; trip
               </Link>
             </div>
           </div>

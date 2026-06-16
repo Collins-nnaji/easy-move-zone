@@ -4,25 +4,22 @@ import { Mail, ArrowUpRight } from "lucide-react"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 
 const services = [
-  { href: "/move",     label: "Plan your move",       badge: "Move"       },
-  { href: "/purchase", label: "Buy, rent & lease",    badge: null         },
-  { href: "/sell",     label: "List / Sell Property", badge: "Sell"       },
+  { href: "/move",         label: "Plan your move", badge: "Move" },
+  { href: "/move",         label: "Book a trip",    badge: null   },
+  { href: "/move",         label: "Find a stay",    badge: null   },
+  { href: "/move",         label: "Sort your visa", badge: "Visa" },
 ]
 
-const cities = [
-  { href: "/purchase?city=lagos",         label: "Lagos" },
-  { href: "/purchase?city=abuja",         label: "Abuja" },
-  { href: "/purchase?city=port harcourt", label: "Port Harcourt" },
-  { href: "/purchase?city=ibadan",        label: "Ibadan" },
-  { href: "/purchase?city=enugu",         label: "Enugu" },
-  { href: "/purchase?city=kano",          label: "Kano" },
+const explore = [
+  { href: "/move",         label: "The Move Spectrum" },
+  { href: "/relocate/hub", label: "My workspace"      },
+  { href: "/settle",       label: "Settling guides"   },
 ]
 
 const company = [
-  { href: "/mortgage",         label: "Mortgage calculator" },
-  { href: "/search",           label: "Search properties"   },
-  { href: "/contact",          label: "Contact us"          },
-  { href: "/auth?mode=signup", label: "Create account"      },
+  { href: "/contact",          label: "Contact us"      },
+  { href: "/auth",             label: "Sign in"         },
+  { href: "/auth?mode=signup", label: "Create account"  },
 ]
 
 export function PlatformFooter() {
@@ -48,7 +45,8 @@ export function PlatformFooter() {
               />
             </div>
             <p className="mt-3 text-[13px] leading-relaxed text-slate-400 max-w-xs">
-              Plan your move and find verified homes — buy, rent, or lease with transparent pricing end to end.
+              Book your trip, find a place to stay, and sort your visa — one app for every kind of move, two
+              weeks or forever.
             </p>
             <a
               href={`mailto:${PUBLIC_CONTACT_EMAIL}`}
@@ -58,18 +56,18 @@ export function PlatformFooter() {
               {PUBLIC_CONTACT_EMAIL}
             </a>
             <p className="mt-2 text-xs text-slate-600">
-              For listings, verification & diaspora buying support. Or use the{" "}
+              Questions about a move, a visa or a booking? Use the{" "}
               <Link href="/contact" className="font-semibold text-orange-200/80 underline decoration-orange-500/30 underline-offset-2 hover:text-white">
                 contact form
               </Link>.
             </p>
 
-            {/* Sell CTA */}
+            {/* Primary CTA */}
             <Link
-              href="/sell"
+              href="/move"
               className="mt-6 inline-flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2.5 text-sm font-bold text-orange-300 hover:bg-orange-500/20 hover:text-white transition-all"
             >
-              List your property
+              Start your move
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
@@ -79,7 +77,7 @@ export function PlatformFooter() {
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Services</h4>
             <ul className="space-y-2.5">
               {services.map(({ href, label, badge }) => (
-                <li key={href}>
+                <li key={label}>
                   <Link href={href} className="group inline-flex items-center gap-2 text-[13px] text-slate-400 transition hover:text-white">
                     {label}
                     {badge && (
@@ -93,12 +91,12 @@ export function PlatformFooter() {
             </ul>
           </div>
 
-          {/* Cities */}
+          {/* Explore */}
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Cities</h4>
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Explore</h4>
             <ul className="space-y-2.5">
-              {cities.map(({ href, label }) => (
-                <li key={href}>
+              {explore.map(({ href, label }) => (
+                <li key={label}>
                   <Link href={href} className="text-[13px] text-slate-400 transition hover:text-white">
                     {label}
                   </Link>
@@ -124,7 +122,7 @@ export function PlatformFooter() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-white/[0.06] pt-6 text-center sm:flex-row sm:text-left">
           <p className="text-[11px] text-[#64748b]">&copy; {new Date().getFullYear()} EasyMoveZone. Nigeria &middot; Lagos &middot; Abuja &middot; Port Harcourt</p>
-          <p className="text-[11px] text-[#64748b]">RELOCATE &middot; SETTLE &middot; BUY A HOME &middot; RENT TO OWN &middot; BUILD &middot; FINANCE</p>
+          <p className="text-[11px] text-[#64748b]">TRIPS &middot; STAYS &middot; VISAS &middot; RELOCATE &middot; SETTLE</p>
         </div>
       </div>
     </footer>

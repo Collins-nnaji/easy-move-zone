@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
-import { AlertCircle, CheckCircle2, ClipboardCheck, Loader2, Plus, Trash2, Users, Wallet } from "lucide-react"
+import { AlertCircle, CheckCircle2, ClipboardCheck, Loader2, Plane, Plus, Stamp, Ticket, Trash2, Users, Wallet } from "lucide-react"
 import type {
   RelocationContact,
   RelocationCountryGuide,
@@ -12,6 +12,8 @@ import type {
   TaskPriority,
   TaskStatus,
 } from "@/lib/relocate/types"
+import type { BookingType, MoveBooking } from "@/lib/bookings/types"
+import { fetchBookings } from "@/lib/bookings/client"
 
 const EMPTY_PLAN: Omit<RelocationPlan, "id" | "authUserId" | "createdAt" | "updatedAt"> = {
   planName: "My relocation plan",
@@ -73,6 +75,7 @@ export function RelocateHubClient() {
   const [creatingContact, setCreatingContact] = useState(false)
   const [guides, setGuides] = useState<RelocationCountryGuide[]>([])
   const [guidesLoading, setGuidesLoading] = useState(true)
+  const [bookings, setBookings] = useState<MoveBooking[]>([])
   const [guideCountry, setGuideCountry] = useState("")
   const [monthlyRunwayCost, setMonthlyRunwayCost] = useState(1200)
 
@@ -129,6 +132,14 @@ export function RelocateHubClient() {
 
   useEffect(() => {
     void loadWorkspace()
+  }, [])
+
+  useEffect(() => {
+    let mounted = true
+    fetchBookings()
+      .then((rows) => { if (mounted) setBookings(rows) })
+      .catch(() => { /* not signed in or no bookings — leave empty */ })
+    return () => { mounted = false }
   }, [])
 
   useEffect(() => {
@@ -681,6 +692,51 @@ export function RelocateHubClient() {
           <p className="mt-4 text-sm text-[#64748b]">No country guide available yet.</p>
         )}
       </div>
+
+      {/* Bookings — trips, stays and visa services reserved in the Move app */}
+      <div className="emz-rich-card p-6">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">Bookings</p>
+            <h2 className="mt-1 font-[var(--font-playfair)] text-xl font-semibold text-[#0f172a]">Trips, stays &amp; visas</h2>
+          </div>
+          <Link href="/move" className="inline-flex items-center gap-1.5 rounded-full bg-[#e0511f] px-4 py-2 text-xs font-bold text-white transition hover:opacity-90">
+            <Plus className="h-3.5 w-3.5" /> Book something
+          </Link>
+        </div>
+
+        {bookings.length === 0 ? (
+          <p className="mt-4 text-sm text-[#64748b]">Nothing reserved yet. Open the move app to book a trip, a place to stay, or visa support.</p>
+        ) : (
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {bookings.map((b) => {
+              const Icon = BOOKING_ICON[b.bookingType]
+              return (
+                <div key={b.id} className="flex items-start gap-3 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#fbeae0] text-[#e0511f]">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-[#0f172a]">{b.itemTitle}</p>
+                    <p className="text-xs text-[#64748b]">{b.destinationCity}{b.provider ? ` · ${b.provider}` : ""}</p>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-[#526070]">
+                      {b.priceLabel && <span className="font-semibold text-[#e0511f]">{b.priceLabel}</span>}
+                      {b.startDate && <span>{b.startDate}{b.endDate ? ` → ${b.endDate}` : ""}</span>}
+                      <span className="rounded-full bg-[#e2f5ec] px-2 py-0.5 font-semibold text-[#0f766e] capitalize">{b.status}</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </section>
   )
+}
+
+const BOOKING_ICON: Record<BookingType, typeof Plane> = {
+  trip: Plane,
+  stay: Ticket,
+  visa: Stamp,
 }
