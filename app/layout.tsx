@@ -20,9 +20,9 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Travel, Move & Settle Anywhere",
+  title: "EasyMoveZone — Plan your move & find your home",
   description:
-    "One app for the whole move: plan a relocation, find your visa route, settle into a new city, and own a verified home. Two weeks or forever — we get you there, sorted.",
+    "Plan your relocation and find verified homes in Nigeria. Mobile-first move planning, plus properties to buy, rent, or lease — built for diaspora, returnees, and anyone starting fresh.",
   icons: {
     icon: "/emz.png",
     shortcut: "/emz.png",

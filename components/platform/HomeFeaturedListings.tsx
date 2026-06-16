@@ -218,13 +218,13 @@ export function HomeFeaturedListings() {
           <div>
             <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-orange-300/90">
               <Star className="h-3.5 w-3.5 text-amber-300" fill="currentColor" />
-              Featured listings
+              Properties hub
             </span>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white md:text-3xl">
-              Verified properties across Nigeria
+              Homes ready when you are
             </h2>
             <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-400">
-              Live from our database — nothing syndicated from third parties.
+              Verified listings across Lagos, Abuja, and beyond — buy outright, rent monthly, or lease long-term.
             </p>
           </div>
           <Link

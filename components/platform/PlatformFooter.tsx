@@ -4,14 +4,9 @@ import { Mail, ArrowUpRight } from "lucide-react"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 
 const services = [
-  { href: "/move",         label: "Find a City",          badge: null         },
-  { href: "/relocate/hub", label: "Relocation Hub",        badge: null         },
-  { href: "/settle",       label: "Settle In",             badge: null         },
-  { href: "/purchase", label: "Buy a Home",            badge: null         },
-  { href: "/own",      label: "Rent to Own",           badge: null         },
-  { href: "/build",    label: "Build to Suit",         badge: null         },
-  { href: "/finance",  label: "Mortgage & NHF",        badge: null         },
-  { href: "/sell",     label: "List / Sell Property",  badge: "Sell"       },
+  { href: "/move",     label: "Plan your move",       badge: "Move"       },
+  { href: "/purchase", label: "Buy, rent & lease",    badge: null         },
+  { href: "/sell",     label: "List / Sell Property", badge: "Sell"       },
 ]
 
 const cities = [
@@ -53,7 +48,7 @@ export function PlatformFooter() {
               />
             </div>
             <p className="mt-3 text-[13px] leading-relaxed text-slate-400 max-w-xs">
-              One app for the whole move — relocation planning, visa routes, settling into a new city, and verified homes and rentals.
+              Plan your move and find verified homes — buy, rent, or lease with transparent pricing end to end.
             </p>
             <a
               href={`mailto:${PUBLIC_CONTACT_EMAIL}`}

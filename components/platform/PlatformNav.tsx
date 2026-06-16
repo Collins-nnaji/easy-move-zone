@@ -17,11 +17,8 @@ import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 import { clsx } from "clsx"
 
 const navLinks = [
-  { href: "/relocate/hub", label: "Relocate"     },
-  { href: "/purchase",     label: "Buy a Home"   },
-  { href: "/own",          label: "Rent to Own"  },
-  { href: "/build",        label: "Build"        },
-  { href: "/finance",      label: "Finance"      },
+  { href: "/move",     label: "Move"       },
+  { href: "/purchase", label: "Properties" },
 ]
 
 function isActive(pathname: string, href: string) {
@@ -45,8 +42,6 @@ export function PlatformNav() {
     return () => window.removeEventListener("focus", onFocus)
   }, [refetchSession])
 
-  // Close the mobile menu whenever the route changes.
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMobileOpen(false) }, [pathname])
 
   async function handleSignOut() {
@@ -132,7 +127,7 @@ export function PlatformNav() {
               <button
                 type="button"
                 onClick={() => setAvatarOpen((p) => !p)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-[#bf6a3c] text-[13px] font-bold text-white shadow-md ring-2 ring-white/10 transition hover:ring-white/30 hover:shadow-orange-500/30"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-[13px] font-bold text-white shadow-md ring-2 ring-white/10 transition hover:ring-white/30 hover:shadow-cyan-500/30"
                 aria-label="Account menu"
                 aria-expanded={avatarOpen}
               >
@@ -146,12 +141,12 @@ export function PlatformNav() {
                     <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
                   </div>
                   <Link
-                    href="/dashboard"
+                    href="/move"
                     onClick={() => setAvatarOpen(false)}
                     className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
                   >
-                    <LayoutDashboard className="h-4 w-4 text-orange-400" />
-                    Dashboard
+                    <LayoutDashboard className="h-4 w-4 text-cyan-400" />
+                    My move
                   </Link>
                   <Link
                     href="/profile"
@@ -184,7 +179,7 @@ export function PlatformNav() {
               </Link>
               <Link
                 href="/auth"
-                className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-[#bf6a3c] px-4 py-2 text-[13px] font-bold text-white shadow-md transition hover:brightness-110 hover:shadow-lg hover:shadow-orange-500/25"
+                className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 text-[13px] font-bold text-white shadow-md transition hover:brightness-110 hover:shadow-lg hover:shadow-cyan-500/25"
               >
                 <UserRound className="h-3.5 w-3.5 shrink-0 opacity-90" />
                 Sign in
@@ -233,9 +228,9 @@ export function PlatformNav() {
               <div className="h-11 animate-pulse rounded-xl bg-white/5" />
             ) : user ? (
               <>
-                <Link href="/dashboard" onClick={() => setMobileOpen(false)}
+                <Link href="/move" onClick={() => setMobileOpen(false)}
                   className="block rounded-xl bg-white/10 px-4 py-3 text-center text-[14px] font-semibold text-white">
-                  Dashboard
+                  My move
                 </Link>
                 <button type="button" onClick={handleSignOut}
                   className="mt-2 w-full rounded-xl border border-white/15 px-4 py-3 text-[14px] font-medium text-slate-300">
@@ -249,7 +244,7 @@ export function PlatformNav() {
                   Register
                 </Link>
                 <Link href="/auth" onClick={() => setMobileOpen(false)}
-                  className="mt-2 block rounded-xl bg-gradient-to-r from-orange-500 to-[#bf6a3c] px-4 py-3 text-center text-[14px] font-bold text-white shadow-md">
+                  className="mt-2 block rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-3 text-center text-[14px] font-bold text-white shadow-md">
                   Sign in
                 </Link>
               </>

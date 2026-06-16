@@ -22,7 +22,7 @@ export default function AuthPage() {
               <span className="bg-gradient-to-r from-[#e0511f] to-[#0f766e] bg-clip-text text-transparent">EasyMoveZone</span>
             </h1>
             <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-[#475569]">
-              Sign in or create an account to save properties, track transactions, and work with verified listings end to end.
+              Sign in or create an account to save your move plan, track your checklist, and browse verified listings.
             </p>
           </div>
           <Suspense

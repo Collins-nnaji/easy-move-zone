@@ -14,7 +14,7 @@ export function AuthInlineCard({
 }: { redirectIfAuthenticated?: boolean; hideWhenAuthenticated?: boolean }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTarget = searchParams.get("redirect") ?? "/dashboard"
+  const redirectTarget = searchParams.get("redirect") ?? "/move"
   const urlMode = searchParams.get("mode")
   const [mode, setMode] = useState<Mode>(urlMode === "signup" ? "sign-up" : "sign-in")
   const [name, setName] = useState("")
@@ -26,9 +26,9 @@ export function AuthInlineCard({
 
   useEffect(() => {
     if (redirectIfAuthenticated && sessionData?.user) {
-      router.push(redirectTarget)
+      window.location.assign(redirectTarget)
     }
-  }, [sessionData?.user, router, redirectTarget, redirectIfAuthenticated])
+  }, [sessionData?.user, redirectTarget, redirectIfAuthenticated])
 
   if (hideWhenAuthenticated && sessionData?.user) return null
 
@@ -53,7 +53,7 @@ export function AuthInlineCard({
       }
       await refetchSession()
       router.refresh()
-      router.push(redirectTarget)
+      window.location.assign(redirectTarget)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Authentication failed.")
     } finally {
@@ -66,8 +66,6 @@ export function AuthInlineCard({
     setError(null)
     try {
       await authClient.signIn.social({ provider: "google", callbackURL: redirectTarget })
-      await refetchSession()
-      router.refresh()
     } catch {
       setError("Google sign-in failed. Please try again.")
       setLoading(null)
@@ -85,7 +83,7 @@ export function AuthInlineCard({
             {mode === "sign-up" ? "Create Account" : "Welcome Back"}
           </h3>
           <p className="mt-1 text-xs text-slate-400">
-            {mode === "sign-up" ? "Join the premium ecosystem" : "Continue managing your assets"}
+            {mode === "sign-up" ? "Join EasyMoveZone" : "Continue managing your move"}
           </p>
         </div>
 

@@ -14,6 +14,14 @@ import { clsx } from "clsx"
 
 const cities = ["All Cities", "Lagos", "Abuja", "Port Harcourt", "Ibadan", "Enugu", "Kano"]
 
+const LISTING_MODES = [
+  { value: "buy",   label: "Buy",   desc: "Outright purchase — verified title, transparent pricing." },
+  { value: "rent",  label: "Rent",  desc: "Monthly rentals across Nigeria's major cities." },
+  { value: "lease", label: "Lease", desc: "Long-term lease agreements with clear terms." },
+] as const
+
+type ListingMode = (typeof LISTING_MODES)[number]["value"]
+
 const PROPERTY_TYPES = [
   { value: "all",        label: "All types",   icon: null        },
   { value: "house",      label: "House",       icon: Home        },
@@ -49,6 +57,7 @@ function sortListings(list: PublicListingCard[], sort: string) {
 }
 
 export function PurchasePageClient() {
+  const [listingMode, setListingMode] = useState<ListingMode>("buy")
   const [cityFilter, setCityFilter]   = useState("All Cities")
   const [typeFilter, setTypeFilter]   = useState<PropertyTypeFilter>("all")
   const [sort, setSort]               = useState("relevant")
@@ -61,6 +70,8 @@ export function PurchasePageClient() {
   useEffect(() => {
     if (typeof window === "undefined") return
     const p = new URLSearchParams(window.location.search)
+    const mode = p.get("mode")
+    if (mode === "rent" || mode === "lease" || mode === "buy") setListingMode(mode)
     const c = p.get("city")
     if (c) {
       const match = cities.find((x) => x.toLowerCase() === c.toLowerCase())
@@ -100,6 +111,8 @@ export function PurchasePageClient() {
 
   const filtered = useMemo(() => {
     let list = allListings
+    // Until listing_type is on every row, buy shows inventory; rent/lease await dedicated listings.
+    if (listingMode !== "buy") list = []
     if (cityFilter !== "All Cities") list = list.filter((l) => l.city === cityFilter)
     if (typeFilter !== "all") list = list.filter((l) =>
       l.type.toLowerCase().replace(/\s+/g, "-") === typeFilter ||
@@ -114,7 +127,9 @@ export function PurchasePageClient() {
       l.type.toLowerCase().includes(q)
     )
     return sort !== "relevant" ? sortListings(list, sort) : list
-  }, [allListings, cityFilter, typeFilter, query, sort, priceRange])
+  }, [allListings, cityFilter, typeFilter, query, sort, priceRange, listingMode])
+
+  const modeMeta = LISTING_MODES.find((m) => m.value === listingMode) ?? LISTING_MODES[0]
 
   const priceFiltered = priceRange[0] !== PRICE_MIN || priceRange[1] !== PRICE_MAX
   const activeFilters =
@@ -138,21 +153,40 @@ export function PurchasePageClient() {
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-orange-600 mb-1">
-                Outright Purchase
+                Properties
               </p>
               <h1 className="text-2xl font-bold tracking-tight text-[#0f172a] sm:text-3xl">
-                Verified properties for sale
+                {modeMeta.label} verified homes
               </h1>
               <p className="mt-1 text-sm text-slate-500">
-                Every listing is title-checked. Transparent pricing, no hidden fees.
+                {modeMeta.desc}
               </p>
             </div>
             <Link
-              href="/build"
-              className="mt-4 sm:mt-0 inline-flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-bold text-amber-700 transition hover:bg-amber-100"
+              href="/move"
+              className="mt-4 sm:mt-0 inline-flex items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-4 py-2 text-xs font-bold text-orange-700 transition hover:bg-orange-100"
             >
-              Want to build instead? →
+              Planning a move? →
             </Link>
+          </div>
+
+          {/* Buy / Rent / Lease */}
+          <div className="mt-5 flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+            {LISTING_MODES.map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setListingMode(value)}
+                className={clsx(
+                  "inline-flex shrink-0 items-center rounded-full border px-5 py-2 text-[13px] font-bold transition-all",
+                  listingMode === value
+                    ? "border-[#0033A1] bg-[#0033A1] text-white shadow-sm"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-[#0033A1]/40 hover:text-[#0033A1]"
+                )}
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
           {/* Search + filter row */}

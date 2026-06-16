@@ -120,7 +120,7 @@ export function EasyMoveZoneApp() {
 
   async function saveMyPlan() {
     if (!signedIn) {
-      router.push("/auth?redirect=/relocate/hub");
+      router.push("/auth?redirect=/move");
       return;
     }
     if (saveState === "saving") return;
@@ -144,7 +144,7 @@ export function EasyMoveZoneApp() {
         }
       }
       setSaveState("saved");
-      router.push("/relocate/hub");
+      setScreen("plan");
     } catch {
       setSaveState("idle");
     }
