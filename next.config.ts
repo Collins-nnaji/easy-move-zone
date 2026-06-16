@@ -30,7 +30,6 @@ const nextConfig: NextConfig = {
       { source: "/portal/:path*", destination: "/", permanent: false },
       { source: "/corporate", destination: "/", permanent: false },
       { source: "/corp/:path*", destination: "/", permanent: false },
-      { source: "/relocate/:path*", destination: "/search", permanent: false },
       { source: "/signup", destination: "/auth?mode=signup", permanent: false },
     ]
   },
