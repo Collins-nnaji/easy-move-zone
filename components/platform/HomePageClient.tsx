@@ -16,6 +16,10 @@ import {
   ChevronLeft,
   ChevronRight,
   KeyRound,
+  Plane,
+  Globe,
+  MapPin,
+  ClipboardCheck,
 } from "lucide-react"
 import { HomeFeaturedListings } from "@/components/platform/HomeFeaturedListings"
 import { useRef, useState, useCallback, useEffect } from "react"
@@ -171,16 +175,16 @@ export function HomePageClient() {
                 className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-cyan-200 backdrop-blur-md"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                Affordable Homes & Moving Solutions
+                Travel · Move · Settle — anywhere
               </motion.div>
 
               <motion.h1
                 {...fadeUp(0.06, 22)}
                 className="display-title text-5xl text-white sm:text-6xl lg:text-[4rem]"
               >
-                Own & move to your home
+                Move, settle, and own
                 <span className="block bg-gradient-to-r from-cyan-200 via-indigo-200 to-emerald-200 bg-clip-text text-transparent mt-2">
-                  the cheapest way.
+                  wherever life takes you.
                 </span>
               </motion.h1>
 
@@ -188,7 +192,7 @@ export function HomePageClient() {
                 {...fadeUp(0.12, 18)}
                 className="mt-6 text-base leading-relaxed text-slate-300 max-w-xl mx-auto lg:mx-0"
               >
-                We help you own and move to your house the cheapest way possible. No rip-offs, no hidden fees — just 100% transparent pricing and unmatched quality across every service.
+                One app for the whole journey — plan a relocation, find your visa route, settle into a new city, and own a verified home. Two weeks or forever, we get you there, sorted.
               </motion.p>
 
               <motion.div {...fadeUp(0.18, 18)} className="mt-10 max-w-xl mx-auto lg:mx-0">
@@ -212,6 +216,15 @@ export function HomePageClient() {
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </form>
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 lg:justify-start text-sm">
+                  <Link href="/relocate/hub" className="inline-flex items-center gap-1.5 font-bold text-[#f3aa79] hover:text-white transition">
+                    <Plane className="h-4 w-4" /> Plan a relocation
+                  </Link>
+                  <span className="text-white/20">·</span>
+                  <Link href="/move" className="font-semibold text-white/60 hover:text-white transition">
+                    Find where to move
+                  </Link>
+                </div>
               </motion.div>
             </div>
 
@@ -228,10 +241,10 @@ export function HomePageClient() {
               {/* Feature rows — no card background, text floats over photo */}
               <div className="space-y-5">
                 {[
+                  { label: "Plan Your Whole Move", sub: "Visa routes, checklist & budget in one place" },
+                  { label: "Settle In Like A Local", sub: "Neighbourhoods, SIMs, schools & community" },
+                  { label: "Verified Homes & Rentals", sub: "Every listing checked against state registries" },
                   { label: "100% Transparent Pricing", sub: "Zero hidden fees, zero rip-offs" },
-                  { label: "Cheapest Pathway to Ownership", sub: "Optimized moving & buying strategies" },
-                  { label: "Guaranteed Quality Homes", sub: "Strict vetting and material standards" },
-                  { label: "100% Title Verification", sub: "Every plot checked against state registries" },
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-cyan-400/20 ring-1 ring-cyan-400/30">
@@ -438,6 +451,54 @@ export function HomePageClient() {
                 </div>
               )
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── Relocate & Settle pillar — the travel side of the one app ───────── */}
+      <section className="relative overflow-hidden bg-[#1b231e] py-24 text-white">
+        <div className="absolute inset-0 opacity-[0.18] bg-[radial-gradient(ellipse_60%_50%_at_15%_0%,#e0511f,transparent)]" aria-hidden />
+        <div className="absolute inset-0 opacity-[0.12] bg-[radial-gradient(ellipse_50%_50%_at_90%_100%,#f3aa79,transparent)]" aria-hidden />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#f3aa79]/30 bg-[#e0511f]/15 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#f3aa79]">
+                <Plane className="h-3 w-3" />
+                Travel & Settlement
+              </div>
+              <h2 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">
+                Not just land —
+                <span className="block text-[#f3aa79]">a plan for the whole move.</span>
+              </h2>
+              <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-white/70">
+                Moving for two weeks or forever, across town or across the world? Tell us how long you&apos;re staying and EasyMoveZone adapts — matching destinations, mapping your visa route, building your checklist, and helping you settle once you land.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link href="/move" className="inline-flex items-center gap-2 rounded-xl bg-[#e0511f] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#e0511f]/30 transition hover:bg-[#c8451a]">
+                  Find where to move <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link href="/relocate/hub" className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10">
+                  Open my relocation plan
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { icon: Globe, title: "The Move Spectrum", body: "2 weeks → forever. Everything adapts to your stay." },
+                { icon: ClipboardCheck, title: "Visa & checklist", body: "The right visa route and a phased plan that unlocks as you go." },
+                { icon: MapPin, title: "Settle in", body: "Neighbourhoods, SIMs, schools and local community." },
+                { icon: ShieldCheck, title: "Land it with a home", body: "Browse verified homes and rentals in your destination." },
+              ].map((c) => (
+                <div key={c.title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e0511f]/20 text-[#f3aa79]">
+                    <c.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-4 text-base font-bold">{c.title}</h3>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-white/60">{c.body}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

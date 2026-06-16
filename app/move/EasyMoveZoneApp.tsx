@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   DESTINATIONS,
   MODE_LABEL,
@@ -593,15 +594,31 @@ export function EasyMoveZoneApp() {
     </div>
   );
 
-  // Desktop ("web"): framed device on a radial-gradient backdrop.
+  // Desktop ("web"): framed device on a radial-gradient backdrop, with a slim
+  // brand bar tying it back to the rest of EasyMoveZone.
   if (isDesktop) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "radial-gradient(120% 120% at 50% 0%, #ded8cb 0%, #cfc9bc 100%)", padding: 28, fontFamily: HANKEN }}>
+      <div style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "radial-gradient(120% 120% at 50% 0%, #ded8cb 0%, #cfc9bc 100%)", padding: 28, fontFamily: HANKEN }}>
+        <div style={{ position: "absolute", top: 24, left: 28, right: 28, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: INK, fontWeight: 800, fontSize: 15, letterSpacing: "-.01em" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, borderRadius: 7, background: PRIMARY, color: "#fff", fontSize: 13 }}>←</span>
+            EasyMoveZone
+          </Link>
+          <div style={{ display: "flex", gap: 18, fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600 }}>
+            <Link href="/relocate/hub" style={{ color: "#5f655c", textDecoration: "none" }}>Relocation hub</Link>
+            <Link href="/purchase" style={{ color: "#5f655c", textDecoration: "none" }}>Property</Link>
+          </div>
+        </div>
         <IOSDeviceFrame>{phone}</IOSDeviceFrame>
       </div>
     );
   }
 
-  // Mobile: full-bleed native layout.
-  return <div style={{ height: "100dvh", background: "#efece4" }}>{phone}</div>;
+  // Mobile: full-bleed native layout, with a tiny exit link to the platform.
+  return (
+    <div style={{ height: "100dvh", background: "#efece4", position: "relative" }}>
+      <Link href="/" style={{ position: "absolute", top: 8, left: 12, zIndex: 70, fontFamily: HANKEN, fontSize: 11, fontWeight: 700, color: "#9aa097", textDecoration: "none" }}>← EasyMoveZone</Link>
+      {phone}
+    </div>
+  );
 }
