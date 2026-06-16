@@ -19,7 +19,7 @@ const LISTING_TYPES = [
     label: "Outright Purchase",
     sub: "Buyer pays full price upfront — verified title transfer",
     icon: ShieldCheck,
-    color: "#0072CE",
+    color: "#bf6a3c",
     pageName: "Purchase listings",
   },
   {
@@ -112,7 +112,7 @@ function AiBtn({
         "inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide transition-all disabled:opacity-50",
         variant === "refine"
           ? "border border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20"
-          : "border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20"
+          : "border border-orange-500/30 bg-orange-500/10 text-orange-300 hover:bg-orange-500/20"
       )}
     >
       {loading
@@ -137,9 +137,9 @@ function TitleSuggestions({
   onClose: () => void
 }) {
   return (
-    <div className="mt-2 rounded-xl border border-cyan-500/20 bg-[#0a1628] p-3 space-y-2">
+    <div className="mt-2 rounded-xl border border-orange-500/20 bg-[#0a1628] p-3 space-y-2">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wide">AI suggestions — click to use</span>
+        <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wide">AI suggestions — click to use</span>
         <button type="button" onClick={onClose} className="text-slate-600 hover:text-slate-400">
           <X className="h-3.5 w-3.5" />
         </button>
@@ -149,10 +149,10 @@ function TitleSuggestions({
           key={i}
           type="button"
           onClick={() => { onSelect(s); onClose() }}
-          className="w-full text-left rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-[13px] text-slate-300 hover:border-cyan-500/40 hover:bg-cyan-500/10 hover:text-white transition-all flex items-center justify-between gap-2 group"
+          className="w-full text-left rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-[13px] text-slate-300 hover:border-orange-500/40 hover:bg-orange-500/10 hover:text-white transition-all flex items-center justify-between gap-2 group"
         >
           <span>{s}</span>
-          <Check className="h-3.5 w-3.5 text-cyan-400 opacity-0 group-hover:opacity-100 shrink-0 transition-opacity" />
+          <Check className="h-3.5 w-3.5 text-orange-400 opacity-0 group-hover:opacity-100 shrink-0 transition-opacity" />
         </button>
       ))}
     </div>
@@ -219,7 +219,7 @@ function AiSidebar({
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/10">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 shrink-0">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-blue-600 shrink-0">
           <Sparkles className="h-3.5 w-3.5 text-white" />
         </div>
         <div>
@@ -245,7 +245,7 @@ function AiSidebar({
           >
             {quickLoading === field
               ? <Loader2 className="h-3 w-3 animate-spin shrink-0" />
-              : <Wand2 className="h-3 w-3 shrink-0 text-cyan-400" />
+              : <Wand2 className="h-3 w-3 shrink-0 text-orange-400" />
             }
             {label}
           </button>
@@ -265,7 +265,7 @@ function AiSidebar({
             <div className={clsx(
               "max-w-[90%] rounded-xl px-3 py-2.5 text-[11px] leading-relaxed whitespace-pre-wrap",
               msg.role === "user"
-                ? "bg-[#0072CE] text-white rounded-br-sm"
+                ? "bg-[#bf6a3c] text-white rounded-br-sm"
                 : "bg-white/[0.08] text-slate-200 rounded-bl-sm"
             )}>
               {msg.text}
@@ -284,7 +284,7 @@ function AiSidebar({
         {loading && (
           <div className="flex justify-start">
             <div className="bg-white/[0.08] rounded-xl rounded-bl-sm px-3 py-2.5 flex items-center gap-1.5">
-              <Loader2 className="h-3 w-3 animate-spin text-cyan-400" />
+              <Loader2 className="h-3 w-3 animate-spin text-orange-400" />
               <span className="text-[10px] text-slate-500">Thinking…</span>
             </div>
           </div>
@@ -300,13 +300,13 @@ function AiSidebar({
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void handleChat() } }}
             placeholder="Ask about pricing, location, deeds…"
-            className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white placeholder:text-slate-600 focus:border-cyan-500/40 focus:outline-none transition"
+            className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white placeholder:text-slate-600 focus:border-orange-500/40 focus:outline-none transition"
           />
           <button
             type="button"
             onClick={() => void handleChat()}
             disabled={loading || !input.trim()}
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0072CE] text-white hover:bg-[#0060b0] disabled:opacity-40 transition-colors shrink-0"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#bf6a3c] text-white hover:bg-[#0060b0] disabled:opacity-40 transition-colors shrink-0"
           >
             <Send className="h-3.5 w-3.5" />
           </button>
@@ -508,8 +508,8 @@ export function SellForm() {
   }
 
   /* ── Input class helpers ─────────────────── */
-  const inputCls = "w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-cyan-500/50 focus:outline-none focus:ring-2 focus:ring-cyan-500/10 transition"
-  const selectCls = "rounded-xl border border-white/10 bg-[#0a1628] px-4 py-3 text-sm text-white focus:border-cyan-500/50 focus:outline-none transition"
+  const inputCls = "w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-orange-500/50 focus:outline-none focus:ring-2 focus:ring-orange-500/10 transition"
+  const selectCls = "rounded-xl border border-white/10 bg-[#0a1628] px-4 py-3 text-sm text-white focus:border-orange-500/50 focus:outline-none transition"
   const labelCls = "block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2"
 
   /* ── Success screen ─────────────────────── */
@@ -526,11 +526,11 @@ export function SellForm() {
           </p>
           <p className="text-slate-500 text-xs mb-8">
             Once approved it goes live on the{" "}
-            <span className="text-cyan-300 font-semibold">{selectedType?.pageName ?? "platform"}</span>
+            <span className="text-orange-300 font-semibold">{selectedType?.pageName ?? "platform"}</span>
             {submittedId && <> · Ref: <code className="text-slate-400">{submittedId.slice(0, 8)}</code></>}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/" className="rounded-xl bg-[#0072CE] px-6 py-3 text-sm font-semibold text-white hover:bg-[#0060b0] transition-colors">
+            <Link href="/" className="rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-semibold text-white hover:bg-[#0060b0] transition-colors">
               Back to home
             </Link>
             <button onClick={resetForm} className="rounded-xl border border-white/15 px-6 py-3 text-sm font-semibold text-white hover:bg-white/5 transition-colors">
@@ -560,7 +560,7 @@ export function SellForm() {
                 <div className={clsx(
                   "flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold transition-all",
                   i < stepIndex   ? "bg-emerald-500 text-white" :
-                  i === stepIndex ? "bg-[#0072CE] text-white ring-2 ring-[#0072CE]/30" :
+                  i === stepIndex ? "bg-[#bf6a3c] text-white ring-2 ring-[#bf6a3c]/30" :
                                     "bg-white/10 text-slate-600"
                 )}>
                   {i < stepIndex ? <CheckCircle2 className="h-3.5 w-3.5" /> : i + 1}
@@ -579,7 +579,7 @@ export function SellForm() {
             className={clsx(
               "hidden sm:flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition-all",
               showAI
-                ? "border-cyan-500/50 bg-cyan-500/15 text-cyan-300"
+                ? "border-orange-500/50 bg-orange-500/15 text-orange-300"
                 : "border-white/10 text-slate-500 hover:border-white/20 hover:text-slate-300"
             )}
           >
@@ -599,7 +599,7 @@ export function SellForm() {
             {/* ══ STEP 1: Type ══════════════════════════════ */}
             {step === "type" && (
               <div>
-                <p className="text-[10px] font-bold tracking-widest text-cyan-400 uppercase mb-2">Step 1 of 4</p>
+                <p className="text-[10px] font-bold tracking-widest text-orange-400 uppercase mb-2">Step 1 of 4</p>
                 <h1 className="text-3xl font-bold text-white mb-2">List your property</h1>
                 <p className="text-slate-400 text-sm mb-8">Choose how you want to sell. Your approved listing will appear on the matching section of the platform.</p>
 
@@ -631,7 +631,7 @@ export function SellForm() {
                 </div>
 
                 <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex gap-3">
-                  <Info className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" />
+                  <Info className="h-4 w-4 text-orange-400 shrink-0 mt-0.5" />
                   <p className="text-xs text-slate-400 leading-relaxed">
                     All submissions are reviewed before going live. We verify title, pricing, and property details within <strong className="text-white">24–48 hours</strong>. You&apos;ll be contacted by phone or email.
                   </p>
@@ -639,7 +639,7 @@ export function SellForm() {
 
                 <div className="mt-8 flex justify-end">
                   <button type="button" disabled={!listingType} onClick={() => setStep("details")}
-                    className="flex items-center gap-2 rounded-xl bg-[#0072CE] px-6 py-3 text-sm font-bold text-white hover:bg-[#0060b0] disabled:opacity-40 disabled:pointer-events-none transition-colors">
+                    className="flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white hover:bg-[#0060b0] disabled:opacity-40 disabled:pointer-events-none transition-colors">
                     Continue <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -658,7 +658,7 @@ export function SellForm() {
                       </div>
                     )}
                     <div>
-                      <p className="text-[10px] font-bold tracking-widest text-cyan-400 uppercase mb-0.5">Step 2 of 4 · {selectedType?.label}</p>
+                      <p className="text-[10px] font-bold tracking-widest text-orange-400 uppercase mb-0.5">Step 2 of 4 · {selectedType?.label}</p>
                       <h2 className="text-2xl font-bold text-white">Property details</h2>
                     </div>
                   </div>
@@ -668,7 +668,7 @@ export function SellForm() {
                     type="button"
                     onClick={() => void handlePrefill()}
                     disabled={prefilling || (!form.city && !listingType)}
-                    className="flex items-center gap-1.5 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-xs font-bold text-cyan-300 hover:bg-cyan-500/20 disabled:opacity-40 disabled:pointer-events-none transition-all shrink-0"
+                    className="flex items-center gap-1.5 rounded-xl border border-orange-500/30 bg-orange-500/10 px-3 py-2 text-xs font-bold text-orange-300 hover:bg-orange-500/20 disabled:opacity-40 disabled:pointer-events-none transition-all shrink-0"
                   >
                     {prefilling ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
                     AI Prefill
@@ -685,7 +685,7 @@ export function SellForm() {
                           className={clsx(
                             "flex flex-col items-center gap-1.5 rounded-xl border-2 py-3.5 text-[11px] font-semibold transition-all",
                             propertyType === value
-                              ? "border-cyan-500/60 bg-cyan-500/10 text-cyan-300"
+                              ? "border-orange-500/60 bg-orange-500/10 text-orange-300"
                               : "border-white/10 text-slate-500 hover:border-white/20 hover:text-slate-300"
                           )}>
                           <Icon className="h-4 w-4" />{label}
@@ -785,7 +785,7 @@ export function SellForm() {
                     <div className="flex items-center justify-between mb-2">
                       <label className={labelCls} style={{ marginBottom: 0 }}>
                         Asking price (₦)
-                        {form.price_ngn && <span className="ml-2 font-normal normal-case text-cyan-400">{fmtNgn(form.price_ngn)}</span>}
+                        {form.price_ngn && <span className="ml-2 font-normal normal-case text-orange-400">{fmtNgn(form.price_ngn)}</span>}
                       </label>
                       <AiBtn
                         label="Estimate"
@@ -843,7 +843,7 @@ export function SellForm() {
                     <ChevronLeft className="h-4 w-4" /> Back
                   </button>
                   <button type="button" disabled={!form.title || !form.city} onClick={() => setStep("media")}
-                    className="flex items-center gap-2 rounded-xl bg-[#0072CE] px-6 py-3 text-sm font-bold text-white hover:bg-[#0060b0] disabled:opacity-40 disabled:pointer-events-none transition-colors">
+                    className="flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white hover:bg-[#0060b0] disabled:opacity-40 disabled:pointer-events-none transition-colors">
                     Continue <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -854,14 +854,14 @@ export function SellForm() {
             {step === "media" && (
               <div>
                 <div className="mb-8">
-                  <p className="text-[10px] font-bold tracking-widest text-cyan-400 uppercase mb-0.5">Step 3 of 4</p>
+                  <p className="text-[10px] font-bold tracking-widest text-orange-400 uppercase mb-0.5">Step 3 of 4</p>
                   <h2 className="text-2xl font-bold text-white mb-2">Photos & video</h2>
                   <p className="text-sm text-slate-400">Upload clear photos and optionally a walkthrough video. Files upload to secure Azure storage as you add them.</p>
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-3 mb-5">
                   <button type="button" onClick={() => imgRef.current?.click()}
-                    className="flex flex-col items-center gap-2.5 rounded-2xl border-2 border-dashed border-white/15 py-10 hover:border-cyan-500/40 hover:bg-white/[0.02] transition-all">
+                    className="flex flex-col items-center gap-2.5 rounded-2xl border-2 border-dashed border-white/15 py-10 hover:border-orange-500/40 hover:bg-white/[0.02] transition-all">
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5">
                       <ImageIcon className="h-6 w-6 text-slate-500" />
                     </div>
@@ -894,7 +894,7 @@ export function SellForm() {
                           }
                           {m.uploading && (
                             <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                              <Loader2 className="h-6 w-6 animate-spin text-cyan-400" />
+                              <Loader2 className="h-6 w-6 animate-spin text-orange-400" />
                             </div>
                           )}
                           {m.url && !m.uploading && (
@@ -909,7 +909,7 @@ export function SellForm() {
                             </div>
                           )}
                           {i === 0 && m.type === "image" && (
-                            <span className="absolute left-1.5 top-1.5 rounded-md bg-cyan-500 px-1.5 py-0.5 text-[9px] font-bold text-white">Cover</span>
+                            <span className="absolute left-1.5 top-1.5 rounded-md bg-orange-500 px-1.5 py-0.5 text-[9px] font-bold text-white">Cover</span>
                           )}
                           <button type="button" onClick={() => removeFile(i)}
                             className="absolute right-1.5 top-1.5 hidden h-6 w-6 items-center justify-center rounded-full bg-black/70 text-white group-hover:flex hover:bg-red-600/80 transition-colors">
@@ -920,7 +920,7 @@ export function SellForm() {
                     </div>
                     <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">
                       <span>{media.filter(m => m.url).length} / {media.length} uploaded to Azure</span>
-                      {media.some(m => m.uploading) && <span className="flex items-center gap-1 text-cyan-400"><Loader2 className="h-3 w-3 animate-spin" /> Uploading…</span>}
+                      {media.some(m => m.uploading) && <span className="flex items-center gap-1 text-orange-400"><Loader2 className="h-3 w-3 animate-spin" /> Uploading…</span>}
                       {media.some(m => m.error) && <span className="flex items-center gap-1 text-red-400"><AlertCircle className="h-3 w-3" /> Some failed — remove and retry</span>}
                     </div>
                   </>
@@ -931,7 +931,7 @@ export function SellForm() {
                     <ChevronLeft className="h-4 w-4" /> Back
                   </button>
                   <button type="button" onClick={() => setStep("contact")}
-                    className="flex items-center gap-2 rounded-xl bg-[#0072CE] px-6 py-3 text-sm font-bold text-white hover:bg-[#0060b0] transition-colors">
+                    className="flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white hover:bg-[#0060b0] transition-colors">
                     Continue <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -942,7 +942,7 @@ export function SellForm() {
             {step === "contact" && (
               <div>
                 <div className="mb-8">
-                  <p className="text-[10px] font-bold tracking-widest text-cyan-400 uppercase mb-0.5">Step 4 of 4</p>
+                  <p className="text-[10px] font-bold tracking-widest text-orange-400 uppercase mb-0.5">Step 4 of 4</p>
                   <h2 className="text-2xl font-bold text-white mb-2">Your contact details</h2>
                   <p className="text-sm text-slate-400">Used during verification only — not shown publicly on your listing.</p>
                 </div>
@@ -996,7 +996,7 @@ export function SellForm() {
                     <ChevronLeft className="h-4 w-4" /> Back
                   </button>
                   <button type="button" onClick={() => void handleSubmit()} disabled={submitting || !seller.name || !seller.phone}
-                    className="flex items-center gap-2 rounded-xl bg-[#0072CE] px-7 py-3 text-sm font-bold text-white hover:bg-[#0060b0] disabled:opacity-50 disabled:pointer-events-none transition-colors">
+                    className="flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-7 py-3 text-sm font-bold text-white hover:bg-[#0060b0] disabled:opacity-50 disabled:pointer-events-none transition-colors">
                     {submitting
                       ? <><Loader2 className="h-4 w-4 animate-spin" />Submitting…</>
                       : <><CheckCircle2 className="h-4 w-4" />Submit for review</>
@@ -1023,7 +1023,7 @@ export function SellForm() {
         onClick={() => setShowAI(p => !p)}
         className={clsx(
           "fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full px-4 py-3 text-sm font-bold shadow-xl transition-all sm:hidden",
-          showAI ? "bg-cyan-600 text-white" : "bg-[#0072CE] text-white"
+          showAI ? "bg-orange-600 text-white" : "bg-[#bf6a3c] text-white"
         )}
       >
         <Sparkles className="h-4 w-4" />

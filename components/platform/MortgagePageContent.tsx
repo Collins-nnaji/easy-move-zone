@@ -242,11 +242,11 @@ export function MortgagePageContent() {
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-white/[0.08] bg-[#030712]">
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_20%_-20%,rgba(0,51,161,0.45),transparent)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_20%_-20%,rgba(224,81,31,0.45),transparent)]"
           aria-hidden
         />
         <motion.div
-          className="pointer-events-none absolute -right-24 top-1/3 h-[min(50vw,420px)] w-[min(50vw,420px)] rounded-full bg-[#0072CE]/20 blur-[90px]"
+          className="pointer-events-none absolute -right-24 top-1/3 h-[min(50vw,420px)] w-[min(50vw,420px)] rounded-full bg-[#bf6a3c]/20 blur-[90px]"
           animate={
             reduceMotion
               ? undefined
@@ -265,7 +265,7 @@ export function MortgagePageContent() {
             <motion.p
               {...(reduceMotion ? {} : { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 } })}
               transition={{ duration: 0.45, ease: easeOut }}
-              className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300/90"
+              className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-300/90"
             >
               Nigeria · Mortgages &amp; NHF
             </motion.p>
@@ -275,7 +275,7 @@ export function MortgagePageContent() {
               className="mt-3 max-w-xl text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl lg:text-[2.35rem]"
             >
               Finance a verified home with{" "}
-              <span className="bg-gradient-to-r from-white via-cyan-100 to-emerald-200/90 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-white via-orange-100 to-emerald-200/90 bg-clip-text text-transparent">
                 clarity, not clutter.
               </span>
             </motion.h1>
@@ -294,7 +294,7 @@ export function MortgagePageContent() {
             >
               <a
                 href="#mortgage-finder"
-                className="inline-flex items-center gap-2 rounded-full bg-[#0072CE] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#0072CE]/25 transition hover:brightness-110"
+                className="inline-flex items-center gap-2 rounded-full bg-[#bf6a3c] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#bf6a3c]/25 transition hover:brightness-110"
                 onClick={(e) => {
                   e.preventDefault()
                   openChat()
@@ -320,7 +320,7 @@ export function MortgagePageContent() {
             className="mt-10 w-full max-w-md shrink-0 lg:mt-0 lg:max-w-sm"
           >
             <div className="rounded-2xl border border-white/15 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl">
-              <p className="text-xs font-semibold uppercase tracking-wider text-cyan-200/80">On this page</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-orange-200/80">On this page</p>
               <ul className="mt-4 space-y-3 text-sm text-slate-200">
                 <li className="flex gap-2">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
@@ -357,9 +357,9 @@ export function MortgagePageContent() {
               <motion.div
                 key={f.title}
                 {...viewFade(!!reduceMotion, i * 0.05)}
-                className="group rounded-2xl border border-[#e2e8f0] bg-white p-5 shadow-sm transition hover:border-[#0072CE]/35 hover:shadow-md"
+                className="group rounded-2xl border border-[#e2e8f0] bg-white p-5 shadow-sm transition hover:border-[#bf6a3c]/35 hover:shadow-md"
               >
-                <f.icon className="h-8 w-8 text-[#0033A1] transition group-hover:text-[#0072CE]" />
+                <f.icon className="h-8 w-8 text-[#e0511f] transition group-hover:text-[#bf6a3c]" />
                 <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">{f.title}</p>
                 <p className="mt-1 text-xl font-semibold tabular-nums text-[#0f172a]">{f.value}</p>
                 <p className="mt-2 text-xs leading-relaxed text-[#64748b]">{f.hint}</p>
@@ -384,12 +384,12 @@ export function MortgagePageContent() {
                 target="_blank"
                 rel="noopener noreferrer"
                 {...viewFade(!!reduceMotion, i * 0.06)}
-                className="group relative overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0072CE]/40 hover:shadow-lg"
+                className="group relative overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#bf6a3c]/40 hover:shadow-lg"
               >
-                <Building2 className="h-9 w-9 text-[#0033A1] transition group-hover:text-[#0072CE]" />
-                <h3 className="mt-4 text-lg font-semibold text-[#0f172a] group-hover:text-[#0033A1]">{p.name}</h3>
+                <Building2 className="h-9 w-9 text-[#e0511f] transition group-hover:text-[#bf6a3c]" />
+                <h3 className="mt-4 text-lg font-semibold text-[#0f172a] group-hover:text-[#e0511f]">{p.name}</h3>
                 <p className="mt-1 text-sm text-[#64748b]">{p.note}</p>
-                <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-[#0072CE]">
+                <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-[#bf6a3c]">
                   Website <ArrowRight className="h-3.5 w-3.5" />
                 </span>
               </motion.a>
@@ -402,7 +402,7 @@ export function MortgagePageContent() {
       <section className="border-y border-[#e2e8f0] bg-[#f8fafc] py-12 sm:py-14">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <motion.div {...viewFade(!!reduceMotion)} className="mb-8 flex items-center gap-3">
-            <Landmark className="h-8 w-8 text-[#0033A1]" />
+            <Landmark className="h-8 w-8 text-[#e0511f]" />
             <div>
               <h2 className="text-xl font-semibold text-[#0f172a] sm:text-2xl">Diaspora NHF in three lines</h2>
               <p className="text-sm text-[#64748b]">Programme detail lives with FMBN / NiDCOM — we help you navigate alongside a purchase.</p>
@@ -415,7 +415,7 @@ export function MortgagePageContent() {
                 {...viewFade(!!reduceMotion, i * 0.07)}
                 className="flex gap-4 rounded-2xl border border-[#e2e8f0] bg-white p-5 shadow-sm"
               >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0033A1]/8 text-[#0033A1]">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#e0511f]/8 text-[#e0511f]">
                   <h.icon className="h-5 w-5" />
                 </div>
                 <div>
@@ -443,8 +443,8 @@ export function MortgagePageContent() {
                   {...viewFade(!!reduceMotion, i * 0.04)}
                   className="relative rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-sm"
                 >
-                  <span className="text-[10px] font-bold text-[#0072CE]">{s.step}</span>
-                  <div className="mt-2 flex h-9 w-9 items-center justify-center rounded-lg bg-[#0072CE]/10 text-[#0033A1]">
+                  <span className="text-[10px] font-bold text-[#bf6a3c]">{s.step}</span>
+                  <div className="mt-2 flex h-9 w-9 items-center justify-center rounded-lg bg-[#bf6a3c]/10 text-[#e0511f]">
                     <s.icon className="h-4 w-4" />
                   </div>
                   <p className="mt-3 text-sm font-semibold text-[#0f172a]">{s.title}</p>
@@ -483,7 +483,7 @@ export function MortgagePageContent() {
       <section className="border-t border-[#e2e8f0] bg-[#030712] py-12 sm:py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <motion.div {...viewFade(!!reduceMotion)} className="mb-8 max-w-2xl">
-            <span className="inline-flex rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-200/90">
+            <span className="inline-flex rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-orange-200/90">
               Coming soon
             </span>
             <h2 className="mt-4 text-2xl font-semibold text-white sm:text-3xl">Assessment workspace</h2>
@@ -498,8 +498,8 @@ export function MortgagePageContent() {
                 {...viewFade(!!reduceMotion, i * 0.06)}
                 className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm"
               >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_0%_0%,rgba(0,114,206,0.2),transparent)]" aria-hidden />
-                <item.icon className="relative h-8 w-8 text-cyan-300" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_0%_0%,rgba(191,106,60,0.2),transparent)]" aria-hidden />
+                <item.icon className="relative h-8 w-8 text-orange-300" />
                 <p className="relative mt-4 text-sm font-semibold text-white">{item.title}</p>
                 <p className="relative mt-1 text-xs leading-relaxed text-slate-400">{item.desc}</p>
                 <p className="relative mt-4 text-[10px] font-semibold uppercase tracking-wider text-slate-500">In development</p>
@@ -513,7 +513,7 @@ export function MortgagePageContent() {
       <section className="border-t border-white/[0.06] bg-[#020617] py-12 sm:py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <motion.div {...viewFade(!!reduceMotion)} className="mb-8 max-w-2xl">
-            <span className="inline-flex rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-200/90">
+            <span className="inline-flex rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-orange-200/90">
               Coming soon
             </span>
             <h2 className="mt-4 text-2xl font-semibold text-white sm:text-3xl">Integrations</h2>
@@ -526,9 +526,9 @@ export function MortgagePageContent() {
               <motion.div
                 key={item.title}
                 {...viewFade(!!reduceMotion, i * 0.06)}
-                className="rounded-2xl border border-[#0072CE]/20 bg-[#0f172a]/80 p-5"
+                className="rounded-2xl border border-[#bf6a3c]/20 bg-[#0f172a]/80 p-5"
               >
-                <item.icon className="h-8 w-8 text-[#0072CE]" />
+                <item.icon className="h-8 w-8 text-[#bf6a3c]" />
                 <p className="mt-4 text-sm font-semibold text-white">{item.title}</p>
                 <p className="mt-1 text-xs leading-relaxed text-slate-400">{item.desc}</p>
               </motion.div>
@@ -545,7 +545,7 @@ export function MortgagePageContent() {
             className="flex flex-col gap-4 rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="flex items-start gap-3">
-              <FileStack className="h-6 w-6 shrink-0 text-[#0033A1]" />
+              <FileStack className="h-6 w-6 shrink-0 text-[#e0511f]" />
               <div>
                 <p className="font-semibold text-[#0f172a]">Official forms &amp; sources</p>
                 <p className="mt-1 text-sm text-[#64748b]">Download the latest diaspora NHF pack from FMBN / NiDCOM when you&apos;re ready to apply.</p>
@@ -556,7 +556,7 @@ export function MortgagePageContent() {
                 href="https://fmbn.gov.ng"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-[#0033A1] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#002880]"
+                className="inline-flex items-center gap-2 rounded-full bg-[#e0511f] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#c8451a]"
               >
                 FMBN site
                 <ArrowRight className="h-4 w-4" />
@@ -590,7 +590,7 @@ export function MortgagePageContent() {
         aria-label="AI mortgage matcher"
         style={{ height: chatHeight }}
         className={clsx(
-          "fixed right-0 top-14 z-40 flex flex-col border-l border-[#002880]/25 bg-white shadow-[-12px_0_40px_rgba(0,0,0,0.07)] transition-[width,height] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          "fixed right-0 top-14 z-40 flex flex-col border-l border-[#c8451a]/25 bg-white shadow-[-12px_0_40px_rgba(0,0,0,0.07)] transition-[width,height] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]",
           chatOpen ? "w-[min(420px,calc(100vw-0.5rem))]" : "w-14 overflow-hidden",
         )}
       >
@@ -598,11 +598,11 @@ export function MortgagePageContent() {
           <button
             type="button"
             onClick={toggleChat}
-            className="flex h-full w-full flex-col items-center gap-3 bg-[#0033A1] py-5 text-white transition hover:bg-[#002880]"
+            className="flex h-full w-full flex-col items-center gap-3 bg-[#e0511f] py-5 text-white transition hover:bg-[#c8451a]"
             aria-expanded={false}
             aria-controls="mortgage-finder-panel"
           >
-            <MessageSquare className="h-5 w-5 shrink-0 text-cyan-200" aria-hidden />
+            <MessageSquare className="h-5 w-5 shrink-0 text-orange-200" aria-hidden />
             <span
               className="select-none text-[10px] font-bold uppercase tracking-[0.18em] text-white/90"
               style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
@@ -615,8 +615,8 @@ export function MortgagePageContent() {
           <>
             <div className="flex shrink-0 items-center justify-between gap-2 border-b border-[#e8edf6] bg-gradient-to-r from-[#f8fbff] to-white px-3 py-2.5 sm:px-4">
               <div className="flex min-w-0 items-center gap-2">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#0033A1]/10 text-[#0033A1]">
-                  <Sparkles className="h-4 w-4 text-[#0072CE]" aria-hidden />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#e0511f]/10 text-[#e0511f]">
+                  <Sparkles className="h-4 w-4 text-[#bf6a3c]" aria-hidden />
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-[#0f172a]">AI lender matcher</p>
@@ -626,7 +626,7 @@ export function MortgagePageContent() {
               <button
                 type="button"
                 onClick={toggleChat}
-                className="shrink-0 rounded-lg p-2 text-[#64748b] transition hover:bg-[#eef4ff] hover:text-[#0033A1]"
+                className="shrink-0 rounded-lg p-2 text-[#64748b] transition hover:bg-[#eef4ff] hover:text-[#e0511f]"
                 aria-expanded
                 aria-label="Collapse matcher panel"
               >

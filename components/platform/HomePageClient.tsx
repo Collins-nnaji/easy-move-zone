@@ -46,10 +46,10 @@ const services = [
     icon: ShieldCheck,
     href: "/purchase",
     cta: "Browse verified homes",
-    gradient: "from-cyan-500 to-blue-500",
-    glow: "bg-cyan-500/20",
-    accent: "text-cyan-400",
-    border: "border-cyan-500/20",
+    gradient: "from-orange-500 to-blue-500",
+    glow: "bg-orange-500/20",
+    accent: "text-orange-400",
+    border: "border-orange-500/20",
     photo: "/emzheropic.png",
     photoPosition: "60% center",
   },
@@ -160,10 +160,10 @@ export function HomePageClient() {
             </motion.div>
           </AnimatePresence>
           <div
-            className="absolute inset-0 bg-gradient-to-br from-[#020617]/92 via-[#0f172a]/78 to-[#002880]/55"
+            className="absolute inset-0 bg-gradient-to-br from-[#020617]/92 via-[#0f172a]/78 to-[#c8451a]/55"
             aria-hidden
           />
-          <div className="absolute -right-40 top-1/4 h-[600px] w-[600px] rounded-full bg-[#0072CE]/20 blur-[120px]" aria-hidden />
+          <div className="absolute -right-40 top-1/4 h-[600px] w-[600px] rounded-full bg-[#bf6a3c]/20 blur-[120px]" aria-hidden />
           <div className="absolute -left-40 bottom-1/4 h-[600px] w-[600px] rounded-full bg-emerald-500/10 blur-[120px]" aria-hidden />
         </motion.div>
 
@@ -172,7 +172,7 @@ export function HomePageClient() {
             <div className="lg:col-span-7 text-center lg:text-left">
               <motion.div
                 {...fadeUp(0, 14)}
-                className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-cyan-200 backdrop-blur-md"
+                className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-orange-200 backdrop-blur-md"
               >
                 <Sparkles className="h-3.5 w-3.5" />
                 Travel · Move · Settle — anywhere
@@ -183,7 +183,7 @@ export function HomePageClient() {
                 className="display-title text-5xl text-white sm:text-6xl lg:text-[4rem]"
               >
                 Move, settle, and own
-                <span className="block bg-gradient-to-r from-cyan-200 via-indigo-200 to-emerald-200 bg-clip-text text-transparent mt-2">
+                <span className="block bg-gradient-to-r from-orange-200 via-indigo-200 to-emerald-200 bg-clip-text text-transparent mt-2">
                   wherever life takes you.
                 </span>
               </motion.h1>
@@ -201,7 +201,7 @@ export function HomePageClient() {
                   method="get"
                   className="group relative rounded-2xl border border-white/20 bg-white/[0.08] p-2 shadow-2xl shadow-black/40 backdrop-blur-xl transition-all duration-300 focus-within:border-white/40 focus-within:bg-white/[0.12]"
                 >
-                  <Search className="pointer-events-none absolute left-6 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-cyan-400" />
+                  <Search className="pointer-events-none absolute left-6 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-orange-400" />
                   <input
                     type="text"
                     name="q"
@@ -210,7 +210,7 @@ export function HomePageClient() {
                   />
                   <button
                     type="submit"
-                    className="absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center gap-1.5 rounded-lg bg-[#0033A1] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-[#002880]"
+                    className="absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center gap-1.5 rounded-lg bg-[#e0511f] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-[#c8451a]"
                   >
                     Explore
                     <ArrowRight className="h-4 w-4" />
@@ -234,7 +234,7 @@ export function HomePageClient() {
               className="lg:col-span-5 hidden lg:flex flex-col justify-center gap-6"
             >
               {/* Eyebrow label */}
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-400/80">
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-orange-400/80">
                 Why EasyMoveZone
               </p>
 
@@ -247,8 +247,8 @@ export function HomePageClient() {
                   { label: "100% Transparent Pricing", sub: "Zero hidden fees, zero rip-offs" },
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-cyan-400/20 ring-1 ring-cyan-400/30">
-                      <Check className="h-3 w-3 text-cyan-300" />
+                    <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-orange-400/20 ring-1 ring-orange-400/30">
+                      <Check className="h-3 w-3 text-orange-300" />
                     </div>
                     <div>
                       <p className="text-[15px] font-bold text-white leading-snug">{item.label}</p>
@@ -260,7 +260,7 @@ export function HomePageClient() {
 
               {/* CTA row */}
               <div className="flex items-center gap-4 pt-2 border-t border-white/10">
-                <Link href="/purchase" className="inline-flex items-center gap-2 text-sm font-bold text-cyan-300 hover:text-white transition">
+                <Link href="/purchase" className="inline-flex items-center gap-2 text-sm font-bold text-orange-300 hover:text-white transition">
                   Browse verified homes <ArrowUpRight className="h-4 w-4" />
                 </Link>
                 <span className="text-white/20">·</span>
@@ -278,7 +278,7 @@ export function HomePageClient() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">Active Developments</span>
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Active Developments</span>
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
                 Built with care.<br />
                 <span className="text-slate-400">Watch it happen.</span>
@@ -293,7 +293,7 @@ export function HomePageClient() {
                   { label: "Verified Contractors", sub: "All vetted through our registry" },
                 ].map((item) => (
                   <div key={item.label} className="flex items-start gap-3">
-                    <div className="mt-1 h-2 w-2 rounded-full bg-cyan-400 shrink-0" />
+                    <div className="mt-1 h-2 w-2 rounded-full bg-orange-400 shrink-0" />
                     <div>
                       <p className="text-sm font-semibold text-white">{item.label}</p>
                       <p className="text-xs text-slate-500">{item.sub}</p>
@@ -304,7 +304,7 @@ export function HomePageClient() {
               <div className="mt-8">
                 <Link
                   href="/build"
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#0033A1] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-[#002880]"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#e0511f] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-[#c8451a]"
                 >
                   <HardHat className="h-4 w-4" />
                   Browse Build Projects
@@ -372,7 +372,7 @@ export function HomePageClient() {
 
       {/* Everything You Need — interactive carousel */}
       <section id="services" className="py-24 bg-slate-50 text-slate-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,51,161,0.05),transparent)]" aria-hidden />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(224,81,31,0.05),transparent)]" aria-hidden />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_80%_80%,rgba(139,92,246,0.03),transparent)]" aria-hidden />
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -381,12 +381,12 @@ export function HomePageClient() {
           <div className="mb-16 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-800">
-                <Sparkles className="h-3 w-3 text-cyan-600" />
+                <Sparkles className="h-3 w-3 text-orange-600" />
                 Everything you need
               </div>
               <h2 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl text-slate-900">
                 The cheapest way to
-                <span className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent"> own & move.</span>
+                <span className="bg-gradient-to-r from-orange-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent"> own & move.</span>
               </h2>
             </div>
             <p className="max-w-sm text-[15px] leading-relaxed text-slate-600 lg:text-right">
@@ -479,6 +479,9 @@ export function HomePageClient() {
                 </Link>
                 <Link href="/relocate/hub" className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10">
                   Open my relocation plan
+                </Link>
+                <Link href="/settle" className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10">
+                  Settle-in guides
                 </Link>
               </div>
             </div>

@@ -48,7 +48,7 @@ export function AskYourMarketChat({ corridorId }: { corridorId: string }) {
           <div
             key={`${message.role}-${index}`}
             className={`max-w-[90%] rounded-xl px-3 py-2 text-sm ${
-              message.role === "assistant" ? "bg-white text-[#0f172a]" : "ml-auto bg-[#155eef] text-white"
+              message.role === "assistant" ? "bg-white text-[#0f172a]" : "ml-auto bg-[#e0511f] text-white"
             }`}
           >
             {message.content}

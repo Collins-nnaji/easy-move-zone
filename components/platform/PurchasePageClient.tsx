@@ -137,7 +137,7 @@ export function PurchasePageClient() {
         <div className="mx-auto max-w-7xl px-4 pt-8 pb-6 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-cyan-600 mb-1">
+              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-orange-600 mb-1">
                 Outright Purchase
               </p>
               <h1 className="text-2xl font-bold tracking-tight text-[#0f172a] sm:text-3xl">
@@ -164,7 +164,7 @@ export function PurchasePageClient() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search city, neighbourhood, or type…"
-                className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-[#0f172a] placeholder:text-slate-400 shadow-sm focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/15"
+                className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-[#0f172a] placeholder:text-slate-400 shadow-sm focus:border-orange-400/50 focus:outline-none focus:ring-2 focus:ring-orange-400/15"
               />
             </div>
             <button
@@ -173,7 +173,7 @@ export function PurchasePageClient() {
               className={clsx(
                 "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-sm transition",
                 filtersOpen || activeFilters > 0
-                  ? "border-[#0033A1] bg-[#0033A1] text-white"
+                  ? "border-[#e0511f] bg-[#e0511f] text-white"
                   : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
               )}
             >
@@ -188,7 +188,7 @@ export function PurchasePageClient() {
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-[#0f172a] shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-[#0f172a] shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400/20"
             >
               <option value="relevant">Most relevant</option>
               <option value="price-asc">Price: low → high</option>
@@ -207,8 +207,8 @@ export function PurchasePageClient() {
                 className={clsx(
                   "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-all",
                   typeFilter === value
-                    ? "border-[#0033A1] bg-[#0033A1] text-white shadow-sm"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-[#0033A1]/40 hover:text-[#0033A1]"
+                    ? "border-[#e0511f] bg-[#e0511f] text-white shadow-sm"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-[#e0511f]/40 hover:text-[#e0511f]"
                 )}
               >
                 {Icon && <Icon className="h-3.5 w-3.5 shrink-0" />}
@@ -240,8 +240,8 @@ export function PurchasePageClient() {
                           className={clsx(
                             "rounded-full border px-3.5 py-1.5 text-xs font-semibold transition",
                             cityFilter === city
-                              ? "border-[#0033A1] bg-[#0033A1] text-white shadow-sm"
-                              : "border-slate-200 bg-white text-slate-500 hover:border-[#0033A1]/40 hover:text-[#0033A1]"
+                              ? "border-[#e0511f] bg-[#e0511f] text-white shadow-sm"
+                              : "border-slate-200 bg-white text-slate-500 hover:border-[#e0511f]/40 hover:text-[#e0511f]"
                           )}
                         >
                           {city}
@@ -254,7 +254,7 @@ export function PurchasePageClient() {
                   <div>
                     <div className="flex items-center justify-between mb-2.5">
                       <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Price range</p>
-                      <p className="text-xs font-semibold text-[#0033A1]">
+                      <p className="text-xs font-semibold text-[#e0511f]">
                         {formatPrice(priceRange[0])} — {formatPrice(priceRange[1])}
                       </p>
                     </div>
@@ -283,7 +283,7 @@ export function PurchasePageClient() {
             <p className="mt-3 text-xs text-slate-400">
               {filtered.length} {filtered.length === 1 ? "property" : "properties"} found
               {activeFilters > 0 && (
-                <> · <button type="button" onClick={clearAll} className="text-[#0033A1] font-semibold hover:underline">Clear filters</button></>
+                <> · <button type="button" onClick={clearAll} className="text-[#e0511f] font-semibold hover:underline">Clear filters</button></>
               )}
             </p>
           )}
@@ -305,20 +305,20 @@ export function PurchasePageClient() {
             </p>
           )}
           {loadState === "ok" && filtered.length === 0 && (
-            <div className="rounded-3xl border border-[#0033A1]/20 bg-gradient-to-br from-white to-slate-50 py-24 text-center shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-              <span className="inline-block rounded-full bg-[#0033A1]/10 border border-[#0033A1]/20 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-[#0033A1] mb-4">
+            <div className="rounded-3xl border border-[#e0511f]/20 bg-gradient-to-br from-white to-slate-50 py-24 text-center shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+              <span className="inline-block rounded-full bg-[#e0511f]/10 border border-[#e0511f]/20 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-[#e0511f] mb-4">
                 Coming Soon
               </span>
               <p className="text-xl font-bold text-[#0f172a]">New Properties &amp; Prices Dropping Soon</p>
               <p className="mt-2 text-sm text-slate-500 max-w-md mx-auto">
                 We&apos;re adding verified listings now. Clear your filters or{" "}
-                <a href="/contact" className="text-[#0033A1] hover:underline underline-offset-2">contact us</a>{" "}
+                <a href="/contact" className="text-[#e0511f] hover:underline underline-offset-2">contact us</a>{" "}
                 to be notified when new properties go live.
               </p>
               <button
                 type="button"
                 onClick={clearAll}
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0033A1] px-5 py-2.5 text-sm font-bold text-white shadow transition hover:bg-[#002880]"
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#e0511f] px-5 py-2.5 text-sm font-bold text-white shadow transition hover:bg-[#c8451a]"
               >
                 Clear filters
               </button>
@@ -344,14 +344,14 @@ export function PurchasePageClient() {
           )}
 
           {loadState === "ok" && (
-            <div className="mt-16 rounded-3xl border border-[#0072CE]/20 bg-gradient-to-br from-[#030a1a] to-[#0a1428] p-10 text-center shadow-xl ring-1 ring-white/5">
+            <div className="mt-16 rounded-3xl border border-[#bf6a3c]/20 bg-gradient-to-br from-[#030a1a] to-[#0a1428] p-10 text-center shadow-xl ring-1 ring-white/5">
               <p className="text-xl font-bold text-white sm:text-2xl">Don&apos;t see the right fit?</p>
               <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
                 Tell us what you need and we&apos;ll source a verified match from our off-market inventory.
               </p>
               <Link
                 href="/contact"
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#0072CE] px-7 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#005fad]"
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#bf6a3c] px-7 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#005fad]"
               >
                 Contact us <ArrowRight className="h-4 w-4" />
               </Link>
@@ -378,17 +378,17 @@ function PriceRangeSlider({
     <div className="relative h-8 flex items-center">
       <div className="absolute inset-x-0 h-1.5 rounded-full bg-slate-200" />
       <div
-        className="absolute h-1.5 rounded-full bg-[#0033A1]"
+        className="absolute h-1.5 rounded-full bg-[#e0511f]"
         style={{ left: `${pct(low)}%`, right: `${100 - pct(high)}%` }}
       />
       <input type="range" min={min} max={max} step={step} value={low}
         onChange={e => { const n = clamp(Number(e.target.value)); if (n <= high) onChange([n, high]) }}
-        className="absolute inset-x-0 h-1.5 w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-2 [&::-webkit-slider-thumb]:ring-[#0033A1] [&::-webkit-slider-thumb]:hover:scale-110"
+        className="absolute inset-x-0 h-1.5 w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-2 [&::-webkit-slider-thumb]:ring-[#e0511f] [&::-webkit-slider-thumb]:hover:scale-110"
         style={{ zIndex: low >= high - step ? 5 : 3 }}
       />
       <input type="range" min={min} max={max} step={step} value={high}
         onChange={e => { const n = clamp(Number(e.target.value)); if (n >= low) onChange([low, n]) }}
-        className="absolute inset-x-0 h-1.5 w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-2 [&::-webkit-slider-thumb]:ring-[#0033A1] [&::-webkit-slider-thumb]:hover:scale-110"
+        className="absolute inset-x-0 h-1.5 w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-2 [&::-webkit-slider-thumb]:ring-[#e0511f] [&::-webkit-slider-thumb]:hover:scale-110"
         style={{ zIndex: 4 }}
       />
     </div>
@@ -402,7 +402,7 @@ function ListingCard({ listing }: { listing: PublicListingCard }) {
   return (
     <Link
       href={`/properties/${listing.id}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#0072CE]/30 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0072CE]/40"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#bf6a3c]/30 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#bf6a3c]/40"
     >
       <div className="relative h-52 overflow-hidden bg-slate-100">
         <div
@@ -427,7 +427,7 @@ function ListingCard({ listing }: { listing: PublicListingCard }) {
       </div>
 
       <div className="flex flex-1 flex-col p-4">
-        <h3 className="line-clamp-2 font-semibold leading-snug text-[#0f172a] transition-colors group-hover:text-[#0033A1]">
+        <h3 className="line-clamp-2 font-semibold leading-snug text-[#0f172a] transition-colors group-hover:text-[#e0511f]">
           {listing.title}
         </h3>
         {listing.bedrooms != null && (

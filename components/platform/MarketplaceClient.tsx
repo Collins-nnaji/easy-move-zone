@@ -59,10 +59,10 @@ function VendorCard({
   const Icon = CATEGORY_ICONS[vendor.category]
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-sm transition hover:border-[#155eef]/40 hover:shadow-lg">
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-sm transition hover:border-[#e0511f]/40 hover:shadow-lg">
       {/* Card header with category strip */}
       <div className="flex items-center justify-between border-b border-[#f1f5f9] bg-[#f8fbff] px-4 py-2.5">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-[#155eef]">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-[#e0511f]">
           {categoryLabel}
         </span>
         {vendor.verified && (
@@ -75,10 +75,10 @@ function VendorCard({
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-start gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#eef4ff] to-[#e0f2fe]">
-            <Icon className="h-6 w-6 text-[#155eef]" />
+            <Icon className="h-6 w-6 text-[#e0511f]" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="font-[var(--font-playfair)] text-lg font-semibold text-[#0f172a] group-hover:text-[#155eef] transition">
+            <h3 className="font-[var(--font-playfair)] text-lg font-semibold text-[#0f172a] group-hover:text-[#e0511f] transition">
               {vendor.name}
             </h3>
             <p className="mt-0.5 text-sm text-[#64748b] line-clamp-2">{vendor.tagline}</p>
@@ -108,7 +108,7 @@ function VendorCard({
           {vendor.email && (
             <a
               href={`mailto:${vendor.email}`}
-              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#155eef] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#0f4bb5]"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#e0511f] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#0f4bb5]"
             >
               <Mail className="h-3.5 w-3.5" /> Contact
             </a>
@@ -116,7 +116,7 @@ function VendorCard({
           {vendor.phone && !vendor.email && (
             <a
               href={`tel:${vendor.phone}`}
-              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#155eef] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#0f4bb5]"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#e0511f] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#0f4bb5]"
             >
               <Phone className="h-3.5 w-3.5" /> Call
             </a>
@@ -194,13 +194,13 @@ export function MarketplaceClient({
             placeholder="Search services…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-[#e2e8f0] bg-[#f8fbff] py-2.5 pl-9 pr-3 text-sm placeholder:text-[#94a3b8] focus:border-[#155eef] focus:outline-none focus:ring-1 focus:ring-[#155eef]/20"
+            className="w-full rounded-lg border border-[#e2e8f0] bg-[#f8fbff] py-2.5 pl-9 pr-3 text-sm placeholder:text-[#94a3b8] focus:border-[#e0511f] focus:outline-none focus:ring-1 focus:ring-[#e0511f]/20"
           />
         </div>
         <select
           value={countryFilter}
           onChange={(e) => setCountryFilter(e.target.value)}
-          className="rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-xs font-medium text-[#0f172a] focus:border-[#155eef] focus:outline-none"
+          className="rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-xs font-medium text-[#0f172a] focus:border-[#e0511f] focus:outline-none"
         >
           <option value="">All countries</option>
           {allCountries.map((c) => (
@@ -229,7 +229,7 @@ export function MarketplaceClient({
                   placeholder="Search services (e.g. packing, Lagos, storage…)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-xl border border-[#e2e8f0] bg-[#f8fbff] py-3 pl-11 pr-4 text-sm placeholder:text-[#94a3b8] focus:border-[#155eef] focus:outline-none focus:ring-2 focus:ring-[#155eef]/20"
+                  className="w-full rounded-xl border border-[#e2e8f0] bg-[#f8fbff] py-3 pl-11 pr-4 text-sm placeholder:text-[#94a3b8] focus:border-[#e0511f] focus:outline-none focus:ring-2 focus:ring-[#e0511f]/20"
                 />
               </div>
 
@@ -243,7 +243,7 @@ export function MarketplaceClient({
                     onClick={() => setSelectedCategory("all")}
                     className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
                       selectedCategory === "all"
-                        ? "bg-[#155eef] text-white"
+                        ? "bg-[#e0511f] text-white"
                         : "bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]"
                     }`}
                   >
@@ -259,7 +259,7 @@ export function MarketplaceClient({
                         onClick={() => setSelectedCategory(cat.id)}
                         className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition ${
                           isActive
-                            ? "bg-[#155eef] text-white"
+                            ? "bg-[#e0511f] text-white"
                             : "bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]"
                         }`}
                       >
@@ -276,7 +276,7 @@ export function MarketplaceClient({
                 <select
                   value={countryFilter}
                   onChange={(e) => setCountryFilter(e.target.value)}
-                  className="rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-xs font-medium text-[#0f172a] focus:border-[#155eef] focus:outline-none"
+                  className="rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-xs font-medium text-[#0f172a] focus:border-[#e0511f] focus:outline-none"
                 >
                   <option value="">All countries</option>
                   {allCountries.map((c) => (
@@ -310,7 +310,7 @@ export function MarketplaceClient({
                 setCountryFilter("")
                 setSearchQuery("")
               }}
-              className="mt-4 rounded-full bg-[#155eef] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0f4bb5]"
+              className="mt-4 rounded-full bg-[#e0511f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0f4bb5]"
             >
               Clear filters
             </button>

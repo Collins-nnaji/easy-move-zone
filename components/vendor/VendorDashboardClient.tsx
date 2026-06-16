@@ -131,7 +131,7 @@ export function VendorDashboardClient() {
           {[
             { label: "Active services", value: String(kpis.live),      icon: Truck,         color: "text-[#E85C2D]" },
             { label: "Total views",     value: String(kpis.views),     icon: Eye,           color: "text-[#4A7C59]" },
-            { label: "Enquiries",       value: String(kpis.enquiries), icon: MessageSquare, color: "text-[#0033A1]" },
+            { label: "Enquiries",       value: String(kpis.enquiries), icon: MessageSquare, color: "text-[#e0511f]" },
           ].map(({ label, value, icon: Icon, color }) => (
             <div key={label} className="rounded-2xl border border-[#E4DFDA] bg-white p-5">
               <Icon className={`h-5 w-5 ${color} mb-3`} />

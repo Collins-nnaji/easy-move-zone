@@ -206,7 +206,7 @@ function EditModal({ listing, onClose, onSaved }: { listing: PropertyRow; onClos
     }
   }
 
-  const inputCls = "mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-[#0f172a] placeholder:text-slate-400 focus:border-[#0033A1]/50 focus:outline-none focus:ring-2 focus:ring-[#0033A1]/10"
+  const inputCls = "mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-[#0f172a] placeholder:text-slate-400 focus:border-[#e0511f]/50 focus:outline-none focus:ring-2 focus:ring-[#e0511f]/10"
   const labelCls = "text-[10px] font-bold uppercase tracking-wider text-slate-500"
 
   return (
@@ -295,11 +295,11 @@ function EditModal({ listing, onClose, onSaved }: { listing: PropertyRow; onClos
           </div>
           <div className="flex gap-6">
             <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input type="checkbox" checked={form.is_featured} onChange={(e) => setForm((f) => ({ ...f, is_featured: e.target.checked }))} className="rounded border-slate-300 text-[#0033A1]" />
+              <input type="checkbox" checked={form.is_featured} onChange={(e) => setForm((f) => ({ ...f, is_featured: e.target.checked }))} className="rounded border-slate-300 text-[#e0511f]" />
               Feature on homepage
             </label>
             <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input type="checkbox" checked={form.is_published} onChange={(e) => setForm((f) => ({ ...f, is_published: e.target.checked }))} className="rounded border-slate-300 text-[#0033A1]" />
+              <input type="checkbox" checked={form.is_published} onChange={(e) => setForm((f) => ({ ...f, is_published: e.target.checked }))} className="rounded border-slate-300 text-[#e0511f]" />
               Published
             </label>
           </div>
@@ -309,7 +309,7 @@ function EditModal({ listing, onClose, onSaved }: { listing: PropertyRow; onClos
             </label>
             <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple
               onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
-              className="mt-2 w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-[#0033A1] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white"
+              className="mt-2 w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-[#e0511f] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white"
             />
             {files.length > 0 && <p className="mt-1 text-xs text-slate-400">{files.length} file{files.length > 1 ? "s" : ""} selected</p>}
           </div>
@@ -320,7 +320,7 @@ function EditModal({ listing, onClose, onSaved }: { listing: PropertyRow; onClos
 
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={onClose} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
-            <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-[#0033A1] px-5 py-2 text-sm font-bold text-white shadow hover:bg-[#002880] disabled:opacity-60">
+            <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-[#e0511f] px-5 py-2 text-sm font-bold text-white shadow hover:bg-[#c8451a] disabled:opacity-60">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
               Save changes
             </button>
@@ -432,7 +432,7 @@ export function AdminListingsClient() {
   const featured = listings.filter((l) => l.is_featured).length
   const verified = listings.filter((l) => l.verification_status === "verified").length
 
-  const inputCls = "mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-[#0072CE]/60 focus:outline-none focus:ring-1 focus:ring-[#0072CE]/30"
+  const inputCls = "mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-[#bf6a3c]/60 focus:outline-none focus:ring-1 focus:ring-[#bf6a3c]/30"
   const labelCls = "text-[10px] font-bold uppercase tracking-wider text-slate-500"
 
   return (
@@ -463,10 +463,10 @@ export function AdminListingsClient() {
       {/* Stats bar */}
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: "Total listings", value: listings.length, color: "text-[#0033A1]" },
+          { label: "Total listings", value: listings.length, color: "text-[#e0511f]" },
           { label: "Published", value: published, color: "text-emerald-600" },
           { label: "Featured", value: featured, color: "text-amber-600" },
-          { label: "Verified", value: verified, color: "text-cyan-600" },
+          { label: "Verified", value: verified, color: "text-orange-600" },
         ].map((s) => (
           <div key={s.label} className="rounded-2xl border border-slate-100 bg-white px-5 py-4 shadow-sm">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">{s.label}</p>
@@ -480,7 +480,7 @@ export function AdminListingsClient() {
         {(["listings", "new"] as const).map((t) => (
           <button key={t} type="button" onClick={() => setTab(t)}
             className={clsx("rounded-lg px-5 py-2 text-sm font-semibold transition",
-              tab === t ? "bg-white shadow text-[#0033A1]" : "text-slate-500 hover:text-slate-700")}>
+              tab === t ? "bg-white shadow text-[#e0511f]" : "text-slate-500 hover:text-slate-700")}>
             {t === "listings" ? <span className="flex items-center gap-1.5"><LayoutList className="h-4 w-4" /> All listings</span>
               : <span className="flex items-center gap-1.5"><Plus className="h-4 w-4" /> New listing</span>}
           </button>
@@ -506,7 +506,7 @@ export function AdminListingsClient() {
           ) : listings.length === 0 ? (
             <div className="py-20 text-center">
               <p className="text-sm font-medium text-slate-500">No listings yet.</p>
-              <button onClick={() => setTab("new")} className="mt-3 text-sm font-semibold text-[#0033A1] hover:underline">Add your first listing →</button>
+              <button onClick={() => setTab("new")} className="mt-3 text-sm font-semibold text-[#e0511f] hover:underline">Add your first listing →</button>
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
@@ -518,7 +518,7 @@ export function AdminListingsClient() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <Link href={`/properties/${p.id}`} target="_blank"
-                          className="font-semibold text-[#0f172a] hover:text-[#0033A1] text-sm truncate max-w-xs">
+                          className="font-semibold text-[#0f172a] hover:text-[#e0511f] text-sm truncate max-w-xs">
                           {p.title}
                         </Link>
                         <span className={clsx("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide", statusColor[p.verification_status] ?? "bg-slate-100 text-slate-500")}>
@@ -544,7 +544,7 @@ export function AdminListingsClient() {
                         {p.is_published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                       <button type="button" onClick={() => setEditTarget(p)} title="Edit"
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-400 hover:bg-[#0033A1]/10 hover:text-[#0033A1] transition">
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-400 hover:bg-[#e0511f]/10 hover:text-[#e0511f] transition">
                         <Pencil className="h-4 w-4" />
                       </button>
                       {deleteConfirm === p.id ? (
@@ -569,9 +569,9 @@ export function AdminListingsClient() {
 
       {/* ── TAB: New listing ── */}
       {tab === "new" && (
-        <section className="mt-6 rounded-2xl border border-[#0033A1]/20 bg-gradient-to-br from-[#0b1220] to-[#0f172a] p-7 text-white shadow-xl">
+        <section className="mt-6 rounded-2xl border border-[#e0511f]/20 bg-gradient-to-br from-[#0b1220] to-[#0f172a] p-7 text-white shadow-xl">
           <div className="flex items-center gap-2 mb-1">
-            <Plus className="h-5 w-5 text-cyan-300" />
+            <Plus className="h-5 w-5 text-orange-300" />
             <h2 className="text-xl font-bold">New listing</h2>
           </div>
           <p className="text-xs text-slate-400 mb-6">Saves as <strong className="text-white">verified + published</strong> — admin posts are pre-vetted.</p>
@@ -649,7 +649,7 @@ export function AdminListingsClient() {
               </label>
               <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" multiple
                 onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
-                className="mt-2 w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-[#0072CE] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white"
+                className="mt-2 w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-[#bf6a3c] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white"
               />
               {files.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-2">

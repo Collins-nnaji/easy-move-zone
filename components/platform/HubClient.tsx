@@ -55,7 +55,7 @@ export function HubClient() {
                 onClick={() => setSelectedCategory("all")}
                 className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition ${
                   selectedCategory === "all"
-                    ? "bg-[#155eef] text-white"
+                    ? "bg-[#e0511f] text-white"
                     : "bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]"
                 }`}
               >
@@ -72,7 +72,7 @@ export function HubClient() {
                     onClick={() => setSelectedCategory(cat.id)}
                     className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition ${
                       isActive
-                        ? "bg-[#155eef] text-white"
+                        ? "bg-[#e0511f] text-white"
                         : "bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]"
                     }`}
                   >
@@ -86,7 +86,7 @@ export function HubClient() {
                 onClick={() => setSelectedCategory("financing")}
                 className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition ${
                   selectedCategory === "financing"
-                    ? "bg-[#155eef] text-white"
+                    ? "bg-[#e0511f] text-white"
                     : "bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]"
                 }`}
               >
@@ -106,13 +106,13 @@ export function HubClient() {
                   placeholder="Search services…"
                   value={hubSearchQuery}
                   onChange={(e) => setHubSearchQuery(e.target.value)}
-                  className="w-full rounded-lg border border-[#e2e8f0] bg-[#f8fbff] py-2.5 pl-9 pr-3 text-sm placeholder:text-[#94a3b8] focus:border-[#155eef] focus:outline-none focus:ring-1 focus:ring-[#155eef]/20"
+                  className="w-full rounded-lg border border-[#e2e8f0] bg-[#f8fbff] py-2.5 pl-9 pr-3 text-sm placeholder:text-[#94a3b8] focus:border-[#e0511f] focus:outline-none focus:ring-1 focus:ring-[#e0511f]/20"
                 />
               </div>
               <select
                 value={hubCountryFilter}
                 onChange={(e) => setHubCountryFilter(e.target.value)}
-                className="rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-xs font-medium text-[#0f172a] focus:border-[#155eef] focus:outline-none"
+                className="rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-xs font-medium text-[#0f172a] focus:border-[#e0511f] focus:outline-none"
               >
                 <option value="">All countries</option>
                 {hubVendorCountries.map((c) => (

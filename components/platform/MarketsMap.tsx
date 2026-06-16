@@ -128,7 +128,7 @@ export function MarketsMap({
                   onClick={() => setActiveMarketId(row.market.id)}
                   className={`rounded-xl border p-3 text-left transition ${
                     isActive
-                      ? "border-[#155eef] bg-[#eaf1ff]"
+                      ? "border-[#e0511f] bg-[#eaf1ff]"
                       : "border-[#dbe4f0] bg-white hover:border-[#bfd1f1] hover:bg-[#f8fbff]"
                   }`}
                 >
@@ -180,10 +180,10 @@ export function MarketsMap({
           </div>
 
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#155eef]">Top sectors</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#e0511f]">Top sectors</p>
             <div className="mt-2 flex flex-wrap gap-1">
               {activeMarket.topSectors.map((sector) => (
-                <span key={sector} className="rounded-full bg-[#eef4ff] px-2 py-1 text-[11px] text-[#155eef]">
+                <span key={sector} className="rounded-full bg-[#eef4ff] px-2 py-1 text-[11px] text-[#e0511f]">
                   {sector}
                 </span>
               ))}
@@ -191,7 +191,7 @@ export function MarketsMap({
           </div>
 
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#155eef]">High-fit opportunities</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#e0511f]">High-fit opportunities</p>
             {relatedListings.length === 0 ? (
               <p className="mt-2 text-sm text-[#64748b]">No listing inventory currently available for this city.</p>
             ) : (
@@ -208,7 +208,7 @@ export function MarketsMap({
                       <h4 className="text-sm font-semibold text-[#0f172a]">{listing.title}</h4>
                       <p className="text-xs text-[#64748b]">{listing.neighborhood}</p>
                       <div className="mt-1 flex flex-wrap gap-1">
-                        <span className="rounded-full bg-[#eaf1ff] px-2 py-0.5 text-[10px] text-[#155eef]">
+                        <span className="rounded-full bg-[#eaf1ff] px-2 py-0.5 text-[10px] text-[#e0511f]">
                           {listing.commuteMinutes} mins commute
                         </span>
                         <span className="rounded-full bg-[#e7f7f2] px-2 py-0.5 text-[10px] text-[#0f766e]">
@@ -219,7 +219,7 @@ export function MarketsMap({
                         <p className="text-sm font-semibold text-[#0f172a]">${listing.priceUsd.toLocaleString()}</p>
                         <Link
                           href={`/contact?market=${listing.citySlug}&message=I%20need%20help%20with%20${encodeURIComponent(listing.title)}`}
-                          className="text-xs font-semibold text-[#155eef] hover:underline"
+                          className="text-xs font-semibold text-[#e0511f] hover:underline"
                         >
                           Get help
                         </Link>
@@ -232,7 +232,7 @@ export function MarketsMap({
           </div>
 
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#155eef]">Neighbourhood fit signals</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#e0511f]">Neighbourhood fit signals</p>
             <ul className="mt-2 space-y-1 text-sm text-[#64748b]">
               <li>{relatedListings.filter((item) => item.moveInReady).length} move-in ready listings</li>
               <li>{relatedListings.filter((item) => item.verified).length} fully verified listings</li>

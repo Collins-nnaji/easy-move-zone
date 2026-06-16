@@ -14,7 +14,7 @@ export function HubChatWidget() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open Hub Advisor"
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#155eef] text-white shadow-lg transition hover:bg-[#0d4bc9] hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#155eef] focus:ring-offset-2 [bottom:max(1.5rem,env(safe-area-inset-bottom))] [right:max(1.5rem,env(safe-area-inset-right))]"
+        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#e0511f] text-white shadow-lg transition hover:bg-[#0d4bc9] hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#e0511f] focus:ring-offset-2 [bottom:max(1.5rem,env(safe-area-inset-bottom))] [right:max(1.5rem,env(safe-area-inset-right))]"
       >
         <MessageCircle className="h-6 w-6" />
       </button>
@@ -37,7 +37,7 @@ export function HubChatWidget() {
           <div className="relative flex h-[85vh] max-h-[90dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-[#e2e8f0] bg-white shadow-2xl sm:h-[560px] sm:max-h-none sm:w-[400px] sm:rounded-2xl sm:border-2">
             <div className="flex shrink-0 items-center justify-between border-b border-[#e8edf6] bg-[#f8fbff] px-4 py-3">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#155eef]">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e0511f]">
                   <Sparkles className="h-4 w-4 text-white" />
                 </div>
                 <div>

@@ -139,7 +139,7 @@ export function SearchPageClient() {
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-10">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#0033A1] mb-1">Browse</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#e0511f] mb-1">Browse</p>
               <h1 className="text-2xl font-bold tracking-tight text-[#0f172a] sm:text-3xl">
                 Verified homes &amp; land
               </h1>
@@ -164,7 +164,7 @@ export function SearchPageClient() {
                         "flex items-center gap-2 px-4 py-2.5 rounded-lg font-bold text-sm transition-all duration-200",
                         active
                           ? m.id === "homes"
-                            ? "bg-[#0033A1] text-white shadow"
+                            ? "bg-[#e0511f] text-white shadow"
                             : "bg-amber-500 text-white shadow"
                           : "text-slate-500 hover:text-[#0f172a]"
                       )}
@@ -188,7 +188,7 @@ export function SearchPageClient() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="City, neighbourhood, title, or type…"
-                  className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-[14px] text-[#0f172a] placeholder:text-slate-400 focus:border-[#0033A1]/40 focus:outline-none focus:ring-2 focus:ring-[#0033A1]/10 shadow-sm"
+                  className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-[14px] text-[#0f172a] placeholder:text-slate-400 focus:border-[#e0511f]/40 focus:outline-none focus:ring-2 focus:ring-[#e0511f]/10 shadow-sm"
                 />
               </div>
               <button
@@ -211,8 +211,8 @@ export function SearchPageClient() {
                     className={clsx(
                       "rounded-full px-3.5 py-1.5 text-xs font-semibold border transition",
                       active
-                        ? "bg-[#0033A1] text-white border-[#0033A1] shadow-sm"
-                        : "bg-white text-slate-500 border-slate-200 hover:border-[#0033A1]/30 hover:text-[#0033A1]",
+                        ? "bg-[#e0511f] text-white border-[#e0511f] shadow-sm"
+                        : "bg-white text-slate-500 border-slate-200 hover:border-[#e0511f]/30 hover:text-[#e0511f]",
                     )}
                   >
                     {city}
@@ -229,7 +229,7 @@ export function SearchPageClient() {
 
       {/* Results */}
       <section className="relative bg-slate-50/60 py-12 md:py-16 isolation-auto">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#0072CE]/5 via-transparent to-transparent opacity-70" aria-hidden />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#bf6a3c]/5 via-transparent to-transparent opacity-70" aria-hidden />
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
           <div className="lg:grid lg:grid-cols-12 lg:items-start lg:gap-10 xl:gap-12">
             <div className={clsx("min-w-0 transition-all duration-300", showEstimator ? "lg:col-span-8" : "lg:col-span-12")}>
@@ -239,7 +239,7 @@ export function SearchPageClient() {
                   <p className="text-sm text-slate-600">
                     {loadState === "loading" ? (
                       <span className="inline-flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin text-[#0033A1]" /> Loading listings…
+                        <Loader2 className="h-4 w-4 animate-spin text-[#e0511f]" /> Loading listings…
                       </span>
                     ) : loadState === "error" ? (
                       <span className="text-amber-700">Could not load listings. Check database configuration.</span>
@@ -264,7 +264,7 @@ export function SearchPageClient() {
                   <select
                     value={sort}
                     onChange={(e) => setSort(e.target.value)}
-                    className="rounded-xl border border-slate-200/90 bg-white px-4 py-2.5 text-sm font-medium text-[#0f172a] shadow-sm focus:border-[#0033A1]/40 focus:outline-none focus:ring-2 focus:ring-[#0033A1]/10"
+                    className="rounded-xl border border-slate-200/90 bg-white px-4 py-2.5 text-sm font-medium text-[#0f172a] shadow-sm focus:border-[#e0511f]/40 focus:outline-none focus:ring-2 focus:ring-[#e0511f]/10"
                   >
                     <option value="relevant">Most relevant</option>
                     <option value="price-asc">Price: low to high</option>
@@ -304,15 +304,15 @@ export function SearchPageClient() {
                 <motion.div
                   initial={reduceMotion ? false : { opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-3xl border border-[#0072CE]/20 bg-gradient-to-br from-white to-slate-50 py-20 text-center shadow-[0_8px_30px_rgba(0,0,0,0.04)]"
+                  className="rounded-3xl border border-[#bf6a3c]/20 bg-gradient-to-br from-white to-slate-50 py-20 text-center shadow-[0_8px_30px_rgba(0,0,0,0.04)]"
                 >
-                  <span className="inline-block rounded-full bg-[#0072CE]/10 border border-[#0072CE]/20 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-[#0072CE] mb-4">
+                  <span className="inline-block rounded-full bg-[#bf6a3c]/10 border border-[#bf6a3c]/20 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-[#bf6a3c] mb-4">
                     Coming Soon
                   </span>
                   <p className="text-xl font-bold text-[#0f172a]">New Properties &amp; Prices Dropping Soon</p>
                   <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
                     We&apos;re adding verified listings now. Try a different search, or{" "}
-                    <a href="/contact" className="text-[#0072CE] hover:underline underline-offset-2">
+                    <a href="/contact" className="text-[#bf6a3c] hover:underline underline-offset-2">
                       contact us
                     </a>{" "}
                     to be notified when new properties go live.
@@ -325,9 +325,9 @@ export function SearchPageClient() {
                 whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, ease: easeOut }}
-                className="relative mt-16 overflow-hidden rounded-3xl border border-[#0072CE]/30 bg-gradient-to-br from-[#030712] via-[#0a1128] to-[#020617] p-10 text-center shadow-2xl md:p-14 ring-1 ring-white/10"
+                className="relative mt-16 overflow-hidden rounded-3xl border border-[#bf6a3c]/30 bg-gradient-to-br from-[#030712] via-[#0a1128] to-[#020617] p-10 text-center shadow-2xl md:p-14 ring-1 ring-white/10"
               >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(0,114,206,0.3),transparent)]" aria-hidden />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(191,106,60,0.3),transparent)]" aria-hidden />
                 <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_50%,transparent_75%)] bg-[length:250%_250%] animate-pulse" aria-hidden />
                 <p className="relative text-2xl font-bold tracking-tight text-white md:text-3xl">Not seeing a perfect match?</p>
                 <p className="relative mx-auto mt-3 max-w-lg text-sm text-slate-400 leading-relaxed">
@@ -335,7 +335,7 @@ export function SearchPageClient() {
                 </p>
                 <Link
                   href="/contact"
-                  className="relative mt-8 inline-flex items-center gap-2 rounded-full bg-[#0072CE] px-8 py-3 text-sm font-bold text-white shadow-lg shadow-[#0072CE]/30 transition-all duration-200 hover:bg-[#005fad] hover:shadow-[#0072CE]/40 hover:-translate-y-0.5"
+                  className="relative mt-8 inline-flex items-center gap-2 rounded-full bg-[#bf6a3c] px-8 py-3 text-sm font-bold text-white shadow-lg shadow-[#bf6a3c]/30 transition-all duration-200 hover:bg-[#005fad] hover:shadow-[#bf6a3c]/40 hover:-translate-y-0.5"
                 >
                   Contact us <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -382,7 +382,7 @@ export function SearchPageClient() {
 
                         <div className="rounded-3xl bg-white border border-slate-200/80 p-6 shadow-sm">
                           <h4 className="text-sm font-bold text-[#0f172a] mb-4 flex items-center gap-2">
-                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-cyan-100 text-xs font-bold text-cyan-600">2</span>
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-100 text-xs font-bold text-orange-600">2</span>
                             Our Promise
                           </h4>
                           <div className="grid gap-3.5 text-[13px]">
@@ -447,8 +447,8 @@ function ListingCard({
   }, [listing])
 
   return (
-    <div className="group/card flex h-full flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white/95 backdrop-blur-sm shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[#0072CE]/30 hover:shadow-[0_20px_40px_rgba(0,51,161,0.08)] hover:ring-1 hover:ring-[#0072CE]/20">
-      <Link href={`/properties/${listing.id}`} className="flex min-h-0 flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0072CE]/35">
+    <div className="group/card flex h-full flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white/95 backdrop-blur-sm shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[#bf6a3c]/30 hover:shadow-[0_20px_40px_rgba(224,81,31,0.08)] hover:ring-1 hover:ring-[#bf6a3c]/20">
+      <Link href={`/properties/${listing.id}`} className="flex min-h-0 flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-[#bf6a3c]/35">
         <div className="relative h-52 overflow-hidden">
           <div
             className="absolute inset-0 transition duration-700 group-hover/card:scale-[1.03]"
@@ -460,7 +460,7 @@ function ListingCard({
               className={clsx(
                 "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide backdrop-blur-md",
                 listing.category === "home"
-                  ? "bg-[#0033A1]/90 text-white ring-1 ring-white/20"
+                  ? "bg-[#e0511f]/90 text-white ring-1 ring-white/20"
                   : "bg-emerald-600/90 text-white ring-1 ring-white/20",
               )}
             >
@@ -491,7 +491,7 @@ function ListingCard({
           </div>
         </div>
         <div className="flex flex-1 flex-col p-5">
-          <h3 className="font-semibold leading-snug text-[#0f172a] transition-colors group-hover/card:text-[#0033A1]">{listing.title}</h3>
+          <h3 className="font-semibold leading-snug text-[#0f172a] transition-colors group-hover/card:text-[#e0511f]">{listing.title}</h3>
           {listing.category === "home" && listing.bedrooms != null && (
             <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-slate-500">
               <BedDouble className="h-3.5 w-3.5" /> {listing.bedrooms} beds · {listing.size}
@@ -513,8 +513,8 @@ function ListingCard({
             </div>
           )}
           {buildHint && (
-            <div className="mt-2 rounded-lg border border-[#0072CE]/15 bg-[#eff6ff] px-3 py-2 text-[11px] leading-snug text-slate-700">
-              <span className="font-semibold text-[#0033A1]">Indicative 220 sqm build: </span>
+            <div className="mt-2 rounded-lg border border-[#bf6a3c]/15 bg-[#eff6ff] px-3 py-2 text-[11px] leading-snug text-slate-700">
+              <span className="font-semibold text-[#e0511f]">Indicative 220 sqm build: </span>
               {formatNgn(buildHint.low)} – {formatNgn(buildHint.high)} incl. land
             </div>
           )}
@@ -525,7 +525,7 @@ function ListingCard({
           <button
             type="button"
             onClick={onUseLandPrice}
-            className="w-full rounded-xl border border-[#0033A1]/25 bg-white py-2.5 text-xs font-semibold text-[#0033A1] transition hover:bg-[#0033A1]/5"
+            className="w-full rounded-xl border border-[#e0511f]/25 bg-white py-2.5 text-xs font-semibold text-[#e0511f] transition hover:bg-[#e0511f]/5"
           >
             Use this land price in estimator →
           </button>

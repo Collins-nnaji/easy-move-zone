@@ -61,7 +61,7 @@ export function PropertyDetailServer({ property: p }: { property: PropertyRow })
         <ArrowLeft className="h-4 w-4" /> Back to listings
       </Link>
 
-      <div className="mb-6 rounded-2xl border border-[#155eef]/20 bg-[#0b1220] px-4 py-3 text-center text-sm text-slate-300 sm:text-left">
+      <div className="mb-6 rounded-2xl border border-[#e0511f]/20 bg-[#0b1220] px-4 py-3 text-center text-sm text-slate-300 sm:text-left">
         <strong className="text-white">Platform-managed listing.</strong> Published by EasyMoveZone after internal verification—
         not a third-party syndicated feed.
       </div>
@@ -149,7 +149,7 @@ export function PropertyDetailServer({ property: p }: { property: PropertyRow })
             <div className="rounded-xl border border-[#e2e8f0] bg-white p-4">
               <div className="mb-1 text-xs text-[#64748b]">Size</div>
               <div className="flex items-center gap-1.5">
-                <Ruler className="h-4 w-4 text-[#155eef]" />
+                <Ruler className="h-4 w-4 text-[#e0511f]" />
                 <span className="font-bold text-[#0f172a]">{card.size}</span>
               </div>
             </div>
@@ -159,12 +159,12 @@ export function PropertyDetailServer({ property: p }: { property: PropertyRow })
                 <div className="flex flex-wrap gap-2 text-sm font-semibold text-[#0f172a]">
                   {p.bedrooms != null && (
                     <span className="inline-flex items-center gap-1">
-                      <BedDouble className="h-4 w-4 text-[#155eef]" /> {p.bedrooms} bed
+                      <BedDouble className="h-4 w-4 text-[#e0511f]" /> {p.bedrooms} bed
                     </span>
                   )}
                   {p.bathrooms != null && (
                     <span className="inline-flex items-center gap-1">
-                      <Bath className="h-4 w-4 text-[#155eef]" /> {p.bathrooms} bath
+                      <Bath className="h-4 w-4 text-[#e0511f]" /> {p.bathrooms} bath
                     </span>
                   )}
                 </div>
@@ -224,7 +224,7 @@ export function PropertyDetailServer({ property: p }: { property: PropertyRow })
           <div className="rounded-2xl border border-[#e2e8f0] bg-white p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-bold text-[#0f172a]">Verification</h2>
-              <Link href={`/verify/${p.id}`} className="flex items-center gap-1 text-sm font-semibold text-[#155eef] hover:underline">
+              <Link href={`/verify/${p.id}`} className="flex items-center gap-1 text-sm font-semibold text-[#e0511f] hover:underline">
                 Verification centre <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
@@ -239,8 +239,8 @@ export function PropertyDetailServer({ property: p }: { property: PropertyRow })
           <div className="sticky top-24 space-y-5">
             <div className="rounded-2xl border border-[#e2e8f0] bg-white p-6">
               <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#155eef]/10">
-                  <Building2 className="h-6 w-6 text-[#155eef]" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#e0511f]/10">
+                  <Building2 className="h-6 w-6 text-[#e0511f]" />
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
@@ -252,7 +252,7 @@ export function PropertyDetailServer({ property: p }: { property: PropertyRow })
               </div>
               <button
                 type="button"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#155eef] py-3 text-sm font-bold text-white transition-colors hover:bg-[#1249d1]"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#e0511f] py-3 text-sm font-bold text-white transition-colors hover:bg-[#c8451a]"
               >
                 <MessageSquare className="h-4 w-4" /> Send enquiry
               </button>

@@ -54,7 +54,7 @@ function CardImageCarousel({ images, title }: { images: string[]; title: string 
   }, [images.length])
 
   if (!images.length) {
-    return <div className="absolute inset-0 bg-gradient-to-br from-[#0033A1]/40 via-[#0f172a]/60 to-[#020617]/80" />
+    return <div className="absolute inset-0 bg-gradient-to-br from-[#e0511f]/40 via-[#0f172a]/60 to-[#020617]/80" />
   }
 
   return (
@@ -102,7 +102,7 @@ function ListingCard({ listing, idx, reduceMotion }: { listing: ExtendedCard; id
     >
       <Link
         href={`/properties/${listing.id}`}
-        className="group block h-full overflow-hidden rounded-2xl bg-white/[0.06] ring-1 ring-white/[0.1] transition duration-300 hover:ring-cyan-400/30 hover:shadow-xl hover:shadow-cyan-950/40"
+        className="group block h-full overflow-hidden rounded-2xl bg-white/[0.06] ring-1 ring-white/[0.1] transition duration-300 hover:ring-orange-400/30 hover:shadow-xl hover:shadow-orange-950/40"
       >
         <div className="relative aspect-[4/3] overflow-hidden">
           <CardImageCarousel images={listing.images} title={listing.title} />
@@ -118,7 +118,7 @@ function ListingCard({ listing, idx, reduceMotion }: { listing: ExtendedCard; id
           </div>
         </div>
         <div className="border-t border-white/[0.06] p-4">
-          <p className="line-clamp-2 text-sm font-medium leading-snug text-white/95 group-hover:text-cyan-100 transition-colors">
+          <p className="line-clamp-2 text-sm font-medium leading-snug text-white/95 group-hover:text-orange-100 transition-colors">
             {listing.title}
           </p>
           {(listing.bedrooms || listing.bathrooms || listing.sizeSqm) && (
@@ -203,9 +203,9 @@ export function HomeFeaturedListings() {
       transition={{ duration: 0.6, ease: easeOut }}
       className="relative overflow-hidden border-y border-white/[0.08] bg-[#030712] py-14 md:py-20"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_120%_60%_at_30%_0%,rgba(0,51,161,0.35),transparent)]" aria-hidden />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_120%_60%_at_30%_0%,rgba(224,81,31,0.35),transparent)]" aria-hidden />
       <motion.div
-        className="pointer-events-none absolute -right-32 top-1/3 h-[min(70vw,480px)] w-[min(70vw,480px)] rounded-full bg-[#0072CE]/15 blur-[120px]"
+        className="pointer-events-none absolute -right-32 top-1/3 h-[min(70vw,480px)] w-[min(70vw,480px)] rounded-full bg-[#bf6a3c]/15 blur-[120px]"
         animate={reduceMotion ? undefined : { scale: [1, 1.05, 1] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         aria-hidden
@@ -216,7 +216,7 @@ export function HomeFeaturedListings() {
         {/* Header */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300/90">
+            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-orange-300/90">
               <Star className="h-3.5 w-3.5 text-amber-300" fill="currentColor" />
               Featured listings
             </span>
@@ -229,7 +229,7 @@ export function HomeFeaturedListings() {
           </div>
           <Link
             href={activeCity ? `/purchase?city=${activeCity}` : "/search"}
-            className="inline-flex items-center gap-2 self-start whitespace-nowrap rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition hover:bg-white/5 hover:text-white"
+            className="inline-flex items-center gap-2 self-start whitespace-nowrap rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-orange-200 transition hover:bg-white/5 hover:text-white"
           >
             View all <ArrowRight className="h-4 w-4" />
           </Link>
@@ -263,15 +263,15 @@ export function HomeFeaturedListings() {
           <motion.div
             initial={reduceMotion ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-[#0a1a3a] to-[#0d2250] px-6 py-14 text-center backdrop-blur-sm shadow-lg"
+            className="rounded-2xl border border-orange-400/20 bg-gradient-to-br from-[#0a1a3a] to-[#0d2250] px-6 py-14 text-center backdrop-blur-sm shadow-lg"
           >
-            <span className="inline-block rounded-full bg-cyan-400/10 border border-cyan-400/30 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-cyan-400 mb-4">
+            <span className="inline-block rounded-full bg-orange-400/10 border border-orange-400/30 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-orange-400 mb-4">
               Coming Soon
             </span>
             <p className="text-xl font-bold text-white">New Properties &amp; Prices Dropping Soon</p>
             <p className="mt-2 text-sm text-slate-400 max-w-sm mx-auto">
               We&apos;re adding verified listings now. Check back shortly or{" "}
-              <a href="/contact" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
+              <a href="/contact" className="text-orange-400 hover:text-orange-300 underline underline-offset-2">
                 get notified
               </a>{" "}
               when they go live.
@@ -280,7 +280,7 @@ export function HomeFeaturedListings() {
               <button
                 type="button"
                 onClick={() => setActiveCity("")}
-                className="mt-5 text-sm text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
+                className="mt-5 text-sm text-orange-400 hover:text-orange-300 underline underline-offset-2"
               >
                 View all cities instead
               </button>

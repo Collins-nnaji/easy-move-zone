@@ -79,7 +79,7 @@ const steps = [
     icon: ShieldCheck,
     title: "Application support",
     desc: "We prepare and submit your full application, following up with the bank so nothing stalls in bureaucracy. You just respond to our updates.",
-    color: "bg-cyan-100 text-cyan-700",
+    color: "bg-orange-100 text-orange-700",
   },
   {
     icon: Clock,
@@ -253,7 +253,7 @@ export function FinancePageClient() {
       {/* ── Hero ──────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-white border-b border-slate-200 py-20">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_60%_-10%,rgba(16,185,129,0.07),transparent)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_50%_60%_at_0%_80%,rgba(0,51,161,0.05),transparent)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_50%_60%_at_0%_80%,rgba(224,81,31,0.05),transparent)]" />
         <motion.div
           className="pointer-events-none absolute right-0 top-0 h-[500px] w-[500px] rounded-full bg-emerald-500/5 blur-[100px]"
           animate={rm ? undefined : { scale: [1, 1.08, 1], opacity: [0.5, 0.8, 0.5] }}
@@ -280,7 +280,7 @@ export function FinancePageClient() {
                 className="text-4xl font-bold leading-tight tracking-tight text-[#0f172a] sm:text-5xl"
               >
                 Move in now.{" "}
-                <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-orange-600 bg-clip-text text-transparent">
                   Pay over time.
                 </span>
               </motion.h1>
@@ -467,11 +467,11 @@ export function FinancePageClient() {
             <div className="grid lg:grid-cols-2">
               {/* Left — dark panel */}
               <div className="relative overflow-hidden bg-[#030b18] p-10 text-white">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_0%_0%,rgba(0,51,161,0.4),transparent)]" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_0%_0%,rgba(224,81,31,0.4),transparent)]" />
                 <div className="relative">
-                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#0072CE]/30 bg-[#0072CE]/10 px-4 py-1.5">
-                    <Globe className="h-4 w-4 text-cyan-400" />
-                    <span className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-300">Diaspora buyers</span>
+                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#bf6a3c]/30 bg-[#bf6a3c]/10 px-4 py-1.5">
+                    <Globe className="h-4 w-4 text-orange-400" />
+                    <span className="text-xs font-bold uppercase tracking-[0.16em] text-orange-300">Diaspora buyers</span>
                   </div>
                   <h2 className="text-3xl font-bold leading-tight sm:text-4xl">
                     Buy from the UK,<br />US, or Canada.
@@ -488,8 +488,8 @@ export function FinancePageClient() {
                       { icon: ShieldCheck, text: "Power of Attorney managed in-house" },
                     ].map(({ icon: Icon, text }) => (
                       <div key={text} className="flex items-start gap-3">
-                        <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-500/20">
-                          <Icon className="h-3.5 w-3.5 text-cyan-400" />
+                        <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-orange-500/20">
+                          <Icon className="h-3.5 w-3.5 text-orange-400" />
                         </div>
                         <p className="text-sm text-slate-300">{text}</p>
                       </div>
@@ -499,7 +499,7 @@ export function FinancePageClient() {
                   <button
                     type="button"
                     onClick={() => setDiasporaOpen(o => !o)}
-                    className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 hover:text-white transition lg:hidden"
+                    className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-orange-300 hover:text-white transition lg:hidden"
                   >
                     {diasporaOpen ? "Show less" : "See all benefits"}
                     {diasporaOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -507,7 +507,7 @@ export function FinancePageClient() {
 
                   <div className="mt-8">
                     <Link href="/contact"
-                      className="inline-flex items-center gap-2 rounded-2xl bg-[#0072CE] px-7 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#005fad]">
+                      className="inline-flex items-center gap-2 rounded-2xl bg-[#bf6a3c] px-7 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#005fad]">
                       Talk to diaspora team <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>

@@ -128,7 +128,7 @@ export function ThreadComposer(props: ThreadComposerProps) {
         <button
           type="button"
           onClick={() => startTransition(sendMessage)}
-          className="rounded-xl bg-[#155eef] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:opacity-50"
+          className="rounded-xl bg-[#e0511f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:opacity-50"
           disabled={!canSend}
         >
           Send message

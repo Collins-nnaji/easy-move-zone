@@ -36,7 +36,7 @@ export function NewsletterSignupForm() {
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         placeholder="you@company.com"
-        className="flex-1 rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-sm outline-none focus:border-[#155eef]"
+        className="flex-1 rounded-xl border border-[#c8d8f0] bg-white px-4 py-3 text-sm outline-none focus:border-[#e0511f]"
       />
       <button
         type="submit"

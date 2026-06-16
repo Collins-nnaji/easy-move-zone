@@ -51,7 +51,7 @@ export function DirectionDetector({ dark = false }: { dark?: boolean }) {
           placeholder="Example: I want to sell my 2-bed apartment, add savings, and buy a 4-bed home in Lagos."
           className={`flex-1 rounded-xl px-4 py-3 text-sm outline-none ${dark
             ? "border border-white/25 bg-[#0a1420] text-white placeholder:text-slate-400 focus:border-[#7cc8ff]"
-            : "border border-[#c8d8f0] bg-white focus:border-[#155eef]"}`}
+            : "border border-[#c8d8f0] bg-white focus:border-[#e0511f]"}`}
         />
         <button
           type="submit"

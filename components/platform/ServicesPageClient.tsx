@@ -531,7 +531,7 @@ export function ServicesPageClient({ cities, listings, agents, faqs }: ServicesP
             </div>
             <Link
               href="/contact"
-              className="shrink-0 rounded-full bg-white px-7 py-3.5 text-sm font-bold text-[#155eef] transition hover:bg-[#f0f4ff]"
+              className="shrink-0 rounded-full bg-white px-7 py-3.5 text-sm font-bold text-[#e0511f] transition hover:bg-[#f0f4ff]"
             >
               Request Move Strategy →
             </Link>

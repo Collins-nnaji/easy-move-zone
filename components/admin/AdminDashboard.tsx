@@ -208,7 +208,7 @@ function AgentsTab({ agents }: { agents: AgentRow[] }) {
             className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition ${
               agent.agent_verified
                 ? "border border-[#dbe4f0] text-[#64748b] hover:border-red-300 hover:text-red-600"
-                : "bg-[#155eef] text-white hover:bg-[#1347c8]"
+                : "bg-[#e0511f] text-white hover:bg-[#1347c8]"
             } disabled:opacity-40`}
           >
             {updating === agent.auth_user_id ? "…" : agent.agent_verified ? "Revoke verification" : "Verify agent"}
@@ -254,7 +254,7 @@ export function AdminDashboard() {
   return (
     <div className="min-h-screen bg-[#f4f7fc]">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#0b1f4a] to-[#155eef] px-6 py-6">
+      <div className="bg-gradient-to-r from-[#0b1f4a] to-[#e0511f] px-6 py-6">
         <div className="mx-auto max-w-7xl flex items-center justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/50">EasyMoveZone</p>
@@ -278,7 +278,7 @@ export function AdminDashboard() {
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition ${
-                tab === t.id ? "bg-[#155eef] text-white" : "text-[#475569] hover:bg-[#f0f4fa]"
+                tab === t.id ? "bg-[#e0511f] text-white" : "text-[#475569] hover:bg-[#f0f4fa]"
               }`}
             >
               {t.label}

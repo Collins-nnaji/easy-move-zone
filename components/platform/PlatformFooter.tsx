@@ -4,11 +4,13 @@ import { Mail, ArrowUpRight } from "lucide-react"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 
 const services = [
-  { href: "/purchase", label: "Outright Purchase",    badge: null         },
+  { href: "/move",         label: "Find a City",          badge: null         },
+  { href: "/relocate/hub", label: "Relocation Hub",        badge: null         },
+  { href: "/settle",       label: "Settle In",             badge: null         },
+  { href: "/purchase", label: "Buy a Home",            badge: null         },
   { href: "/own",      label: "Rent to Own",           badge: null         },
   { href: "/build",    label: "Build to Suit",         badge: null         },
   { href: "/finance",  label: "Mortgage & NHF",        badge: null         },
-  { href: "/relocate/hub", label: "Relocation Hub",    badge: null         },
   { href: "/sell",     label: "List / Sell Property",  badge: "Sell"       },
 ]
 
@@ -34,7 +36,7 @@ export function PlatformFooter() {
       id="contact"
       className="relative z-[45] border-t border-white/10 bg-[#0b1220] text-white scroll-mt-24"
     >
-      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-[#0033A1] via-[#0072CE] to-emerald-600/80 opacity-90" />
+      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-[#e0511f] via-[#bf6a3c] to-emerald-600/80 opacity-90" />
 
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr]">
@@ -51,18 +53,18 @@ export function PlatformFooter() {
               />
             </div>
             <p className="mt-3 text-[13px] leading-relaxed text-slate-400 max-w-xs">
-              Nigeria&apos;s complete homeownership ecosystem — verified land, managed construction, mortgage brokering, and rent-to-own pathways.
+              One app for the whole move — relocation planning, visa routes, settling into a new city, and verified homes and rentals.
             </p>
             <a
               href={`mailto:${PUBLIC_CONTACT_EMAIL}`}
-              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-cyan-200/90 transition hover:text-white"
+              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 transition hover:text-white"
             >
-              <Mail className="h-4 w-4 text-cyan-400/80" aria-hidden />
+              <Mail className="h-4 w-4 text-orange-400/80" aria-hidden />
               {PUBLIC_CONTACT_EMAIL}
             </a>
             <p className="mt-2 text-xs text-slate-600">
               For listings, verification & diaspora buying support. Or use the{" "}
-              <Link href="/contact" className="font-semibold text-cyan-200/80 underline decoration-cyan-500/30 underline-offset-2 hover:text-white">
+              <Link href="/contact" className="font-semibold text-orange-200/80 underline decoration-orange-500/30 underline-offset-2 hover:text-white">
                 contact form
               </Link>.
             </p>
@@ -70,7 +72,7 @@ export function PlatformFooter() {
             {/* Sell CTA */}
             <Link
               href="/sell"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-2.5 text-sm font-bold text-cyan-300 hover:bg-cyan-500/20 hover:text-white transition-all"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2.5 text-sm font-bold text-orange-300 hover:bg-orange-500/20 hover:text-white transition-all"
             >
               List your property
               <ArrowUpRight className="h-4 w-4" />
@@ -86,7 +88,7 @@ export function PlatformFooter() {
                   <Link href={href} className="group inline-flex items-center gap-2 text-[13px] text-slate-400 transition hover:text-white">
                     {label}
                     {badge && (
-                      <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-[9px] font-bold text-cyan-400 group-hover:bg-cyan-500/30">
+                      <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-[9px] font-bold text-orange-400 group-hover:bg-orange-500/30">
                         {badge}
                       </span>
                     )}
@@ -127,7 +129,7 @@ export function PlatformFooter() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-white/[0.06] pt-6 text-center sm:flex-row sm:text-left">
           <p className="text-[11px] text-[#64748b]">&copy; {new Date().getFullYear()} EasyMoveZone. Nigeria &middot; Lagos &middot; Abuja &middot; Port Harcourt</p>
-          <p className="text-[11px] text-[#64748b]">PURCHASE &middot; BUILD &middot; FINANCE &middot; RENT TO OWN &middot; LIST YOUR PROPERTY</p>
+          <p className="text-[11px] text-[#64748b]">RELOCATE &middot; SETTLE &middot; BUY A HOME &middot; RENT TO OWN &middot; BUILD &middot; FINANCE</p>
         </div>
       </div>
     </footer>

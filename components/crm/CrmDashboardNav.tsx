@@ -23,7 +23,7 @@ export function CrmDashboardNav() {
               <Link
                 href={item.href}
                 className={`inline-flex rounded-xl px-4 py-2 text-sm font-semibold transition ${
-                  isActive ? "bg-[#155eef] text-white" : "bg-white/70 text-[#334155] hover:bg-[#eef4ff]"
+                  isActive ? "bg-[#e0511f] text-white" : "bg-white/70 text-[#334155] hover:bg-[#eef4ff]"
                 }`}
               >
                 {item.label}

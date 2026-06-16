@@ -44,9 +44,9 @@ export function BuyBuildEstimator({
       : null
 
   return (
-    <div className="rounded-2xl border border-[#0072CE]/25 bg-gradient-to-br from-[#030712] via-[#0f172a] to-[#020617] p-5 text-white shadow-xl shadow-[#0033A1]/20 ring-1 ring-white/10">
+    <div className="rounded-2xl border border-[#bf6a3c]/25 bg-gradient-to-br from-[#030712] via-[#0f172a] to-[#020617] p-5 text-white shadow-xl shadow-[#e0511f]/20 ring-1 ring-white/10">
       <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0072CE]/20 text-cyan-200">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#bf6a3c]/20 text-orange-200">
           <Hammer className="h-5 w-5" />
         </div>
         <div>
@@ -73,7 +73,7 @@ export function BuyBuildEstimator({
           step={500_000}
           value={Number.isFinite(landPriceNgn) ? landPriceNgn : 0}
           onChange={(e) => onLandPriceChange(Number(e.target.value) || 0)}
-          className="w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm font-semibold text-white placeholder:text-slate-500 focus:border-[#0072CE]/50 focus:outline-none focus:ring-2 focus:ring-[#0072CE]/20"
+          className="w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm font-semibold text-white placeholder:text-slate-500 focus:border-[#bf6a3c]/50 focus:outline-none focus:ring-2 focus:ring-[#bf6a3c]/20"
         />
       </div>
 
@@ -87,7 +87,7 @@ export function BuyBuildEstimator({
             step={10}
             value={builtSqm}
             onChange={(e) => setBuiltSqm(Math.max(50, Number(e.target.value) || 50))}
-            className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm font-semibold text-white focus:border-[#0072CE]/50 focus:outline-none focus:ring-2 focus:ring-[#0072CE]/20"
+            className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm font-semibold text-white focus:border-[#bf6a3c]/50 focus:outline-none focus:ring-2 focus:ring-[#bf6a3c]/20"
           />
         </div>
         <div>
@@ -95,7 +95,7 @@ export function BuyBuildEstimator({
           <select
             value={tier}
             onChange={(e) => setTier(e.target.value as FinishTierId)}
-            className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm font-semibold text-white focus:border-[#0072CE]/50 focus:outline-none focus:ring-2 focus:ring-[#0072CE]/20"
+            className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm font-semibold text-white focus:border-[#bf6a3c]/50 focus:outline-none focus:ring-2 focus:ring-[#bf6a3c]/20"
           >
             {(Object.keys(FINISH_TIERS) as FinishTierId[]).map((id) => (
               <option key={id} value={id} className="bg-[#0f172a] text-white">

@@ -240,7 +240,7 @@ function ResultsCard({ assessment, profile }: { assessment: AiAssessment; profil
       {/* Score header */}
       <div className="rounded-2xl border border-[#dbe4f0] bg-gradient-to-br from-[#f8fbff] to-white p-5">
         <div className="flex items-center gap-3 mb-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#155eef]">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#e0511f]">
             <Sparkles className="h-4.5 w-4.5 text-white" />
           </div>
           <div>
@@ -295,7 +295,7 @@ function ResultsCard({ assessment, profile }: { assessment: AiAssessment; profil
 
         {assessment.recommendation && (
           <div className="mt-3 rounded-xl border border-[#c8d8f0] bg-[#eef4ff] p-3">
-            <p className="mb-0.5 text-[10px] font-bold uppercase tracking-wider text-[#155eef]">Recommendation</p>
+            <p className="mb-0.5 text-[10px] font-bold uppercase tracking-wider text-[#e0511f]">Recommendation</p>
             <p className="text-sm text-[#0f172a]">{assessment.recommendation}</p>
           </div>
         )}
@@ -312,7 +312,7 @@ function ResultsCard({ assessment, profile }: { assessment: AiAssessment; profil
               const isExpanded = expandedLender === lender.id
 
               return (
-                <div key={lender.id} className={`rounded-2xl border-2 transition-all ${isSelected ? "border-[#155eef]" : "border-[#dbe4f0]"}`}>
+                <div key={lender.id} className={`rounded-2xl border-2 transition-all ${isSelected ? "border-[#e0511f]" : "border-[#dbe4f0]"}`}>
                   <button
                     type="button"
                     onClick={() => {
@@ -369,13 +369,13 @@ function ResultsCard({ assessment, profile }: { assessment: AiAssessment; profil
                       <div className="flex flex-wrap gap-3 mb-3">
                         {lender.phone && (
                           <a href={`tel:${lender.phone}`}
-                            className="flex items-center gap-1 text-xs font-semibold text-[#155eef] hover:underline">
+                            className="flex items-center gap-1 text-xs font-semibold text-[#e0511f] hover:underline">
                             <Phone className="h-3 w-3" /> {lender.phone}
                           </a>
                         )}
                         {lender.website && (
                           <a href={lender.website} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-xs font-semibold text-[#155eef] hover:underline">
+                            className="flex items-center gap-1 text-xs font-semibold text-[#e0511f] hover:underline">
                             <Globe className="h-3 w-3" /> Website
                           </a>
                         )}
@@ -414,7 +414,7 @@ function ResultsCard({ assessment, profile }: { assessment: AiAssessment; profil
       {brokers.length > 0 && (
         <div className="rounded-2xl border border-[#dbe4f0] bg-[#f8fbff] p-4">
           <p className="mb-2 flex items-center gap-1.5 text-sm font-bold text-[#0f172a]">
-            <UserCheck className="h-4 w-4 text-[#155eef]" />
+            <UserCheck className="h-4 w-4 text-[#e0511f]" />
             Partner brokers in {profile.country}
           </p>
           <p className="mb-2 text-[11px] text-[#64748b]">We also searched our partner brokers. You can contact them for personalised comparison and application support.</p>
@@ -423,7 +423,7 @@ function ResultsCard({ assessment, profile }: { assessment: AiAssessment; profil
               <a
                 key={b.id}
                 href={b.email ? `mailto:${b.email}` : "/contact"}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs font-medium text-[#0f172a] transition hover:border-[#155eef] hover:bg-[#eef4ff]"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#dbe4f0] bg-white px-3 py-1.5 text-xs font-medium text-[#0f172a] transition hover:border-[#e0511f] hover:bg-[#eef4ff]"
               >
                 <Building2 className="h-3 w-3 text-[#64748b]" />
                 {b.name} {b.verified && "✓"}
@@ -459,14 +459,14 @@ function ChatBubble({ msg, profile }: { msg: Message; profile: ExtractedProfile 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && (
-        <div className="mr-2 mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0033A1]">
+        <div className="mr-2 mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#e0511f]">
           <Sparkles className="h-4 w-4 text-white" />
         </div>
       )}
       <div className={`max-w-[85%] space-y-3 ${isUser ? "" : ""}`}>
         <div className={`rounded-2xl px-4 py-3.5 text-[15px] leading-relaxed sm:text-base ${
           isUser
-            ? "bg-[#0033A1] text-white rounded-tr-sm"
+            ? "bg-[#e0511f] text-white rounded-tr-sm"
             : "bg-white border border-[#dbe4f0] text-[#1e293b] rounded-tl-sm shadow-sm"
         }`}>
           {msg.content}
@@ -620,7 +620,7 @@ export function MortgageFinder() {
                   key={p}
                   type="button"
                   onClick={() => void sendMessage(p)}
-                  className="rounded-full border border-[#dbe4f0] bg-white px-3.5 py-2 text-left text-sm text-[#475569] transition hover:border-[#0072CE] hover:text-[#0033A1]"
+                  className="rounded-full border border-[#dbe4f0] bg-white px-3.5 py-2 text-left text-sm text-[#475569] transition hover:border-[#bf6a3c] hover:text-[#e0511f]"
                 >
                   {p}
                 </button>
@@ -634,12 +634,12 @@ export function MortgageFinder() {
 
           {loading && (
             <div className="flex justify-start">
-              <div className="mr-2 mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0033A1]">
+              <div className="mr-2 mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#e0511f]">
                 <Sparkles className="h-4 w-4 text-white" />
               </div>
               <div className="rounded-2xl rounded-tl-sm border border-[#dbe4f0] bg-white px-4 py-3.5 shadow-sm">
                 <div className="flex items-center gap-2">
-                  <Loader2 className="h-5 w-5 animate-spin text-[#0072CE]" />
+                  <Loader2 className="h-5 w-5 animate-spin text-[#bf6a3c]" />
                   <span className="text-sm text-[#64748b]">Analysing…</span>
                 </div>
               </div>
@@ -651,8 +651,8 @@ export function MortgageFinder() {
       </div>
 
       {/* Input bar — raised, larger type for readability */}
-      <div className="relative z-[1] shrink-0 border-t-2 border-[#0072CE]/20 bg-gradient-to-b from-[#f0f9ff] to-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-10px_36px_-8px_rgba(0,51,161,0.14)] sm:px-5 sm:pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] sm:pt-5">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#0033A1]/80">Your message</p>
+      <div className="relative z-[1] shrink-0 border-t-2 border-[#bf6a3c]/20 bg-gradient-to-b from-[#f0f9ff] to-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-10px_36px_-8px_rgba(224,81,31,0.14)] sm:px-5 sm:pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] sm:pt-5">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#e0511f]/80">Your message</p>
         <div className="flex items-end gap-3">
           <textarea
             ref={inputRef}
@@ -661,7 +661,7 @@ export function MortgageFinder() {
             onKeyDown={handleKeyDown}
             rows={6}
             placeholder="Type here — budget, city, income, diaspora / NHF…"
-            className="min-h-[11rem] flex-1 resize-y rounded-3xl border-2 border-[#c8d8f0] bg-white px-5 py-5 text-[18px] leading-[1.55] text-[#0f172a] shadow-inner shadow-[#0033A1]/[0.04] placeholder:text-[#64748b] placeholder:text-[17px] focus:border-[#0072CE] focus:outline-none focus:ring-4 focus:ring-[#0072CE]/18 sm:min-h-[13rem] sm:px-7 sm:py-6 sm:text-[19px] sm:placeholder:text-[18px]"
+            className="min-h-[11rem] flex-1 resize-y rounded-3xl border-2 border-[#c8d8f0] bg-white px-5 py-5 text-[18px] leading-[1.55] text-[#0f172a] shadow-inner shadow-[#e0511f]/[0.04] placeholder:text-[#64748b] placeholder:text-[17px] focus:border-[#bf6a3c] focus:outline-none focus:ring-4 focus:ring-[#bf6a3c]/18 sm:min-h-[13rem] sm:px-7 sm:py-6 sm:text-[19px] sm:placeholder:text-[18px]"
             style={{ maxHeight: "min(58vh, 400px)" }}
             onInput={e => {
               const t = e.currentTarget
@@ -674,7 +674,7 @@ export function MortgageFinder() {
             type="button"
             onClick={() => void sendMessage()}
             disabled={!input.trim() || loading}
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0072CE] text-white shadow-md shadow-[#0072CE]/25 transition hover:brightness-110 disabled:opacity-40 sm:h-[3.75rem] sm:w-[3.75rem]"
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#bf6a3c] text-white shadow-md shadow-[#bf6a3c]/25 transition hover:brightness-110 disabled:opacity-40 sm:h-[3.75rem] sm:w-[3.75rem]"
             aria-label="Send message"
           >
             <Send className="h-6 w-6" />
@@ -684,7 +684,7 @@ export function MortgageFinder() {
               type="button"
               onClick={reset}
               title="Start over"
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-[#dbe4f0] bg-white text-[#64748b] transition hover:border-[#0072CE]/40 hover:text-[#0033A1] sm:h-[3.75rem] sm:w-[3.75rem]"
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-[#dbe4f0] bg-white text-[#64748b] transition hover:border-[#bf6a3c]/40 hover:text-[#e0511f] sm:h-[3.75rem] sm:w-[3.75rem]"
               aria-label="Start over"
             >
               <RotateCcw className="h-6 w-6" />

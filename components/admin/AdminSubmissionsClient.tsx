@@ -43,7 +43,7 @@ const STATUS_CONFIG: Record<SubmissionStatus, { label: string; color: string; ic
 }
 
 const LISTING_TYPE_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  "outright-purchase":  { label: "Outright Purchase",    color: "text-cyan-700 bg-cyan-100",    icon: ShieldCheck },
+  "outright-purchase":  { label: "Outright Purchase",    color: "text-orange-700 bg-orange-100",    icon: ShieldCheck },
   "rent-to-own":        { label: "Rent to Own",           color: "text-purple-700 bg-purple-100", icon: KeyRound    },
   "build":              { label: "Land for Build",        color: "text-amber-700 bg-amber-100",  icon: HardHat     },
   "mortgage-eligible":  { label: "Mortgage-Eligible",    color: "text-emerald-700 bg-emerald-100", icon: Banknote  },
@@ -180,7 +180,7 @@ export function AdminSubmissionsClient() {
                   onClick={() => { setSelected(isSelected ? null : item); setNotes("") }}
                   className={clsx(
                     "w-full text-left rounded-2xl border-2 bg-white p-5 transition-all hover:shadow-md",
-                    isSelected ? "border-[#0033A1] shadow-md" : "border-slate-200"
+                    isSelected ? "border-[#e0511f] shadow-md" : "border-slate-200"
                   )}
                 >
                   <div className="flex items-start gap-4">
@@ -241,7 +241,7 @@ export function AdminSubmissionsClient() {
 
           {/* Detail panel */}
           {selected && (
-            <div className="rounded-2xl border-2 border-[#0033A1]/30 bg-white overflow-hidden sticky top-[73px] self-start max-h-[calc(100vh-100px)] overflow-y-auto">
+            <div className="rounded-2xl border-2 border-[#e0511f]/30 bg-white overflow-hidden sticky top-[73px] self-start max-h-[calc(100vh-100px)] overflow-y-auto">
               {/* Panel header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
                 <h3 className="font-bold text-slate-900 text-sm">Submission details</h3>
@@ -258,7 +258,7 @@ export function AdminSubmissionsClient() {
                       <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-slate-100">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={url} alt="" className="h-full w-full object-cover" />
-                        {i === 0 && <span className="absolute left-1 top-1 rounded text-[9px] font-bold bg-[#0033A1] text-white px-1.5 py-0.5">Cover</span>}
+                        {i === 0 && <span className="absolute left-1 top-1 rounded text-[9px] font-bold bg-[#e0511f] text-white px-1.5 py-0.5">Cover</span>}
                       </div>
                     ))}
                   </div>
@@ -294,8 +294,8 @@ export function AdminSubmissionsClient() {
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Seller contact</div>
                   <div className="space-y-2 text-xs">
                     {selected.seller_name && <div className="flex items-center gap-2"><User className="h-3.5 w-3.5 text-slate-400" /><span className="font-semibold text-slate-800">{selected.seller_name}</span></div>}
-                    {selected.seller_phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-slate-400" /><a href={`tel:${selected.seller_phone}`} className="text-[#0033A1] font-semibold hover:underline">{selected.seller_phone}</a></div>}
-                    {selected.seller_email && <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-slate-400" /><a href={`mailto:${selected.seller_email}`} className="text-[#0033A1] font-semibold hover:underline">{selected.seller_email}</a></div>}
+                    {selected.seller_phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-slate-400" /><a href={`tel:${selected.seller_phone}`} className="text-[#e0511f] font-semibold hover:underline">{selected.seller_phone}</a></div>}
+                    {selected.seller_email && <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-slate-400" /><a href={`mailto:${selected.seller_email}`} className="text-[#e0511f] font-semibold hover:underline">{selected.seller_email}</a></div>}
                   </div>
                 </div>
 
@@ -308,7 +308,7 @@ export function AdminSubmissionsClient() {
                       onChange={e => setNotes(e.target.value)}
                       rows={3}
                       placeholder="Add internal notes or a rejection reason..."
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:border-[#0033A1]/40 focus:outline-none focus:ring-2 focus:ring-[#0033A1]/10 resize-none transition"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:border-[#e0511f]/40 focus:outline-none focus:ring-2 focus:ring-[#e0511f]/10 resize-none transition"
                     />
                   </div>
                 )}

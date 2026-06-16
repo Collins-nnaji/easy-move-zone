@@ -28,12 +28,12 @@ export default function LandlordPage() {
       <div className="min-h-screen bg-[#f6f8fb]">
         {/* Hero */}
         <div className="bg-gradient-to-br from-[#030712] via-[#0a1128] to-[#020617] px-6 py-24 text-center">
-          <span className="inline-block rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-cyan-400 mb-5">
+          <span className="inline-block rounded-full border border-orange-400/30 bg-orange-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-orange-400 mb-5">
             For Landlords &amp; Property Owners
           </span>
           <h1 className="mx-auto max-w-2xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
             List your property.<br />
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-400 to-blue-400 bg-clip-text text-transparent">
               Reach serious buyers.
             </span>
           </h1>
@@ -43,7 +43,7 @@ export default function LandlordPage() {
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/landlord/post"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#0072CE] px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#005fa8]"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#005fa8]"
             >
               Post a Listing <ArrowRight className="h-4 w-4" />
             </Link>
@@ -61,8 +61,8 @@ export default function LandlordPage() {
           <div className="grid gap-5 sm:grid-cols-2">
             {benefits.map((b) => (
               <div key={b.title} className="rounded-2xl border border-[#e2e8f0] bg-white p-6 flex gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0072CE]/10">
-                  <b.icon className="h-5 w-5 text-[#0072CE]" />
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#bf6a3c]/10">
+                  <b.icon className="h-5 w-5 text-[#bf6a3c]" />
                 </div>
                 <div>
                   <p className="font-bold text-[#0f172a]">{b.title}</p>
@@ -78,7 +78,7 @@ export default function LandlordPage() {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {steps.map((s) => (
                 <div key={s.num} className="rounded-2xl border border-[#e2e8f0] bg-white p-6 text-center">
-                  <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#0072CE]/10 text-sm font-bold text-[#0072CE]">
+                  <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#bf6a3c]/10 text-sm font-bold text-[#bf6a3c]">
                     {s.num}
                   </div>
                   <p className="font-bold text-[#0f172a] text-sm">{s.label}</p>
@@ -89,15 +89,15 @@ export default function LandlordPage() {
           </div>
 
           {/* CTA */}
-          <div className="mt-16 rounded-3xl border border-[#0072CE]/20 bg-gradient-to-br from-white to-blue-50 p-10 text-center">
-            <CheckCircle2 className="mx-auto mb-4 h-9 w-9 text-[#0072CE]" />
+          <div className="mt-16 rounded-3xl border border-[#bf6a3c]/20 bg-gradient-to-br from-white to-blue-50 p-10 text-center">
+            <CheckCircle2 className="mx-auto mb-4 h-9 w-9 text-[#bf6a3c]" />
             <h3 className="text-2xl font-bold text-[#0f172a]">Ready to list?</h3>
             <p className="mt-2 text-sm text-[#64748b] max-w-sm mx-auto">
               It takes less than 10 minutes. Our team reviews every listing before it goes live.
             </p>
             <Link
               href="/landlord/post"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0072CE] px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#005fa8]"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#bf6a3c] px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#005fa8]"
             >
               Post a Listing <ArrowRight className="h-4 w-4" />
             </Link>

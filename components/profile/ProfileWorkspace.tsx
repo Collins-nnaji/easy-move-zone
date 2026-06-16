@@ -61,7 +61,7 @@ function SectionCard({ title, icon: Icon, children }: { title: string; icon: any
   return (
     <div className="overflow-hidden rounded-2xl border border-[#dbe4f0] bg-white transition hover:border-[#c8d8f0]">
       <div className="flex items-center gap-2 border-b border-[#f0f4fa] bg-[#f8fbff] px-6 py-4">
-        <Icon className="h-4 w-4 text-[#155eef]" />
+        <Icon className="h-4 w-4 text-[#e0511f]" />
         <h2 className="text-sm font-bold tracking-tight text-[#0f172a] uppercase">{title}</h2>
       </div>
       <div className="px-6 py-6">{children}</div>
@@ -81,7 +81,7 @@ function InputField({ label, value, onChange, type = "text", placeholder, icon: 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-[#c8d8f0] bg-white px-3 py-2.5 text-sm transition focus:border-[#155eef] focus:outline-none focus:ring-2 focus:ring-[#155eef]/20"
+        className="w-full rounded-xl border border-[#c8d8f0] bg-white px-3 py-2.5 text-sm transition focus:border-[#e0511f] focus:outline-none focus:ring-2 focus:ring-[#e0511f]/20"
       />
     </label>
   )
@@ -207,7 +207,7 @@ export function ProfileWorkspace({
   if (loading) {
     return (
       <div className="flex h-[400px] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#155eef] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#e0511f] border-t-transparent" />
       </div>
     )
   }
@@ -239,10 +239,10 @@ export function ProfileWorkspace({
                     key={item.id}
                     onClick={() => setActiveSection(item.id)}
                     className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition ${
-                      active ? "bg-[#eef4ff] text-[#155eef]" : "text-[#64748b] hover:bg-[#f8faff] hover:text-[#0f172a]"
+                      active ? "bg-[#eef4ff] text-[#e0511f]" : "text-[#64748b] hover:bg-[#f8faff] hover:text-[#0f172a]"
                     }`}
                   >
-                    <item.icon className={`h-4 w-4 ${active ? "text-[#155eef]" : "text-[#94a3b8]"}`} />
+                    <item.icon className={`h-4 w-4 ${active ? "text-[#e0511f]" : "text-[#94a3b8]"}`} />
                     {item.label}
                   </button>
                 )
@@ -281,7 +281,7 @@ export function ProfileWorkspace({
                             onClick={() => upd("preferredContactMethod", m)}
                             className={`flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold capitalize transition ${
                               profile.preferredContactMethod === m
-                                ? "border-[#155eef] bg-[#eef4ff] text-[#155eef]"
+                                ? "border-[#e0511f] bg-[#eef4ff] text-[#e0511f]"
                                 : "border-[#dbe4f0] bg-white text-[#475569] hover:border-[#cbd5e1]"
                             }`}
                           >
@@ -299,7 +299,7 @@ export function ProfileWorkspace({
                     <button
                       onClick={saveProfile}
                       disabled={saving}
-                      className="flex items-center gap-2 rounded-xl bg-[#155eef] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#155eef]/20 transition hover:bg-[#1255d9] disabled:opacity-50"
+                      className="flex items-center gap-2 rounded-xl bg-[#e0511f] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#e0511f]/20 transition hover:bg-[#1255d9] disabled:opacity-50"
                     >
                       <Save className="h-4 w-4" />
                       {saving ? "Saving..." : "Save changes"}
@@ -316,7 +316,7 @@ export function ProfileWorkspace({
                     <textarea rows={3} value={profile.notes}
                       onChange={(e) => upd("notes", e.target.value)}
                       placeholder="Special requirements, concerns, or goals…"
-                      className="mt-1.5 w-full rounded-xl border border-[#c8d8f0] bg-white px-3 py-2.5 text-sm focus:border-[#155eef] focus:outline-none focus:ring-2 focus:ring-[#155eef]/20"
+                      className="mt-1.5 w-full rounded-xl border border-[#c8d8f0] bg-white px-3 py-2.5 text-sm focus:border-[#e0511f] focus:outline-none focus:ring-2 focus:ring-[#e0511f]/20"
                     />
                   </label>
                 </SectionCard>
@@ -347,7 +347,7 @@ export function ProfileWorkspace({
                         <button
                           type="button"
                           onClick={() => setActiveSection("relocation")}
-                          className="rounded-full border border-[#155eef] bg-[#eef4ff] px-4 py-2 text-xs font-semibold text-[#155eef]"
+                          className="rounded-full border border-[#e0511f] bg-[#eef4ff] px-4 py-2 text-xs font-semibold text-[#e0511f]"
                         >
                           Manage in profile
                         </button>
@@ -404,7 +404,7 @@ export function ProfileWorkspace({
                           value={relocationPlan?.status ?? "planning"}
                           onChange={(e) => void updateRelocationStatus(e.target.value as RelocationPlan["status"])}
                           disabled={updatingRelocationStatus}
-                          className="w-full rounded-xl border border-[#c8d8f0] bg-white px-3 py-2.5 text-sm focus:border-[#155eef] focus:outline-none disabled:opacity-50"
+                          className="w-full rounded-xl border border-[#c8d8f0] bg-white px-3 py-2.5 text-sm focus:border-[#e0511f] focus:outline-none disabled:opacity-50"
                         >
                           <option value="planning">Planning</option>
                           <option value="in_progress">In progress</option>
@@ -438,7 +438,7 @@ export function ProfileWorkspace({
                     </div>
 
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <Link href="/app/dashboard" className="rounded-full bg-[#155eef] px-4 py-2 text-xs font-semibold text-white">
+                      <Link href="/app/dashboard" className="rounded-full bg-[#e0511f] px-4 py-2 text-xs font-semibold text-white">
                         Dashboard
                       </Link>
                       <Link href="/services" className="rounded-full border border-[#dbe4f0] px-4 py-2 text-xs font-semibold text-[#475569]">

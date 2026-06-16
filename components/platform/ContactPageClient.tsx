@@ -64,11 +64,11 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
     <>
       <section className="relative overflow-hidden border-b border-white/[0.08] bg-[#030712]">
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_20%_-20%,rgba(0,51,161,0.45),transparent)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_20%_-20%,rgba(224,81,31,0.45),transparent)]"
           aria-hidden
         />
         <motion.div
-          className="pointer-events-none absolute -right-24 top-1/4 h-[min(45vw,380px)] w-[min(45vw,380px)] rounded-full bg-[#0072CE]/18 blur-[88px]"
+          className="pointer-events-none absolute -right-24 top-1/4 h-[min(45vw,380px)] w-[min(45vw,380px)] rounded-full bg-[#bf6a3c]/18 blur-[88px]"
           animate={
             reduceMotion
               ? undefined
@@ -83,7 +83,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
           <motion.p
             {...(reduceMotion ? {} : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } })}
             transition={{ duration: 0.45, ease: easeOut }}
-            className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300/90"
+            className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-300/90"
           >
             Contact
           </motion.p>
@@ -109,14 +109,14 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
           >
             <a
               href={`mailto:${PUBLIC_CONTACT_EMAIL}`}
-              className="inline-flex items-center gap-2.5 rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-sm font-semibold text-white backdrop-blur-md transition hover:border-[#0072CE]/40 hover:bg-white/10"
+              className="inline-flex items-center gap-2.5 rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-sm font-semibold text-white backdrop-blur-md transition hover:border-[#bf6a3c]/40 hover:bg-white/10"
             >
-              <Mail className="h-5 w-5 text-cyan-300" />
+              <Mail className="h-5 w-5 text-orange-300" />
               {PUBLIC_CONTACT_EMAIL}
             </a>
             <Link
               href="/search"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-200/90 underline decoration-cyan-500/35 underline-offset-4 hover:text-white"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 underline decoration-orange-500/35 underline-offset-4 hover:text-white"
             >
               Browse listings
               <ArrowRight className="h-4 w-4" />
@@ -132,22 +132,22 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               <h2 className="text-lg font-semibold text-[#0f172a] sm:text-xl">Why write in?</h2>
               <ul className="mt-6 space-y-4 text-sm text-[#475569]">
                 <li className="flex gap-3">
-                  <MessageSquare className="mt-0.5 h-5 w-5 shrink-0 text-[#0033A1]" />
+                  <MessageSquare className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />
                   <span>Listing questions, verification status, and viewing arrangements.</span>
                 </li>
                 <li className="flex gap-3">
-                  <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#0033A1]" />
+                  <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />
                   <span>Diaspora buyers: we&apos;ll help route you to the right workflow.</span>
                 </li>
                 <li className="flex gap-3">
-                  <Phone className="mt-0.5 h-5 w-5 shrink-0 text-[#0033A1]" />
+                  <Phone className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />
                   <span>Leave a phone number if you prefer a callback (optional).</span>
                 </li>
               </ul>
             </div>
 
             <div className="lg:col-span-7">
-              <div className="overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-lg shadow-[#0033A1]/[0.06] sm:p-8">
+              <div className="overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-lg shadow-[#e0511f]/[0.06] sm:p-8">
                 {status === "success" ? (
                   <div className="py-8 text-center">
                     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600">
@@ -156,7 +156,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
                     <p className="mt-4 text-lg font-semibold text-[#0f172a]">Message received</p>
                     <p className="mx-auto mt-2 max-w-md text-sm text-[#64748b]">
                       Thanks — we&apos;ll get back to you soon. You can also email{" "}
-                      <a className="font-semibold text-[#0033A1] hover:underline" href={`mailto:${PUBLIC_CONTACT_EMAIL}`}>
+                      <a className="font-semibold text-[#e0511f] hover:underline" href={`mailto:${PUBLIC_CONTACT_EMAIL}`}>
                         {PUBLIC_CONTACT_EMAIL}
                       </a>
                       .
@@ -173,7 +173,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
                   <form onSubmit={(e) => void onSubmit(e)} className="space-y-5">
                     <h2 className="text-lg font-semibold text-[#0f172a]">Send a message</h2>
                     {contextLine ? (
-                      <p className="rounded-xl border border-[#0072CE]/20 bg-[#f0f9ff] px-3 py-2 text-xs text-[#0c4a6e]">
+                      <p className="rounded-xl border border-[#bf6a3c]/20 bg-[#f0f9ff] px-3 py-2 text-xs text-[#0c4a6e]">
                         <span className="font-semibold">Context: </span>
                         {contextLine}
                       </p>
@@ -190,7 +190,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           autoComplete="name"
-                          className="w-full rounded-xl border border-[#e2e8f0] bg-[#fafafa] px-4 py-3 text-sm text-[#0f172a] outline-none transition focus:border-[#0072CE] focus:ring-2 focus:ring-[#0072CE]/20"
+                          className="w-full rounded-xl border border-[#e2e8f0] bg-[#fafafa] px-4 py-3 text-sm text-[#0f172a] outline-none transition focus:border-[#bf6a3c] focus:ring-2 focus:ring-[#bf6a3c]/20"
                           placeholder="Your full name"
                         />
                       </label>
@@ -205,7 +205,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           autoComplete="email"
-                          className="w-full rounded-xl border border-[#e2e8f0] bg-[#fafafa] px-4 py-3 text-sm text-[#0f172a] outline-none transition focus:border-[#0072CE] focus:ring-2 focus:ring-[#0072CE]/20"
+                          className="w-full rounded-xl border border-[#e2e8f0] bg-[#fafafa] px-4 py-3 text-sm text-[#0f172a] outline-none transition focus:border-[#bf6a3c] focus:ring-2 focus:ring-[#bf6a3c]/20"
                           placeholder="you@example.com"
                         />
                       </label>
@@ -219,7 +219,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
                           autoComplete="tel"
-                          className="w-full rounded-xl border border-[#e2e8f0] bg-[#fafafa] px-4 py-3 text-sm text-[#0f172a] outline-none transition focus:border-[#0072CE] focus:ring-2 focus:ring-[#0072CE]/20"
+                          className="w-full rounded-xl border border-[#e2e8f0] bg-[#fafafa] px-4 py-3 text-sm text-[#0f172a] outline-none transition focus:border-[#bf6a3c] focus:ring-2 focus:ring-[#bf6a3c]/20"
                           placeholder="+234 …"
                         />
                       </label>
@@ -230,7 +230,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
                         <input
                           value={subject}
                           onChange={(e) => setSubject(e.target.value)}
-                          className="w-full rounded-xl border border-[#e2e8f0] bg-[#fafafa] px-4 py-3 text-sm text-[#0f172a] outline-none transition focus:border-[#0072CE] focus:ring-2 focus:ring-[#0072CE]/20"
+                          className="w-full rounded-xl border border-[#e2e8f0] bg-[#fafafa] px-4 py-3 text-sm text-[#0f172a] outline-none transition focus:border-[#bf6a3c] focus:ring-2 focus:ring-[#bf6a3c]/20"
                           placeholder="e.g. Question about a Lagos listing"
                         />
                       </label>
@@ -241,7 +241,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
                           rows={5}
                           value={message}
                           onChange={(e) => setMessage(e.target.value)}
-                          className="w-full resize-y rounded-xl border border-[#e2e8f0] bg-[#fafafa] px-4 py-3 text-sm text-[#0f172a] outline-none transition focus:border-[#0072CE] focus:ring-2 focus:ring-[#0072CE]/20"
+                          className="w-full resize-y rounded-xl border border-[#e2e8f0] bg-[#fafafa] px-4 py-3 text-sm text-[#0f172a] outline-none transition focus:border-[#bf6a3c] focus:ring-2 focus:ring-[#bf6a3c]/20"
                           placeholder="How can we help?"
                         />
                       </label>
@@ -252,7 +252,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
                     <button
                       type="submit"
                       disabled={status === "sending"}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0033A1] py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-[#002880] disabled:opacity-60 sm:w-auto sm:px-8"
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#e0511f] py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-[#c8451a] disabled:opacity-60 sm:w-auto sm:px-8"
                     >
                       {status === "sending" ? (
                         <>

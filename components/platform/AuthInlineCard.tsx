@@ -159,7 +159,7 @@ export function AuthInlineCard({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Full Name"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/60 py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-slate-600 focus:border-[#155eef] focus:outline-none focus:ring-1 focus:ring-[#155eef]"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/60 py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-slate-600 focus:border-[#e0511f] focus:outline-none focus:ring-1 focus:ring-[#e0511f]"
             />
           </div>
         )}
@@ -172,7 +172,7 @@ export function AuthInlineCard({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email Address"
-            className="w-full rounded-xl border border-white/10 bg-slate-950/60 py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-slate-600 focus:border-[#155eef] focus:outline-none focus:ring-1 focus:ring-[#155eef]"
+            className="w-full rounded-xl border border-white/10 bg-slate-950/60 py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-slate-600 focus:border-[#e0511f] focus:outline-none focus:ring-1 focus:ring-[#e0511f]"
           />
         </div>
 
@@ -185,7 +185,7 @@ export function AuthInlineCard({
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Secure Password"
-            className="w-full rounded-xl border border-white/10 bg-slate-950/60 py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-slate-600 focus:border-[#155eef] focus:outline-none focus:ring-1 focus:ring-[#155eef]"
+            className="w-full rounded-xl border border-white/10 bg-slate-950/60 py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-slate-600 focus:border-[#e0511f] focus:outline-none focus:ring-1 focus:ring-[#e0511f]"
           />
         </div>
 
@@ -198,7 +198,7 @@ export function AuthInlineCard({
         <button
           type="submit"
           disabled={loading !== null}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#155eef] px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#155eef]/25 transition hover:bg-[#1249d1] disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#e0511f] px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#e0511f]/25 transition hover:bg-[#c8451a] disabled:opacity-50"
         >
           {loading === "email" ? (
             <>

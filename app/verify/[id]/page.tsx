@@ -117,7 +117,7 @@ export default function VerificationPage() {
             {/* AI Scan Results */}
             <div className="rounded-2xl border border-[#e2e8f0] bg-white p-6">
               <div className="flex items-center gap-2 mb-5">
-                <Fingerprint className="h-5 w-5 text-[#155eef]" />
+                <Fingerprint className="h-5 w-5 text-[#e0511f]" />
                 <h2 className="text-lg font-bold text-[#0f172a]">AI Fraud Detection Scan</h2>
               </div>
               <div className="grid gap-4 grid-cols-2">
@@ -147,7 +147,7 @@ export default function VerificationPage() {
                   <div key={doc.name} className="rounded-xl border border-[#e2e8f0] p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3">
-                        <FileCheck className="h-5 w-5 text-[#155eef] mt-0.5 flex-shrink-0" />
+                        <FileCheck className="h-5 w-5 text-[#e0511f] mt-0.5 flex-shrink-0" />
                         <div>
                           <div className="font-semibold text-[#0f172a] text-sm">{doc.name}</div>
                           <div className="text-xs mt-0.5" style={{ color: docStatusColor[doc.status] }}>
@@ -202,7 +202,7 @@ export default function VerificationPage() {
               {/* Download Report */}
               <button className="w-full rounded-2xl border border-[#e2e8f0] bg-white p-5 text-left transition-all hover:shadow-md">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#155eef]/8 text-[#155eef]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e0511f]/8 text-[#e0511f]">
                     <FileSearch className="h-5 w-5" />
                   </div>
                   <div>

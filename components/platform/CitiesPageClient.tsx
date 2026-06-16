@@ -258,8 +258,8 @@ export function CitiesPageClient({
               onClick={() => { setActiveCityId(market.id); setActiveTab("overview") }}
               className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition ${
                 isActive
-                  ? "border-[#155eef] bg-[#155eef] text-white shadow-md"
-                  : "border-[#dbe4f0] bg-white text-[#0f172a] hover:border-[#155eef] hover:bg-[#eef4ff]"
+                  ? "border-[#e0511f] bg-[#e0511f] text-white shadow-md"
+                  : "border-[#dbe4f0] bg-white text-[#0f172a] hover:border-[#e0511f] hover:bg-[#eef4ff]"
               }`}
             >
               <span>{market.flagEmoji}</span>
@@ -285,7 +285,7 @@ export function CitiesPageClient({
             <GoogleMapEmbed city={activeCity} />
             {/* City badge overlaid on map */}
             <div className="pointer-events-none absolute left-4 top-4 flex items-center gap-2 rounded-xl border border-white/60 bg-white/90 px-3 py-2 shadow-lg backdrop-blur-sm">
-              <MapPin className="h-4 w-4 text-[#155eef]" />
+              <MapPin className="h-4 w-4 text-[#e0511f]" />
               <div>
                 <p className="text-sm font-bold text-[#0f172a]">{activeCity.flagEmoji} {activeCity.name}</p>
                 <p className="text-[10px] text-[#64748b]">{activeCity.country}</p>
@@ -312,7 +312,7 @@ export function CitiesPageClient({
                 onClick={() => setActiveTab(tab)}
                 className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold capitalize transition ${
                   activeTab === tab
-                    ? "bg-white text-[#155eef] shadow-sm"
+                    ? "bg-white text-[#e0511f] shadow-sm"
                     : "text-[#475569] hover:text-[#0f172a]"
                 }`}
               >
@@ -322,7 +322,7 @@ export function CitiesPageClient({
                 {tab === "compare" && <TrendingUp className="h-3.5 w-3.5" />}
                 {tab === "overview" ? "City Overview" : tab === "ai" ? "AI Advisor" : tab === "compare" ? "Compare Cities" : "Listings"}
                 {tab === "listings" && cityListings.length > 0 && (
-                  <span className="rounded-full bg-[#e8f1ff] px-1.5 text-[10px] text-[#155eef]">{cityListings.length}</span>
+                  <span className="rounded-full bg-[#e8f1ff] px-1.5 text-[10px] text-[#e0511f]">{cityListings.length}</span>
                 )}
               </button>
             ))}
@@ -333,7 +333,7 @@ export function CitiesPageClient({
             <div className="space-y-4">
               {/* Score rings */}
               <div className="rounded-2xl border border-[#dbe4f0] bg-white p-5">
-                <p className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-[#155eef]">City scorecard</p>
+                <p className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-[#e0511f]">City scorecard</p>
                 <div className="flex flex-wrap justify-around gap-4">
                   <ScoreRing score={activeCity.securityScore} label="Safety" />
                   <ScoreRing score={activeRow?.growthScore ?? 0} label="Growth" />
@@ -368,10 +368,10 @@ export function CitiesPageClient({
 
               {/* Top sectors */}
               <div className="rounded-2xl border border-[#dbe4f0] bg-white p-5">
-                <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[#155eef]">Top employment sectors</p>
+                <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[#e0511f]">Top employment sectors</p>
                 <div className="flex flex-wrap gap-2">
                   {activeCity.topSectors.map((sector) => (
-                    <span key={sector} className="rounded-full border border-[#c8d8f0] bg-[#eef4ff] px-3 py-1.5 text-xs font-semibold text-[#155eef]">
+                    <span key={sector} className="rounded-full border border-[#c8d8f0] bg-[#eef4ff] px-3 py-1.5 text-xs font-semibold text-[#e0511f]">
                       {sector}
                     </span>
                   ))}
@@ -381,7 +381,7 @@ export function CitiesPageClient({
               {/* City ranking table */}
               <div className="rounded-2xl border border-[#dbe4f0] bg-white p-5">
                 <div className="mb-3 flex items-center justify-between">
-                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#155eef]">All cities ranked</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#e0511f]">All cities ranked</p>
                   <span className="text-[10px] text-[#94a3b8]">safety · growth · community · opportunity</span>
                 </div>
                 <div className="space-y-2">
@@ -394,7 +394,7 @@ export function CitiesPageClient({
                         onClick={() => setActiveCityId(row.market.id)}
                         className={`w-full rounded-xl border px-4 py-2.5 text-left transition ${
                           isThis
-                            ? "border-[#155eef] bg-[#eef4ff]"
+                            ? "border-[#e0511f] bg-[#eef4ff]"
                             : "border-[#e8edf6] bg-[#f8fbff] hover:border-[#c8d8f0]"
                         }`}
                       >
@@ -404,12 +404,12 @@ export function CitiesPageClient({
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
                               <p className="text-sm font-semibold text-[#0f172a]">{row.market.name}</p>
-                              <span className={`text-xs font-bold ${isThis ? "text-[#155eef]" : "text-[#334155]"}`}>
+                              <span className={`text-xs font-bold ${isThis ? "text-[#e0511f]" : "text-[#334155]"}`}>
                                 {row.valueScore}/100
                               </span>
                             </div>
                             <div className="mt-1.5">
-                              {scoreBar(row.valueScore, isThis ? "bg-[#155eef]" : "bg-[#94a3b8]")}
+                              {scoreBar(row.valueScore, isThis ? "bg-[#e0511f]" : "bg-[#94a3b8]")}
                             </div>
                             <p className="mt-1 text-[11px] text-[#64748b]">
                               {row.listingCount} listings · COL {row.costOfLivingIndex}/100 · growth {row.growthScore}/100
@@ -425,13 +425,13 @@ export function CitiesPageClient({
               {/* CTA */}
               <Link
                 href={`/contact?market=${encodeURIComponent(activeCity.name)}`}
-                className="flex items-center justify-between rounded-2xl border border-[#155eef]/30 bg-gradient-to-r from-[#eef4ff] to-[#f0faf9] p-5 transition hover:border-[#155eef]"
+                className="flex items-center justify-between rounded-2xl border border-[#e0511f]/30 bg-gradient-to-r from-[#eef4ff] to-[#f0faf9] p-5 transition hover:border-[#e0511f]"
               >
                 <div>
                   <p className="font-semibold text-[#0f172a]">Ready to move to {activeCity.name}?</p>
                   <p className="mt-0.5 text-xs text-[#64748b]">Talk to an advisor. Free initial consultation.</p>
                 </div>
-                <ArrowRight className="h-5 w-5 text-[#155eef]" />
+                <ArrowRight className="h-5 w-5 text-[#e0511f]" />
               </Link>
             </div>
           )}
@@ -443,18 +443,18 @@ export function CitiesPageClient({
                 <p className="text-sm font-semibold text-[#0f172a]">
                   {cityListings.length} properties in {activeCity.name}
                 </p>
-                <Link href="/services" className="text-xs font-semibold text-[#155eef] hover:underline">
+                <Link href="/services" className="text-xs font-semibold text-[#e0511f] hover:underline">
                   See all listings →
                 </Link>
               </div>
               {cityListings.length === 0 ? (
-                <div className="rounded-2xl border border-[#155eef]/20 bg-gradient-to-br from-white to-slate-50 p-8 text-center shadow-sm">
-                  <span className="inline-block rounded-full bg-[#155eef]/10 border border-[#155eef]/20 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-[#155eef] mb-3">
+                <div className="rounded-2xl border border-[#e0511f]/20 bg-gradient-to-br from-white to-slate-50 p-8 text-center shadow-sm">
+                  <span className="inline-block rounded-full bg-[#e0511f]/10 border border-[#e0511f]/20 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-[#e0511f] mb-3">
                     Coming Soon
                   </span>
                   <p className="text-sm font-bold text-[#0f172a]">New Properties &amp; Prices Dropping Soon</p>
                   <p className="mt-1 text-xs text-[#64748b]">We&apos;re adding listings for {activeCity.name} now.</p>
-                  <Link href="/contact" className="mt-3 inline-block text-xs font-semibold text-[#155eef] hover:underline">
+                  <Link href="/contact" className="mt-3 inline-block text-xs font-semibold text-[#e0511f] hover:underline">
                     Get notified
                   </Link>
                 </div>
@@ -482,7 +482,7 @@ export function CitiesPageClient({
                           <p className="font-bold text-[#0f172a]">{formatUsd(listing.priceUsd)}</p>
                           <Link
                             href={`/contact?market=${listing.citySlug}&message=I+want+to+enquire+about+${encodeURIComponent(listing.title)}`}
-                            className="rounded-lg bg-[#091520] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-[#155eef]"
+                            className="rounded-lg bg-[#091520] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-[#e0511f]"
                           >
                             Enquire
                           </Link>
@@ -504,7 +504,7 @@ export function CitiesPageClient({
           {activeTab === "ai" && (
             <div className="rounded-2xl border border-[#dbe4f0] bg-white p-5">
               <div className="mb-4 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#155eef]">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#e0511f]">
                   <Sparkles className="h-4 w-4 text-white" />
                 </div>
                 <div>
@@ -527,7 +527,7 @@ export function CitiesPageClient({
                     key={i}
                     className={`max-w-[90%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed ${
                       msg.role === "user"
-                        ? "ml-auto bg-[#155eef] text-white"
+                        ? "ml-auto bg-[#e0511f] text-white"
                         : "bg-white text-[#0f172a] shadow-sm border border-[#e8edf6]"
                     }`}
                   >
@@ -536,7 +536,7 @@ export function CitiesPageClient({
                 ))}
                 {aiLoading && (
                   <div className="flex items-center gap-2 rounded-xl border border-[#e8edf6] bg-white px-3.5 py-2.5 text-sm text-[#64748b] shadow-sm">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin text-[#155eef]" />
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-[#e0511f]" />
                     Researching {activeCity.name}…
                   </div>
                 )}
@@ -552,7 +552,7 @@ export function CitiesPageClient({
                       type="button"
                       onClick={() => void sendAiMessage(q)}
                       disabled={aiLoading}
-                      className="rounded-full border border-[#c8d8f0] bg-[#eef4ff] px-3 py-1 text-[11px] font-semibold text-[#155eef] transition hover:bg-[#dbeafe] disabled:opacity-50"
+                      className="rounded-full border border-[#c8d8f0] bg-[#eef4ff] px-3 py-1 text-[11px] font-semibold text-[#e0511f] transition hover:bg-[#dbeafe] disabled:opacity-50"
                     >
                       {q}
                     </button>
@@ -570,12 +570,12 @@ export function CitiesPageClient({
                   onChange={(e) => setAiInput(e.target.value)}
                   placeholder={`Ask about ${activeCity.name}…`}
                   disabled={aiLoading}
-                  className="flex-1 rounded-xl border border-[#c8d8f0] bg-[#f8fbff] px-3 py-2 text-sm outline-none focus:border-[#155eef] disabled:opacity-60"
+                  className="flex-1 rounded-xl border border-[#c8d8f0] bg-[#f8fbff] px-3 py-2 text-sm outline-none focus:border-[#e0511f] disabled:opacity-60"
                 />
                 <button
                   type="submit"
                   disabled={aiLoading || !aiInput.trim()}
-                  className="flex items-center gap-1.5 rounded-xl bg-[#155eef] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1249c2] disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-xl bg-[#e0511f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1249c2] disabled:opacity-50"
                 >
                   <Send className="h-3.5 w-3.5" />
                   Ask
@@ -588,7 +588,7 @@ export function CitiesPageClient({
           {activeTab === "compare" && (
             <div className="rounded-2xl border border-[#dbe4f0] bg-white p-5">
               <div className="mb-4 flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-[#155eef]" />
+                <TrendingUp className="h-5 w-5 text-[#e0511f]" />
                 <p className="font-bold text-[#0f172a]">AI City Comparison</p>
               </div>
 
@@ -614,7 +614,7 @@ export function CitiesPageClient({
                 <button
                   type="submit"
                   disabled={compareLoading || compareA === compareB}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-[#091520] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#155eef] disabled:opacity-50"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-[#091520] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e0511f] disabled:opacity-50"
                 >
                   {compareLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <BarChart3 className="h-4 w-4" />}
                   {compareLoading ? "Comparing…" : "Compare"}
@@ -640,7 +640,7 @@ export function CitiesPageClient({
                     if (!val) return null
                     return (
                       <div key={key}>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#155eef]">{labels[key] ?? key}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e0511f]">{labels[key] ?? key}</p>
                         <p className="mt-0.5 text-sm text-[#0f172a]">{val}</p>
                       </div>
                     )
@@ -686,7 +686,7 @@ export function CitiesPageClient({
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-1.5 text-[#475569]"><Star className="h-3.5 w-3.5" /> Community vibe</span>
                 <div className="flex items-center gap-2">
-                  <div className="w-24">{scoreBar(activeCity.lifestyleScore, "bg-[#155eef]")}</div>
+                  <div className="w-24">{scoreBar(activeCity.lifestyleScore, "bg-[#e0511f]")}</div>
                   <span className="w-7 text-right text-xs font-bold text-[#0f172a]">{activeCity.lifestyleScore}</span>
                 </div>
               </div>
@@ -707,7 +707,7 @@ export function CitiesPageClient({
 
             <div className="mt-4 flex flex-wrap gap-1.5">
               {activeCity.topSectors.map((s) => (
-                <span key={s} className="rounded-full bg-[#eef4ff] px-2 py-1 text-[11px] font-semibold text-[#155eef]">{s}</span>
+                <span key={s} className="rounded-full bg-[#eef4ff] px-2 py-1 text-[11px] font-semibold text-[#e0511f]">{s}</span>
               ))}
             </div>
 
@@ -722,7 +722,7 @@ export function CitiesPageClient({
           {/* Top listing in this city */}
           {cityListings[0] && (
             <div className="rounded-2xl border border-[#dbe4f0] bg-white p-4">
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#155eef]">Top listing in {activeCity.name}</p>
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#e0511f]">Top listing in {activeCity.name}</p>
               <article className="overflow-hidden rounded-xl border border-[#e8edf6]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={getPrimaryListingImage(cityListings[0])} alt={cityListings[0].title} className="h-36 w-full object-cover" />
@@ -733,7 +733,7 @@ export function CitiesPageClient({
                     <p className="font-bold text-[#0f172a]">{formatUsd(cityListings[0].priceUsd)}</p>
                     <Link
                       href={`/contact?market=${cityListings[0].citySlug}&message=I+want+to+enquire+about+${encodeURIComponent(cityListings[0].title)}`}
-                      className="rounded-lg bg-[#091520] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-[#155eef]"
+                      className="rounded-lg bg-[#091520] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-[#e0511f]"
                     >
                       Enquire
                     </Link>
@@ -743,7 +743,7 @@ export function CitiesPageClient({
               <button
                 type="button"
                 onClick={() => setActiveTab("listings")}
-                className="mt-2 flex w-full items-center justify-center gap-1 text-xs font-semibold text-[#155eef] hover:underline"
+                className="mt-2 flex w-full items-center justify-center gap-1 text-xs font-semibold text-[#e0511f] hover:underline"
               >
                 View all {cityListings.length} listings <ChevronRight className="h-3.5 w-3.5" />
               </button>
@@ -754,16 +754,16 @@ export function CitiesPageClient({
           <button
             type="button"
             onClick={() => setActiveTab("ai")}
-            className="group flex w-full items-center gap-3 rounded-2xl border border-[#155eef]/25 bg-gradient-to-br from-[#eef4ff] to-[#f0faf9] p-4 text-left transition hover:border-[#155eef]/60"
+            className="group flex w-full items-center gap-3 rounded-2xl border border-[#e0511f]/25 bg-gradient-to-br from-[#eef4ff] to-[#f0faf9] p-4 text-left transition hover:border-[#e0511f]/60"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#155eef]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#e0511f]">
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <div>
               <p className="text-sm font-bold text-[#0f172a]">Ask the AI Advisor</p>
               <p className="mt-0.5 text-xs text-[#64748b]">Safety, schools, commute, cost of living for {activeCity.name}</p>
             </div>
-            <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-[#155eef] transition group-hover:translate-x-0.5" />
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-[#e0511f] transition group-hover:translate-x-0.5" />
           </button>
 
           {/* Coming soon */}
@@ -777,7 +777,7 @@ export function CitiesPageClient({
                   </span>
                 ))}
               </div>
-              <Link href="/contact" className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#155eef] hover:underline">
+              <Link href="/contact" className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#e0511f] hover:underline">
                 Register interest <ChevronRight className="h-3.5 w-3.5" />
               </Link>
             </div>

@@ -25,19 +25,19 @@ export function JourneyFlowStrip({ current }: { current: JourneyStepKey }) {
     <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <div className="rounded-2xl border border-[#dbe4f0] bg-white p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#155eef]">Scout → Secure → Settle journey</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">Scout → Secure → Settle journey</p>
           <div className="text-xs text-[#64748b]">
             {nextStep ? (
               <span>
                 Next recommended step:{" "}
-                <Link href={nextStep.href} className="font-semibold text-[#155eef] hover:underline">
+                <Link href={nextStep.href} className="font-semibold text-[#e0511f] hover:underline">
                   {nextStep.label}
                 </Link>
               </span>
             ) : (
               <span>
                 Journey complete.{" "}
-                <Link href="/" className="font-semibold text-[#155eef] hover:underline">
+                <Link href="/" className="font-semibold text-[#e0511f] hover:underline">
                   Start a new move plan
                 </Link>
               </span>
@@ -54,7 +54,7 @@ export function JourneyFlowStrip({ current }: { current: JourneyStepKey }) {
                 href={step.href}
                 className={`rounded-xl border px-3 py-2 transition ${
                   isActive
-                    ? "border-[#155eef] bg-[#eef4ff]"
+                    ? "border-[#e0511f] bg-[#eef4ff]"
                     : isPassed
                       ? "border-green-200 bg-green-50"
                       : "border-[#e8edf6] bg-[#f8fbff] hover:border-[#c8d8f0]"
@@ -64,7 +64,7 @@ export function JourneyFlowStrip({ current }: { current: JourneyStepKey }) {
                   <span
                     className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
                       isActive
-                        ? "bg-[#155eef] text-white"
+                        ? "bg-[#e0511f] text-white"
                         : isPassed
                           ? "bg-green-600 text-white"
                           : "bg-[#dbe4f0] text-[#334155]"
@@ -74,7 +74,7 @@ export function JourneyFlowStrip({ current }: { current: JourneyStepKey }) {
                   </span>
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-[#64748b]">{step.title}</p>
                 </div>
-                <p className={`mt-1 text-sm font-semibold ${isActive ? "text-[#155eef]" : "text-[#0f172a]"}`}>{step.label}</p>
+                <p className={`mt-1 text-sm font-semibold ${isActive ? "text-[#e0511f]" : "text-[#0f172a]"}`}>{step.label}</p>
               </Link>
             )
           })}

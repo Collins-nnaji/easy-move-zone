@@ -17,25 +17,25 @@ export default async function ProfilePage() {
       title: "Buyer dashboard",
       desc: "Saved homes, offers, and documents",
       icon: LayoutDashboard,
-      style: "from-[#155eef] to-[#1249d1] text-white shadow-lg shadow-[#155eef]/25",
+      style: "from-[#e0511f] to-[#c8451a] text-white shadow-lg shadow-[#e0511f]/25",
     },
     {
       href: "/search",
       title: "Browse properties",
       desc: "Verified inventory across cities",
       icon: Search,
-      style: "border border-[#e2e8f0] bg-white text-[#0f172a] hover:border-[#155eef]/25 hover:shadow-md",
+      style: "border border-[#e2e8f0] bg-white text-[#0f172a] hover:border-[#e0511f]/25 hover:shadow-md",
     },
   ] as const
 
   return (
     <PublicShell>
       <div className="relative min-h-screen overflow-hidden pb-20 pt-6 sm:px-6 sm:pt-10">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-[#155eef]/[0.07] via-[#0f766e]/[0.04] to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-[#e0511f]/[0.07] via-[#0f766e]/[0.04] to-transparent" />
         <div className="relative mx-auto max-w-4xl px-4">
           <div className="emz-hero-bento mb-10 flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
             <div className="flex items-center gap-4">
-              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#155eef] to-[#0f4ec4] text-white shadow-lg shadow-[#155eef]/30">
+              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#e0511f] to-[#0f4ec4] text-white shadow-lg shadow-[#e0511f]/30">
                 <User className="h-9 w-9" strokeWidth={1.75} />
               </div>
               <div>
@@ -80,7 +80,7 @@ export default async function ProfilePage() {
                 >
                   <span
                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-                      s.href === "/dashboard" ? "bg-white/15" : "bg-[#f8fafc] text-[#155eef] group-hover:bg-[#155eef]/8"
+                      s.href === "/dashboard" ? "bg-white/15" : "bg-[#f8fafc] text-[#e0511f] group-hover:bg-[#e0511f]/8"
                     }`}
                   >
                     <s.icon className="h-5 w-5" />

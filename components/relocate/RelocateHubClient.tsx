@@ -302,7 +302,7 @@ export function RelocateHubClient() {
     return (
       <div className="mx-auto flex w-full max-w-7xl items-center justify-center px-4 py-14 sm:px-6 lg:px-8">
         <div className="inline-flex items-center gap-2 rounded-xl border border-[#dbe4f0] bg-white px-4 py-3 text-sm text-[#475569]">
-          <Loader2 className="h-4 w-4 animate-spin text-[#155eef]" />
+          <Loader2 className="h-4 w-4 animate-spin text-[#e0511f]" />
           Loading relocation workspace…
         </div>
       </div>
@@ -318,7 +318,7 @@ export function RelocateHubClient() {
             Save your relocation plan, track visa/logistics tasks, manage budgets, and keep local contacts in one place.
           </p>
           <div className="mt-6 flex justify-center gap-3">
-            <Link href="/auth?redirect=/relocate/hub" className="rounded-full bg-[#155eef] px-6 py-3 text-sm font-semibold text-white">
+            <Link href="/auth?redirect=/relocate/hub" className="rounded-full bg-[#e0511f] px-6 py-3 text-sm font-semibold text-white">
               Sign in
             </Link>
             <Link href="/index" className="rounded-full border border-[#dbe4f0] px-6 py-3 text-sm font-semibold text-[#0f172a]">
@@ -342,17 +342,17 @@ export function RelocateHubClient() {
     <section className="mx-auto w-full max-w-7xl space-y-6 px-4 py-10 sm:px-6 lg:px-8">
       <div className="grid gap-4 md:grid-cols-3">
         <article className="rounded-2xl border border-[#dbe4f0] bg-white p-4 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#155eef]">Total move budget</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">Total move budget</p>
           <p className="mt-2 font-[var(--font-playfair)] text-4xl font-semibold text-[#0f172a]">${budgetTotal.toLocaleString()}</p>
           <p className="mt-1 text-xs text-[#64748b]">Housing + travel + setup + contingency</p>
         </article>
         <article className="rounded-2xl border border-[#dbe4f0] bg-white p-4 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#155eef]">Checklist progress</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">Checklist progress</p>
           <p className="mt-2 font-[var(--font-playfair)] text-4xl font-semibold text-[#0f172a]">{completedTasks}/{tasks.length}</p>
           <p className="mt-1 text-xs text-[#64748b]">Tasks completed</p>
         </article>
         <article className="rounded-2xl border border-[#dbe4f0] bg-white p-4 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#155eef]">Local support</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">Local support</p>
           <p className="mt-2 font-[var(--font-playfair)] text-4xl font-semibold text-[#0f172a]">{contacts.length}</p>
           <p className="mt-1 text-xs text-[#64748b]">Saved relocation contacts</p>
         </article>
@@ -373,7 +373,7 @@ export function RelocateHubClient() {
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
         <article className="rounded-2xl border border-[#dbe4f0] bg-white p-5 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#155eef]">Relocation plan</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">Relocation plan</p>
           <h3 className="mt-1 font-[var(--font-playfair)] text-3xl font-semibold text-[#091520]">Plan your move</h3>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <input value={draftPlan.originCity} onChange={(e) => updatePlanField("originCity", e.target.value)} placeholder="Origin city" className="rounded-xl border border-[#dbe4f0] px-3 py-2.5 text-sm" />
@@ -407,7 +407,7 @@ export function RelocateHubClient() {
               <input type="number" min={0} value={draftPlan.budgetSetupUsd} onChange={(e) => updatePlanField("budgetSetupUsd", Number(e.target.value) || 0)} placeholder="Setup costs" className="rounded-xl border border-[#dbe4f0] px-3 py-2.5 text-sm" />
               <input type="number" min={0} value={draftPlan.budgetBufferUsd} onChange={(e) => updatePlanField("budgetBufferUsd", Number(e.target.value) || 0)} placeholder="Emergency buffer" className="rounded-xl border border-[#dbe4f0] px-3 py-2.5 text-sm" />
             </div>
-            <p className="mt-3 text-sm font-semibold text-[#155eef]">Total: ${budgetTotal.toLocaleString()}</p>
+            <p className="mt-3 text-sm font-semibold text-[#e0511f]">Total: ${budgetTotal.toLocaleString()}</p>
             <div className="mt-3 grid gap-2 md:grid-cols-[1fr_auto]">
               <input
                 type="number"
@@ -418,7 +418,7 @@ export function RelocateHubClient() {
                 className="rounded-xl border border-[#dbe4f0] px-3 py-2.5 text-sm"
               />
               <div className="rounded-xl border border-[#dbe4f0] bg-white px-3 py-2.5 text-sm text-[#475569]">
-                Runway: <span className="font-semibold text-[#155eef]">{runwayMonths} months</span>
+                Runway: <span className="font-semibold text-[#e0511f]">{runwayMonths} months</span>
               </div>
             </div>
           </div>
@@ -432,7 +432,7 @@ export function RelocateHubClient() {
         </article>
 
         <article className="rounded-2xl border border-[#dbe4f0] bg-white p-5 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#155eef]">Quick starts</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">Quick starts</p>
           <h3 className="mt-1 font-[var(--font-playfair)] text-3xl font-semibold text-[#091520]">Planning templates</h3>
           <div className="mt-4 space-y-2">
             {TASK_TEMPLATES.map((template) => (
@@ -440,10 +440,10 @@ export function RelocateHubClient() {
                 key={template.title}
                 type="button"
                 onClick={() => void createTask({ title: template.title, category: template.category, priority: template.priority })}
-                className="flex w-full items-center justify-between rounded-xl border border-[#dbe4f0] bg-[#f8fbff] px-3 py-2 text-left text-sm text-[#334155] transition hover:border-[#155eef]"
+                className="flex w-full items-center justify-between rounded-xl border border-[#dbe4f0] bg-[#f8fbff] px-3 py-2 text-left text-sm text-[#334155] transition hover:border-[#e0511f]"
               >
                 <span>{template.title}</span>
-                <Plus className="h-4 w-4 text-[#155eef]" />
+                <Plus className="h-4 w-4 text-[#e0511f]" />
               </button>
             ))}
           </div>
@@ -462,10 +462,10 @@ export function RelocateHubClient() {
         <article className="rounded-2xl border border-[#dbe4f0] bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#155eef]">Timeline + checklist</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">Timeline + checklist</p>
               <h3 className="mt-1 font-[var(--font-playfair)] text-3xl font-semibold text-[#091520]">Relocation tasks</h3>
             </div>
-            <span className="rounded-full bg-[#eef4ff] px-3 py-1 text-xs font-semibold text-[#155eef]">{tasks.length} tasks</span>
+            <span className="rounded-full bg-[#eef4ff] px-3 py-1 text-xs font-semibold text-[#e0511f]">{tasks.length} tasks</span>
           </div>
 
           <div className="mt-4 grid gap-2 md:grid-cols-[1fr_auto_auto_auto]">
@@ -490,7 +490,7 @@ export function RelocateHubClient() {
             type="button"
             disabled={creatingTask}
             onClick={() => void createTask(taskForm)}
-            className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#155eef] px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"
+            className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#e0511f] px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"
           >
             {creatingTask ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
             Add task
@@ -538,10 +538,10 @@ export function RelocateHubClient() {
         <article className="rounded-2xl border border-[#dbe4f0] bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#155eef]">Local services</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">Local services</p>
               <h3 className="mt-1 font-[var(--font-playfair)] text-3xl font-semibold text-[#091520]">Support contacts</h3>
             </div>
-            <Users className="h-5 w-5 text-[#155eef]" />
+            <Users className="h-5 w-5 text-[#e0511f]" />
           </div>
 
           <div className="mt-4 grid gap-2 md:grid-cols-2">
@@ -585,18 +585,18 @@ export function RelocateHubClient() {
       </div>
 
       <div className="rounded-2xl border border-[#dbe4f0] bg-white p-5 shadow-sm">
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#155eef]">Planning signals</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">Planning signals</p>
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           <div className="rounded-xl border border-[#e8edf6] bg-[#f8fbff] p-3">
-            <p className="inline-flex items-center gap-1 text-xs font-semibold text-[#0f172a]"><Wallet className="h-3.5 w-3.5 text-[#155eef]" /> Budget coverage</p>
+            <p className="inline-flex items-center gap-1 text-xs font-semibold text-[#0f172a]"><Wallet className="h-3.5 w-3.5 text-[#e0511f]" /> Budget coverage</p>
             <p className="mt-1 text-sm text-[#64748b]">Use 15–20% contingency in buffer for early-stage moves.</p>
           </div>
           <div className="rounded-xl border border-[#e8edf6] bg-[#f8fbff] p-3">
-            <p className="inline-flex items-center gap-1 text-xs font-semibold text-[#0f172a]"><ClipboardCheck className="h-3.5 w-3.5 text-[#155eef]" /> Readiness score</p>
+            <p className="inline-flex items-center gap-1 text-xs font-semibold text-[#0f172a]"><ClipboardCheck className="h-3.5 w-3.5 text-[#e0511f]" /> Readiness score</p>
             <p className="mt-1 text-sm text-[#64748b]">{tasks.length === 0 ? "Add tasks to calculate readiness." : `${Math.round((completedTasks / Math.max(tasks.length, 1)) * 100)}% checklist complete.`}</p>
           </div>
           <div className="rounded-xl border border-[#e8edf6] bg-[#f8fbff] p-3">
-            <p className="inline-flex items-center gap-1 text-xs font-semibold text-[#0f172a]"><Users className="h-3.5 w-3.5 text-[#155eef]" /> Support network</p>
+            <p className="inline-flex items-center gap-1 text-xs font-semibold text-[#0f172a]"><Users className="h-3.5 w-3.5 text-[#e0511f]" /> Support network</p>
             <p className="mt-1 text-sm text-[#64748b]">Save immigration, legal, education, and tax contacts in one place.</p>
           </div>
         </div>
@@ -605,7 +605,7 @@ export function RelocateHubClient() {
       <div className="rounded-2xl border border-[#dbe4f0] bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#155eef]">Country relocation guide</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">Country relocation guide</p>
             <h3 className="mt-1 font-[var(--font-playfair)] text-3xl font-semibold text-[#091520]">Visa + setup briefing</h3>
           </div>
           <select
@@ -624,7 +624,7 @@ export function RelocateHubClient() {
 
         {guidesLoading ? (
           <div className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] px-3 py-2 text-sm text-[#64748b]">
-            <Loader2 className="h-4 w-4 animate-spin text-[#155eef]" />
+            <Loader2 className="h-4 w-4 animate-spin text-[#e0511f]" />
             Loading country guide…
           </div>
         ) : activeGuide ? (

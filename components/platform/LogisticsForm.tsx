@@ -134,7 +134,7 @@ Logistics Booking Request:
   }
 
   return (
-    <div className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-slate-950/50 p-6 backdrop-blur-xl shadow-2xl shadow-[#0033A1]/10 ring-1 ring-white/5 sm:p-8">
+    <div className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-slate-950/50 p-6 backdrop-blur-xl shadow-2xl shadow-[#e0511f]/10 ring-1 ring-white/5 sm:p-8">
       {/* Progress Bar */}
       <div className="mb-8 flex items-center justify-between gap-4">
         {[1, 2, 3, 4, 5].map((s) => (
