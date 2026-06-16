@@ -131,7 +131,7 @@ export function PlatformNav() {
               <button
                 type="button"
                 onClick={() => setAvatarOpen((p) => !p)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-blue-600 text-[13px] font-bold text-white shadow-md ring-2 ring-white/10 transition hover:ring-white/30 hover:shadow-orange-500/30"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-[#bf6a3c] text-[13px] font-bold text-white shadow-md ring-2 ring-white/10 transition hover:ring-white/30 hover:shadow-orange-500/30"
                 aria-label="Account menu"
                 aria-expanded={avatarOpen}
               >
@@ -183,7 +183,7 @@ export function PlatformNav() {
               </Link>
               <Link
                 href="/auth"
-                className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-blue-600 px-4 py-2 text-[13px] font-bold text-white shadow-md transition hover:brightness-110 hover:shadow-lg hover:shadow-orange-500/25"
+                className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-[#bf6a3c] px-4 py-2 text-[13px] font-bold text-white shadow-md transition hover:brightness-110 hover:shadow-lg hover:shadow-orange-500/25"
               >
                 <UserRound className="h-3.5 w-3.5 shrink-0 opacity-90" />
                 Sign in
@@ -248,7 +248,7 @@ export function PlatformNav() {
                   Register
                 </Link>
                 <Link href="/auth" onClick={() => setMobileOpen(false)}
-                  className="mt-2 block rounded-xl bg-gradient-to-r from-orange-500 to-blue-600 px-4 py-3 text-center text-[14px] font-bold text-white shadow-md">
+                  className="mt-2 block rounded-xl bg-gradient-to-r from-orange-500 to-[#bf6a3c] px-4 py-3 text-center text-[14px] font-bold text-white shadow-md">
                   Sign in
                 </Link>
               </>

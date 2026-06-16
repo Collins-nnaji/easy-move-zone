@@ -46,10 +46,10 @@ const services = [
     icon: ShieldCheck,
     href: "/purchase",
     cta: "Browse verified homes",
-    gradient: "from-orange-500 to-blue-500",
-    glow: "bg-orange-500/20",
-    accent: "text-orange-400",
-    border: "border-orange-500/20",
+    gradient: "from-[#e0511f] to-[#f3aa79]",
+    glow: "bg-[#e0511f]/25",
+    accent: "text-[#f3aa79]",
+    border: "border-[#e0511f]/20",
     photo: "/emzheropic.png",
     photoPosition: "60% center",
   },
@@ -60,9 +60,9 @@ const services = [
     icon: HardHat,
     href: "/build",
     cta: "Start your build",
-    gradient: "from-amber-500 to-orange-500",
-    glow: "bg-amber-500/20",
-    accent: "text-amber-400",
+    gradient: "from-amber-500 to-[#e0511f]",
+    glow: "bg-amber-500/25",
+    accent: "text-amber-300",
     border: "border-amber-500/20",
     photo: null,
     photoPosition: "",
@@ -74,10 +74,10 @@ const services = [
     icon: Banknote,
     href: "/finance",
     cta: "Explore financing",
-    gradient: "from-emerald-500 to-teal-500",
-    glow: "bg-emerald-500/20",
-    accent: "text-emerald-400",
-    border: "border-emerald-500/20",
+    gradient: "from-[#bf6a3c] to-[#e0511f]",
+    glow: "bg-[#bf6a3c]/25",
+    accent: "text-[#f3aa79]",
+    border: "border-[#bf6a3c]/20",
     photo: null,
     photoPosition: "",
   },
@@ -88,10 +88,10 @@ const services = [
     icon: KeyRound,
     href: "/own",
     cta: "View rent-to-own homes",
-    gradient: "from-purple-500 to-indigo-500",
-    glow: "bg-purple-500/20",
-    accent: "text-purple-400",
-    border: "border-purple-500/20",
+    gradient: "from-[#e0511f] to-[#bf6a3c]",
+    glow: "bg-[#e0511f]/25",
+    accent: "text-[#f3aa79]",
+    border: "border-[#e0511f]/20",
     photo: "/homepage pic 2.png",
     photoPosition: "center",
   },
@@ -183,7 +183,7 @@ export function HomePageClient() {
                 className="display-title text-5xl text-white sm:text-6xl lg:text-[4rem]"
               >
                 Move, settle, and own
-                <span className="block bg-gradient-to-r from-orange-200 via-indigo-200 to-emerald-200 bg-clip-text text-transparent mt-2">
+                <span className="block bg-gradient-to-r from-[#f3aa79] via-orange-200 to-amber-200 bg-clip-text text-transparent mt-2">
                   wherever life takes you.
                 </span>
               </motion.h1>
@@ -386,7 +386,7 @@ export function HomePageClient() {
               </div>
               <h2 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl text-slate-900">
                 The cheapest way to
-                <span className="bg-gradient-to-r from-orange-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent"> own & move.</span>
+                <span className="bg-gradient-to-r from-orange-600 via-[#bf6a3c] to-amber-600 bg-clip-text text-transparent"> own & move.</span>
               </h2>
             </div>
             <p className="max-w-sm text-[15px] leading-relaxed text-slate-600 lg:text-right">
@@ -402,7 +402,7 @@ export function HomePageClient() {
                 <div
                   key={s.label}
                   className={clsx(
-                    "w-full flex flex-col justify-between rounded-2xl bg-white border border-slate-200/60 shadow-lg shadow-slate-200/50 p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-slate-200/60 relative overflow-hidden",
+                    "group w-full flex flex-col justify-between rounded-2xl bg-white border border-slate-200/60 shadow-lg shadow-slate-200/50 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-200/60 relative overflow-hidden",
                   )}
                 >
                   <div className={clsx(
@@ -444,7 +444,7 @@ export function HomePageClient() {
                           s.gradient
                         )}
                       >
-                        {s.cta} <ArrowRight className="h-4 w-4" />
+                        {s.cta} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </Link>
                     </div>
                   </div>

@@ -40,7 +40,7 @@ const partners = [
     term: "Up to 20 years",
     note: "RSA-backed & home loans",
     highlight: true,
-    color: "from-blue-500/20 to-blue-600/5",
+    color: "from-[#e0511f]/20 to-[#bf6a3c]/5",
   },
   {
     name: "First Bank",
@@ -58,7 +58,7 @@ const partners = [
     term: "Up to 30 years",
     note: "Government-backed, lowest rate",
     highlight: false,
-    color: "from-purple-500/20 to-purple-600/5",
+    color: "from-orange-500/20 to-orange-600/5",
   },
 ]
 
@@ -73,7 +73,7 @@ const steps = [
     icon: Building2,
     title: "Lender matching",
     desc: "We match your profile to the right lender — NHF, commercial bank, or diaspora programme — and present you with real offers, not guesses.",
-    color: "bg-blue-100 text-blue-600",
+    color: "bg-orange-100 text-[#e0511f]",
   },
   {
     icon: ShieldCheck,
@@ -85,7 +85,7 @@ const steps = [
     icon: Clock,
     title: "Approval & drawdown",
     desc: "Once approved, we coordinate with your solicitor and the property seller for a smooth, fast completion. For diaspora buyers, Power of Attorney is handled in-house.",
-    color: "bg-purple-100 text-purple-600",
+    color: "bg-orange-100 text-orange-600",
   },
 ]
 
@@ -280,7 +280,7 @@ export function FinancePageClient() {
                 className="text-4xl font-bold leading-tight tracking-tight text-[#0f172a] sm:text-5xl"
               >
                 Move in now.{" "}
-                <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-orange-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-emerald-600 via-emerald-600 to-orange-600 bg-clip-text text-transparent">
                   Pay over time.
                 </span>
               </motion.h1>

@@ -20,7 +20,7 @@ interface UserRow {
 
 const ROLE_COLORS: Record<string, string> = {
   admin:    "bg-red-900/40 text-red-300",
-  agent:    "bg-purple-900/40 text-purple-300",
+  agent:    "bg-orange-900/40 text-orange-300",
   landlord: "bg-blue-900/40 text-blue-300",
   vendor:   "bg-orange-900/40 text-orange-300",
   user:     "bg-slate-700 text-slate-300",

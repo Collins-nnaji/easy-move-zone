@@ -111,7 +111,7 @@ function AiBtn({
       className={clsx(
         "inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide transition-all disabled:opacity-50",
         variant === "refine"
-          ? "border border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20"
+          ? "border border-orange-500/30 bg-orange-500/10 text-orange-300 hover:bg-orange-500/20"
           : "border border-orange-500/30 bg-orange-500/10 text-orange-300 hover:bg-orange-500/20"
       )}
     >
@@ -219,7 +219,7 @@ function AiSidebar({
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/10">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-blue-600 shrink-0">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-[#bf6a3c] shrink-0">
           <Sparkles className="h-3.5 w-3.5 text-white" />
         </div>
         <div>
@@ -869,7 +869,7 @@ export function SellForm() {
                     <span className="text-xs text-slate-600">JPG, PNG, WEBP · max 10 MB each</span>
                   </button>
                   <button type="button" onClick={() => vidRef.current?.click()}
-                    className="flex flex-col items-center gap-2.5 rounded-2xl border-2 border-dashed border-white/15 py-10 hover:border-purple-500/40 hover:bg-white/[0.02] transition-all">
+                    className="flex flex-col items-center gap-2.5 rounded-2xl border-2 border-dashed border-white/15 py-10 hover:border-orange-500/40 hover:bg-white/[0.02] transition-all">
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5">
                       <Video className="h-6 w-6 text-slate-500" />
                     </div>

@@ -21,7 +21,7 @@ import {
 
 const SAVED_GRADIENTS = [
   "linear-gradient(135deg,#bf6a3c22,#00C6FF22)",
-  "linear-gradient(135deg,#7c3aed22,#a78bfa22)",
+  "linear-gradient(135deg,#bf6a3c22,#f3aa7922)",
   "linear-gradient(135deg,#05966922,#34d39922)",
   "linear-gradient(135deg,#f59e0b22,#fde68a22)",
 ]
@@ -98,7 +98,7 @@ export default async function BuyerDashboardPage() {
             {[
               { icon: Heart, label: "Saved", value: savedProperties.length, color: "#dc2626" },
               { icon: FileText, label: "Transactions", value: transactions.length, color: "#e0511f" },
-              { icon: Folder, label: "Documents", value: documents.length, color: "#7c3aed" },
+              { icon: Folder, label: "Documents", value: documents.length, color: "#bf6a3c" },
               { icon: Bell, label: "Notifications", value: notifications.filter((n) => !n.read).length, color: "#d97706" },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl border border-[#e2e8f0] bg-white p-5">

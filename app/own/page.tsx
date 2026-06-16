@@ -62,11 +62,11 @@ export default function OwnPage() {
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-10">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-500 shadow-md">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 shadow-md">
               <KeyRound className="h-6 w-6 text-white" />
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-purple-600 mb-0.5">Rent to Own</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-orange-600 mb-0.5">Rent to Own</p>
               <h1 className="text-2xl font-bold tracking-tight text-[#0f172a] sm:text-3xl">
                 Stop renting. Start owning.
               </h1>
@@ -85,7 +85,7 @@ export default function OwnPage() {
               { label: "No mortgage", sub: "to get started" },
             ].map((s) => (
               <div key={s.label} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5">
-                <p className="text-sm font-bold text-purple-700">{s.label}</p>
+                <p className="text-sm font-bold text-orange-700">{s.label}</p>
                 <p className="text-[11px] text-slate-500">{s.sub}</p>
               </div>
             ))}
@@ -100,14 +100,14 @@ export default function OwnPage() {
       <section className="bg-[#f8fafc] py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="mb-12 text-center">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-purple-600">How it works</span>
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-orange-600">How it works</span>
             <h2 className="mt-3 text-2xl font-bold text-[#0f172a] sm:text-3xl">Four steps to ownership.</h2>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {howItWorks.map((step, i) => (
               <div key={step.title} className="relative rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
                 <div className="absolute top-4 right-4 text-3xl font-black text-slate-50 select-none">0{i + 1}</div>
-                <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-500">
+                <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
                   <step.icon className="h-4.5 w-4.5" />
                 </div>
                 <h3 className="text-sm font-bold text-[#0f172a] mb-1.5">{step.title}</h3>
@@ -123,7 +123,7 @@ export default function OwnPage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-2 items-center">
             <div>
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-purple-400">Who it's for</span>
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Who it's for</span>
               <h2 className="mt-3 text-2xl font-bold sm:text-3xl">Built for the mass market.</h2>
               <p className="mt-4 text-slate-400 text-sm leading-relaxed">
                 Designed for people who earn steadily but haven't accumulated a mortgage deposit yet. Also ideal for Diaspora returnees who want to start building roots before they move back.
@@ -137,7 +137,7 @@ export default function OwnPage() {
                 { icon: CheckCircle2, text: "People who don't qualify for a mortgage yet — build your credit profile while living in the property" },
               ].map((item) => (
                 <li key={item.text} className="flex items-start gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3.5">
-                  <item.icon className="h-4 w-4 shrink-0 text-purple-400 mt-0.5" />
+                  <item.icon className="h-4 w-4 shrink-0 text-orange-400 mt-0.5" />
                   <span className="text-sm text-slate-300">{item.text}</span>
                 </li>
               ))}

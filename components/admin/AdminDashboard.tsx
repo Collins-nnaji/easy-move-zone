@@ -144,7 +144,7 @@ function RequestsTab({ requests }: { requests: RequestRow[] }) {
             <button
                onClick={() => void updateStatus(req.id, "active")}
                disabled={updating === req.id}
-               className="rounded-full bg-blue-600 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-50"
+               className="rounded-full bg-[#e0511f] px-3 py-1.5 text-xs font-bold text-white disabled:opacity-50"
             >
               Mark Active
             </button>
@@ -308,9 +308,9 @@ export function AdminDashboard() {
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <StatCard icon={Users} label="Total users" value={data.stats.totalUsers}
                     sub={`${data.stats.totalBuyers} individual · ${data.stats.totalSellers} corporate`}
-                    color="bg-blue-100 text-blue-600" />
+                    color="bg-orange-100 text-[#e0511f]" />
                   <StatCard icon={Building2} label="Partner accounts" value={data.stats.totalAgents}
-                    color="bg-purple-100 text-purple-600" />
+                    color="bg-orange-100 text-orange-600" />
                   <StatCard icon={CheckCircle} label="Service Requests" value={data.stats.pendingRequests}
                     sub={`${data.stats.completedRequests} completed`}
                     color="bg-amber-100 text-amber-600" />

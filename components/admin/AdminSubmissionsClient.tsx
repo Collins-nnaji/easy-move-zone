@@ -44,7 +44,7 @@ const STATUS_CONFIG: Record<SubmissionStatus, { label: string; color: string; ic
 
 const LISTING_TYPE_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   "outright-purchase":  { label: "Outright Purchase",    color: "text-orange-700 bg-orange-100",    icon: ShieldCheck },
-  "rent-to-own":        { label: "Rent to Own",           color: "text-purple-700 bg-purple-100", icon: KeyRound    },
+  "rent-to-own":        { label: "Rent to Own",           color: "text-orange-700 bg-orange-100", icon: KeyRound    },
   "build":              { label: "Land for Build",        color: "text-amber-700 bg-amber-100",  icon: HardHat     },
   "mortgage-eligible":  { label: "Mortgage-Eligible",    color: "text-emerald-700 bg-emerald-100", icon: Banknote  },
 }

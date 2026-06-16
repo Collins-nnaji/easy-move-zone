@@ -57,8 +57,8 @@ export function RentToOwnClient() {
                 className={clsx(
                   "rounded-full px-3.5 py-1.5 text-xs font-semibold border transition",
                   cityFilter === city
-                    ? "bg-purple-600 text-white border-purple-600 shadow-sm"
-                    : "bg-white text-slate-500 border-slate-200 hover:border-purple-300 hover:text-purple-700"
+                    ? "bg-orange-600 text-white border-orange-600 shadow-sm"
+                    : "bg-white text-slate-500 border-slate-200 hover:border-orange-300 hover:text-orange-700"
                 )}
               >
                 {city}
@@ -79,15 +79,15 @@ export function RentToOwnClient() {
         )}
 
         {loadState === "ok" && filtered.length === 0 && (
-          <div className="rounded-3xl border border-purple-200 bg-gradient-to-br from-white to-purple-50 py-20 text-center shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-            <span className="inline-block rounded-full bg-purple-100 border border-purple-200 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-purple-600 mb-4">
+          <div className="rounded-3xl border border-orange-200 bg-gradient-to-br from-white to-orange-50 py-20 text-center shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+            <span className="inline-block rounded-full bg-orange-100 border border-orange-200 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-orange-600 mb-4">
               Coming Soon
             </span>
             <p className="text-xl font-bold text-[#0f172a]">New Properties &amp; Prices Dropping Soon</p>
             <p className="mt-2 text-sm text-slate-500 max-w-md mx-auto">
               We&apos;re adding rent-to-own listings now. Try another city or contact us to be the first to know.
             </p>
-            <Link href="/contact" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-bold text-white shadow transition hover:bg-purple-500">
+            <Link href="/contact" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-orange-600 px-5 py-2.5 text-sm font-bold text-white shadow transition hover:bg-orange-500">
               Get Notified <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -118,7 +118,7 @@ export function RentToOwnClient() {
 
 function RentToOwnCard({ listing }: { listing: PublicListingCard }) {
   return (
-    <div className="group flex flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-purple-200">
+    <div className="group flex flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-orange-200">
       <Link href={`/properties/${listing.id}`} className="flex flex-1 flex-col focus:outline-none">
         <div className="relative h-48 overflow-hidden">
           <div
@@ -127,7 +127,7 @@ function RentToOwnCard({ listing }: { listing: PublicListingCard }) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/65 via-transparent to-transparent" />
           {/* Rent to Own badge */}
-          <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-purple-600/90 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm ring-1 ring-white/20">
+          <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-orange-600/90 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm ring-1 ring-white/20">
             <KeyRound className="h-3 w-3" /> Rent to Own
           </div>
           {listing.status === "verified" && (
@@ -142,7 +142,7 @@ function RentToOwnCard({ listing }: { listing: PublicListingCard }) {
         </div>
 
         <div className="flex flex-1 flex-col p-5">
-          <h3 className="font-semibold text-[#0f172a] leading-snug group-hover:text-purple-700 transition-colors">
+          <h3 className="font-semibold text-[#0f172a] leading-snug group-hover:text-orange-700 transition-colors">
             {listing.title}
           </h3>
           {listing.bedrooms != null && (
@@ -156,7 +156,7 @@ function RentToOwnCard({ listing }: { listing: PublicListingCard }) {
               <p className="text-[10px] text-slate-400 mb-0.5">Purchase price</p>
               <p className="text-lg font-extrabold text-[#0f172a] tabular-nums">{listing.price}</p>
             </div>
-            <span className="text-xs font-semibold text-purple-600 bg-purple-50 rounded-lg px-2.5 py-1.5">
+            <span className="text-xs font-semibold text-orange-600 bg-orange-50 rounded-lg px-2.5 py-1.5">
               From ₦ /mo
             </span>
           </div>
