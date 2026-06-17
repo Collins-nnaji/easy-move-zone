@@ -7,14 +7,12 @@ import { PlatformFooter } from "@/components/platform/PlatformFooter"
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
-  // Auth and move app get no chrome — full-screen mobile layout
-  const isFullScreen =
-    pathname === "/auth" ||
-    pathname.startsWith("/auth/") ||
-    pathname === "/move" ||
-    pathname.startsWith("/move/")
+  // Auth stays fully chrome-free (focused sign-in card).
+  const isAuth = pathname === "/auth" || pathname.startsWith("/auth/")
+  // The Move app is the product: it keeps the minimal header but no marketing footer.
+  const isApp = pathname === "/move" || pathname.startsWith("/move/")
 
-  if (isFullScreen) {
+  if (isAuth) {
     return <main className="flex-1 min-w-0">{children}</main>
   }
 
@@ -22,7 +20,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
     <>
       <PlatformNav />
       <main className="flex-1 min-w-0">{children}</main>
-      <PlatformFooter />
+      {!isApp && <PlatformFooter />}
     </>
   )
 }

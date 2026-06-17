@@ -831,8 +831,8 @@ export function EasyMoveZoneApp() {
     </div>
   );
 
-  // Desktop ("web"): framed device on a radial-gradient backdrop (the platform
-  // nav sits above, supplied by AppChrome).
+  // Desktop ("web"): framed device on a radial-gradient backdrop, below the
+  // minimal 56px platform header supplied by AppChrome.
   if (isDesktop) {
     return (
       <div style={{ minHeight: "calc(100vh - 56px)", display: "flex", alignItems: "center", justifyContent: "center", background: "radial-gradient(120% 120% at 50% 0%, #ded8cb 0%, #cfc9bc 100%)", padding: 28, fontFamily: HANKEN }}>
