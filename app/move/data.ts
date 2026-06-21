@@ -31,6 +31,17 @@ export interface Question {
   options: string[];
 }
 
+// Tap-to-fill starting points for the mood search box — short, in-your-own-words
+// phrases that cover the same ground as the structured questions below.
+export const MOOD_CHIPS: string[] = [
+  "Cheap and easy to land in",
+  "Fast wifi, great coffee, big nomad scene",
+  "Warm, slow, and easy to settle into",
+  "Career growth and good networks",
+  "Bring the family — schools & space",
+  "Adventure first, figure out the rest later",
+];
+
 export const QUESTIONS: Question[] = [
   {
     id: "priority",
