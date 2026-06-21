@@ -322,12 +322,14 @@ export function EasyMoveZoneApp() {
 
   const showNav = ["matches", "detail", "plan", "visa", "settle", "book", "trips", "stays", "visaBook", "booked"].includes(screen);
 
-  // Once the user has reached any post-flow screen, remember their stay
-  // length & destination so the next visit can skip straight back here.
+  // As soon as the user has moved past the welcome screen once, remember
+  // their stay length & destination so the next visit can skip straight
+  // back to Explore instead of re-showing the welcome/spectrum forms —
+  // even if they didn't make it all the way to a destination match.
   useEffect(() => {
-    if (!ready || !showNav) return;
+    if (!ready || screen === "welcome") return;
     saveFlowState({ stayIdx, destId: dest.id, completed: true });
-  }, [ready, showNav, stayIdx, dest.id]);
+  }, [ready, screen, stayIdx, dest.id]);
 
   // ───────────────────────────────── Screens ──────────────────────────────
   function Welcome() {
