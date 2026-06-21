@@ -1,45 +1,54 @@
 import { NextResponse } from "next/server"
 import { neon } from "@neondatabase/serverless"
-import { neonAuth } from "@neondatabase/auth/next/server"
+import { assertAdminApi, AdminForbiddenError } from "@/lib/auth/assert-admin-api"
 
 export const runtime = "nodejs"
 
-const sql = neon(process.env.DATABASE_URL!)
-const ADMIN_EMAIL = "collinsnnaji1@gmail.com"
-
-async function assertAdmin() {
-  const { user } = await neonAuth()
-  if (!user?.email || user.email !== ADMIN_EMAIL) {
-    throw new Error("Forbidden")
-  }
-  return user
-}
+const DATABASE_URL = process.env.DATABASE_URL ?? process.env.NEON_DATABASE_URL
 
 export async function GET() {
   try {
-    await assertAdmin()
+    await assertAdminApi()
+    if (!DATABASE_URL) {
+      return NextResponse.json({ error: "Database not configured." }, { status: 500 })
+    }
 
-    const [
-      usersRaw,
-      listingsRaw,
-      mortgagesRaw,
-      agentsRaw,
-    ] = await Promise.all([
-      sql`
-        SELECT
-          u.auth_user_id,
-          u.full_name,
-          u.role,
-          u.is_agent,
-          u.agent_company,
-          u.agent_verified,
-          u.created_at,
-          u.updated_at
-        FROM user_profiles u
-        ORDER BY u.created_at DESC
-        LIMIT 200
-      `,
-      sql`
+    const sql = neon(DATABASE_URL)
+
+    const usersRaw = await sql`
+      SELECT
+        u.auth_user_id,
+        u.full_name,
+        u.role,
+        u.is_agent,
+        u.agent_company,
+        u.agent_verified,
+        u.created_at,
+        u.updated_at
+      FROM user_profiles u
+      ORDER BY u.created_at DESC
+      LIMIT 200
+    `
+
+    const agentsRaw = await sql`
+      SELECT
+        u.auth_user_id,
+        u.full_name,
+        u.agent_company,
+        u.agent_license,
+        u.agent_bio,
+        u.agent_verified,
+        u.seller_service_cities,
+        u.updated_at
+      FROM user_profiles u
+      WHERE u.is_agent = TRUE
+      ORDER BY u.updated_at DESC
+    `
+
+    let listingsRaw: unknown[] = []
+    let mortgagesRaw: unknown[] = []
+    try {
+      listingsRaw = await sql`
         SELECT
           id, title, city_slug, country, submission_status,
           submitted_by, submitted_at, reviewed_at, reviewer_notes,
@@ -48,8 +57,12 @@ export async function GET() {
         WHERE submitted_by IS NOT NULL
         ORDER BY submitted_at DESC NULLS LAST
         LIMIT 200
-      `,
-      sql`
+      `
+    } catch {
+      listingsRaw = []
+    }
+    try {
+      mortgagesRaw = await sql`
         SELECT
           id, full_name, email, country, city,
           property_price_usd, loan_amount_usd,
@@ -57,22 +70,10 @@ export async function GET() {
         FROM mortgage_applications
         ORDER BY submitted_at DESC
         LIMIT 200
-      `,
-      sql`
-        SELECT
-          u.auth_user_id,
-          u.full_name,
-          u.agent_company,
-          u.agent_license,
-          u.agent_bio,
-          u.agent_verified,
-          u.seller_service_cities,
-          u.updated_at
-        FROM user_profiles u
-        WHERE u.is_agent = TRUE
-        ORDER BY u.updated_at DESC
-      `,
-    ])
+      `
+    } catch {
+      mortgagesRaw = []
+    }
 
     return NextResponse.json({
       users: usersRaw,
@@ -90,8 +91,9 @@ export async function GET() {
       },
     })
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Error"
-    if (msg === "Forbidden") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    if (err instanceof AdminForbiddenError) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
     console.error("[admin/dashboard]", err)
     return NextResponse.json({ error: "Server error" }, { status: 500 })
   }

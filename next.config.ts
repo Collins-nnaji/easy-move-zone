@@ -37,6 +37,11 @@ const nextConfig: NextConfig = {
 
     return [
       ...moveRedirects,
+      { source: "/relocate/hub", destination: "/move", permanent: false },
+      { source: "/relocate/hub/:path*", destination: "/move", permanent: false },
+      { source: "/relocate", destination: "/move", permanent: false },
+      { source: "/settle", destination: "/move", permanent: false },
+      { source: "/settle/:path*", destination: "/move", permanent: false },
       { source: "/index", destination: "/", permanent: false },
       { source: "/about", destination: "/", permanent: false },
       { source: "/pricing", destination: "/", permanent: false },

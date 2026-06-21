@@ -38,21 +38,28 @@ export function AuthInlineCard({
     setError(null)
     try {
       if (mode === "sign-up") {
-        await authClient.signUp.email({
+        const result = await authClient.signUp.email({
           email,
           password,
           name: name || email.split("@")[0],
           callbackURL: redirectTarget,
         })
+        if (result.error) throw new Error(result.error.message || "Sign up failed.")
       } else {
-        await authClient.signIn.email({
+        const result = await authClient.signIn.email({
           email,
           password,
           callbackURL: redirectTarget,
         })
+        if (result.error) throw new Error(result.error.message || "Sign in failed.")
       }
       await refetchSession()
       router.refresh()
+      const nextSession = await authClient.getSession()
+      if (!nextSession.data?.user) {
+        setError("Sign-in did not complete. Check your email and password.")
+        return
+      }
       window.location.assign(redirectTarget)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Authentication failed.")

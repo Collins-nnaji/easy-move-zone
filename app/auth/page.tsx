@@ -1,7 +1,14 @@
+import type { Metadata } from "next"
 import { Suspense } from "react"
 import { AuthInlineCard } from "@/components/platform/AuthInlineCard"
 import { PublicShell } from "@/components/platform/PublicShell"
 import { Home, Sparkles } from "lucide-react"
+
+export const metadata: Metadata = {
+  title: "Sign in — EasyMoveZone",
+  description:
+    "Create an account or sign in to save your move plan, sync your checklist, and manage trip, stay, and visa bookings.",
+}
 
 export default function AuthPage() {
   return (
@@ -22,7 +29,7 @@ export default function AuthPage() {
               <span className="bg-gradient-to-r from-[#e0511f] to-[#0f766e] bg-clip-text text-transparent">EasyMoveZone</span>
             </h1>
             <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-[#475569]">
-              Sign in or create an account to save your move plan, track your checklist, and browse verified listings.
+              Sign in or create an account to save your move plan, track your checklist, and manage bookings.
             </p>
           </div>
           <Suspense

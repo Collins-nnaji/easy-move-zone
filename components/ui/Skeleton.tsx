@@ -1,15 +1,20 @@
-import { cn } from "@/lib/utils"
+import { clsx } from "clsx"
 
-function Skeleton({
-    className,
-    ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-    return (
-        <div
-            className={cn("animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-800", className)}
-            {...props}
-        />
-    )
+export function Skeleton({ className }: { className?: string }) {
+  return (
+    <div
+      className={clsx("animate-pulse rounded-xl bg-black/10", className)}
+      aria-hidden
+    />
+  )
 }
 
-export { Skeleton }
+export function SkeletonLines({ count = 3 }: { count?: number }) {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: count }).map((_, i) => (
+        <Skeleton key={i} className={clsx("h-3", i === count - 1 ? "w-2/3" : "w-full")} />
+      ))}
+    </div>
+  )
+}

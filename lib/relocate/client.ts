@@ -39,6 +39,7 @@ export async function addTask(input: {
   title: string
   category?: TaskCategory
   priority?: "low" | "medium" | "high"
+  notes?: string
 }): Promise<RelocationTask> {
   const res = await fetch("/api/relocate/tasks", {
     method: "POST",
@@ -59,10 +60,20 @@ export async function updateTaskStatus(id: string, status: TaskStatus): Promise<
   return ((await res.json()) as { task: RelocationTask }).task
 }
 
-/** Country guide(s); pass a country to filter. */
+/** Country guide(s); pass a country or citySlug to filter. */
 export async function fetchGuides(country?: string): Promise<RelocationCountryGuide[]> {
-  const url = country ? `/api/relocate/guides?country=${encodeURIComponent(country)}` : "/api/relocate/guides"
+  const params = new URLSearchParams()
+  if (country) params.set("country", country)
+  const url = params.size ? `/api/relocate/guides?${params}` : "/api/relocate/guides"
   const res = await fetch(url, { cache: "no-store" })
   if (!res.ok) return []
   return ((await res.json()) as { guides: RelocationCountryGuide[] }).guides
+}
+
+/** Guide for a Move destination id (e.g. lisbon, bangkok). */
+export async function fetchGuideByCitySlug(citySlug: string): Promise<RelocationCountryGuide | null> {
+  const res = await fetch(`/api/relocate/guides?citySlug=${encodeURIComponent(citySlug)}`, { cache: "no-store" })
+  if (!res.ok) return null
+  const guides = ((await res.json()) as { guides: RelocationCountryGuide[] }).guides
+  return guides[0] ?? null
 }

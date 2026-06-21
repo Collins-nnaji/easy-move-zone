@@ -20,9 +20,25 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — One app for every kind of move",
+  title: "EasyMoveZone — Movement, accommodation & visa in one app",
   description:
-    "Book your trip, find a place to stay, and sort your visa in one place. EasyMoveZone plans your whole move around how long you're staying — two weeks or forever.",
+    "Book your journey, find where you stay, and sort your visa in one place. The all-in-one app for international movement — two weeks or forever.",
+  metadataBase: process.env.NEXT_PUBLIC_APP_URL
+    ? new URL(process.env.NEXT_PUBLIC_APP_URL)
+    : undefined,
+  openGraph: {
+    type: "website",
+    siteName: "EasyMoveZone",
+    title: "EasyMoveZone — Get there. Stay there. Visa sorted.",
+    description:
+      "Movement, accommodation, and visa in one app. Book how you get there, where you stay, and how you get in.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "EasyMoveZone — Get there. Stay there. Visa sorted.",
+    description:
+      "Movement, accommodation, and visa in one app for international relocations and nomad stays.",
+  },
   icons: {
     icon: "/emz.png",
     shortcut: "/emz.png",

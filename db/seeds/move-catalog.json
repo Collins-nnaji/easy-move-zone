@@ -1,0 +1,626 @@
+{
+  "destinations": [
+    {
+      "id": "lisbon",
+      "city": "Lisbon",
+      "country": "Portugal",
+      "region": "Europe",
+      "photo": "Lisbon · Alfama rooftops at golden hour",
+      "imageUrl": "https://images.unsplash.com/photo-1555881400-74d7aca32786?w=1200&q=80",
+      "match": {
+        "trip": 91,
+        "nomad": 95,
+        "move": 88
+      },
+      "honest": {
+        "trip": "Easy to land in and walkable, but the hills and old trams mean slow crosstown trips. August is hot and tourist-packed.",
+        "nomad": "A genuine nomad hub with great cafés and a big community — which means rents have climbed fast and the best flats go in days.",
+        "move": "Sunny, safe and welcoming, with a clear residency path. Bureaucracy is slow and finding long-term housing takes patience."
+      },
+      "stats": {
+        "trip": [
+          [
+            "Business hotels",
+            "From €120/nt"
+          ],
+          [
+            "Median wifi",
+            "92 Mbps"
+          ],
+          [
+            "Airport → centre",
+            "20 min metro"
+          ]
+        ],
+        "nomad": [
+          [
+            "Furnished 1-bed",
+            "€1,100–1,600/mo"
+          ],
+          [
+            "Coworking spaces",
+            "40+"
+          ],
+          [
+            "Nomad visa",
+            "D8 eligible"
+          ]
+        ],
+        "move": [
+          [
+            "Cost · couple",
+            "€2,300/mo"
+          ],
+          [
+            "Healthcare",
+            "Public + strong private"
+          ],
+          [
+            "Intl schools",
+            "12 in metro"
+          ]
+        ]
+      },
+      "visa": {
+        "trip": {
+          "headline": "Visa-free up to 90 days",
+          "body": "Most US, UK, EU, CA & AU passports enter Schengen visa-free for 90 days in any 180-day window.",
+          "tag": "Schengen · 90/180"
+        },
+        "nomad": {
+          "headline": "Digital Nomad Visa (D8)",
+          "body": "For stays over 90 days. Show remote income of roughly €3,280/mo. Renewable, and counts toward residency.",
+          "tag": "D8 · 12 months"
+        },
+        "move": {
+          "headline": "Residence permit (D7 / D8)",
+          "body": "Apply from a long-stay visa, then a residence permit. Permanent residency possible after 5 years.",
+          "tag": "Path to PR · 5 yrs"
+        }
+      }
+    },
+    {
+      "id": "mexicocity",
+      "city": "Mexico City",
+      "country": "Mexico",
+      "region": "Latin America",
+      "photo": "Mexico City · leafy Roma Norte streets",
+      "imageUrl": "https://images.unsplash.com/photo-1518659526051-2ca369704b54?w=1200&q=80",
+      "match": {
+        "trip": 86,
+        "nomad": 93,
+        "move": 82
+      },
+      "honest": {
+        "trip": "Huge, vibrant and great value, but the scale means long taxi rides and altitude can leave you breathless for a day or two.",
+        "nomad": "Incredible food, culture and a fast-growing remote scene. Roma & Condesa are lovely but rents there now rival European cities.",
+        "move": "Warm people and a low cost of living, but you'll want functional Spanish and patience for paperwork to truly settle."
+      },
+      "stats": {
+        "trip": [
+          [
+            "Business hotels",
+            "From $95/nt"
+          ],
+          [
+            "Median wifi",
+            "70 Mbps"
+          ],
+          [
+            "Airport → centre",
+            "35 min"
+          ]
+        ],
+        "nomad": [
+          [
+            "Furnished 1-bed",
+            "$700–1,200/mo"
+          ],
+          [
+            "Coworking spaces",
+            "60+"
+          ],
+          [
+            "Tourist entry",
+            "Up to 180 days"
+          ]
+        ],
+        "move": [
+          [
+            "Cost · couple",
+            "$1,700/mo"
+          ],
+          [
+            "Healthcare",
+            "Excellent private"
+          ],
+          [
+            "Intl schools",
+            "20+ in CDMX"
+          ]
+        ]
+      },
+      "visa": {
+        "trip": {
+          "headline": "Visa-free, up to 180 days",
+          "body": "Many nationalities enter as a tourist for a stay set on arrival — commonly up to 180 days.",
+          "tag": "Tourist · up to 180d"
+        },
+        "nomad": {
+          "headline": "Tourist entry covers it",
+          "body": "No dedicated nomad visa, but the generous tourist entry comfortably covers a 1–3 month stint.",
+          "tag": "No special visa"
+        },
+        "move": {
+          "headline": "Temporary Resident Visa",
+          "body": "Apply at a consulate with proof of income or savings. Valid 1–4 years and leads to permanent residency.",
+          "tag": "Path to PR · 4 yrs"
+        }
+      }
+    },
+    {
+      "id": "bangkok",
+      "city": "Bangkok",
+      "country": "Thailand",
+      "region": "Asia-Pacific",
+      "photo": "Bangkok · Chao Phraya river at dusk",
+      "imageUrl": "https://images.unsplash.com/photo-1563492065-454364424952?w=1200&q=80",
+      "match": {
+        "trip": 84,
+        "nomad": 90,
+        "move": 79
+      },
+      "honest": {
+        "trip": "Cheap, fast and endlessly convenient — but heat, humidity and traffic are real. Get a hotel near a BTS Skytrain stop.",
+        "nomad": "Unbeatable value with modern condos and cafés everywhere. Air quality dips in the burning season (Feb–Apr).",
+        "move": "Comfortable and affordable for years, though long-term visas need planning and property ownership rules are strict."
+      },
+      "stats": {
+        "trip": [
+          [
+            "Business hotels",
+            "From $55/nt"
+          ],
+          [
+            "Median wifi",
+            "120 Mbps"
+          ],
+          [
+            "Airport → centre",
+            "30 min rail"
+          ]
+        ],
+        "nomad": [
+          [
+            "Furnished condo",
+            "$450–900/mo"
+          ],
+          [
+            "Coworking spaces",
+            "50+"
+          ],
+          [
+            "Nomad visa",
+            "DTV eligible"
+          ]
+        ],
+        "move": [
+          [
+            "Cost · couple",
+            "$1,500/mo"
+          ],
+          [
+            "Healthcare",
+            "World-class private"
+          ],
+          [
+            "Intl schools",
+            "30+ in city"
+          ]
+        ]
+      },
+      "visa": {
+        "trip": {
+          "headline": "Visa-exemption on arrival",
+          "body": "Many passports get a 30–60 day visa-exempt stay on entry, extendable once at an immigration office.",
+          "tag": "Exempt · 30–60d"
+        },
+        "nomad": {
+          "headline": "Destination Thailand Visa",
+          "body": "The DTV allows 180 days per entry over a 5-year multi-entry validity — built for remote workers.",
+          "tag": "DTV · 5-yr multi"
+        },
+        "move": {
+          "headline": "Long-Term Resident visa",
+          "body": "The LTR visa offers up to 10 years for qualifying professionals, retirees and high earners.",
+          "tag": "LTR · up to 10 yrs"
+        }
+      }
+    },
+    {
+      "id": "tbilisi",
+      "city": "Tbilisi",
+      "country": "Georgia",
+      "region": "Europe",
+      "photo": "Tbilisi · Old Town & sulphur baths",
+      "imageUrl": "https://images.unsplash.com/photo-1565008576549-57569a49371d?w=1200&q=80",
+      "match": {
+        "trip": 78,
+        "nomad": 88,
+        "move": 80
+      },
+      "honest": {
+        "trip": "Astonishing value and famously easy entry, but it's smaller and quieter than the big hubs — charming, not buzzing.",
+        "nomad": "One of the simplest places in the world to base yourself, with cheap flats and fast wifi. English is less common day-to-day.",
+        "move": "Very low cost of living and light bureaucracy, though it's further from family back home and winters are grey."
+      },
+      "stats": {
+        "trip": [
+          [
+            "Boutique hotels",
+            "From $45/nt"
+          ],
+          [
+            "Median wifi",
+            "65 Mbps"
+          ],
+          [
+            "Airport → centre",
+            "25 min"
+          ]
+        ],
+        "nomad": [
+          [
+            "Furnished 1-bed",
+            "$500–850/mo"
+          ],
+          [
+            "Coworking spaces",
+            "15+"
+          ],
+          [
+            "Nomad program",
+            "Remotely from Georgia"
+          ]
+        ],
+        "move": [
+          [
+            "Cost · couple",
+            "$1,300/mo"
+          ],
+          [
+            "Healthcare",
+            "Affordable private"
+          ],
+          [
+            "Intl schools",
+            "6 in city"
+          ]
+        ]
+      },
+      "visa": {
+        "trip": {
+          "headline": "Visa-free up to 1 year",
+          "body": "Around 95 nationalities can enter and stay visa-free for a full 365 days — one of the most generous policies anywhere.",
+          "tag": "Visa-free · 365d"
+        },
+        "nomad": {
+          "headline": "Remotely from Georgia",
+          "body": "A simple program for remote workers and freelancers to stay long-term, on top of the 1-year visa-free entry.",
+          "tag": "Remote-work · 1 yr"
+        },
+        "move": {
+          "headline": "Residence permits",
+          "body": "Work, study and investment residence permits are straightforward, with a path to permanent residency.",
+          "tag": "Path to PR"
+        }
+      }
+    }
+  ],
+  "trips": [
+    {
+      "destinationId": "lisbon",
+      "id": "lis-tap",
+      "provider": "TAP Air Portugal",
+      "route": "Direct flight",
+      "duration": "non-stop",
+      "price": "From £138"
+    },
+    {
+      "destinationId": "lisbon",
+      "id": "lis-ba",
+      "provider": "British Airways",
+      "route": "Direct flight",
+      "duration": "non-stop",
+      "price": "From £164"
+    },
+    {
+      "destinationId": "lisbon",
+      "id": "lis-rail",
+      "provider": "Rail + ferry",
+      "route": "Overland via Madrid",
+      "duration": "~22h",
+      "price": "From £190"
+    },
+    {
+      "destinationId": "mexicocity",
+      "id": "mex-aero",
+      "provider": "Aeroméxico",
+      "route": "Direct flight",
+      "duration": "non-stop",
+      "price": "From £498"
+    },
+    {
+      "destinationId": "mexicocity",
+      "id": "mex-ba",
+      "provider": "British Airways",
+      "route": "Direct flight",
+      "duration": "non-stop",
+      "price": "From £540"
+    },
+    {
+      "destinationId": "mexicocity",
+      "id": "mex-1stop",
+      "provider": "Iberia",
+      "route": "1 stop via Madrid",
+      "duration": "~14h",
+      "price": "From £430"
+    },
+    {
+      "destinationId": "bangkok",
+      "id": "bkk-thai",
+      "provider": "Thai Airways",
+      "route": "Direct flight",
+      "duration": "non-stop",
+      "price": "From £612"
+    },
+    {
+      "destinationId": "bangkok",
+      "id": "bkk-emi",
+      "provider": "Emirates",
+      "route": "1 stop via Dubai",
+      "duration": "~15h",
+      "price": "From £548"
+    },
+    {
+      "destinationId": "bangkok",
+      "id": "bkk-qat",
+      "provider": "Qatar Airways",
+      "route": "1 stop via Doha",
+      "duration": "~16h",
+      "price": "From £560"
+    },
+    {
+      "destinationId": "tbilisi",
+      "id": "tbs-wiz",
+      "provider": "Wizz Air",
+      "route": "1 stop via Warsaw",
+      "duration": "~9h",
+      "price": "From £176"
+    },
+    {
+      "destinationId": "tbilisi",
+      "id": "tbs-tk",
+      "provider": "Turkish Airlines",
+      "route": "1 stop via Istanbul",
+      "duration": "~8h",
+      "price": "From £224"
+    },
+    {
+      "destinationId": "tbilisi",
+      "id": "tbs-pgs",
+      "provider": "Pegasus",
+      "route": "1 stop via Istanbul",
+      "duration": "~10h",
+      "price": "From £158"
+    }
+  ],
+  "stays": [
+    {
+      "destinationId": "lisbon",
+      "id": "lis-h1",
+      "name": "Baixa Boutique Hotel",
+      "area": "Baixa · central",
+      "price": "£128 / night",
+      "rating": "9.1",
+      "forModes": [
+        "trip"
+      ]
+    },
+    {
+      "destinationId": "lisbon",
+      "id": "lis-h2",
+      "name": "Alfama River Suites",
+      "area": "Alfama",
+      "price": "£146 / night",
+      "rating": "9.3",
+      "forModes": [
+        "trip"
+      ]
+    },
+    {
+      "destinationId": "lisbon",
+      "id": "lis-f1",
+      "name": "Príncipe Real 1-bed",
+      "area": "Príncipe Real",
+      "price": "£1,350 / month",
+      "rating": "9.0",
+      "forModes": [
+        "nomad",
+        "move"
+      ]
+    },
+    {
+      "destinationId": "lisbon",
+      "id": "lis-f2",
+      "name": "Selina Secret Garden coliving",
+      "area": "Cais do Sodré",
+      "price": "£890 / month",
+      "rating": "8.7",
+      "forModes": [
+        "nomad"
+      ]
+    },
+    {
+      "destinationId": "mexicocity",
+      "id": "mex-h1",
+      "name": "Hotel Carlota",
+      "area": "Cuauhtémoc",
+      "price": "£118 / night",
+      "rating": "9.0",
+      "forModes": [
+        "trip"
+      ]
+    },
+    {
+      "destinationId": "mexicocity",
+      "id": "mex-f1",
+      "name": "Roma Norte studio",
+      "area": "Roma Norte",
+      "price": "£820 / month",
+      "rating": "8.9",
+      "forModes": [
+        "nomad",
+        "move"
+      ]
+    },
+    {
+      "destinationId": "mexicocity",
+      "id": "mex-f2",
+      "name": "Condesa garden flat",
+      "area": "Condesa",
+      "price": "£1,040 / month",
+      "rating": "9.1",
+      "forModes": [
+        "nomad",
+        "move"
+      ]
+    },
+    {
+      "destinationId": "bangkok",
+      "id": "bkk-h1",
+      "name": "Ariyasom Villa",
+      "area": "Sukhumvit",
+      "price": "£72 / night",
+      "rating": "9.2",
+      "forModes": [
+        "trip"
+      ]
+    },
+    {
+      "destinationId": "bangkok",
+      "id": "bkk-f1",
+      "name": "Thonglor serviced condo",
+      "area": "Thonglor",
+      "price": "£560 / month",
+      "rating": "8.8",
+      "forModes": [
+        "nomad",
+        "move"
+      ]
+    },
+    {
+      "destinationId": "bangkok",
+      "id": "bkk-f2",
+      "name": "Ari coliving loft",
+      "area": "Ari",
+      "price": "£480 / month",
+      "rating": "8.6",
+      "forModes": [
+        "nomad"
+      ]
+    },
+    {
+      "destinationId": "tbilisi",
+      "id": "tbs-h1",
+      "name": "Stamba Hotel",
+      "area": "Vera",
+      "price": "£96 / night",
+      "rating": "9.3",
+      "forModes": [
+        "trip"
+      ]
+    },
+    {
+      "destinationId": "tbilisi",
+      "id": "tbs-f1",
+      "name": "Sololaki 1-bed",
+      "area": "Sololaki",
+      "price": "£620 / month",
+      "rating": "8.7",
+      "forModes": [
+        "nomad",
+        "move"
+      ]
+    },
+    {
+      "destinationId": "tbilisi",
+      "id": "tbs-f2",
+      "name": "Vake coliving",
+      "area": "Vake",
+      "price": "£540 / month",
+      "rating": "8.5",
+      "forModes": [
+        "nomad"
+      ]
+    }
+  ],
+  "visaServices": [
+    {
+      "mode": "trip",
+      "id": "trip-checklist",
+      "title": "Self-serve entry checklist",
+      "detail": "Tailored entry requirements & document list for your passport.",
+      "price": "Free"
+    },
+    {
+      "mode": "trip",
+      "id": "trip-review",
+      "title": "Document review",
+      "detail": "An advisor checks your passport validity, onward tickets and proof of funds.",
+      "price": "£39"
+    },
+    {
+      "mode": "nomad",
+      "id": "nomad-checklist",
+      "title": "Nomad visa eligibility check",
+      "detail": "Confirm which long-stay or nomad route you qualify for.",
+      "price": "Free"
+    },
+    {
+      "mode": "nomad",
+      "id": "nomad-review",
+      "title": "Application review",
+      "detail": "We review your income proof, insurance and forms before you submit.",
+      "price": "£89"
+    },
+    {
+      "mode": "nomad",
+      "id": "nomad-full",
+      "title": "Guided application",
+      "detail": "End-to-end help preparing and lodging your nomad-visa application.",
+      "price": "£249"
+    },
+    {
+      "mode": "move",
+      "id": "move-checklist",
+      "title": "Residency route planner",
+      "detail": "Map the visa-to-residency pathway and the documents each step needs.",
+      "price": "Free"
+    },
+    {
+      "mode": "move",
+      "id": "move-review",
+      "title": "Full document review",
+      "detail": "Apostilles, translations and forms checked by a relocation specialist.",
+      "price": "£149"
+    },
+    {
+      "mode": "move",
+      "id": "move-full",
+      "title": "Full handling",
+      "detail": "We prepare, translate and lodge your residence application on your behalf.",
+      "price": "£399"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { DESTINATIONS, type Mode } from "@/app/move/data"
+import { type Mode } from "@/app/move/data"
+import { getDestinationsForSearch } from "@/lib/move/get-catalog"
 import { chatJson, getAiProvider } from "@/lib/ai/openai"
 
 const VALID_MODES: Mode[] = ["trip", "nomad", "move"]
@@ -10,15 +11,17 @@ interface SearchResult {
   note: string
 }
 
-// Plain keyword scoring against each destination's honest take, stats and visa
-// copy — used when no AI key is configured, and as a safety net when it is.
-function heuristicRanking(mood: string, mode: Mode): SearchResult {
+function heuristicRanking(
+  mood: string,
+  mode: Mode,
+  destinations: Awaited<ReturnType<typeof getDestinationsForSearch>>,
+): SearchResult {
   const words = mood
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter((w) => w.length > 2)
 
-  const scored = DESTINATIONS.map((d) => {
+  const scored = destinations.map((d) => {
     const haystack = [
       d.city,
       d.country,
@@ -58,13 +61,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Tell us a bit about what you're after." }, { status: 400 })
   }
 
-  const fallback = heuristicRanking(mood, mode)
+  const destinations = await getDestinationsForSearch()
+  const fallback = heuristicRanking(mood, mode, destinations)
 
   if (!getAiProvider()) {
     return NextResponse.json(fallback)
   }
 
-  const destSummaries = DESTINATIONS.map(
+  const destSummaries = destinations.map(
     (d) =>
       `${d.id}: ${d.city}, ${d.country} (${d.region}) — ${d.honest[mode]} Stats: ${d.stats[mode]
         .map(([k, v]) => `${k} ${v}`)
@@ -77,7 +81,7 @@ export async function POST(req: NextRequest) {
     fallback,
   )
 
-  const validIds = new Set(DESTINATIONS.map((d) => d.id))
+  const validIds = new Set(destinations.map((d) => d.id))
   const ranking = Array.isArray(result.ranking)
     ? result.ranking.filter((id): id is string => typeof id === "string" && validIds.has(id))
     : []

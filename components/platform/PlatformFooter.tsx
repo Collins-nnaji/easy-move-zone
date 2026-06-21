@@ -11,9 +11,8 @@ const services = [
 ]
 
 const explore = [
-  { href: "/move",         label: "The Move Spectrum" },
-  { href: "/relocate/hub", label: "My workspace"      },
-  { href: "/settle",       label: "Settling guides"   },
+  { href: "/move", label: "The Move app" },
+  { href: "/contact", label: "Contact" },
 ]
 
 const company = [
@@ -45,8 +44,8 @@ export function PlatformFooter() {
               />
             </div>
             <p className="mt-3 text-[13px] leading-relaxed text-slate-400 max-w-xs">
-              Book your trip, find a place to stay, and sort your visa — one app for every kind of move, two
-              weeks or forever.
+              Movement, accommodation, and visa in one app — book how you get there, where you stay, and how
+              you get in. Two weeks or forever.
             </p>
             <a
               href={`mailto:${PUBLIC_CONTACT_EMAIL}`}
@@ -122,7 +121,7 @@ export function PlatformFooter() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-white/[0.06] pt-6 text-center sm:flex-row sm:text-left">
           <p className="text-[11px] text-[#64748b]">&copy; {new Date().getFullYear()} EasyMoveZone. Nigeria &middot; Lagos &middot; Abuja &middot; Port Harcourt</p>
-          <p className="text-[11px] text-[#64748b]">TRIPS &middot; STAYS &middot; VISAS &middot; RELOCATE &middot; SETTLE</p>
+          <p className="text-[11px] text-[#64748b]">TRIPS &middot; STAYS &middot; VISAS &middot; MOVE</p>
         </div>
       </div>
     </footer>

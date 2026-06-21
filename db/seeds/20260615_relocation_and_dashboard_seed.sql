@@ -116,6 +116,10 @@ begin
     return;
   end if;
 
+  if to_regclass('public.saved_properties') is null then
+    return;
+  end if;
+
   insert into saved_properties (user_id, property_id) values
     (v_uid, 'a1000000-0000-4000-8000-000000000001'),
     (v_uid, 'a1000000-0000-4000-8000-000000000004'),

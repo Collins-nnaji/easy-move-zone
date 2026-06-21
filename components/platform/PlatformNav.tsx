@@ -7,8 +7,6 @@ import {
   LogOut,
   Menu,
   MapPin,
-  LayoutDashboard,
-  BookOpen,
   Mail,
   UserRound,
   User,
@@ -20,9 +18,7 @@ import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 // Secondary "guide" destinations — demoted out of the top bar into the menu so the
 // header stays minimal and the app's bottom tabs remain the primary navigation.
 const guideLinks = [
-  { href: "/move", label: "Plan a move", icon: MapPin },
-  { href: "/relocate/hub", label: "My workspace", icon: LayoutDashboard },
-  { href: "/settle", label: "Settling guides", icon: BookOpen },
+  { href: "/move", label: "Open the app", icon: MapPin },
   { href: "/contact", label: "Contact", icon: Mail },
 ] as const
 

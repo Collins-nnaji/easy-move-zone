@@ -29,6 +29,7 @@ export interface RelocationPlan {
   budgetTravelUsd: number
   budgetSetupUsd: number
   budgetBufferUsd: number
+  budgetMonthlyLivingUsd: number
   notes: string
   createdAt: string
   updatedAt: string
@@ -62,9 +63,16 @@ export interface RelocationContact {
   updatedAt: string
 }
 
+export interface SettleCard {
+  tag: string
+  title: string
+  body: string
+}
+
 export interface RelocationCountryGuide {
   id: string
   country: string
+  citySlug: string | null
   visaSummary: string
   requiredDocuments: string[]
   preMoveSteps: string[]
@@ -72,6 +80,11 @@ export interface RelocationCountryGuide {
   healthcareTip: string
   bankingTip: string
   schoolingTip: string
+  simTip: string
+  neighborhoodsTip: string
+  communityTip: string
+  transportTip: string
+  settleCards: SettleCard[]
   estimatedSetupDays: number
   createdAt: string
   updatedAt: string

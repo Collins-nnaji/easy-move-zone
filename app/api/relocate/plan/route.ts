@@ -65,6 +65,7 @@ export async function GET() {
         budget_travel_usd,
         budget_setup_usd,
         budget_buffer_usd,
+        budget_monthly_living_usd,
         notes,
         created_at,
         updated_at
@@ -91,6 +92,7 @@ export async function GET() {
       budget_travel_usd: number | null
       budget_setup_usd: number | null
       budget_buffer_usd: number | null
+      budget_monthly_living_usd: number | null
       notes: string | null
       created_at: string
       updated_at: string
@@ -193,6 +195,7 @@ export async function GET() {
       budgetTravelUsd: row.budget_travel_usd ?? 0,
       budgetSetupUsd: row.budget_setup_usd ?? 0,
       budgetBufferUsd: row.budget_buffer_usd ?? 0,
+      budgetMonthlyLivingUsd: row.budget_monthly_living_usd ?? 0,
       notes: row.notes ?? "",
       createdAt: new Date(row.created_at).toISOString(),
       updatedAt: new Date(row.updated_at).toISOString(),
@@ -230,6 +233,7 @@ export async function PUT(request: Request) {
     const budgetTravelUsd = safeNumber(input.budgetTravelUsd)
     const budgetSetupUsd = safeNumber(input.budgetSetupUsd)
     const budgetBufferUsd = safeNumber(input.budgetBufferUsd)
+    const budgetMonthlyLivingUsd = safeNumber(input.budgetMonthlyLivingUsd)
     const notes = String(input.notes ?? "").trim()
 
     const planId = await ensurePlanForUser(authUserId)
@@ -253,9 +257,10 @@ export async function PUT(request: Request) {
          budget_travel_usd = $13,
          budget_setup_usd = $14,
          budget_buffer_usd = $15,
-         notes = $16,
+         budget_monthly_living_usd = $16,
+         notes = $17,
          updated_at = now()
-       where id = $17 and auth_user_id = $18
+       where id = $18 and auth_user_id = $19
        returning
          id,
          auth_user_id,
@@ -274,6 +279,7 @@ export async function PUT(request: Request) {
          budget_travel_usd,
          budget_setup_usd,
          budget_buffer_usd,
+         budget_monthly_living_usd,
          notes,
          created_at,
          updated_at`,
@@ -293,6 +299,7 @@ export async function PUT(request: Request) {
         budgetTravelUsd,
         budgetSetupUsd,
         budgetBufferUsd,
+        budgetMonthlyLivingUsd,
         notes || null,
         planId,
         authUserId,
@@ -317,6 +324,7 @@ export async function PUT(request: Request) {
       budget_travel_usd: number | null
       budget_setup_usd: number | null
       budget_buffer_usd: number | null
+      budget_monthly_living_usd: number | null
       notes: string | null
       created_at: string
       updated_at: string
@@ -342,6 +350,7 @@ export async function PUT(request: Request) {
       budgetTravelUsd: row.budget_travel_usd ?? 0,
       budgetSetupUsd: row.budget_setup_usd ?? 0,
       budgetBufferUsd: row.budget_buffer_usd ?? 0,
+      budgetMonthlyLivingUsd: row.budget_monthly_living_usd ?? 0,
       notes: row.notes ?? "",
       createdAt: new Date(row.created_at).toISOString(),
       updatedAt: new Date(row.updated_at).toISOString(),

@@ -19,9 +19,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Move Spectrum",
+  title: "EasyMoveZone — Get there. Stay there. Visa sorted.",
   description:
-    "Two weeks or forever — we get you there, sorted. One app for every kind of international move, adapting to how long you're staying.",
+    "Movement, accommodation, and visa in one app. Book your journey, your stay, and your entry paperwork — adapting to how long you're staying.",
 };
 
 export default function MovePage() {

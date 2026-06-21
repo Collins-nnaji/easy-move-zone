@@ -53,9 +53,9 @@ const steps = [
 ] as const
 
 const heroPoints = [
-  "One app from first idea to landed",
-  "Plans that adapt to your stay length",
-  "Trips, stays and visas in one checkout",
+  "Movement — flights and routes, booked in one tap",
+  "Accommodation — hotels to furnished flats, matched to your stay",
+  "Visa — the right entry route, from checklist to full handling",
 ] as const
 
 const easeOut = [0.16, 1, 0.3, 1] as const
@@ -92,7 +92,7 @@ export function HomePageClient() {
                 className="inline-flex items-center gap-2 rounded-full border border-[#e0511f]/20 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#bf5223] backdrop-blur"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                Trips · Stays · Visas — one app
+                Movement · Accommodation · Visa
               </motion.div>
 
               <motion.h1
@@ -100,15 +100,15 @@ export function HomePageClient() {
                 className="mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl lg:text-[4.4rem]"
                 style={{ textWrap: "balance" } as React.CSSProperties}
               >
-                Every kind of move,
+                Get there. Stay there.
                 <span className="block" style={{ color: PRIMARY }}>
-                  one app.
+                  Visa sorted.
                 </span>
               </motion.h1>
 
               <motion.p {...fadeUp(0.12, 18)} className="mt-6 max-w-xl text-lg leading-relaxed text-[#5f655c]">
-                Book your trip, find a place to stay, and sort your visa — whether you&apos;re going for two
-                weeks or forever. EasyMoveZone plans the whole journey around how long you&apos;re staying.
+                The only app that handles movement, accommodation, and visa in one flow — whether
+                you&apos;re leaving for two weeks or two years.
               </motion.p>
 
               <motion.div {...fadeUp(0.18, 18)} className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -181,14 +181,14 @@ export function HomePageClient() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div {...fadeUp()} className="max-w-2xl">
             <span className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: PRIMARY }}>
-              One checkout, three problems solved
+              Movement · Accommodation · Visa
             </span>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-              The three things every move needs.
+              Three moves. One app.
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-[#5f655c]">
-              Stop stitching together flight sites, booking apps and visa forums. EasyMoveZone brings the
-              whole move into one flow.
+              Every international move hits the same three walls — how you get there, where you stay, and
+              whether you&apos;re allowed in. EasyMoveZone clears all three without switching apps.
             </p>
           </motion.div>
 
@@ -231,8 +231,8 @@ export function HomePageClient() {
                 <span className="text-white/50">to landed.</span>
               </h2>
               <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/60">
-                No spreadsheets, no guesswork. Answer a few questions and we build the plan — then you book
-                the trip, the stay and the visa right inside it.
+                Tell us how long you&apos;re staying. We match your destination, build your plan, then you
+                book movement, accommodation, and visa — all inside the same app.
               </p>
               <Link
                 href="/move"
@@ -276,11 +276,10 @@ export function HomePageClient() {
         />
         <motion.div {...fadeUp()} className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
           <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Wherever you&apos;re going, start here.
+            Movement, accommodation, visa — handled.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-[#5f655c]">
-            Two weeks or forever — get a plan, book your trip, stay and visa, and land like you&apos;ve been
-            before.
+            Two weeks or forever. One app that books how you get there, where you sleep, and how you get in.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
@@ -292,10 +291,10 @@ export function HomePageClient() {
               <ArrowUpRight className="h-4.5 w-4.5" />
             </Link>
             <Link
-              href="/settle"
+              href="/contact"
               className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white px-7 py-4 text-base font-semibold text-[#4a5047] transition hover:border-[#e0511f]/30"
             >
-              Explore settling guides
+              Talk to us
             </Link>
           </div>
         </motion.div>

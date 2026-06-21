@@ -87,6 +87,8 @@ export interface Destination {
   country: string;
   region: string;
   photo: string;
+  /** Hero image URL (seeded in DB; used when user hasn't uploaded a photo). */
+  imageUrl?: string;
   match: Record<Mode, number>;
   honest: Record<Mode, string>;
   stats: Record<Mode, [string, string][]>;
@@ -100,6 +102,7 @@ export const DESTINATIONS: Destination[] = [
     country: "Portugal",
     region: "Europe",
     photo: "Lisbon · Alfama rooftops at golden hour",
+    imageUrl: "https://images.unsplash.com/photo-1555881400-74d7aca32786?w=1200&q=80",
     match: { trip: 91, nomad: 95, move: 88 },
     honest: {
       trip: "Easy to land in and walkable, but the hills and old trams mean slow crosstown trips. August is hot and tourist-packed.",
@@ -123,6 +126,7 @@ export const DESTINATIONS: Destination[] = [
     country: "Mexico",
     region: "Latin America",
     photo: "Mexico City · leafy Roma Norte streets",
+    imageUrl: "https://images.unsplash.com/photo-1518659526051-2ca369704b54?w=1200&q=80",
     match: { trip: 86, nomad: 93, move: 82 },
     honest: {
       trip: "Huge, vibrant and great value, but the scale means long taxi rides and altitude can leave you breathless for a day or two.",
@@ -146,6 +150,7 @@ export const DESTINATIONS: Destination[] = [
     country: "Thailand",
     region: "Asia-Pacific",
     photo: "Bangkok · Chao Phraya river at dusk",
+    imageUrl: "https://images.unsplash.com/photo-1563492065-454364424952?w=1200&q=80",
     match: { trip: 84, nomad: 90, move: 79 },
     honest: {
       trip: "Cheap, fast and endlessly convenient — but heat, humidity and traffic are real. Get a hotel near a BTS Skytrain stop.",
@@ -169,6 +174,7 @@ export const DESTINATIONS: Destination[] = [
     country: "Georgia",
     region: "Europe",
     photo: "Tbilisi · Old Town & sulphur baths",
+    imageUrl: "https://images.unsplash.com/photo-1565008576549-57569a49371d?w=1200&q=80",
     match: { trip: 78, nomad: 88, move: 80 },
     honest: {
       trip: "Astonishing value and famously easy entry, but it's smaller and quieter than the big hubs — charming, not buzzing.",
@@ -417,6 +423,7 @@ export interface SettleCard {
   body: string;
 }
 
+/** Fallback when DB guides are unseeded — source of truth is relocation_country_guides. */
 export const SETTLE: Record<string, SettleCard[]> = {
   lisbon: [
     { tag: "Neighbourhoods", title: "Where to base yourself", body: "Príncipe Real for cafés, Alcântara for value, Estrela for families and green space." },
