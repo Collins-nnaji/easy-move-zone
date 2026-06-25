@@ -10,16 +10,22 @@ export const metadata: Metadata = {
     "Manage your move preferences, saved searches, relocation plan summary, and bookings in one workspace.",
 }
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
   const session = await authServer.getSession()
   if (!session?.data?.user) redirect("/auth?redirect=/profile")
   const { user } = session.data
   const authName = user.name || user.email?.split("@")[0] || "Member"
   const authEmail = user.email ?? ""
+  const q = await searchParams
+  const fromMove = q.from === "move"
 
   return (
     <PublicShell>
-      <ProfileWorkspace authName={authName} authEmail={authEmail} />
+      <ProfileWorkspace authName={authName} authEmail={authEmail} fromMove={fromMove} />
     </PublicShell>
   )
 }

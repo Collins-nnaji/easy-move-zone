@@ -78,6 +78,14 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* The Move app manages its own internal scroll (.move-scroll); pin the
+     outer page so it can't also scroll and reveal space under the fixed
+     bottom nav. */
+  body.move-app-active {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
   /* Display headings use Bricolage Grotesque */
   h1, h2 {
     font-family: var(--font-bricolage), var(--font-jakarta), ui-sans-serif, sans-serif;

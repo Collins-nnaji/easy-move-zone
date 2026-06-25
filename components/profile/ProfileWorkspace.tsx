@@ -36,6 +36,7 @@ interface DestinationOption {
 interface ProfileWorkspaceProps {
   authName: string
   authEmail: string
+  fromMove?: boolean
 }
 
 const STAY_LABELS: Record<string, string> = {
@@ -44,7 +45,7 @@ const STAY_LABELS: Record<string, string> = {
   move: "Full relocation (6+ months)",
 }
 
-export function ProfileWorkspace({ authName, authEmail }: ProfileWorkspaceProps) {
+export function ProfileWorkspace({ authName, authEmail, fromMove = false }: ProfileWorkspaceProps) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [statusMsg, setStatusMsg] = useState("")
@@ -399,10 +400,12 @@ export function ProfileWorkspace({ authName, authEmail }: ProfileWorkspaceProps)
             <article className="emz-rich-card p-6">
               <h2 className="font-[var(--font-playfair)] text-lg font-semibold text-[#0f172a]">Quick links</h2>
               <div className="mt-4 space-y-2">
-                <Link href="/move" className="flex items-center gap-3 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3 text-sm font-semibold text-[#0f172a] transition hover:border-[#e0511f]/40">
-                  <MapPin className="h-4 w-4 text-[#e0511f]" />
-                  Open the Move app
-                </Link>
+                {!fromMove && (
+                  <Link href="/move" className="flex items-center gap-3 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3 text-sm font-semibold text-[#0f172a] transition hover:border-[#e0511f]/40">
+                    <MapPin className="h-4 w-4 text-[#e0511f]" />
+                    Open the Move app
+                  </Link>
+                )}
                 <Link href="/contact" className="flex items-center gap-3 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3 text-sm font-semibold text-[#0f172a] transition hover:border-[#e0511f]/40">
                   <Sparkles className="h-4 w-4 text-[#e0511f]" />
                   Contact support

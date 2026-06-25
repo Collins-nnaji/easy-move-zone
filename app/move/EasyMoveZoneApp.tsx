@@ -103,6 +103,7 @@ export function EasyMoveZoneApp() {
   const [moodNote, setMoodNote] = useState<string | null>(null);
   const [moodRanking, setMoodRanking] = useState<string[] | null>(null);
   const [exploreReturnScreen, setExploreReturnScreen] = useState<Screen>("spectrum");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Clarify-with-AI state — a destination-grounded Q&A box on Visa & Settle.
   const [clarifyQuestion, setClarifyQuestion] = useState("");
@@ -129,6 +130,14 @@ export function EasyMoveZoneApp() {
   // Explore (the matches screen) with their last destination & stay length,
   // instead of the welcome screen. The saved flow lives in localStorage, so
   // this works whether or not the user is signed in.
+  // Only .move-scroll should scroll while inside the Move app — without this,
+  // a few extra px of body height (from dvh rounding / safe-area insets) lets
+  // the whole page rubber-band, revealing blank space under the bottom nav.
+  useEffect(() => {
+    document.body.classList.add("move-app-active");
+    return () => document.body.classList.remove("move-app-active");
+  }, []);
+
   const [ready, setReady] = useState(false);
   useEffect(() => {
     if (ready || sessionPending || !catalogLoaded) return;
@@ -214,8 +223,8 @@ export function EasyMoveZoneApp() {
     });
   }
 
-  async function runMoodSearch() {
-    const text = moodText.trim();
+  async function runMoodSearch(overrideText?: string) {
+    const text = (overrideText ?? moodText).trim();
     if (!text || moodLoading) return;
     setMoodLoading(true);
     setMoodError(null);
@@ -247,6 +256,21 @@ export function EasyMoveZoneApp() {
       setMoodLoading(false);
       setScreen("matches");
     }
+  }
+
+  function applyFilters() {
+    const text = QUESTIONS.map((q) => answers[q.id]).filter(Boolean).join(", ");
+    if (!text) return;
+    setMoodText(text);
+    void runMoodSearch(text);
+  }
+
+  function clearFilters() {
+    setAnswers({});
+    setMoodRanking(null);
+    setMoodNote(null);
+    setMoodText("");
+    setDestId(ranked[0].id);
   }
 
   async function runClarify() {
@@ -560,7 +584,7 @@ export function EasyMoveZoneApp() {
         </div>
 
         <div style={{ flex: 1 }} />
-        <button onClick={() => { setExploreReturnScreen("spectrum"); setScreen("search"); setQIndex(0); setAnswers({}); setExploreMode("mood"); }} style={{ width: "100%", padding: 19, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 17, fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}>Continue</button>
+        <button onClick={() => { setDestId(ranked[0].id); setScreen("matches"); }} style={{ width: "100%", padding: 19, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 17, fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}>Continue</button>
         </div>
         <FlowAside
           title="The Move Spectrum"
@@ -675,7 +699,7 @@ export function EasyMoveZoneApp() {
 
         <div style={{ flex: 1 }} />
         <button
-          onClick={runMoodSearch}
+          onClick={() => runMoodSearch()}
           disabled={!moodText.trim() || moodLoading}
           style={{ width: "100%", marginTop: 22, padding: 19, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 17, fontWeight: 700, cursor: !moodText.trim() || moodLoading ? "default" : "pointer", opacity: !moodText.trim() || moodLoading ? 0.6 : 1, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}
         >
@@ -698,14 +722,58 @@ export function EasyMoveZoneApp() {
     );
   }
 
+  function FilterPanel() {
+    const answeredCount = Object.keys(answers).length;
+    return (
+      <div style={{ marginTop: 16, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, overflow: "hidden" }}>
+        <div onClick={() => setFiltersOpen((p) => !p)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", cursor: "pointer" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>Advanced filters</span>
+            {answeredCount > 0 && (
+              <span style={{ background: "#fbeae0", color: PRIMARY, borderRadius: 999, padding: "3px 9px", fontSize: 11, fontWeight: 700, fontFamily: MONO }}>{answeredCount}</span>
+            )}
+          </div>
+          <span style={{ fontSize: 13, color: MUTE }}>{filtersOpen ? "Hide ▴" : "Show ▾"}</span>
+        </div>
+        {filtersOpen && (
+          <div style={{ padding: "0 18px 20px", borderTop: "1px solid #efe9dd" }}>
+            <p style={{ fontSize: 13, color: "#6e746b", margin: "16px 0 0", lineHeight: 1.5 }}>Answer a few quick questions and we’ll re-order every destination below to put your best fit first.</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 18, marginTop: 16 }}>
+              {QUESTIONS.map((q) => (
+                <div key={q.id}>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: INK }}>{q.q}</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 9 }}>
+                    {q.options.map((opt) => {
+                      const sel = answers[q.id] === opt;
+                      return (
+                        <div key={opt} onClick={() => setAnswers((prev) => ({ ...prev, [q.id]: opt }))} style={{ padding: "8px 13px", borderRadius: 999, cursor: "pointer", background: sel ? PRIMARY : "#f7f5ee", color: sel ? "#fff" : "#4a5047", border: `1px solid ${sel ? PRIMARY : "#e4dfd5"}`, fontSize: 12.5, fontWeight: 600, transition: "all .15s" }}>{opt}</div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+              <button onClick={applyFilters} disabled={answeredCount === 0 || moodLoading} style={{ flex: 1, padding: 13, border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: answeredCount === 0 || moodLoading ? "default" : "pointer", opacity: answeredCount === 0 || moodLoading ? 0.6 : 1 }}>
+                {moodLoading ? "Matching…" : "Apply filters"}
+              </button>
+              {answeredCount > 0 && (
+                <button onClick={clearFilters} style={{ padding: "13px 16px", border: "1px solid #d8d2c6", borderRadius: 14, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Clear</button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   function Matches() {
     const C22 = 2 * Math.PI * 22;
-    const top3 = browseList.slice(0, 3);
     return (
       <div className="move-page-inner">
       <div className="move-page-screen">
         <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Explore · your matches</div>
-        <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>{moodList ? "Matched to your mood" : "3 places that fit how you want to move"}</h2>
+        <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>{moodList ? "Matched to your answers" : "Every place that fits how you want to move"}</h2>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 16 }}>
           <div onClick={() => setScreen("spectrum")} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "#fff", border: "1px solid #e4dfd5", borderRadius: 999, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
@@ -718,6 +786,8 @@ export function EasyMoveZoneApp() {
           </div>
         </div>
 
+        <FilterPanel />
+
         {moodNote && (
           <div style={{ marginTop: 16, background: "#f6e9df", border: "1px solid #f3d6c4", borderRadius: 18, padding: "16px 18px" }}>
             <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: "#bf6a3c" }}>Because you said “{moodText}”</div>
@@ -726,7 +796,7 @@ export function EasyMoveZoneApp() {
         )}
 
         <div className="move-card-grid" style={{ marginTop: 22 }}>
-          {top3.map((d, i) => {
+          {browseList.map((d, i) => {
             const ringOffset = (C22 * (1 - d.match[mode] / 100)).toFixed(1);
             const chips = [d.stats[mode][0][1], d.visa[mode].tag];
             return (
