@@ -1,6 +1,8 @@
 import type {
   Destination,
+  JobOption,
   Mode,
+  SchoolOption,
   StayOption,
   TripOption,
   VisaInfo,
@@ -44,6 +46,26 @@ type VisaServiceRow = {
   mode: Mode
   title: string
   detail: string
+  price: string
+}
+
+type SchoolRow = {
+  id: string
+  destination_id: string
+  institution: string
+  program: string
+  level: string
+  tag: string
+  price: string
+}
+
+type JobRow = {
+  id: string
+  destination_id: string
+  company: string
+  role: string
+  industry: string
+  tag: string
   price: string
 }
 
@@ -113,6 +135,40 @@ export function groupVisaServices(rows: VisaServiceRow[]): Record<Mode, VisaServ
       detail: row.detail,
       price: row.price,
     })
+  }
+  return out
+}
+
+export function groupSchools(rows: SchoolRow[]): Record<string, SchoolOption[]> {
+  const out: Record<string, SchoolOption[]> = {}
+  for (const row of rows) {
+    const list = out[row.destination_id] ?? []
+    list.push({
+      id: row.id,
+      institution: row.institution,
+      program: row.program,
+      level: row.level,
+      tag: row.tag,
+      price: row.price,
+    })
+    out[row.destination_id] = list
+  }
+  return out
+}
+
+export function groupJobs(rows: JobRow[]): Record<string, JobOption[]> {
+  const out: Record<string, JobOption[]> = {}
+  for (const row of rows) {
+    const list = out[row.destination_id] ?? []
+    list.push({
+      id: row.id,
+      company: row.company,
+      role: row.role,
+      industry: row.industry,
+      tag: row.tag,
+      price: row.price,
+    })
+    out[row.destination_id] = list
   }
   return out
 }

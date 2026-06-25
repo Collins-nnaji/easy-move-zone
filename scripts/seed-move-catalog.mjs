@@ -106,8 +106,38 @@ async function main() {
     `
   }
 
+  for (const [index, s] of (catalog.schools ?? []).entries()) {
+    await sql`
+      insert into move_schools (id, destination_id, institution, program, level, tag, price, sort_order)
+      values (${s.id}, ${s.destinationId}, ${s.institution}, ${s.program}, ${s.level}, ${s.tag}, ${s.price}, ${index})
+      on conflict (id) do update set
+        destination_id = excluded.destination_id,
+        institution = excluded.institution,
+        program = excluded.program,
+        level = excluded.level,
+        tag = excluded.tag,
+        price = excluded.price,
+        sort_order = excluded.sort_order
+    `
+  }
+
+  for (const [index, j] of (catalog.jobs ?? []).entries()) {
+    await sql`
+      insert into move_jobs (id, destination_id, company, role, industry, tag, price, sort_order)
+      values (${j.id}, ${j.destinationId}, ${j.company}, ${j.role}, ${j.industry}, ${j.tag}, ${j.price}, ${index})
+      on conflict (id) do update set
+        destination_id = excluded.destination_id,
+        company = excluded.company,
+        role = excluded.role,
+        industry = excluded.industry,
+        tag = excluded.tag,
+        price = excluded.price,
+        sort_order = excluded.sort_order
+    `
+  }
+
   console.log(
-    `Done — ${catalog.destinations.length} destinations, ${catalog.trips.length} trips, ${catalog.stays.length} stays, ${catalog.visaServices.length} visa tiers.`,
+    `Done — ${catalog.destinations.length} destinations, ${catalog.trips.length} trips, ${catalog.stays.length} stays, ${catalog.visaServices.length} visa tiers, ${(catalog.schools ?? []).length} schools, ${(catalog.jobs ?? []).length} jobs.`,
   )
 }
 

@@ -3,7 +3,7 @@
 import { writeFileSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 import path from "node:path"
-import { DESTINATIONS, TRIPS, STAYS, VISA_SERVICES } from "../app/move/data.ts"
+import { DESTINATIONS, TRIPS, STAYS, VISA_SERVICES, SCHOOLS, JOBS } from "../app/move/data.ts"
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 
@@ -22,9 +22,19 @@ for (const [mode, list] of Object.entries(VISA_SERVICES)) {
   for (const v of list) visaServices.push({ mode, ...v })
 }
 
+const schools = []
+for (const [destinationId, list] of Object.entries(SCHOOLS)) {
+  for (const s of list) schools.push({ destinationId, ...s })
+}
+
+const jobs = []
+for (const [destinationId, list] of Object.entries(JOBS)) {
+  for (const j of list) jobs.push({ destinationId, ...j })
+}
+
 writeFileSync(
   path.join(root, "db/seeds/move-catalog.json"),
-  JSON.stringify({ destinations: DESTINATIONS, trips, stays, visaServices }, null, 2),
+  JSON.stringify({ destinations: DESTINATIONS, trips, stays, visaServices, schools, jobs }, null, 2),
 )
 
 console.log(`Wrote db/seeds/move-catalog.json (${DESTINATIONS.length} destinations).`)

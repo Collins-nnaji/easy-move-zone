@@ -124,7 +124,7 @@ export function EasyMoveZoneApp() {
   const router = useRouter();
   const { data: sessionData, isPending: sessionPending } = authClient.useSession();
   const signedIn = !!sessionData?.user;
-  const { destinations, trips, stays, visaServices, loaded: catalogLoaded } = useMoveCatalog();
+  const { destinations, trips, stays, visaServices, schools, jobs, loaded: catalogLoaded } = useMoveCatalog();
 
   // Returning users who've completed the flow before land straight on
   // Explore (the matches screen) with their last destination & stay length,
@@ -389,7 +389,11 @@ export function EasyMoveZoneApp() {
     trip: "Trip",
     stay: "Stay",
     visa: "Visa service",
+    school: "School admission",
+    job: "Job application",
   };
+
+  const isApplyType = (t: BookingType) => t === "school" || t === "job";
 
   // ── Move Meter math (driven by ticked plan items) ─────────────────────
   const plan = PLAN[mode];
@@ -1042,6 +1046,8 @@ export function EasyMoveZoneApp() {
       headline: dest.visa[m].headline,
       tag: dest.visa[m].tag,
     }));
+    const schoolOptions = schools[dest.id] ?? [];
+    const jobOptions = jobs[dest.id] ?? [];
     return (
       <div className="move-page-inner">
       <div className="move-page-screen">
@@ -1070,6 +1076,50 @@ export function EasyMoveZoneApp() {
             </div>
           ))}
         </div>
+
+        {(schoolOptions.length > 0 || jobOptions.length > 0) && (
+          <div style={{ marginTop: 26 }}>
+            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Work &amp; study in {dest.city}</div>
+            <p style={{ fontSize: 13.5, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.5 }}>Apply directly to school programmes and visa-sponsoring roles that match your move.</p>
+
+            {schoolOptions.length > 0 && (
+              <div style={{ marginTop: 14 }}>
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: INK, marginBottom: 8 }}>School admissions</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {schoolOptions.map((s) => (
+                    <PriceRow
+                      key={s.id}
+                      left={s.institution}
+                      sub={`${s.program} · ${s.level} · ${s.tag}`}
+                      price={s.price}
+                      actionLabel="Apply →"
+                      onClick={() => openBooking({ type: "school", title: `${s.institution} — ${s.program}`, provider: s.institution, price: s.price, needsDates: false, needsRange: false, needsGuests: false })}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {jobOptions.length > 0 && (
+              <div style={{ marginTop: 14 }}>
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: INK, marginBottom: 8 }}>Visa-sponsoring jobs</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {jobOptions.map((j) => (
+                    <PriceRow
+                      key={j.id}
+                      left={`${j.company} · ${j.role}`}
+                      sub={`${j.industry} · ${j.tag}`}
+                      price={j.price}
+                      actionLabel="Apply →"
+                      onClick={() => openBooking({ type: "job", title: `${j.role} @ ${j.company}`, provider: j.company, price: j.price, needsDates: false, needsRange: false, needsGuests: false })}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         <ClarifyPanel />
         <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "20px 0 0", lineHeight: 1.5 }}>Illustrative guidance for a prototype.<br />Always confirm with an official source before you travel.</p>
       </div>
@@ -1161,7 +1211,7 @@ export function EasyMoveZoneApp() {
     );
   }
 
-  function PriceRow({ left, sub, price, onClick }: { left: string; sub: string; price: string; onClick: () => void }) {
+  function PriceRow({ left, sub, price, onClick, actionLabel = "Reserve →" }: { left: string; sub: string; price: string; onClick: () => void; actionLabel?: string }) {
     return (
       <div onClick={onClick} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -1170,7 +1220,7 @@ export function EasyMoveZoneApp() {
         </div>
         <div style={{ textAlign: "right", flexShrink: 0 }}>
           <div style={{ fontFamily: MONO, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{price}</div>
-          <div style={{ fontSize: 11, color: MUTE, marginTop: 2 }}>Reserve →</div>
+          <div style={{ fontSize: 11, color: MUTE, marginTop: 2 }}>{actionLabel}</div>
         </div>
       </div>
     );
@@ -1214,12 +1264,13 @@ export function EasyMoveZoneApp() {
 
   function Booked() {
     const b = lastBooking;
+    const applied = !!b && isApplyType(b.bookingType);
     return (
       <div className="move-page-inner">
       <div className="move-page-screen">
         <div style={{ width: 64, height: 64, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 30, fontWeight: 800, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}>✓</div>
-        <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "20px 0 0" }}>Reserved — you&apos;re sorted</h2>
-        <p style={{ fontSize: 14.5, color: "#6e746b", margin: "10px 0 0", lineHeight: 1.5 }}>We&apos;ve held this for you and saved it to your account. No payment taken yet.</p>
+        <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "20px 0 0" }}>{applied ? "Application sent — you're in" : "Reserved — you're sorted"}</h2>
+        <p style={{ fontSize: 14.5, color: "#6e746b", margin: "10px 0 0", lineHeight: 1.5 }}>{applied ? "We've saved this application to your account. No payment taken." : "We've held this for you and saved it to your account. No payment taken yet."}</p>
 
         {b && (
           <div style={{ marginTop: 22, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
@@ -1314,9 +1365,15 @@ export function EasyMoveZoneApp() {
             )}
 
             <button onClick={confirmBooking} disabled={bookState === "saving"} style={{ width: "100%", marginTop: 20, padding: 17, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: bookState === "saving" ? "default" : "pointer", opacity: bookState === "saving" ? 0.7 : 1, boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>
-              {bookState === "saving" ? "Reserving…" : signedIn ? "Confirm reservation" : "Sign in to reserve"}
+              {isApplyType(pending.type)
+                ? bookState === "saving" ? "Applying…" : signedIn ? "Confirm application" : "Sign in to apply"
+                : bookState === "saving" ? "Reserving…" : signedIn ? "Confirm reservation" : "Sign in to reserve"}
             </button>
-            <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "12px 0 0", lineHeight: 1.5 }}>No payment taken — this holds your choice in your workspace.</p>
+            <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "12px 0 0", lineHeight: 1.5 }}>
+              {isApplyType(pending.type)
+                ? "No payment taken — this saves your application to your workspace."
+                : "No payment taken — this holds your choice in your workspace."}
+            </p>
           </div>
         </div>
       )}

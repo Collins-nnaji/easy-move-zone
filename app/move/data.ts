@@ -683,6 +683,104 @@ export const VISA_SERVICES: Record<Mode, VisaService[]> = {
   ],
 };
 
+export interface SchoolOption {
+  id: string;
+  institution: string;
+  program: string;
+  level: string;
+  tag: string;
+  price: string;
+}
+
+export interface JobOption {
+  id: string;
+  company: string;
+  role: string;
+  industry: string;
+  tag: string;
+  price: string;
+}
+
+// School admissions, keyed by destination id — real institutions, illustrative programs.
+export const SCHOOLS: Record<string, SchoolOption[]> = {
+  lisbon: [
+    { id: "lis-sch1", institution: "Nova School of Business & Economics", program: "MSc in Management", level: "Master's", tag: "Student visa (D4) eligible", price: "€50 application fee" },
+  ],
+  mexicocity: [
+    { id: "mex-sch1", institution: "Tecnológico de Monterrey", program: "MBA, CDMX campus", level: "Master's", tag: "Student visa eligible", price: "$80 application fee" },
+  ],
+  bangkok: [
+    { id: "bkk-sch1", institution: "Chulalongkorn University", program: "International MBA", level: "Master's", tag: "Non-Immigrant ED visa eligible", price: "฿1,500 application fee" },
+  ],
+  tbilisi: [
+    { id: "tbs-sch1", institution: "Free University of Tbilisi", program: "BA in International Relations", level: "Bachelor's", tag: "Study residence permit eligible", price: "$30 application fee" },
+  ],
+  berlin: [
+    { id: "ber-sch1", institution: "Technical University of Berlin", program: "MSc in Computer Science", level: "Master's", tag: "Student visa eligible", price: "€75 application fee" },
+  ],
+  buenosaires: [
+    { id: "bue-sch1", institution: "Universidad de Buenos Aires", program: "MA in Latin American Studies", level: "Master's", tag: "Student visa eligible", price: "$40 application fee" },
+  ],
+  tokyo: [
+    { id: "tyo-sch1", institution: "Waseda University", program: "MA in International Studies", level: "Master's", tag: "Student visa (ryugaku) eligible", price: "¥9,800 application fee" },
+  ],
+  capetown: [
+    { id: "cpt-sch1", institution: "University of Cape Town", program: "MCom in Finance", level: "Master's", tag: "Study visa eligible", price: "R850 application fee" },
+  ],
+  dubai: [
+    { id: "dxb-sch1", institution: "American University in Dubai", program: "MBA", level: "Master's", tag: "Student visa eligible", price: "AED 500 application fee" },
+  ],
+  toronto: [
+    { id: "yyz-sch1", institution: "University of Toronto", program: "Master of Information", level: "Master's", tag: "Study permit eligible", price: "CAD 156 application fee" },
+  ],
+  sydney: [
+    { id: "syd-sch1", institution: "University of Sydney", program: "Master of Commerce", level: "Master's", tag: "Student visa (subclass 500) eligible", price: "AUD 125 application fee" },
+  ],
+  singapore: [
+    { id: "sin-sch1", institution: "National University of Singapore", program: "Master of Computing", level: "Master's", tag: "Student's Pass eligible", price: "SGD 100 application fee" },
+  ],
+};
+
+// Visa-sponsoring job openings, keyed by destination id — illustrative listings.
+export const JOBS: Record<string, JobOption[]> = {
+  lisbon: [
+    { id: "lis-job1", company: "Lisboa Software Collective", role: "Backend Engineer", industry: "Tech", tag: "Visa sponsorship (D2 work visa)", price: "€32k–48k/yr" },
+  ],
+  mexicocity: [
+    { id: "mex-job1", company: "CDMX FinTech Studio", role: "Product Manager", industry: "FinTech", tag: "Temporary resident work permit sponsor", price: "$1.8k–2.6k/mo" },
+  ],
+  bangkok: [
+    { id: "bkk-job1", company: "Bangkok Digital Works", role: "UX Designer", industry: "Tech", tag: "Non-Immigrant B work-permit sponsor", price: "฿45k–70k/mo" },
+  ],
+  tbilisi: [
+    { id: "tbs-job1", company: "Tbilisi Tech Yard", role: "Full-Stack Developer", industry: "Tech", tag: "Work-based residence permit sponsor", price: "$1.2k–2k/mo" },
+  ],
+  berlin: [
+    { id: "ber-job1", company: "Berlin Mobility Labs", role: "Data Engineer", industry: "Tech", tag: "EU Blue Card sponsor", price: "€55k–75k/yr" },
+  ],
+  buenosaires: [
+    { id: "bue-job1", company: "Buenos Aires Devshop", role: "Software Engineer", industry: "Tech", tag: "Work visa sponsor", price: "$1.5k–2.4k/mo" },
+  ],
+  tokyo: [
+    { id: "tyo-job1", company: "Tokyo Robotics Studio", role: "Mechanical Engineer", industry: "Robotics", tag: "Engineer/Specialist visa sponsor", price: "¥4.5M–6.5M/yr" },
+  ],
+  capetown: [
+    { id: "cpt-job1", company: "Cape Town Cloud Collective", role: "Cloud Engineer", industry: "Tech", tag: "Critical skills work visa sponsor", price: "R420k–650k/yr" },
+  ],
+  dubai: [
+    { id: "dxb-job1", company: "Dubai Logistics Exchange", role: "Operations Manager", industry: "Logistics", tag: "Employer-sponsored work visa", price: "AED 15k–22k/mo" },
+  ],
+  toronto: [
+    { id: "yyz-job1", company: "Toronto Fintech Forge", role: "Software Engineer", industry: "FinTech", tag: "LMIA-backed work permit sponsor", price: "CAD 75k–100k/yr" },
+  ],
+  sydney: [
+    { id: "syd-job1", company: "Sydney Harbour Analytics", role: "Data Analyst", industry: "Tech", tag: "Skilled employer-sponsored visa (482)", price: "AUD 85k–110k/yr" },
+  ],
+  singapore: [
+    { id: "sin-job1", company: "Singapore Cloud Bridge", role: "Software Engineer", industry: "Tech", tag: "Employment Pass sponsor", price: "SGD 5k–7k/mo" },
+  ],
+};
+
 export interface SettleCard {
   tag: string;
   title: string;

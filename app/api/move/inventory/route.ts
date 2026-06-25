@@ -18,10 +18,14 @@ export async function GET(req: NextRequest) {
     let trips = inventory.trips
     let stays = inventory.stays
     let visaServices = inventory.visaServices
+    let schools = inventory.schools
+    let jobs = inventory.jobs
 
     if (destinationId) {
       trips = { [destinationId]: inventory.trips[destinationId] ?? [] }
       stays = { [destinationId]: inventory.stays[destinationId] ?? [] }
+      schools = { [destinationId]: inventory.schools[destinationId] ?? [] }
+      jobs = { [destinationId]: inventory.jobs[destinationId] ?? [] }
     }
 
     if (mode) {
@@ -32,7 +36,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ trips, stays, visaServices, source })
+    return NextResponse.json({ trips, stays, visaServices, schools, jobs, source })
   } catch (err) {
     console.error("[move/inventory]", err)
     return NextResponse.json({ error: "Unable to load inventory." }, { status: 500 })

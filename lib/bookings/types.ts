@@ -1,4 +1,4 @@
-export type BookingType = "trip" | "stay" | "visa"
+export type BookingType = "trip" | "stay" | "visa" | "school" | "job"
 
 export type BookingStatus = "reserved" | "confirmed" | "cancelled"
 

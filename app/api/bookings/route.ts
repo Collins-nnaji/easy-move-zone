@@ -7,7 +7,7 @@ export const runtime = "nodejs"
 const DATABASE_URL = process.env.DATABASE_URL ?? process.env.NEON_DATABASE_URL
 const sql = DATABASE_URL ? neon(DATABASE_URL) : null
 
-const ALLOWED_TYPES = new Set<BookingType>(["trip", "stay", "visa"])
+const ALLOWED_TYPES = new Set<BookingType>(["trip", "stay", "visa", "school", "job"])
 
 function safeDate(value: unknown): string | null {
   if (!value) return null

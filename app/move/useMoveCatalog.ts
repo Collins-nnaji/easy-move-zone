@@ -3,11 +3,15 @@
 import { useEffect, useState } from "react"
 import {
   DESTINATIONS,
+  JOBS,
+  SCHOOLS,
   STAYS,
   TRIPS,
   VISA_SERVICES,
   type Destination,
+  type JobOption,
   type Mode,
+  type SchoolOption,
   type StayOption,
   type TripOption,
   type VisaService,
@@ -20,6 +24,8 @@ export interface MoveCatalogState {
   trips: Record<string, TripOption[]>
   stays: Record<string, StayOption[]>
   visaServices: Record<Mode, VisaService[]>
+  schools: Record<string, SchoolOption[]>
+  jobs: Record<string, JobOption[]>
   source: CatalogSource
   loaded: boolean
 }
@@ -29,6 +35,8 @@ const STATIC_CATALOG: MoveCatalogState = {
   trips: TRIPS,
   stays: STAYS,
   visaServices: VISA_SERVICES,
+  schools: SCHOOLS,
+  jobs: JOBS,
   source: "static",
   loaded: true,
 }
@@ -59,6 +67,8 @@ export function useMoveCatalog(): MoveCatalogState {
           trips?: Record<string, TripOption[]>
           stays?: Record<string, StayOption[]>
           visaServices?: Record<Mode, VisaService[]>
+          schools?: Record<string, SchoolOption[]>
+          jobs?: Record<string, JobOption[]>
           source?: CatalogSource
         }
 
@@ -69,6 +79,8 @@ export function useMoveCatalog(): MoveCatalogState {
           trips: invJson.trips ?? TRIPS,
           stays: invJson.stays ?? STAYS,
           visaServices: invJson.visaServices ?? VISA_SERVICES,
+          schools: invJson.schools ?? SCHOOLS,
+          jobs: invJson.jobs ?? JOBS,
           source: destJson.source === "database" ? "database" : "static",
           loaded: true,
         })
