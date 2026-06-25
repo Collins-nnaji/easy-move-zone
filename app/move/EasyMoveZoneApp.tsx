@@ -104,6 +104,12 @@ export function EasyMoveZoneApp() {
   const [moodRanking, setMoodRanking] = useState<string[] | null>(null);
   const [exploreReturnScreen, setExploreReturnScreen] = useState<Screen>("spectrum");
 
+  // Clarify-with-AI state — a destination-grounded Q&A box on Visa & Settle.
+  const [clarifyQuestion, setClarifyQuestion] = useState("");
+  const [clarifyAnswer, setClarifyAnswer] = useState<string | null>(null);
+  const [clarifyLoading, setClarifyLoading] = useState(false);
+  const [clarifyError, setClarifyError] = useState<string | null>(null);
+
   // Booking flow state.
   const [pending, setPending] = useState<PendingBooking | null>(null);
   const [bookStart, setBookStart] = useState("");
@@ -240,6 +246,27 @@ export function EasyMoveZoneApp() {
     } finally {
       setMoodLoading(false);
       setScreen("matches");
+    }
+  }
+
+  async function runClarify() {
+    const text = clarifyQuestion.trim();
+    if (!text || clarifyLoading) return;
+    setClarifyLoading(true);
+    setClarifyError(null);
+    try {
+      const res = await fetch("/api/move/clarify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ destinationId: dest.id, mode, question: text }),
+      });
+      if (!res.ok) throw new Error("clarify failed");
+      const data = (await res.json()) as { answer?: unknown };
+      setClarifyAnswer(typeof data.answer === "string" ? data.answer : null);
+    } catch {
+      setClarifyError("Couldn't reach the assistant — try again in a moment.");
+    } finally {
+      setClarifyLoading(false);
     }
   }
 
@@ -416,6 +443,14 @@ export function EasyMoveZoneApp() {
       cancelled = true;
     };
   }, [dest.id]);
+
+  // Clear any previous Clarify-with-AI answer when the destination or
+  // timeframe changes, since the answer is grounded in that specific pair.
+  useEffect(() => {
+    setClarifyQuestion("");
+    setClarifyAnswer(null);
+    setClarifyError(null);
+  }, [dest.id, mode]);
 
   // ───────────────────────────────── Screens ──────────────────────────────
   function FlowAside({ title, text, steps }: { title: string; text: string; steps: { n: number; text: string }[] }) {
@@ -899,6 +934,37 @@ export function EasyMoveZoneApp() {
     );
   }
 
+  function ClarifyPanel() {
+    return (
+      <div style={{ marginTop: 20, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20 }}>
+        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY, fontWeight: 500 }}>Ask AI about {dest.city}</div>
+        <p style={{ fontSize: 13, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.5 }}>Grounded in this destination&apos;s visa, settle and healthcare notes — ask whatever&apos;s still unclear.</p>
+        <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+          <input
+            value={clarifyQuestion}
+            onChange={(e) => setClarifyQuestion(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") runClarify(); }}
+            placeholder="e.g. can I bring my dog, what about health insurance…"
+            style={{ flex: 1, minWidth: 0, padding: "12px 14px", borderRadius: 14, border: "1px solid #d8d2c6", background: "#fdfcf9", fontFamily: HANKEN, fontSize: 14, color: INK }}
+          />
+          <button
+            onClick={runClarify}
+            disabled={!clarifyQuestion.trim() || clarifyLoading}
+            style={{ padding: "12px 18px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: !clarifyQuestion.trim() || clarifyLoading ? "default" : "pointer", opacity: !clarifyQuestion.trim() || clarifyLoading ? 0.6 : 1, whiteSpace: "nowrap" }}
+          >
+            {clarifyLoading ? "Asking…" : "Ask →"}
+          </button>
+        </div>
+        {clarifyError && <p style={{ fontSize: 13, color: PRIMARY, margin: "12px 0 0" }}>{clarifyError}</p>}
+        {clarifyAnswer && (
+          <div style={{ marginTop: 14, background: "#f6e9df", border: "1px solid #f3d6c4", borderRadius: 16, padding: "14px 16px" }}>
+            <p style={{ fontSize: 14, lineHeight: 1.55, color: "#5a4636", margin: 0 }}>{clarifyAnswer}</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   function Visa() {
     const visa = dest.visa[mode];
     const others = (["trip", "nomad", "move"] as Mode[]).filter((m) => m !== mode).map((m) => ({
@@ -934,6 +1000,7 @@ export function EasyMoveZoneApp() {
             </div>
           ))}
         </div>
+        <ClarifyPanel />
         <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "20px 0 0", lineHeight: 1.5 }}>Illustrative guidance for a prototype.<br />Always confirm with an official source before you travel.</p>
       </div>
       </div>
@@ -961,6 +1028,8 @@ export function EasyMoveZoneApp() {
             <SettleCardsGrid cards={lifeStageCards} variant="move" />
           </>
         )}
+
+        <ClarifyPanel />
 
         <div style={{ marginTop: 18, background: "#fbeae0", border: "1px solid #f3d6c4", borderRadius: 20, padding: 20, display: "flex", gap: 14, alignItems: "center" }}>
           <div style={{ width: 44, height: 44, borderRadius: 999, background: PRIMARY, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 18 }}>+</div>
