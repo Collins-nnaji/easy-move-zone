@@ -941,6 +941,9 @@ export function EasyMoveZoneApp() {
   }
 
   function Settle() {
+    const lifeStageTags = new Set(["Families & minors", "Students (18–25)", "Working age (26–54)", "Retirees (55+)"]);
+    const essentialCards = settleCards.filter((c) => !lifeStageTags.has(c.tag));
+    const lifeStageCards = settleCards.filter((c) => lifeStageTags.has(c.tag));
     return (
       <div className="move-page-inner">
       <div className="move-page-screen">
@@ -949,7 +952,15 @@ export function EasyMoveZoneApp() {
         <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.5 }}>Expat- and nomad-written essentials, filtered for your <b style={{ color: "#4a5047" }}>{cur.label}</b> stay.</p>
         <DestSwitcher />
 
-        <SettleCardsGrid cards={settleCards} variant="move" />
+        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, marginTop: 26 }}>Settle essentials</div>
+        <SettleCardsGrid cards={essentialCards} variant="move" />
+
+        {lifeStageCards.length > 0 && (
+          <>
+            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, marginTop: 28 }}>Policies by life stage</div>
+            <SettleCardsGrid cards={lifeStageCards} variant="move" />
+          </>
+        )}
 
         <div style={{ marginTop: 18, background: "#fbeae0", border: "1px solid #f3d6c4", borderRadius: 20, padding: 20, display: "flex", gap: 14, alignItems: "center" }}>
           <div style={{ width: 44, height: 44, borderRadius: 999, background: PRIMARY, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 18 }}>+</div>
