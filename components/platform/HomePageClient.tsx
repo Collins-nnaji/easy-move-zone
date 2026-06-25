@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import { motion, useReducedMotion } from "framer-motion"
 import {
   ArrowRight,
@@ -12,6 +13,7 @@ import {
   MapPin,
   Check,
 } from "lucide-react"
+import { loadFlowState } from "@/app/move/storage"
 
 // Brand palette shared with the in-app Move flow.
 const PRIMARY = "#e0511f"
@@ -62,6 +64,12 @@ const easeOut = [0.16, 1, 0.3, 1] as const
 
 export function HomePageClient() {
   const reduceMotion = useReducedMotion()
+  // Returning users who've already been through the questionnaire get a
+  // "continue" CTA instead of being pushed through it again.
+  const [resumable, setResumable] = useState(false)
+  useEffect(() => {
+    setResumable(!!loadFlowState()?.completed)
+  }, [])
   const fadeUp = (delay = 0, y = 18) =>
     reduceMotion
       ? {}
@@ -118,7 +126,7 @@ export function HomePageClient() {
                   style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
                 >
                   <MapPin className="h-4.5 w-4.5" />
-                  Start your move
+                  {resumable ? "Continue your move" : "Start your move"}
                 </Link>
                 <a
                   href="#how-it-works"
@@ -240,7 +248,7 @@ export function HomePageClient() {
                 style={{ background: PRIMARY, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}
               >
                 <MapPin className="h-4 w-4" />
-                Open the move app
+                {resumable ? "Continue in the move app" : "Open the move app"}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </motion.div>
@@ -287,7 +295,7 @@ export function HomePageClient() {
               className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
               style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
             >
-              Start your move
+              {resumable ? "Continue your move" : "Start your move"}
               <ArrowUpRight className="h-4.5 w-4.5" />
             </Link>
             <Link

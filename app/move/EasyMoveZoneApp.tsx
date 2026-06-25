@@ -119,24 +119,23 @@ export function EasyMoveZoneApp() {
   const signedIn = !!sessionData?.user;
   const { destinations, trips, stays, visaServices, loaded: catalogLoaded } = useMoveCatalog();
 
-  // Returning, signed-in users who've completed the flow before land straight
-  // on Explore (the matches screen) with their last destination & stay length,
-  // instead of the welcome screen.
+  // Returning users who've completed the flow before land straight on
+  // Explore (the matches screen) with their last destination & stay length,
+  // instead of the welcome screen. The saved flow lives in localStorage, so
+  // this works whether or not the user is signed in.
   const [ready, setReady] = useState(false);
   useEffect(() => {
     if (ready || sessionPending || !catalogLoaded) return;
-    if (signedIn) {
-      const saved = loadFlowState();
-      const validDest = saved && destinations.some((d) => d.id === saved.destId);
-      const validStay = saved && saved.stayIdx >= 0 && saved.stayIdx < SPECTRUM.length;
-      if (saved?.completed && validDest && validStay) {
-        setStayIdx(saved.stayIdx);
-        setDestId(saved.destId);
-        setScreen("matches");
-      }
+    const saved = loadFlowState();
+    const validDest = saved && destinations.some((d) => d.id === saved.destId);
+    const validStay = saved && saved.stayIdx >= 0 && saved.stayIdx < SPECTRUM.length;
+    if (saved?.completed && validDest && validStay) {
+      setStayIdx(saved.stayIdx);
+      setDestId(saved.destId);
+      setScreen("matches");
     }
     setReady(true);
-  }, [ready, sessionPending, signedIn, catalogLoaded, destinations]);
+  }, [ready, sessionPending, catalogLoaded, destinations]);
 
   const mode: Mode = SPECTRUM[stayIdx].mode;
   const cur = SPECTRUM[stayIdx];
@@ -349,7 +348,10 @@ export function EasyMoveZoneApp() {
   const pct = allKeys.length ? Math.round((doneCount / allKeys.length) * 100) : 0;
   const meterMsg = pct === 0 ? "Let's get you started." : pct < 100 ? "You're on your way." : "All set — you're ready to go!";
 
-  const showNav = ["matches", "detail", "plan", "visa", "settle", "book", "trips", "stays", "visaBook", "booked"].includes(screen);
+  // Nav (tab bar / sidebar) is always visible inside the move app — only the
+  // destination-context block within it is suppressed during onboarding,
+  // where there's no chosen destination yet (see isFlowScreen below).
+  const showNav = true;
   const isFlowScreen = ["welcome", "spectrum", "search"].includes(screen);
 
   // As soon as the user has moved past the welcome screen once, remember
@@ -1221,10 +1223,10 @@ export function EasyMoveZoneApp() {
       tabs={tabs}
       screen={screen}
       onNavigate={(s) => setScreen(s as Screen)}
-      destCity={showNav ? dest.city : undefined}
-      destCountry={showNav ? dest.country : undefined}
-      stayLabel={showNav ? cur.label : undefined}
-      modeName={showNav ? modeInfo.name : undefined}
+      destCity={isFlowScreen ? undefined : dest.city}
+      destCountry={isFlowScreen ? undefined : dest.country}
+      stayLabel={isFlowScreen ? undefined : cur.label}
+      modeName={isFlowScreen ? undefined : modeInfo.name}
       movePct={pct}
       moveDone={doneCount}
       moveTotal={allKeys.length}
