@@ -1,38 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EasyMoveZone
 
-## Getting Started
+EasyMoveZone is a travel intelligence and execution platform for international travelers. The product combines destination decision support, on-the-ground awareness, and preparation workflows in one experience.
 
-First, run the development server:
+## Core Features
+
+The current product architecture is documented in [docs/easymovezone-core-features.md](docs/easymovezone-core-features.md).
+
+- Travel Intelligence Core
+  - Visa Intelligence + Legal and Compliance Navigator + Decision Intelligence Coach
+- Situational Awareness Core
+  - Smart Map Safety Layer + Country Reality Check + Live News Event Map
+- Travel Execution Core
+  - Readiness Checklist + Persona Engine + Booking Integrations
+
+## Local Development
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Main App Areas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Public marketing site: `app/page.tsx` and `components/platform/*`
+- Move app experience: `app/move/*`
+- Auth and user workspace: `app/auth/*`, `app/profile/*`, `app/dashboard/*`
+- APIs: `app/api/*`
+- Shared libraries: `lib/*`
 
-## Learn More
+## Product Notes
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-<!-- build trigger -->
+- The homepage feature section reflects the three current product cores.
+- Product copy, design direction, and feature planning should stay aligned to the architecture in `docs/easymovezone-core-features.md`.

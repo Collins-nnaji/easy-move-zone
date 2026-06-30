@@ -6,9 +6,6 @@ import { motion, useReducedMotion } from "framer-motion"
 import {
   ArrowRight,
   ArrowUpRight,
-  Plane,
-  BedDouble,
-  Stamp,
   Sparkles,
   MapPin,
   Check,
@@ -21,22 +18,22 @@ const INK = "#1b231e"
 
 const pillars = [
   {
-    icon: Plane,
-    label: "Trips",
-    title: "Book the journey",
-    body: "Compare flights and overland routes to your destination and reserve in a tap — no twelve open tabs.",
+    icon: Sparkles,
+    label: "Core 01",
+    title: "Travel Intelligence Core",
+    body: "Visa intelligence, legal guidance, and decision scoring merged into one engine that tells travelers whether they can go, should go, and what to prepare.",
   },
   {
-    icon: BedDouble,
-    label: "Stays",
-    title: "Find a place to land",
-    body: "Hotels for a short visit, furnished flats and coliving for a longer one — matched to how long you're staying.",
+    icon: MapPin,
+    label: "Core 02",
+    title: "Situational Awareness Core",
+    body: "A real-time destination layer for safety, legal zones, scams, cultural context, embassies, and live events that change the reality on the ground.",
   },
   {
-    icon: Stamp,
-    label: "Visas",
-    title: "Sort the paperwork",
-    body: "The right visa route for your trip, from a free entry checklist to a specialist handling it end to end.",
+    icon: Check,
+    label: "Core 03",
+    title: "Travel Execution Core",
+    body: "Readiness checklists, traveler personas, and booking connections that turn research into an action plan and the next step toward departure.",
   },
 ] as const
 
@@ -68,7 +65,10 @@ export function HomePageClient() {
   // "continue" CTA instead of being pushed through it again.
   const [resumable, setResumable] = useState(false)
   useEffect(() => {
-    setResumable(!!loadFlowState()?.completed)
+    const timeout = window.setTimeout(() => {
+      setResumable(!!loadFlowState()?.completed)
+    }, 0)
+    return () => window.clearTimeout(timeout)
   }, [])
   const fadeUp = (delay = 0, y = 18) =>
     reduceMotion
@@ -100,7 +100,7 @@ export function HomePageClient() {
                 className="inline-flex items-center gap-2 rounded-full border border-[#e0511f]/20 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#bf5223] backdrop-blur"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                Movement · Accommodation · Visa
+                Travel intelligence for global movement
               </motion.div>
 
               <motion.h1
@@ -184,19 +184,19 @@ export function HomePageClient() {
         </div>
       </section>
 
-      {/* Three pillars */}
+      {/* Product cores */}
       <section className="relative border-t border-[#e4dfd5] bg-[#f6f3ec] py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div {...fadeUp()} className="max-w-2xl">
             <span className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: PRIMARY }}>
-              Movement · Accommodation · Visa
+              Product architecture
             </span>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Three moves. One app.
+              Three cores. One travel system.
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-[#5f655c]">
-              Every international move hits the same three walls — how you get there, where you stay, and
-              whether you&apos;re allowed in. EasyMoveZone clears all three without switching apps.
+              EasyMoveZone is built around three connected systems: an intelligence layer that guides the decision,
+              an awareness layer that shows the reality on the ground, and an execution layer that gets the traveler ready to act.
             </p>
           </motion.div>
 
