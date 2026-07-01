@@ -7,7 +7,7 @@ import { Home, Sparkles } from "lucide-react"
 export const metadata: Metadata = {
   title: "Sign in — EasyMoveZone",
   description:
-    "Create an account or sign in to save your move plan, sync your checklist, and manage trip, stay, and visa bookings.",
+    "Create an account or sign in to track your visa applications and document checklist.",
 }
 
 export default function AuthPage() {
@@ -29,7 +29,7 @@ export default function AuthPage() {
               <span className="bg-gradient-to-r from-[#e0511f] to-[#0f766e] bg-clip-text text-transparent">EasyMoveZone</span>
             </h1>
             <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-[#475569]">
-              Sign in or create an account to save your move plan, track your checklist, and manage bookings.
+              Sign in or create an account to track your visa applications and document checklist.
             </p>
           </div>
           <Suspense

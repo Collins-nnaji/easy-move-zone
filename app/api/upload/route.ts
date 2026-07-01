@@ -23,21 +23,21 @@ export async function POST(request: NextRequest) {
 
   const file = formData.get("file") as File | null
   const fileType = (formData.get("type") as AllowedFileType | null) ?? "image"
-  const listingId = (formData.get("listingId") as string | null) ?? user.id
+  // Documents are always scoped to the authenticated user — never trust a
+  // client-supplied owner id for personal visa paperwork.
+  const listingId = fileType === "document" ? user.id : (formData.get("listingId") as string | null) ?? user.id
 
   if (!file) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 })
   }
 
   if (!validateFileType(file.type, fileType)) {
-    return NextResponse.json(
-      { error: `Invalid file type: ${file.type}. Allowed: ${fileType === "image" ? "JPEG, PNG, WebP, GIF, AVIF" : "MP4, WebM, MOV, AVI"}` },
-      { status: 400 }
-    )
+    const allowed = fileType === "image" ? "JPEG, PNG, WebP, GIF, AVIF" : fileType === "video" ? "MP4, WebM, MOV, AVI" : "PDF, DOC, DOCX, JPEG, PNG, WebP"
+    return NextResponse.json({ error: `Invalid file type: ${file.type}. Allowed: ${allowed}` }, { status: 400 })
   }
 
   if (!validateFileSize(file.size, fileType)) {
-    const limit = fileType === "image" ? "10 MB" : "500 MB"
+    const limit = fileType === "image" ? "10 MB" : fileType === "video" ? "500 MB" : "15 MB"
     return NextResponse.json({ error: `File too large. Maximum size for ${fileType}: ${limit}` }, { status: 400 })
   }
 

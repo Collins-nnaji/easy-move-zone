@@ -2,14 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpen, LayoutGrid, MapPin, Plane, Users } from "lucide-react"
+import { BookOpen, LayoutGrid, MapPin, Users } from "lucide-react"
 import { clsx } from "clsx"
 
 const NAV = [
   { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/catalog", label: "Move catalog", icon: MapPin },
-  { href: "/admin/guides", label: "Country guides", icon: BookOpen },
-  { href: "/admin/bookings", label: "Bookings", icon: Plane },
+  { href: "/admin/visa-templates", label: "Visa templates", icon: BookOpen },
+  { href: "/admin/embassies", label: "Embassies", icon: MapPin },
 ] as const
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -26,7 +25,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <p className="text-[11px] text-white/40">Operational tooling</p>
             </div>
           </div>
-          <Link href="/move" className="text-xs font-semibold text-white/60 hover:text-white">
+          <Link href="/visa" className="text-xs font-semibold text-white/60 hover:text-white">
             ← Back to app
           </Link>
         </div>

@@ -10,8 +10,8 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
 
   // Auth stays fully chrome-free (focused sign-in card).
   const isAuth = pathname === "/auth" || pathname.startsWith("/auth/")
-  // The Move app is the product: it keeps the minimal header but no marketing footer.
-  const isApp = pathname === "/move" || pathname.startsWith("/move/")
+  // The visa app is the product: it keeps the minimal header but no marketing footer.
+  const isApp = pathname === "/visa" || pathname.startsWith("/visa/")
   // Admins have their own support channels — keep the widget off those screens.
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/")
 

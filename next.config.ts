@@ -11,9 +11,10 @@ const nextConfig: NextConfig = {
     ],
   },
   async redirects() {
-    // The property marketplace has been retired. Old property/marketing URLs now
-    // funnel into the Move app; informational pages go home.
-    const toMove = [
+    // The property marketplace and general Move/travel platform have both been
+    // retired in favor of the visa-only product. Old URLs funnel into /visa;
+    // informational pages go home.
+    const toVisa = [
       "/purchase",
       "/properties",
       "/own",
@@ -29,19 +30,18 @@ const nextConfig: NextConfig = {
       "/cities",
       "/plan",
       "/onboarding",
+      "/move",
+      "/relocate",
+      "/relocate/hub",
+      "/settle",
     ]
-    const moveRedirects = toMove.flatMap((source) => [
-      { source, destination: "/move", permanent: false },
-      { source: `${source}/:path*`, destination: "/move", permanent: false },
+    const visaRedirects = toVisa.flatMap((source) => [
+      { source, destination: "/visa", permanent: false },
+      { source: `${source}/:path*`, destination: "/visa", permanent: false },
     ])
 
     return [
-      ...moveRedirects,
-      { source: "/relocate/hub", destination: "/move", permanent: false },
-      { source: "/relocate/hub/:path*", destination: "/move", permanent: false },
-      { source: "/relocate", destination: "/move", permanent: false },
-      { source: "/settle", destination: "/move", permanent: false },
-      { source: "/settle/:path*", destination: "/move", permanent: false },
+      ...visaRedirects,
       { source: "/index", destination: "/", permanent: false },
       { source: "/about", destination: "/", permanent: false },
       { source: "/pricing", destination: "/", permanent: false },

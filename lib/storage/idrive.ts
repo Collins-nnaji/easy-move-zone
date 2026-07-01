@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3"
+import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 
 const ENDPOINT = process.env.IDRIVE_E2_ENDPOINT!
@@ -25,7 +25,7 @@ export type UploadedFile = {
   url: string
 }
 
-export type AllowedFileType = "image" | "video"
+export type AllowedFileType = "image" | "video" | "document"
 
 const IMAGE_MIME_TYPES = new Set([
   "image/jpeg",
@@ -42,18 +42,29 @@ const VIDEO_MIME_TYPES = new Set([
   "video/x-msvideo",
 ])
 
+// Visa documents: photos of passports/letters plus PDF/Word scans.
+const DOCUMENT_MIME_TYPES = new Set([
+  ...IMAGE_MIME_TYPES,
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+])
+
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024   // 10 MB
 const MAX_VIDEO_BYTES = 500 * 1024 * 1024  // 500 MB
+const MAX_DOCUMENT_BYTES = 15 * 1024 * 1024 // 15 MB
 
 export function validateFileType(mimeType: string, type: AllowedFileType): boolean {
   if (type === "image") return IMAGE_MIME_TYPES.has(mimeType)
   if (type === "video") return VIDEO_MIME_TYPES.has(mimeType)
+  if (type === "document") return DOCUMENT_MIME_TYPES.has(mimeType)
   return false
 }
 
 export function validateFileSize(sizeBytes: number, type: AllowedFileType): boolean {
   if (type === "image") return sizeBytes <= MAX_IMAGE_BYTES
   if (type === "video") return sizeBytes <= MAX_VIDEO_BYTES
+  if (type === "document") return sizeBytes <= MAX_DOCUMENT_BYTES
   return false
 }
 
@@ -68,9 +79,13 @@ export async function uploadFileToIdrive(
   originalFilename: string,
   mimeType: string,
   type: AllowedFileType,
-  listingId: string,
+  ownerId: string,
 ): Promise<UploadedFile> {
-  const folder = type === "video" ? `listings/${listingId}/videos` : `listings/${listingId}/images`
+  // Visa documents contain sensitive personal data (passports, bank statements) —
+  // keep them private, unlike listing images/videos which are meant to be public.
+  const isPrivate = type === "document"
+  const folder =
+    type === "video" ? `listings/${ownerId}/videos` : type === "document" ? `visa-documents/${ownerId}` : `listings/${ownerId}/images`
   const key = buildKey(folder, originalFilename)
 
   const client = getClient()
@@ -79,14 +94,14 @@ export async function uploadFileToIdrive(
     Key: key,
     Body: buffer,
     ContentType: mimeType,
-    ACL: "public-read",
+    ...(isPrivate ? {} : { ACL: "public-read" as const }),
   })
 
   await client.send(command)
 
   return {
     key,
-    url: `${PUBLIC_URL}/${key}`,
+    url: isPrivate ? "" : `${PUBLIC_URL}/${key}`,
   }
 }
 
@@ -94,6 +109,13 @@ export async function deleteFileFromIdrive(key: string): Promise<void> {
   const client = getClient()
   const command = new DeleteObjectCommand({ Bucket: BUCKET, Key: key })
   await client.send(command)
+}
+
+/** Short-lived signed URL for viewing/downloading a private object (e.g. visa documents). */
+export async function getPresignedDownloadUrl(key: string, expiresInSeconds = 900): Promise<string> {
+  const client = getClient()
+  const command = new GetObjectCommand({ Bucket: BUCKET, Key: key })
+  return getSignedUrl(client, command, { expiresIn: expiresInSeconds })
 }
 
 /**

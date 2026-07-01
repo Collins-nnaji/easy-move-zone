@@ -10,5 +10,7 @@ export const config = {
     "/dashboard/:path*",
     "/admin",
     "/admin/:path*",
+    "/visa/applications",
+    "/visa/applications/:path*",
   ],
 }

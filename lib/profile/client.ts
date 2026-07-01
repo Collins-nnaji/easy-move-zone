@@ -1,6 +1,6 @@
 "use client"
 
-import type { ProfileWorkspaceData, SavedSearch, UserProfile } from "@/lib/profile/types"
+import type { ProfileWorkspaceData, UserProfile } from "@/lib/profile/types"
 
 export async function fetchProfileWorkspace(): Promise<ProfileWorkspaceData> {
   const res = await fetch("/api/profile", { cache: "no-store" })
@@ -18,26 +18,4 @@ export async function saveProfile(profile: Partial<UserProfile>): Promise<UserPr
   if (res.status === 401) throw new Error("unauthorized")
   if (!res.ok) throw new Error("failed")
   return ((await res.json()) as { profile: UserProfile }).profile
-}
-
-export async function createSavedSearch(input: {
-  name: string
-  citySlug?: string
-  budgetMin?: number | null
-  budgetMax?: number | null
-}): Promise<SavedSearch> {
-  const res = await fetch("/api/profile/saved-searches", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  })
-  if (res.status === 401) throw new Error("unauthorized")
-  if (!res.ok) throw new Error("failed")
-  return ((await res.json()) as { savedSearch: SavedSearch }).savedSearch
-}
-
-export async function deleteSavedSearch(id: string): Promise<void> {
-  const res = await fetch(`/api/profile/saved-searches/${id}`, { method: "DELETE" })
-  if (res.status === 401) throw new Error("unauthorized")
-  if (!res.ok) throw new Error("failed")
 }

@@ -4,14 +4,15 @@ import { Mail, ArrowUpRight } from "lucide-react"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 
 const services = [
-  { href: "/move",         label: "Plan your move", badge: "Move" },
-  { href: "/move",         label: "Book a trip",    badge: null   },
-  { href: "/move",         label: "Find a stay",    badge: null   },
-  { href: "/move",         label: "Sort your visa", badge: "Visa" },
+  { href: "/visa",                    label: "Visa requirements lookup", badge: null   },
+  { href: "/visa/applications",       label: "Track an application",     badge: null   },
+  { href: "/visa/applications/new",   label: "Document checklist",       badge: "New"  },
+  { href: "/embassies",               label: "Embassy directory",        badge: null   },
 ]
 
 const explore = [
-  { href: "/move", label: "The Move app" },
+  { href: "/visa", label: "Visa assistant" },
+  { href: "/embassies", label: "Embassy directory" },
   { href: "/contact", label: "Contact" },
 ]
 
@@ -44,8 +45,8 @@ export function PlatformFooter() {
               />
             </div>
             <p className="mt-3 text-[13px] leading-relaxed text-slate-400 max-w-xs">
-              Movement, accommodation, and visa in one app — book how you get there, where you stay, and how
-              you get in. Two weeks or forever.
+              Visa requirements, document checklist, and an embassy directory you can trust — with AI guidance
+              throughout.
             </p>
             <a
               href={`mailto:${PUBLIC_CONTACT_EMAIL}`}
@@ -55,7 +56,7 @@ export function PlatformFooter() {
               {PUBLIC_CONTACT_EMAIL}
             </a>
             <p className="mt-2 text-xs text-slate-600">
-              Questions about a move, a visa or a booking? Use the{" "}
+              Questions about a visa application? Use the{" "}
               <Link href="/contact" className="font-semibold text-orange-200/80 underline decoration-orange-500/30 underline-offset-2 hover:text-white">
                 contact form
               </Link>.
@@ -63,10 +64,10 @@ export function PlatformFooter() {
 
             {/* Primary CTA */}
             <Link
-              href="/move"
+              href="/visa"
               className="mt-6 inline-flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2.5 text-sm font-bold text-orange-300 hover:bg-orange-500/20 hover:text-white transition-all"
             >
-              Start your move
+              Look up your visa
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
@@ -120,8 +121,8 @@ export function PlatformFooter() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-white/[0.06] pt-6 text-center sm:flex-row sm:text-left">
-          <p className="text-[11px] text-[#64748b]">&copy; {new Date().getFullYear()} EasyMoveZone. Nigeria &middot; Lagos &middot; Abuja &middot; Port Harcourt</p>
-          <p className="text-[11px] text-[#64748b]">TRIPS &middot; STAYS &middot; VISAS &middot; MOVE</p>
+          <p className="text-[11px] text-[#64748b]">&copy; {new Date().getFullYear()} EasyMoveZone</p>
+          <p className="text-[11px] text-[#64748b]">VISA REQUIREMENTS &middot; CHECKLIST &middot; EMBASSIES</p>
         </div>
       </div>
     </footer>

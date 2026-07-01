@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
 import { motion, useReducedMotion } from "framer-motion"
 import {
   ArrowRight,
@@ -9,67 +8,51 @@ import {
   Sparkles,
   MapPin,
   Check,
+  ClipboardList,
+  FileText,
+  MessageCircleQuestion,
 } from "lucide-react"
-import { loadFlowState } from "@/app/move/storage"
 
-// Brand palette shared with the in-app Move flow.
 const PRIMARY = "#e0511f"
 const INK = "#1b231e"
 
 const pillars = [
   {
     icon: Sparkles,
-    label: "Core 01",
-    title: "Travel Intelligence Core",
-    body: "Visa intelligence, legal guidance, and decision scoring merged into one engine that tells travelers whether they can go, should go, and what to prepare.",
+    label: "01",
+    title: "Visa requirements lookup",
+    body: "Tell us your nationality, destination, and visa type — get typical documents, fees, and processing times, backed by AI where we don't have curated data yet.",
+  },
+  {
+    icon: ClipboardList,
+    label: "02",
+    title: "Document checklist & tracking",
+    body: "Track every application from research to approval, with a checklist you can generate automatically and documents you can upload with expiry reminders.",
   },
   {
     icon: MapPin,
-    label: "Core 02",
-    title: "Situational Awareness Core",
-    body: "A real-time destination layer for safety, legal zones, scams, cultural context, embassies, and live events that change the reality on the ground.",
+    label: "03",
+    title: "Embassy directory",
+    body: "Find the right embassy, consulate, or visa application center for your destination, with verified contact details and appointment links.",
   },
-  {
-    icon: Check,
-    label: "Core 03",
-    title: "Travel Execution Core",
-    body: "Readiness checklists, traveler personas, and booking connections that turn research into an action plan and the next step toward departure.",
-  },
-] as const
-
-const spectrum = [
-  { label: "2 weeks", sub: "A quick recce", mode: "Trip Pack" },
-  { label: "1 month", sub: "Test the waters", mode: "Trip Pack" },
-  { label: "1–3 months", sub: "A nomad stint", mode: "Nomad Mode" },
-  { label: "6 months", sub: "Settle for a season", mode: "Move Plan" },
-  { label: "Forever", sub: "Make it home", mode: "Move Plan" },
 ] as const
 
 const steps = [
-  { step: "01", label: "Tell us about your move", sub: "How long you're staying and what matters most to you." },
-  { step: "02", label: "Get matched & planned", sub: "Honest destination matches plus a checklist that fits your timeline." },
-  { step: "03", label: "Book trip, stay & visa", sub: "Reserve everything in one place and track it in your workspace." },
+  { step: "01", label: "Look up your visa", sub: "Nationality, destination, and visa type — see what you need." },
+  { step: "02", label: "Track your application", sub: "Generate a checklist and upload documents as you gather them." },
+  { step: "03", label: "Ask when you're stuck", sub: "The AI assistant answers questions using the facts on file — never guesses." },
 ] as const
 
 const heroPoints = [
-  "Movement — flights and routes, booked in one tap",
-  "Accommodation — hotels to furnished flats, matched to your stay",
-  "Visa — the right entry route, from checklist to full handling",
+  "Visa requirements — by nationality, destination, and visa type",
+  "Document checklist — track what's done, what's missing, what's expiring",
+  "Embassy directory — verified contacts, never AI-guessed addresses",
 ] as const
 
 const easeOut = [0.16, 1, 0.3, 1] as const
 
 export function HomePageClient() {
   const reduceMotion = useReducedMotion()
-  // Returning users who've already been through the questionnaire get a
-  // "continue" CTA instead of being pushed through it again.
-  const [resumable, setResumable] = useState(false)
-  useEffect(() => {
-    const timeout = window.setTimeout(() => {
-      setResumable(!!loadFlowState()?.completed)
-    }, 0)
-    return () => window.clearTimeout(timeout)
-  }, [])
   const fadeUp = (delay = 0, y = 18) =>
     reduceMotion
       ? {}
@@ -82,7 +65,7 @@ export function HomePageClient() {
 
   return (
     <div style={{ background: "#efece4", color: INK }} className="overflow-hidden">
-      {/* Hero — photo-free, gradient + typography only */}
+      {/* Hero */}
       <section className="relative">
         <div
           aria-hidden
@@ -100,7 +83,7 @@ export function HomePageClient() {
                 className="inline-flex items-center gap-2 rounded-full border border-[#e0511f]/20 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#bf5223] backdrop-blur"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                Travel intelligence for global movement
+                Visa prep, made clear
               </motion.div>
 
               <motion.h1
@@ -108,25 +91,25 @@ export function HomePageClient() {
                 className="mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl lg:text-[4.4rem]"
                 style={{ textWrap: "balance" } as React.CSSProperties}
               >
-                Get there. Stay there.
+                Know what you need.
                 <span className="block" style={{ color: PRIMARY }}>
-                  Visa sorted.
+                  Track it. Get it done.
                 </span>
               </motion.h1>
 
               <motion.p {...fadeUp(0.12, 18)} className="mt-6 max-w-xl text-lg leading-relaxed text-[#5f655c]">
-                The only app that handles movement, accommodation, and visa in one flow — whether
-                you&apos;re leaving for two weeks or two years.
+                One place for visa requirements, a document checklist that tracks what&apos;s done and what&apos;s
+                expiring, and an embassy directory you can trust.
               </motion.p>
 
               <motion.div {...fadeUp(0.18, 18)} className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/move"
+                  href="/visa"
                   className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
                   style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
                 >
                   <MapPin className="h-4.5 w-4.5" />
-                  {resumable ? "Continue your move" : "Start your move"}
+                  Look up your visa
                 </Link>
                 <a
                   href="#how-it-works"
@@ -152,29 +135,31 @@ export function HomePageClient() {
               </motion.ul>
             </div>
 
-            {/* Right: spectrum preview card (no imagery) */}
+            {/* Right: quick lookup preview card */}
             <motion.div {...fadeUp(0.2, 24)} className="lg:col-span-5">
               <div className="rounded-3xl border border-[#e4dfd5] bg-white/80 p-7 shadow-xl shadow-black/[0.06] backdrop-blur">
                 <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: PRIMARY }}>
-                  The Move Spectrum
+                  Ask about any visa
                 </div>
                 <p className="mt-3 text-[15px] leading-relaxed text-[#5f655c]">
-                  Tell us how long you&apos;re staying. Everything — visa route, stay type, checklist —
-                  adapts from there.
+                  Nationality, destination, visa type — we surface the documents, timeline, and fees, and flag
+                  anything that&apos;s AI-assisted so you know to double-check it.
                 </p>
                 <div className="mt-6 space-y-2.5">
-                  {spectrum.map((s) => (
+                  {[
+                    { icon: FileText, label: "Required documents", sub: "Passport, funds, invitation letter…" },
+                    { icon: ClipboardList, label: "Processing time & fees", sub: "Typical estimates, clearly labeled" },
+                    { icon: MessageCircleQuestion, label: "Ask a follow-up", sub: "AI answers from the facts on file" },
+                  ].map((s) => (
                     <div
                       key={s.label}
-                      className="flex items-center justify-between rounded-2xl border border-[#ece6da] bg-[#faf8f3] px-4 py-3"
+                      className="flex items-center gap-3 rounded-2xl border border-[#ece6da] bg-[#faf8f3] px-4 py-3"
                     >
+                      <s.icon className="h-4 w-4 shrink-0 text-[#e0511f]" />
                       <div>
-                        <div className="text-[15px] font-bold">{s.label}</div>
+                        <div className="text-sm font-bold">{s.label}</div>
                         <div className="text-xs text-[#8a8f86]">{s.sub}</div>
                       </div>
-                      <span className="rounded-full bg-[#fbeae0] px-3 py-1 font-mono text-[11px] font-semibold text-[#9c3f15]">
-                        {s.mode}
-                      </span>
                     </div>
                   ))}
                 </div>
@@ -184,19 +169,19 @@ export function HomePageClient() {
         </div>
       </section>
 
-      {/* Product cores */}
+      {/* Product pillars */}
       <section className="relative border-t border-[#e4dfd5] bg-[#f6f3ec] py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div {...fadeUp()} className="max-w-2xl">
             <span className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: PRIMARY }}>
-              Product architecture
+              What you get
             </span>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Three cores. One travel system.
+              Everything for one visa application.
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-[#5f655c]">
-              EasyMoveZone is built around three connected systems: an intelligence layer that guides the decision,
-              an awareness layer that shows the reality on the ground, and an execution layer that gets the traveler ready to act.
+              No destination matching, no bookings, no distractions — just what you need to understand and complete
+              your visa application.
             </p>
           </motion.div>
 
@@ -234,21 +219,21 @@ export function HomePageClient() {
             <motion.div {...fadeUp()}>
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#f3aa79]">How it works</span>
               <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-                From first idea
+                From &ldquo;what do I need&rdquo;
                 <br />
-                <span className="text-white/50">to landed.</span>
+                <span className="text-white/50">to submitted.</span>
               </h2>
               <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/60">
-                Tell us how long you&apos;re staying. We match your destination, build your plan, then you
-                book movement, accommodation, and visa — all inside the same app.
+                Look up requirements, start tracking your application, and get a checklist you can act on —
+                all in one workspace.
               </p>
               <Link
-                href="/move"
+                href="/visa"
                 className="mt-8 inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:opacity-90"
                 style={{ background: PRIMARY, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}
               >
                 <MapPin className="h-4 w-4" />
-                {resumable ? "Continue in the move app" : "Open the move app"}
+                Open the visa assistant
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </motion.div>
@@ -284,18 +269,18 @@ export function HomePageClient() {
         />
         <motion.div {...fadeUp()} className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
           <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Movement, accommodation, visa — handled.
+            Requirements, checklist, embassy — handled.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-[#5f655c]">
-            Two weeks or forever. One app that books how you get there, where you sleep, and how you get in.
+            One app for understanding and tracking your visa application, from first lookup to submission.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href="/move"
+              href="/visa"
               className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
               style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
             >
-              {resumable ? "Continue your move" : "Start your move"}
+              Look up your visa
               <ArrowUpRight className="h-4.5 w-4.5" />
             </Link>
             <Link
