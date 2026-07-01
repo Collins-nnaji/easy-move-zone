@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { authClient } from "@/lib/auth/client"
-import { Shield, Sparkles, Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react"
+import { Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react"
 import { clsx } from "clsx"
 
 type Mode = "sign-in" | "sign-up"
@@ -22,6 +22,7 @@ export function AuthInlineCard({
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState<"email" | "google" | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [info, setInfo] = useState<string | null>(null)
   const { data: sessionData, refetch: refetchSession } = authClient.useSession()
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export function AuthInlineCard({
     event.preventDefault()
     setLoading("email")
     setError(null)
+    setInfo(null)
     try {
       if (mode === "sign-up") {
         const result = await authClient.signUp.email({
@@ -45,12 +47,25 @@ export function AuthInlineCard({
           callbackURL: redirectTarget,
         })
         if (result.error) throw new Error(result.error.message || "Sign up failed.")
+        // signUp.email returns { token: null, user } when email verification is
+        // required — no session is created yet, so there's nothing to redirect
+        // into. Tell the user what actually happened instead of falling through
+        // to the sign-in-failure message below.
+        if (!result.data?.token) {
+          setError(null)
+          setMode("sign-in")
+          setInfo("Account created. Check your email to verify your address, then sign in.")
+          return
+        }
       } else {
         const result = await authClient.signIn.email({
           email,
           password,
           callbackURL: redirectTarget,
         })
+        // Unlike signUp.email, a successful signIn.email always returns a real
+        // token — an unverified/invalid account comes back as result.error
+        // instead, so the message below already reflects the real reason.
         if (result.error) throw new Error(result.error.message || "Sign in failed.")
       }
       await refetchSession()
@@ -72,7 +87,14 @@ export function AuthInlineCard({
     setLoading("google")
     setError(null)
     try {
-      await authClient.signIn.social({ provider: "google", callbackURL: redirectTarget })
+      const result = await authClient.signIn.social({ provider: "google", callbackURL: redirectTarget })
+      if (result.error) {
+        setError(result.error.message || "Google sign-in failed. Please try again.")
+        setLoading(null)
+      }
+      // On success this navigates away to Google's OAuth consent screen, so
+      // there's nothing further to do here — don't reset loading, the page
+      // is leaving.
     } catch {
       setError("Google sign-in failed. Please try again.")
       setLoading(null)
@@ -90,7 +112,7 @@ export function AuthInlineCard({
             {mode === "sign-up" ? "Create Account" : "Welcome Back"}
           </h3>
           <p className="mt-1 text-xs text-slate-400">
-            {mode === "sign-up" ? "Join EasyMoveZone" : "Continue managing your move"}
+            {mode === "sign-up" ? "Join EasyMoveZone" : "Continue tracking your visa applications"}
           </p>
         </div>
 
@@ -101,7 +123,7 @@ export function AuthInlineCard({
               "rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all",
               mode === "sign-up" ? "bg-white text-[#0f172a] shadow" : "text-slate-400 hover:text-white",
             )}
-            onClick={() => setMode("sign-up")}
+            onClick={() => { setMode("sign-up"); setError(null); setInfo(null) }}
           >
             Register
           </button>
@@ -111,7 +133,7 @@ export function AuthInlineCard({
               "rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all",
               mode === "sign-in" ? "bg-white text-[#0f172a] shadow" : "text-slate-400 hover:text-white",
             )}
-            onClick={() => setMode("sign-in")}
+            onClick={() => { setMode("sign-in"); setError(null); setInfo(null) }}
           >
             Sign In
           </button>
@@ -194,6 +216,11 @@ export function AuthInlineCard({
           />
         </div>
 
+        {info && (
+          <p className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5 bg-emerald-500/10 p-3 rounded-lg border border-emerald-500/20">
+            {info}
+          </p>
+        )}
         {error && (
           <p className="text-xs font-semibold text-rose-400 flex items-center gap-1.5 bg-rose-500/10 p-3 rounded-lg border border-rose-500/20">
             {error}
