@@ -45,6 +45,7 @@
 
 .move-bottom-nav__tab {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -70,7 +71,10 @@
 }
 
 .move-bottom-nav__label {
-  font-size: 12.5px;
+  display: block;
+  text-align: center;
+  line-height: 1.15;
+  font-size: 11.5px;
   font-weight: 500;
   color: #a3a89f;
   transition: color 0.2s;

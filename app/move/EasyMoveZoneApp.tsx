@@ -10,6 +10,17 @@ import {
   SPECTRUM,
   type Mode,
 } from "./data";
+import {
+  buildSituationalAwarenessCore,
+  buildTravelExecutionCore,
+  buildTravelIntelligenceCore,
+  type CoreAlert,
+  type CoreMetric,
+  type CorePoint,
+  type IntegrationAction,
+  type PersonaMatch,
+  type ReadinessSection,
+} from "./core-features";
 import { useMoveCatalog } from "./useMoveCatalog";
 import { ImageSlot } from "./ImageSlot";
 import { MoveAppShell } from "./MoveAppShell";
@@ -73,6 +84,9 @@ type Screen =
   | "search"
   | "matches"
   | "detail"
+  | "intelligence"
+  | "awareness"
+  | "execution"
   | "visa"
   | "settle"
   | "plan"
@@ -172,6 +186,15 @@ export function EasyMoveZoneApp() {
     return found.length ? found : null;
   }, [moodRanking, destinations]);
   const browseList = moodList ?? ranked;
+
+  const tripOptions = useMemo(() => trips[dest.id] ?? [], [dest.id, trips]);
+  const stayOptions = useMemo(
+    () => (stays[dest.id] ?? []).filter((stay) => stay.forModes.includes(mode)),
+    [dest.id, mode, stays],
+  );
+  const visaOptions = useMemo(() => visaServices[mode] ?? [], [mode, visaServices]);
+  const schoolOptions = useMemo(() => schools[dest.id] ?? [], [dest.id, schools]);
+  const jobOptions = useMemo(() => jobs[dest.id] ?? [], [dest.id, jobs]);
 
   function answer(opt: string) {
     const q = QUESTIONS[qIndex];
@@ -397,6 +420,41 @@ export function EasyMoveZoneApp() {
 
   // ── Move Meter math (driven by ticked plan items) ─────────────────────
   const plan = PLAN[mode];
+  const intelligenceCore = useMemo(
+    () =>
+      buildTravelIntelligenceCore({
+        destination: dest,
+        mode,
+        answers,
+        ranked: browseList,
+        trips: tripOptions,
+        stays: stayOptions,
+      }),
+    [answers, browseList, dest, mode, stayOptions, tripOptions],
+  );
+  const awarenessCore = useMemo(
+    () =>
+      buildSituationalAwarenessCore({
+        destination: dest,
+        stays: stayOptions,
+      }),
+    [dest, stayOptions],
+  );
+  const executionCore = useMemo(
+    () =>
+      buildTravelExecutionCore({
+        destination: dest,
+        mode,
+        answers,
+        plan,
+        trips: tripOptions,
+        stays: stayOptions,
+        visaServices: visaOptions,
+        schools: schoolOptions,
+        jobs: jobOptions,
+      }),
+    [answers, dest, jobOptions, mode, plan, schoolOptions, stayOptions, tripOptions, visaOptions],
+  );
   const allKeys: string[] = [];
   plan.phases.forEach((ph, pi) => ph.items.forEach((_, ii) => allKeys.push(`${mode}:${pi}:${ii}`)));
   const doneCount = allKeys.filter((k) => done[k]).length;
@@ -846,17 +904,15 @@ export function EasyMoveZoneApp() {
   }
 
   function Detail() {
-    const visa = dest.visa[mode];
-    const planCta = mode === "move" ? "Build your Move Plan" : mode === "nomad" ? "Open Nomad Mode" : "Get your Trip Pack";
     const actionButtons = (
       <>
-        <button onClick={() => setScreen("book")} style={{ width: "100%", padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>Book your trip, stay &amp; visa →</button>
-        <button onClick={() => setScreen("plan")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 18, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>{planCta}</button>
+        <button onClick={() => setScreen("intelligence")} style={{ width: "100%", padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>Open Travel Intelligence Core →</button>
+        <button onClick={() => setScreen("awareness")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 18, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Open Situational Awareness Core</button>
+        <button onClick={() => setScreen("execution")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 18, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Open Travel Execution Core</button>
         <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-          <button onClick={() => setScreen("trips")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Book a trip</button>
-          <button onClick={() => setScreen("stays")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Find a stay</button>
+          <button onClick={() => setScreen("visa")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Visa details</button>
+          <button onClick={() => setScreen("book")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Book now</button>
         </div>
-        <button onClick={() => setScreen("settle")} style={{ width: "100%", marginTop: 10, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Explore living in {dest.city}</button>
       </>
     );
     return (
@@ -926,6 +982,291 @@ export function EasyMoveZoneApp() {
         <span style={{ fontSize: 13 }}>📍</span>
         <span style={{ fontFamily: MONO, fontSize: 11, color: PRIMARY, letterSpacing: ".06em" }}>{dest.city}, {dest.country}</span>
         <span style={{ fontSize: 12, color: MUTE }}>switch ↻</span>
+      </div>
+    );
+  }
+
+  function toneAccent(tone?: "positive" | "warning" | "neutral") {
+    if (tone === "positive") return { bg: "#edf7f0", border: "#d7eadf", text: "#216240" };
+    if (tone === "warning") return { bg: "#fff4ec", border: "#f3d6c4", text: "#9c3f15" };
+    return { bg: "#f7f5ee", border: "#e4dfd5", text: "#4a5047" };
+  }
+
+  function ModuleHeader({ eyebrow, title, sub }: { eyebrow: string; title: string; sub: string }) {
+    return (
+      <>
+        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>{eyebrow}</div>
+        <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>{title}</h2>
+        <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.5 }}>{sub}</p>
+        <DestSwitcher />
+      </>
+    );
+  }
+
+  function MetricGrid({ items }: { items: CoreMetric[] }) {
+    return (
+      <div style={{ marginTop: 16, display: "grid", gap: 12 }}>
+        {items.map((item) => {
+          const accent = toneAccent(item.tone);
+          return (
+            <div key={item.label} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: MUTE }}>{item.label}</div>
+                <span style={{ padding: "5px 10px", borderRadius: 999, background: accent.bg, border: `1px solid ${accent.border}`, color: accent.text, fontFamily: MONO, fontSize: 10.5 }}>{item.value}</span>
+              </div>
+              <p style={{ fontSize: 13.5, lineHeight: 1.55, color: "#5f655c", margin: "12px 0 0" }}>{item.detail}</p>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  function PointSection({ title, items }: { title: string; items: CorePoint[] }) {
+    return (
+      <div style={{ marginTop: 24 }}>
+        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>{title}</div>
+        <div style={{ marginTop: 12, display: "grid", gap: 12 }}>
+          {items.map((item) => {
+            const accent = toneAccent(item.tone);
+            return (
+              <div key={item.title} style={{ background: accent.bg, border: `1px solid ${accent.border}`, borderRadius: 18, padding: 18 }}>
+                <div style={{ fontSize: 15.5, fontWeight: 800, color: accent.text }}>{item.title}</div>
+                <p style={{ fontSize: 13.5, lineHeight: 1.55, color: "#5f655c", margin: "9px 0 0" }}>{item.detail}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  function AlertsSection({ alerts }: { alerts: CoreAlert[] }) {
+    return (
+      <div style={{ marginTop: 24 }}>
+        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Live signals</div>
+        <div style={{ marginTop: 12, display: "grid", gap: 12 }}>
+          {alerts.map((alert) => {
+            const tone = alert.level === "Watch" ? "warning" : alert.level === "Calm" ? "positive" : "neutral";
+            const accent = toneAccent(tone);
+            return (
+              <div key={`${alert.level}-${alert.title}`} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                  <div style={{ fontSize: 15.5, fontWeight: 800 }}>{alert.title}</div>
+                  <span style={{ padding: "5px 10px", borderRadius: 999, background: accent.bg, border: `1px solid ${accent.border}`, color: accent.text, fontFamily: MONO, fontSize: 10.5 }}>{alert.level}</span>
+                </div>
+                <p style={{ fontSize: 13.5, lineHeight: 1.55, color: "#5f655c", margin: "10px 0 0" }}>{alert.detail}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  function PersonaSection({ matches }: { matches: PersonaMatch[] }) {
+    const lead = matches[0];
+    return (
+      <div style={{ marginTop: 20, background: INK, borderRadius: 22, padding: 22, color: "#fff" }}>
+        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "#f3aa79" }}>Persona engine</div>
+        <h3 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-.01em", margin: "14px 0 0" }}>{lead.persona}</h3>
+        <p style={{ fontSize: 14.5, lineHeight: 1.55, color: "#c9cdc7", margin: "10px 0 0" }}>{lead.reason}</p>
+        <div style={{ display: "grid", gap: 10, marginTop: 16 }}>
+          {matches.map((match) => (
+            <div key={match.persona} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "11px 12px", borderRadius: 14, background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.08)" }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>{match.persona}</div>
+                <div style={{ fontSize: 12, color: "#8a918a", marginTop: 2 }}>{match.reason}</div>
+              </div>
+              <div style={{ fontFamily: MONO, fontSize: 12, color: "#f8caa6" }}>{match.score}%</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  function ReadinessSectionCard({ section }: { section: ReadinessSection }) {
+    return (
+      <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
+        <div style={{ fontSize: 15.5, fontWeight: 800 }}>{section.title}</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+          {section.items.map((item) => (
+            <div key={item} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+              <div style={{ width: 9, height: 9, borderRadius: 999, background: PRIMARY, marginTop: 6, flexShrink: 0 }} />
+              <div style={{ fontSize: 13.5, lineHeight: 1.5, color: "#5f655c" }}>{item}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  function openIntegration(action: IntegrationAction) {
+    switch (action.target) {
+      case "trips":
+        setScreen("trips");
+        return;
+      case "stays":
+        setScreen("stays");
+        return;
+      case "visaBook":
+        setScreen("visaBook");
+        return;
+      case "plan":
+        setScreen("plan");
+        return;
+      case "school":
+      case "job":
+        setScreen("visa");
+        return;
+    }
+  }
+
+  function Intelligence() {
+    const alternatives = browseList.filter((item) => item.id !== dest.id).slice(0, 3);
+    return (
+      <div className="move-page-inner">
+        <div className="move-page-screen">
+          <ModuleHeader
+            eyebrow="Travel Intelligence Core"
+            title={`${dest.city}, decided properly`}
+            sub="Visa intelligence, legal/compliance guidance, and a destination decision coach in one place."
+          />
+
+          <div style={{ marginTop: 20, background: "#fbeae0", border: "1px solid #f3d6c4", borderRadius: 20, padding: 20 }}>
+            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "#bf6a3c" }}>Signature output</div>
+            <p style={{ fontSize: 15, lineHeight: 1.55, color: "#5a4636", margin: "10px 0 0" }}>
+              This is the unified answer to: can I go, should I go, what do I need, what laws matter, and what fits me better if this city is not the cleanest choice?
+            </p>
+          </div>
+
+          <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, marginTop: 24 }}>Decision report</div>
+          <MetricGrid items={intelligenceCore.decision} />
+
+          <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, marginTop: 24 }}>Visa intelligence</div>
+          <MetricGrid items={intelligenceCore.visa} />
+
+          <PointSection title="Legal and compliance navigator" items={intelligenceCore.compliance} />
+
+          <div style={{ marginTop: 24, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
+            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Preparation sequence</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+              {intelligenceCore.prep.map((step, index) => (
+                <div key={step} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <div style={{ width: 24, height: 24, borderRadius: 999, background: "#fbeae0", color: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 11, flexShrink: 0 }}>{index + 1}</div>
+                  <div style={{ fontSize: 13.5, lineHeight: 1.5, color: "#5f655c" }}>{step}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginTop: 24 }}>
+            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Alternative fits</div>
+            <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+              {alternatives.map((item) => (
+                <div key={item.id} onClick={() => setDestId(item.id)} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "14px 16px", boxShadow: "0 1px 3px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 15.5, fontWeight: 700 }}>{item.city}</div>
+                    <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 3 }}>{item.country} · {item.visa[mode].tag}</div>
+                  </div>
+                  <div style={{ fontFamily: MONO, fontSize: 11, color: PRIMARY }}>{item.match[mode]}% match</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
+            <button onClick={() => setScreen("visa")} style={{ flex: 1, padding: 15, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Open visa details</button>
+            <button onClick={() => setScreen("awareness")} style={{ flex: 1, padding: 15, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 600, cursor: "pointer" }}>Go to awareness</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function Awareness() {
+    return (
+      <div className="move-page-inner">
+        <div className="move-page-screen">
+          <ModuleHeader
+            eyebrow="Situational Awareness Core"
+            title={`Read the ground in ${dest.city}`}
+            sub="Smart safety layers, reality checks, and live signals that explain what the city feels like now."
+          />
+
+          <PointSection title="Smart map layers" items={awarenessCore.mapLayers} />
+
+          <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, marginTop: 24 }}>Country reality check</div>
+          <MetricGrid items={awarenessCore.reality} />
+
+          <AlertsSection alerts={awarenessCore.alerts} />
+
+          <PointSection title="Embassies, emergency, and help" items={awarenessCore.helpPoints} />
+
+          <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
+            <button onClick={() => setScreen("settle")} style={{ flex: 1, padding: 15, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Open settle notes</button>
+            <button onClick={() => setScreen("execution")} style={{ flex: 1, padding: 15, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 600, cursor: "pointer" }}>Go to execution</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function Execution() {
+    return (
+      <div className="move-page-inner">
+        <div className="move-page-screen">
+          <ModuleHeader
+            eyebrow="Travel Execution Core"
+            title={`Get ${dest.city} ready-to-go`}
+            sub="Your readiness checklist, persona-led strategy, and action routes into booking, planning, and applications."
+          />
+
+          <PersonaSection matches={executionCore.personaMatches} />
+
+          <div style={{ marginTop: 24, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
+            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Persona-based strategy</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+              {executionCore.strategy.map((line) => (
+                <div key={line} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                  <div style={{ width: 9, height: 9, borderRadius: 999, background: PRIMARY, marginTop: 6, flexShrink: 0 }} />
+                  <div style={{ fontSize: 13.5, lineHeight: 1.5, color: "#5f655c" }}>{line}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, marginTop: 24 }}>Travel readiness checklist</div>
+          <div style={{ marginTop: 12, display: "grid", gap: 12 }}>
+            {executionCore.readiness.map((section) => (
+              <ReadinessSectionCard key={section.title} section={section} />
+            ))}
+          </div>
+
+          <div style={{ marginTop: 24 }}>
+            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Booking and action integrations</div>
+            <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
+              {executionCore.actions.map((action) => (
+                <div key={action.title} onClick={() => openIntegration(action)} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "15px 16px", boxShadow: "0 1px 3px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 15.5, fontWeight: 700 }}>{action.title}</div>
+                    <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 3 }}>{action.detail}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontFamily: MONO, fontSize: 11, color: PRIMARY }}>{action.countLabel}</div>
+                    <div style={{ fontSize: 11, color: MUTE, marginTop: 3 }}>Open →</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
+            <button onClick={() => setScreen("plan")} style={{ flex: 1, padding: 15, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Open my plan</button>
+            <button onClick={() => setScreen("book")} style={{ flex: 1, padding: 15, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 600, cursor: "pointer" }}>Open bookings</button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -1046,8 +1387,6 @@ export function EasyMoveZoneApp() {
       headline: dest.visa[m].headline,
       tag: dest.visa[m].tag,
     }));
-    const schoolOptions = schools[dest.id] ?? [];
-    const jobOptions = jobs[dest.id] ?? [];
     return (
       <div className="move-page-inner">
       <div className="move-page-screen">
@@ -1227,10 +1566,9 @@ export function EasyMoveZoneApp() {
   }
 
   function Trips() {
-    const options = trips[dest.id] ?? [];
     return (
       <BookListShell eyebrow={`Trips · ${dest.city}`} title="Get yourself there" sub="Sample routes and fares — reserve to hold your plan.">
-        {options.map((t) => (
+        {tripOptions.map((t) => (
           <PriceRow key={t.id} left={`${t.provider} · ${t.route}`} sub={t.duration} price={t.price}
             onClick={() => openBooking({ type: "trip", title: `${t.provider} · ${t.route}`, provider: t.provider, price: t.price, needsDates: true, needsRange: false, needsGuests: false })} />
         ))}
@@ -1239,10 +1577,9 @@ export function EasyMoveZoneApp() {
   }
 
   function Stays() {
-    const options = (stays[dest.id] ?? []).filter((s) => s.forModes.includes(mode));
     return (
       <BookListShell eyebrow={`Stays · ${dest.city}`} title={mode === "trip" ? "Where to stay" : "A base for your stay"} sub={mode === "trip" ? "Hotels matched to a short visit." : "Furnished flats and coliving for a longer stay."}>
-        {options.map((s) => (
+        {stayOptions.map((s) => (
           <PriceRow key={s.id} left={s.name} sub={`${s.area} · ★ ${s.rating}`} price={s.price}
             onClick={() => openBooking({ type: "stay", title: s.name, provider: s.area, price: s.price, needsDates: true, needsRange: true, needsGuests: true })} />
         ))}
@@ -1251,10 +1588,9 @@ export function EasyMoveZoneApp() {
   }
 
   function VisaBook() {
-    const options = visaServices[mode] ?? [];
     return (
       <BookListShell eyebrow={`Visa · ${modeInfo.name}`} title="Sort your visa" sub={`Support tiers matched to a ${cur.label} stay in ${dest.country}.`}>
-        {options.map((v) => (
+        {visaOptions.map((v) => (
           <PriceRow key={v.id} left={v.title} sub={v.detail} price={v.price}
             onClick={() => openBooking({ type: "visa", title: v.title, provider: "EasyMoveZone", price: v.price, needsDates: false, needsRange: false, needsGuests: false })} />
         ))}
@@ -1301,6 +1637,9 @@ export function EasyMoveZoneApp() {
       case "search": return MoodSearch();
       case "matches": return catalogLoaded ? Matches() : <MatchesSkeleton />;
       case "detail": return Detail();
+      case "intelligence": return Intelligence();
+      case "awareness": return Awareness();
+      case "execution": return Execution();
       case "plan": return Plan();
       case "visa": return Visa();
       case "settle": return Settle();
@@ -1313,11 +1652,10 @@ export function EasyMoveZoneApp() {
   }
 
   const tabs: { label: string; screens: Screen[]; go: Screen }[] = [
-    { label: "Explore", screens: ["matches", "detail"], go: "matches" },
-    { label: "Plan", screens: ["plan"], go: "plan" },
-    { label: "Book", screens: ["book", "trips", "stays", "visaBook", "booked"], go: "book" },
-    { label: "Visa", screens: ["visa"], go: "visa" },
-    { label: "Settle", screens: ["settle"], go: "settle" },
+    { label: "Explore", screens: ["welcome", "spectrum", "search", "matches", "detail"], go: "matches" },
+    { label: "Intelligence", screens: ["intelligence", "visa"], go: "intelligence" },
+    { label: "Awareness", screens: ["awareness", "settle"], go: "awareness" },
+    { label: "Execution", screens: ["execution", "plan", "book", "trips", "stays", "visaBook", "booked"], go: "execution" },
   ];
 
   // Avoid a flash of "welcome" while the returning-user redirect above is
