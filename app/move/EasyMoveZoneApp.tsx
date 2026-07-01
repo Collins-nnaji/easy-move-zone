@@ -1,7 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ComponentType } from "react";
 import { useRouter } from "next/navigation";
+import {
+  AlertTriangle,
+  BadgeCheck,
+  Bell,
+  CheckCircle2,
+  ClipboardCheck,
+  Compass,
+  Eye,
+  Gauge,
+  Info,
+  Rocket,
+  ShieldCheck,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import {
   MODE_LABEL,
   MOOD_CHIPS,
@@ -77,6 +92,21 @@ const MUTE = "#9aa097";
 // Supplied via next/font CSS variables from the page wrapper.
 const HANKEN = "var(--font-hanken), system-ui, sans-serif";
 const MONO = "var(--font-plex-mono), ui-monospace, monospace";
+
+// Each "core" screen (Intelligence / Awareness / Execution) gets its own accent
+// so the three feel visually distinct instead of every section reusing the
+// same orange-on-white card, which is what made the app read as one long list.
+interface CoreTheme {
+  icon: ComponentType<{ size?: number; strokeWidth?: number; style?: CSSProperties }>;
+  color: string;
+  soft: string;
+  softBorder: string;
+}
+const CORE_THEME: Record<"intelligence" | "awareness" | "execution", CoreTheme> = {
+  intelligence: { icon: Compass, color: "#b6541c", soft: "#fdf1e6", softBorder: "#f3d6c4" },
+  awareness: { icon: Eye, color: "#1f6f78", soft: "#e9f5f4", softBorder: "#c9e6e3" },
+  execution: { icon: Rocket, color: "#3d6b3f", soft: "#eef6ec", softBorder: "#cfe6cf" },
+};
 
 type Screen =
   | "welcome"
@@ -988,34 +1018,61 @@ export function EasyMoveZoneApp() {
   }
 
   function toneAccent(tone?: "positive" | "warning" | "neutral") {
-    if (tone === "positive") return { bg: "#edf7f0", border: "#d7eadf", text: "#216240" };
-    if (tone === "warning") return { bg: "#fff4ec", border: "#f3d6c4", text: "#9c3f15" };
-    return { bg: "#f7f5ee", border: "#e4dfd5", text: "#4a5047" };
+    if (tone === "positive") return { bg: "#edf7f0", border: "#d7eadf", text: "#216240", icon: CheckCircle2 };
+    if (tone === "warning") return { bg: "#fff4ec", border: "#f3d6c4", text: "#9c3f15", icon: AlertTriangle };
+    return { bg: "#f7f5ee", border: "#e4dfd5", text: "#4a5047", icon: Info };
   }
 
-  function ModuleHeader({ eyebrow, title, sub }: { eyebrow: string; title: string; sub: string }) {
+  // A colored, iconed section label — replaces the old plain mono-uppercase-gray
+  // line that made every section of every screen look identical.
+  function SectionLabel({ title, core, icon: Icon }: { title: string; core?: keyof typeof CORE_THEME; icon?: ComponentType<{ size?: number; strokeWidth?: number; style?: CSSProperties }> }) {
+    const theme = core ? CORE_THEME[core] : null;
+    const color = theme?.color ?? PRIMARY;
+    const IconComp = Icon ?? BadgeCheck;
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 26, marginBottom: 2 }}>
+        <IconComp size={15} strokeWidth={2.4} style={{ color }} />
+        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color, fontWeight: 600 }}>{title}</div>
+      </div>
+    );
+  }
+
+  function ModuleHeader({ eyebrow, title, sub, core }: { eyebrow: string; title: string; sub: string; core?: keyof typeof CORE_THEME }) {
+    const theme = core ? CORE_THEME[core] : null;
+    const Icon = theme?.icon ?? Sparkles;
+    const color = theme?.color ?? PRIMARY;
     return (
       <>
-        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>{eyebrow}</div>
-        <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>{title}</h2>
-        <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.5 }}>{sub}</p>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px 6px 8px", borderRadius: 999, background: theme?.soft ?? "#fbeae0", border: `1px solid ${theme?.softBorder ?? "#f3d6c4"}` }}>
+          <span style={{ width: 24, height: 24, borderRadius: 999, background: color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Icon size={13} strokeWidth={2.4} style={{ color: "#fff" }} />
+          </span>
+          <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color, fontWeight: 600 }}>{eyebrow}</span>
+        </div>
+        <h2 style={{ fontSize: 28, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "16px 0 0" }}>{title}</h2>
+        <div style={{ width: 46, height: 4, borderRadius: 999, background: color, margin: "12px 0 0" }} />
+        <p style={{ fontSize: 15, color: "#5f655c", margin: "12px 0 0", lineHeight: 1.6, maxWidth: 560 }}>{sub}</p>
         <DestSwitcher />
       </>
     );
   }
 
-  function MetricGrid({ items }: { items: CoreMetric[] }) {
+  function MetricGrid({ items, core }: { items: CoreMetric[]; core?: keyof typeof CORE_THEME }) {
+    const theme = core ? CORE_THEME[core] : null;
     return (
-      <div style={{ marginTop: 16, display: "grid", gap: 12 }}>
+      <div className="move-metric-grid" style={{ marginTop: 14 }}>
         {items.map((item) => {
           const accent = toneAccent(item.tone);
+          const Icon = accent.icon;
           return (
-            <div key={item.label} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: MUTE }}>{item.label}</div>
-                <span style={{ padding: "5px 10px", borderRadius: 999, background: accent.bg, border: `1px solid ${accent.border}`, color: accent.text, fontFamily: MONO, fontSize: 10.5 }}>{item.value}</span>
+            <div key={item.label} style={{ position: "relative", background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: "18px 18px 18px 22px", boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
+              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, borderRadius: "18px 0 0 18px", background: theme?.color ?? accent.text }} />
+              <div style={{ display: "flex", alignItems: "center", gap: 7, fontFamily: MONO, fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: MUTE }}>
+                <Icon size={13} strokeWidth={2.4} style={{ color: accent.text, flexShrink: 0 }} />
+                {item.label}
               </div>
-              <p style={{ fontSize: 13.5, lineHeight: 1.55, color: "#5f655c", margin: "12px 0 0" }}>{item.detail}</p>
+              <span style={{ display: "inline-block", marginTop: 9, padding: "5px 11px", borderRadius: 999, background: accent.bg, border: `1px solid ${accent.border}`, color: accent.text, fontFamily: MONO, fontSize: 11, fontWeight: 700, lineHeight: 1.4 }}>{item.value}</span>
+              <p style={{ fontSize: 14, lineHeight: 1.55, color: "#5f655c", margin: "12px 0 0" }}>{item.detail}</p>
             </div>
           );
         })}
@@ -1023,17 +1080,21 @@ export function EasyMoveZoneApp() {
     );
   }
 
-  function PointSection({ title, items }: { title: string; items: CorePoint[] }) {
+  function PointSection({ title, items, core }: { title: string; items: CorePoint[]; core?: keyof typeof CORE_THEME }) {
     return (
-      <div style={{ marginTop: 24 }}>
-        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>{title}</div>
-        <div style={{ marginTop: 12, display: "grid", gap: 12 }}>
+      <div>
+        <SectionLabel title={title} core={core} />
+        <div className="move-point-grid" style={{ marginTop: 12 }}>
           {items.map((item) => {
             const accent = toneAccent(item.tone);
+            const Icon = accent.icon;
             return (
               <div key={item.title} style={{ background: accent.bg, border: `1px solid ${accent.border}`, borderRadius: 18, padding: 18 }}>
-                <div style={{ fontSize: 15.5, fontWeight: 800, color: accent.text }}>{item.title}</div>
-                <p style={{ fontSize: 13.5, lineHeight: 1.55, color: "#5f655c", margin: "9px 0 0" }}>{item.detail}</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Icon size={16} strokeWidth={2.4} style={{ color: accent.text, flexShrink: 0 }} />
+                  <div style={{ fontSize: 16, fontWeight: 800, color: accent.text }}>{item.title}</div>
+                </div>
+                <p style={{ fontSize: 14, lineHeight: 1.55, color: "#5f655c", margin: "9px 0 0" }}>{item.detail}</p>
               </div>
             );
           })}
@@ -1042,21 +1103,26 @@ export function EasyMoveZoneApp() {
     );
   }
 
-  function AlertsSection({ alerts }: { alerts: CoreAlert[] }) {
+  function AlertsSection({ alerts, core }: { alerts: CoreAlert[]; core?: keyof typeof CORE_THEME }) {
+    const levelIcon = { Calm: CheckCircle2, "Heads up": Info, Watch: AlertTriangle } as const;
     return (
-      <div style={{ marginTop: 24 }}>
-        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Live signals</div>
-        <div style={{ marginTop: 12, display: "grid", gap: 12 }}>
+      <div>
+        <SectionLabel title="Live signals" core={core} icon={Bell} />
+        <div className="move-alert-grid" style={{ marginTop: 12 }}>
           {alerts.map((alert) => {
             const tone = alert.level === "Watch" ? "warning" : alert.level === "Calm" ? "positive" : "neutral";
             const accent = toneAccent(tone);
+            const Icon = levelIcon[alert.level];
             return (
               <div key={`${alert.level}-${alert.title}`} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                  <div style={{ fontSize: 15.5, fontWeight: 800 }}>{alert.title}</div>
-                  <span style={{ padding: "5px 10px", borderRadius: 999, background: accent.bg, border: `1px solid ${accent.border}`, color: accent.text, fontFamily: MONO, fontSize: 10.5 }}>{alert.level}</span>
+                  <div style={{ fontSize: 16, fontWeight: 800 }}>{alert.title}</div>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 999, background: accent.bg, border: `1px solid ${accent.border}`, color: accent.text, fontFamily: MONO, fontSize: 10.5, fontWeight: 700, whiteSpace: "nowrap" }}>
+                    <Icon size={11} strokeWidth={2.6} />
+                    {alert.level}
+                  </span>
                 </div>
-                <p style={{ fontSize: 13.5, lineHeight: 1.55, color: "#5f655c", margin: "10px 0 0" }}>{alert.detail}</p>
+                <p style={{ fontSize: 14, lineHeight: 1.55, color: "#5f655c", margin: "10px 0 0" }}>{alert.detail}</p>
               </div>
             );
           })}
@@ -1068,18 +1134,21 @@ export function EasyMoveZoneApp() {
   function PersonaSection({ matches }: { matches: PersonaMatch[] }) {
     const lead = matches[0];
     return (
-      <div style={{ marginTop: 20, background: INK, borderRadius: 22, padding: 22, color: "#fff" }}>
-        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "#f3aa79" }}>Persona engine</div>
-        <h3 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-.01em", margin: "14px 0 0" }}>{lead.persona}</h3>
+      <div style={{ marginTop: 20, background: `linear-gradient(155deg, ${INK}, #26302a)`, borderRadius: 22, padding: 22, color: "#fff" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Users size={14} strokeWidth={2.4} style={{ color: "#f3aa79" }} />
+          <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "#f3aa79", fontWeight: 600 }}>Persona engine</div>
+        </div>
+        <h3 style={{ fontSize: 23, fontWeight: 800, letterSpacing: "-.01em", margin: "14px 0 0" }}>{lead.persona}</h3>
         <p style={{ fontSize: 14.5, lineHeight: 1.55, color: "#c9cdc7", margin: "10px 0 0" }}>{lead.reason}</p>
         <div style={{ display: "grid", gap: 10, marginTop: 16 }}>
           {matches.map((match) => (
-            <div key={match.persona} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "11px 12px", borderRadius: 14, background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.08)" }}>
+            <div key={match.persona} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "11px 12px", borderRadius: 14, background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.1)" }}>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700 }}>{match.persona}</div>
-                <div style={{ fontSize: 12, color: "#8a918a", marginTop: 2 }}>{match.reason}</div>
+                <div style={{ fontSize: 12, color: "#9aa79f", marginTop: 2 }}>{match.reason}</div>
               </div>
-              <div style={{ fontFamily: MONO, fontSize: 12, color: "#f8caa6" }}>{match.score}%</div>
+              <div style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: "#f8caa6" }}>{match.score}%</div>
             </div>
           ))}
         </div>
@@ -1087,15 +1156,20 @@ export function EasyMoveZoneApp() {
     );
   }
 
-  function ReadinessSectionCard({ section }: { section: ReadinessSection }) {
+  function ReadinessSectionCard({ section, core }: { section: ReadinessSection; core?: keyof typeof CORE_THEME }) {
+    const theme = core ? CORE_THEME[core] : null;
+    const color = theme?.color ?? PRIMARY;
     return (
       <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
-        <div style={{ fontSize: 15.5, fontWeight: 800 }}>{section.title}</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <ClipboardCheck size={16} strokeWidth={2.4} style={{ color, flexShrink: 0 }} />
+          <div style={{ fontSize: 16, fontWeight: 800 }}>{section.title}</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 11, marginTop: 13 }}>
           {section.items.map((item) => (
             <div key={item} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-              <div style={{ width: 9, height: 9, borderRadius: 999, background: PRIMARY, marginTop: 6, flexShrink: 0 }} />
-              <div style={{ fontSize: 13.5, lineHeight: 1.5, color: "#5f655c" }}>{item}</div>
+              <CheckCircle2 size={16} strokeWidth={2.2} style={{ color, marginTop: 1, flexShrink: 0, opacity: 0.85 }} />
+              <div style={{ fontSize: 14, lineHeight: 1.5, color: "#4a5047" }}>{item}</div>
             </div>
           ))}
         </div>
@@ -1130,48 +1204,54 @@ export function EasyMoveZoneApp() {
       <div className="move-page-inner">
         <div className="move-page-screen">
           <ModuleHeader
+            core="intelligence"
             eyebrow="Travel Intelligence Core"
             title={`${dest.city}, decided properly`}
             sub="Visa intelligence, legal/compliance guidance, and a destination decision coach in one place."
           />
 
-          <div style={{ marginTop: 20, background: "#fbeae0", border: "1px solid #f3d6c4", borderRadius: 20, padding: 20 }}>
-            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "#bf6a3c" }}>Signature output</div>
-            <p style={{ fontSize: 15, lineHeight: 1.55, color: "#5a4636", margin: "10px 0 0" }}>
-              This is the unified answer to: can I go, should I go, what do I need, what laws matter, and what fits me better if this city is not the cleanest choice?
-            </p>
+          <div style={{ marginTop: 22, background: "linear-gradient(135deg, #fdf1e6, #fbeae0)", border: "1px solid #f3d6c4", borderRadius: 20, padding: 20, display: "flex", gap: 14, alignItems: "flex-start" }}>
+            <span style={{ width: 34, height: 34, borderRadius: 12, background: CORE_THEME.intelligence.color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Sparkles size={16} strokeWidth={2.4} style={{ color: "#fff" }} />
+            </span>
+            <div>
+              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "#bf6a3c", fontWeight: 600 }}>Signature output</div>
+              <p style={{ fontSize: 15, lineHeight: 1.55, color: "#5a4636", margin: "8px 0 0" }}>
+                This is the unified answer to: can I go, should I go, what do I need, what laws matter, and what fits me better if this city is not the cleanest choice?
+              </p>
+            </div>
           </div>
 
-          <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, marginTop: 24 }}>Decision report</div>
-          <MetricGrid items={intelligenceCore.decision} />
+          <SectionLabel title="Decision report" core="intelligence" icon={Gauge} />
+          <MetricGrid items={intelligenceCore.decision} core="intelligence" />
 
-          <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, marginTop: 24 }}>Visa intelligence</div>
-          <MetricGrid items={intelligenceCore.visa} />
+          <SectionLabel title="Visa intelligence" core="intelligence" icon={ShieldCheck} />
+          <MetricGrid items={intelligenceCore.visa} core="intelligence" />
 
-          <PointSection title="Legal and compliance navigator" items={intelligenceCore.compliance} />
+          <PointSection title="Legal and compliance navigator" items={intelligenceCore.compliance} core="intelligence" />
 
-          <div style={{ marginTop: 24, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
-            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Preparation sequence</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+          <div style={{ marginTop: 26, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
+            <SectionLabel title="Preparation sequence" core="intelligence" icon={ClipboardCheck} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 12 }}>
               {intelligenceCore.prep.map((step, index) => (
                 <div key={step} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                  <div style={{ width: 24, height: 24, borderRadius: 999, background: "#fbeae0", color: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 11, flexShrink: 0 }}>{index + 1}</div>
-                  <div style={{ fontSize: 13.5, lineHeight: 1.5, color: "#5f655c" }}>{step}</div>
+                  <div style={{ width: 26, height: 26, borderRadius: 999, background: CORE_THEME.intelligence.soft, color: CORE_THEME.intelligence.color, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 11, fontWeight: 700, flexShrink: 0 }}>{index + 1}</div>
+                  <div style={{ fontSize: 14, lineHeight: 1.55, color: "#4a5047" }}>{step}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div style={{ marginTop: 24 }}>
-            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Alternative fits</div>
-            <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+          <div>
+            <SectionLabel title="Alternative fits" core="intelligence" icon={Compass} />
+            <div className="move-point-grid" style={{ marginTop: 12 }}>
               {alternatives.map((item) => (
                 <div key={item.id} onClick={() => setDestId(item.id)} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "14px 16px", boxShadow: "0 1px 3px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                   <div>
-                    <div style={{ fontSize: 15.5, fontWeight: 700 }}>{item.city}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700 }}>{item.city}</div>
                     <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 3 }}>{item.country} · {item.visa[mode].tag}</div>
                   </div>
-                  <div style={{ fontFamily: MONO, fontSize: 11, color: PRIMARY }}>{item.match[mode]}% match</div>
+                  <div style={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, color: CORE_THEME.intelligence.color, whiteSpace: "nowrap" }}>{item.match[mode]}% match</div>
                 </div>
               ))}
             </div>
@@ -1191,19 +1271,20 @@ export function EasyMoveZoneApp() {
       <div className="move-page-inner">
         <div className="move-page-screen">
           <ModuleHeader
+            core="awareness"
             eyebrow="Situational Awareness Core"
             title={`Read the ground in ${dest.city}`}
             sub="Smart safety layers, reality checks, and live signals that explain what the city feels like now."
           />
 
-          <PointSection title="Smart map layers" items={awarenessCore.mapLayers} />
+          <PointSection title="Smart map layers" items={awarenessCore.mapLayers} core="awareness" />
 
-          <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, marginTop: 24 }}>Country reality check</div>
-          <MetricGrid items={awarenessCore.reality} />
+          <SectionLabel title="Country reality check" core="awareness" icon={Gauge} />
+          <MetricGrid items={awarenessCore.reality} core="awareness" />
 
-          <AlertsSection alerts={awarenessCore.alerts} />
+          <AlertsSection alerts={awarenessCore.alerts} core="awareness" />
 
-          <PointSection title="Embassies, emergency, and help" items={awarenessCore.helpPoints} />
+          <PointSection title="Embassies, emergency, and help" items={awarenessCore.helpPoints} core="awareness" />
 
           <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
             <button onClick={() => setScreen("settle")} style={{ flex: 1, padding: 15, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Open settle notes</button>
@@ -1219,6 +1300,7 @@ export function EasyMoveZoneApp() {
       <div className="move-page-inner">
         <div className="move-page-screen">
           <ModuleHeader
+            core="execution"
             eyebrow="Travel Execution Core"
             title={`Get ${dest.city} ready-to-go`}
             sub="Your readiness checklist, persona-led strategy, and action routes into booking, planning, and applications."
@@ -1226,36 +1308,36 @@ export function EasyMoveZoneApp() {
 
           <PersonaSection matches={executionCore.personaMatches} />
 
-          <div style={{ marginTop: 24, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
-            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Persona-based strategy</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+          <div style={{ marginTop: 26, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
+            <SectionLabel title="Persona-based strategy" core="execution" icon={Users} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 11, marginTop: 12 }}>
               {executionCore.strategy.map((line) => (
                 <div key={line} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                  <div style={{ width: 9, height: 9, borderRadius: 999, background: PRIMARY, marginTop: 6, flexShrink: 0 }} />
-                  <div style={{ fontSize: 13.5, lineHeight: 1.5, color: "#5f655c" }}>{line}</div>
+                  <CheckCircle2 size={16} strokeWidth={2.2} style={{ color: CORE_THEME.execution.color, marginTop: 1, flexShrink: 0, opacity: 0.85 }} />
+                  <div style={{ fontSize: 14, lineHeight: 1.5, color: "#4a5047" }}>{line}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, marginTop: 24 }}>Travel readiness checklist</div>
-          <div style={{ marginTop: 12, display: "grid", gap: 12 }}>
+          <SectionLabel title="Travel readiness checklist" core="execution" icon={ClipboardCheck} />
+          <div className="move-point-grid" style={{ marginTop: 12 }}>
             {executionCore.readiness.map((section) => (
-              <ReadinessSectionCard key={section.title} section={section} />
+              <ReadinessSectionCard key={section.title} section={section} core="execution" />
             ))}
           </div>
 
-          <div style={{ marginTop: 24 }}>
-            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Booking and action integrations</div>
-            <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
+          <div>
+            <SectionLabel title="Booking and action integrations" core="execution" icon={Rocket} />
+            <div className="move-point-grid" style={{ marginTop: 12 }}>
               {executionCore.actions.map((action) => (
                 <div key={action.title} onClick={() => openIntegration(action)} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "15px 16px", boxShadow: "0 1px 3px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                   <div>
-                    <div style={{ fontSize: 15.5, fontWeight: 700 }}>{action.title}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700 }}>{action.title}</div>
                     <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 3 }}>{action.detail}</div>
                   </div>
                   <div style={{ textAlign: "right" }}>
-                    <div style={{ fontFamily: MONO, fontSize: 11, color: PRIMARY }}>{action.countLabel}</div>
+                    <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, color: CORE_THEME.execution.color, whiteSpace: "nowrap" }}>{action.countLabel}</div>
                     <div style={{ fontSize: 11, color: MUTE, marginTop: 3 }}>Open →</div>
                   </div>
                 </div>
@@ -1391,9 +1473,15 @@ export function EasyMoveZoneApp() {
     return (
       <div className="move-page-inner">
       <div className="move-page-screen">
-        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Visa Snapshot</div>
-        <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>{dest.city}, the right visa for you</h2>
-        <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.5 }}>Based on a <b style={{ color: "#4a5047" }}>{cur.label}</b> stay. Change your timeframe and this updates instantly.</p>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px 6px 8px", borderRadius: 999, background: "#fbeae0", border: "1px solid #f3d6c4" }}>
+          <span style={{ width: 24, height: 24, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <ShieldCheck size={13} strokeWidth={2.4} style={{ color: "#fff" }} />
+          </span>
+          <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>Visa snapshot</span>
+        </div>
+        <h2 style={{ fontSize: 28, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "16px 0 0" }}>{dest.city}, the right visa for you</h2>
+        <div style={{ width: 46, height: 4, borderRadius: 999, background: PRIMARY, margin: "12px 0 0" }} />
+        <p style={{ fontSize: 15, color: "#5f655c", margin: "12px 0 0", lineHeight: 1.6 }}>Based on a <b style={{ color: "#4a5047" }}>{cur.label}</b> stay. Change your timeframe and this updates instantly.</p>
         <DestSwitcher />
 
         <div style={{ marginTop: 22, background: INK, borderRadius: 22, padding: 24, color: "#fff" }}>
@@ -1418,8 +1506,8 @@ export function EasyMoveZoneApp() {
         </div>
 
         {(schoolOptions.length > 0 || jobOptions.length > 0) && (
-          <div style={{ marginTop: 26 }}>
-            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Work &amp; study in {dest.city}</div>
+          <div style={{ marginTop: 8 }}>
+            <SectionLabel title={`Work & study in ${dest.city}`} icon={BadgeCheck} />
             <p style={{ fontSize: 13.5, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.5 }}>Apply directly to school programmes and visa-sponsoring roles that match your move.</p>
 
             {schoolOptions.length > 0 && (
@@ -1474,17 +1562,23 @@ export function EasyMoveZoneApp() {
     return (
       <div className="move-page-inner">
       <div className="move-page-screen">
-        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Settle · {dest.city}</div>
-        <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Land like you&apos;ve been before</h2>
-        <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.5 }}>Expat- and nomad-written essentials, filtered for your <b style={{ color: "#4a5047" }}>{cur.label}</b> stay.</p>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px 6px 8px", borderRadius: 999, background: "#fbeae0", border: "1px solid #f3d6c4" }}>
+          <span style={{ width: 24, height: 24, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <BadgeCheck size={13} strokeWidth={2.4} style={{ color: "#fff" }} />
+          </span>
+          <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>Settle · {dest.city}</span>
+        </div>
+        <h2 style={{ fontSize: 28, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "16px 0 0" }}>Land like you&apos;ve been before</h2>
+        <div style={{ width: 46, height: 4, borderRadius: 999, background: PRIMARY, margin: "12px 0 0" }} />
+        <p style={{ fontSize: 15, color: "#5f655c", margin: "12px 0 0", lineHeight: 1.6 }}>Expat- and nomad-written essentials, filtered for your <b style={{ color: "#4a5047" }}>{cur.label}</b> stay.</p>
         <DestSwitcher />
 
-        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, marginTop: 26 }}>Settle essentials</div>
+        <SectionLabel title="Settle essentials" icon={Sparkles} />
         <SettleCardsGrid cards={essentialCards} variant="move" />
 
         {lifeStageCards.length > 0 && (
           <>
-            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, marginTop: 28 }}>Policies by life stage</div>
+            <SectionLabel title="Policies by life stage" icon={Users} />
             <SettleCardsGrid cards={lifeStageCards} variant="move" />
           </>
         )}
