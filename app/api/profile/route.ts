@@ -58,31 +58,61 @@ function mapRow(row: ProfileRow | undefined): UserProfile {
 const PROFILE_COLUMNS = `role, full_name, phone, preferred_contact_method,
   nationality, is_agent, agent_license, agent_company, agent_bio, agent_verified`
 
+// Fallback for databases where the nationality column migration hasn't run yet.
+const PROFILE_COLUMNS_LEGACY = `role, full_name, phone, preferred_contact_method,
+  is_agent, agent_license, agent_company, agent_bio, agent_verified`
+
 async function loadProfile(authUserId: string): Promise<UserProfile> {
-  const profileRaw = await sql!.query(
-    `select ${PROFILE_COLUMNS} from user_profiles where auth_user_id = $1 limit 1`,
-    [authUserId],
-  )
-  return mapRow((profileRaw as ProfileRow[])[0])
+  try {
+    const profileRaw = await sql!.query(
+      `select ${PROFILE_COLUMNS} from user_profiles where auth_user_id = $1 limit 1`,
+      [authUserId],
+    )
+    return mapRow((profileRaw as ProfileRow[])[0])
+  } catch {
+    const profileRaw = await sql!.query(
+      `select ${PROFILE_COLUMNS_LEGACY} from user_profiles where auth_user_id = $1 limit 1`,
+      [authUserId],
+    )
+    const row = (profileRaw as ProfileRow[])[0]
+    return mapRow(row ? { ...row, nationality: null } : undefined)
+  }
 }
 
 async function saveProfileRow(authUserId: string, profile: UserProfile): Promise<UserProfile> {
-  const rowsRaw = await sql!.query(
-    `insert into user_profiles (
-       auth_user_id, role, preferred_contact_method, full_name, phone, nationality, updated_at
-     ) values ($1, 'buyer', $2, $3, $4, $5, now())
-     on conflict (auth_user_id) do update set
-       full_name = excluded.full_name,
-       phone = excluded.phone,
-       preferred_contact_method = excluded.preferred_contact_method,
-       nationality = excluded.nationality,
-       updated_at = now()
-     returning ${PROFILE_COLUMNS}`,
-    [authUserId, profile.preferredContactMethod, profile.fullName || null, profile.phone || null, profile.nationality || null],
-  )
-  const row = (rowsRaw as ProfileRow[])[0]
-  if (!row) throw new Error("save failed")
-  return mapRow(row)
+  try {
+    const rowsRaw = await sql!.query(
+      `insert into user_profiles (
+         auth_user_id, role, preferred_contact_method, full_name, phone, nationality, updated_at
+       ) values ($1, 'buyer', $2, $3, $4, $5, now())
+       on conflict (auth_user_id) do update set
+         full_name = excluded.full_name,
+         phone = excluded.phone,
+         preferred_contact_method = excluded.preferred_contact_method,
+         nationality = excluded.nationality,
+         updated_at = now()
+       returning ${PROFILE_COLUMNS}`,
+      [authUserId, profile.preferredContactMethod, profile.fullName || null, profile.phone || null, profile.nationality || null],
+    )
+    const row = (rowsRaw as ProfileRow[])[0]
+    if (!row) throw new Error("save failed")
+    return mapRow(row)
+  } catch {
+    const rowsRaw = await sql!.query(
+      `insert into user_profiles (auth_user_id, role, preferred_contact_method, full_name, phone, updated_at)
+       values ($1, 'buyer', $2, $3, $4, now())
+       on conflict (auth_user_id) do update set
+         full_name = excluded.full_name,
+         phone = excluded.phone,
+         preferred_contact_method = excluded.preferred_contact_method,
+         updated_at = now()
+       returning ${PROFILE_COLUMNS_LEGACY}`,
+      [authUserId, profile.preferredContactMethod, profile.fullName || null, profile.phone || null],
+    )
+    const row = (rowsRaw as ProfileRow[])[0]
+    if (!row) throw new Error("save failed")
+    return mapRow({ ...row, nationality: null })
+  }
 }
 
 export async function GET() {

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import {
   LogOut,
   Menu,
@@ -24,7 +24,6 @@ const guideLinks = [
 ] as const
 
 export function PlatformNav() {
-  const router = useRouter()
   const pathname = usePathname()
   const { data: sessionData, isPending: sessionPending, refetch: refetchSession } = authClient.useSession()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -56,10 +55,17 @@ export function PlatformNav() {
 
   async function handleSignOut() {
     setMenuOpen(false)
-    await authClient.signOut()
-    await refetchSession()
-    router.push("/")
-    router.refresh()
+    try {
+      await authClient.signOut()
+    } catch {
+      // Even if the sign-out request fails, force a full reload below so the
+      // user isn't left in a stuck, ambiguous signed-in-looking state.
+    }
+    // A hard navigation (not router.push/refresh) guarantees every server
+    // component re-reads the now-cleared session cookie, instead of relying
+    // on client-side cache invalidation that can leave stale account state
+    // visible in the nav until a manual refresh.
+    window.location.href = "/"
   }
 
   function getInitials(name?: string | null, email?: string | null) {

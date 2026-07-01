@@ -13,7 +13,7 @@ import {
   User,
 } from "lucide-react"
 import { fetchProfileWorkspace, saveProfile } from "@/lib/profile/client"
-import type { UserProfile } from "@/lib/profile/types"
+import { EMPTY_PROFILE, type UserProfile } from "@/lib/profile/types"
 import { fetchApplications } from "@/lib/visa/client"
 import type { VisaApplication } from "@/lib/visa/types"
 
@@ -51,8 +51,16 @@ export function ProfileWorkspace({ authName, authEmail }: ProfileWorkspaceProps)
         if (!mounted) return
         setProfile(workspace.profile)
         setApplications(apps)
-      } catch {
-        if (mounted) setErrorMsg("Unable to load your profile right now.")
+      } catch (err) {
+        if (!mounted) return
+        if (err instanceof Error && err.message === "unauthorized") {
+          window.location.href = "/auth?redirect=/profile"
+          return
+        }
+        // Fall back to an empty, editable profile instead of leaving the page
+        // stuck on a spinner forever when the load fails.
+        setProfile({ ...EMPTY_PROFILE })
+        setErrorMsg("Unable to load your saved profile. You can still fill this in and save.")
       } finally {
         if (mounted) setLoading(false)
       }
