@@ -904,6 +904,7 @@ export function EasyMoveZoneApp() {
   }
 
   function Detail() {
+    const visa = dest.visa[mode];
     const actionButtons = (
       <>
         <button onClick={() => setScreen("intelligence")} style={{ width: "100%", padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>Open Travel Intelligence Core →</button>
