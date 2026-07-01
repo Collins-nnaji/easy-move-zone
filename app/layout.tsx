@@ -20,24 +20,24 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Visa requirements, checklist & embassy directory",
+  title: "EasyMoveZone — Movement, accommodation & visa in one app",
   description:
-    "Look up visa requirements, track your document checklist, and find embassies — with AI guidance throughout.",
+    "Book your journey, find where you stay, and sort your visa in one place. The all-in-one app for international movement — two weeks or forever.",
   metadataBase: process.env.NEXT_PUBLIC_APP_URL
     ? new URL(process.env.NEXT_PUBLIC_APP_URL)
     : undefined,
   openGraph: {
     type: "website",
     siteName: "EasyMoveZone",
-    title: "EasyMoveZone — Visa requirements, checklist & embassy directory",
+    title: "EasyMoveZone — Get there. Stay there. Visa sorted.",
     description:
-      "Look up visa requirements, track your document checklist, and find embassies — with AI guidance throughout.",
+      "Movement, accommodation, and visa in one app. Book how you get there, where you stay, and how you get in.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "EasyMoveZone — Visa requirements, checklist & embassy directory",
+    title: "EasyMoveZone — Get there. Stay there. Visa sorted.",
     description:
-      "Look up visa requirements, track your document checklist, and find embassies — with AI guidance throughout.",
+      "Movement, accommodation, and visa in one app for international relocations and nomad stays.",
   },
   icons: {
     icon: "/emz.png",

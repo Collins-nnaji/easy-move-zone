@@ -1,44 +1,37 @@
 # EasyMoveZone
 
-EasyMoveZone is a visa preparation tool: look up visa requirements by nationality and
-destination, track a document checklist per application, find embassies and
-consulates, and get AI-assisted guidance throughout.
+EasyMoveZone is a travel intelligence and execution platform for international travelers. The product combines destination decision support, on-the-ground awareness, and preparation workflows in one experience.
 
 ## Core Features
 
-- **Visa requirements lookup** — nationality + destination + visa type → documents,
-  fees, processing time. Curated data first, AI-generated and cached on a miss.
-- **Application tracking & document checklist** — one workspace per visa application,
-  with AI-generated or manually built checklists and status tracking.
-- **Document management** — upload passports, letters, and statements with per-document
-  expiry tracking (passport, insurance, visa itself).
-- **Embassy directory** — admin-curated embassy, consulate, and visa application
-  center contact details (never AI-generated, to avoid wrong addresses/phone numbers).
-- **AI assistant** — Q&A grounded only in the facts on file, wired into requirements,
-  checklist, and application pages.
+The current product architecture is documented in [docs/easymovezone-core-features.md](docs/easymovezone-core-features.md).
+
+- Travel Intelligence Core
+  - Visa Intelligence + Legal and Compliance Navigator + Decision Intelligence Coach
+- Situational Awareness Core
+  - Smart Map Safety Layer + Country Reality Check + Live News Event Map
+- Travel Execution Core
+  - Readiness Checklist + Persona Engine + Booking Integrations
 
 ## Local Development
 
+Run the development server:
+
 ```bash
-npm install
 npm run dev
 ```
 
 Then open `http://localhost:3000`.
 
-Set up the database (requires `DATABASE_URL` or `NEON_DATABASE_URL`):
-
-```bash
-npm run db:setup
-```
-
-See [db/seeds/README.md](db/seeds/README.md) for details and troubleshooting.
-
 ## Main App Areas
 
 - Public marketing site: `app/page.tsx` and `components/platform/*`
-- Visa app: `app/visa/*`, `app/embassies/*`
+- Move app experience: `app/move/*`
 - Auth and user workspace: `app/auth/*`, `app/profile/*`, `app/dashboard/*`
-- Admin: `app/admin/*` (visa requirement templates, embassy directory, users)
-- APIs: `app/api/visa/*`, `app/api/embassies/*`, `app/api/admin/*`
-- Shared libraries: `lib/visa/*`, `lib/ai/*`, `lib/storage/*`
+- APIs: `app/api/*`
+- Shared libraries: `lib/*`
+
+## Product Notes
+
+- The homepage feature section reflects the three current product cores.
+- Product copy, design direction, and feature planning should stay aligned to the architecture in `docs/easymovezone-core-features.md`.

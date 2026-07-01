@@ -14,7 +14,7 @@ export function AuthInlineCard({
 }: { redirectIfAuthenticated?: boolean; hideWhenAuthenticated?: boolean }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTarget = searchParams.get("redirect") ?? "/visa/applications"
+  const redirectTarget = searchParams.get("redirect") ?? "/move"
   const urlMode = searchParams.get("mode")
   const [mode, setMode] = useState<Mode>(urlMode === "signup" ? "sign-up" : "sign-in")
   const [name, setName] = useState("")
@@ -112,7 +112,7 @@ export function AuthInlineCard({
             {mode === "sign-up" ? "Create Account" : "Welcome Back"}
           </h3>
           <p className="mt-1 text-xs text-slate-400">
-            {mode === "sign-up" ? "Join EasyMoveZone" : "Continue tracking your visa applications"}
+            {mode === "sign-up" ? "Join EasyMoveZone" : "Continue managing your move"}
           </p>
         </div>
 

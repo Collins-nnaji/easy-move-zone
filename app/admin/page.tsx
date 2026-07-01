@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { requireAdmin } from "@/lib/auth/admin"
-import { BookOpen, MapPin, Users } from "lucide-react"
+import { BookOpen, MapPin, Plane, Users } from "lucide-react"
 
 export default async function AdminHomePage() {
   const admin = await requireAdmin()
@@ -9,8 +9,9 @@ export default async function AdminHomePage() {
 
   const cards = [
     { href: "/admin/users", title: "Users", desc: "Search accounts, verify agents", icon: Users },
-    { href: "/admin/visa-templates", title: "Visa templates", desc: "Curate requirements and checklists by nationality, destination, and visa type", icon: BookOpen },
-    { href: "/admin/embassies", title: "Embassies", desc: "Manage embassy, consulate, and visa application center contact details", icon: MapPin },
+    { href: "/admin/catalog", title: "Move catalog", desc: "Destinations, trips, stays, visas", icon: MapPin },
+    { href: "/admin/guides", title: "Country guides", desc: "Edit Settle tab content in the Move app", icon: BookOpen },
+    { href: "/admin/bookings", title: "Bookings", desc: "Trips, stays and visa reservations", icon: Plane },
   ] as const
 
   return (

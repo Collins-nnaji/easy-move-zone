@@ -9,20 +9,43 @@ import {
   ClipboardList,
   Loader2,
   MapPin,
+  Plane,
+  Plus,
   Sparkles,
+  Trash2,
   User,
 } from "lucide-react"
-import { fetchProfileWorkspace, saveProfile } from "@/lib/profile/client"
-import { EMPTY_PROFILE, type UserProfile } from "@/lib/profile/types"
-import { fetchApplications } from "@/lib/visa/client"
-import type { VisaApplication } from "@/lib/visa/types"
+import type { MoveBooking } from "@/lib/bookings/types"
+import { fetchBookings } from "@/lib/bookings/client"
+import {
+  createSavedSearch,
+  deleteSavedSearch,
+  fetchProfileWorkspace,
+  saveProfile,
+} from "@/lib/profile/client"
+import { EMPTY_PROFILE, type SavedSearch, type UserProfile } from "@/lib/profile/types"
+import type { RelocationPlan, RelocationTask } from "@/lib/relocate/types"
+import { fetchWorkspace } from "@/lib/relocate/client"
+
+interface DestinationOption {
+  id: string
+  city: string
+  country: string
+}
 
 interface ProfileWorkspaceProps {
   authName: string
   authEmail: string
+  fromMove?: boolean
 }
 
-export function ProfileWorkspace({ authName, authEmail }: ProfileWorkspaceProps) {
+const STAY_LABELS: Record<string, string> = {
+  trip: "Short trip (1–4 weeks)",
+  nomad: "Nomad stay (1–6 months)",
+  move: "Full relocation (6+ months)",
+}
+
+export function ProfileWorkspace({ authName, authEmail, fromMove = false }: ProfileWorkspaceProps) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [statusMsg, setStatusMsg] = useState("")
@@ -30,13 +53,23 @@ export function ProfileWorkspace({ authName, authEmail }: ProfileWorkspaceProps)
   const [avatarHint, setAvatarHint] = useState("")
 
   const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [applications, setApplications] = useState<VisaApplication[]>([])
+  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([])
+  const [plan, setPlan] = useState<RelocationPlan | null>(null)
+  const [tasks, setTasks] = useState<RelocationTask[]>([])
+  const [bookings, setBookings] = useState<MoveBooking[]>([])
+  const [destinations, setDestinations] = useState<DestinationOption[]>([])
+
+  const [searchForm, setSearchForm] = useState({
+    name: "",
+    citySlug: "",
+    budgetMin: "",
+    budgetMax: "",
+  })
+  const [creatingSearch, setCreatingSearch] = useState(false)
 
   const displayName = profile?.fullName || authName
-  const activeApplications = useMemo(
-    () => applications.filter((a) => a.status !== "approved" && a.status !== "rejected" && a.status !== "expired"),
-    [applications],
-  )
+  const completedTasks = useMemo(() => tasks.filter((t) => t.status === "done").length, [tasks])
+  const activeBookings = useMemo(() => bookings.filter((b) => b.status !== "cancelled"), [bookings])
 
   useEffect(() => {
     let mounted = true
@@ -44,13 +77,23 @@ export function ProfileWorkspace({ authName, authEmail }: ProfileWorkspaceProps)
       setLoading(true)
       setErrorMsg("")
       try {
-        const [workspace, apps] = await Promise.all([
+        const [workspace, relocate, bookingRows, destRes] = await Promise.all([
           fetchProfileWorkspace(),
-          fetchApplications().catch(() => []),
+          fetchWorkspace().catch(() => ({ plan: null, tasks: [], contacts: [] })),
+          fetchBookings().catch(() => []),
+          fetch("/api/move/destinations", { cache: "no-store" }).then(async (res) => {
+            if (!res.ok) return [] as DestinationOption[]
+            const data = (await res.json()) as { destinations?: DestinationOption[] }
+            return data.destinations ?? []
+          }),
         ])
         if (!mounted) return
         setProfile(workspace.profile)
-        setApplications(apps)
+        setSavedSearches(workspace.savedSearches)
+        setPlan(relocate.plan)
+        setTasks(relocate.tasks)
+        setBookings(bookingRows)
+        setDestinations(destRes)
       } catch (err) {
         if (!mounted) return
         if (err instanceof Error && err.message === "unauthorized") {
@@ -75,6 +118,16 @@ export function ProfileWorkspace({ authName, authEmail }: ProfileWorkspaceProps)
     setProfile((prev) => (prev ? { ...prev, [key]: value } : prev))
   }
 
+  function togglePreferredDestination(id: string) {
+    setProfile((prev) => {
+      if (!prev) return prev
+      const set = new Set(prev.movePreferredDestinations)
+      if (set.has(id)) set.delete(id)
+      else set.add(id)
+      return { ...prev, movePreferredDestinations: [...set] }
+    })
+  }
+
   async function handleSave() {
     if (!profile || saving) return
     setSaving(true)
@@ -89,6 +142,45 @@ export function ProfileWorkspace({ authName, authEmail }: ProfileWorkspaceProps)
     } finally {
       setSaving(false)
     }
+  }
+
+  async function handleCreateSearch() {
+    const name = searchForm.name.trim()
+    if (!name || creatingSearch) return
+    setCreatingSearch(true)
+    setErrorMsg("")
+    try {
+      const saved = await createSavedSearch({
+        name,
+        citySlug: searchForm.citySlug || undefined,
+        budgetMin: searchForm.budgetMin ? Number(searchForm.budgetMin) : null,
+        budgetMax: searchForm.budgetMax ? Number(searchForm.budgetMax) : null,
+      })
+      setSavedSearches((prev) => [saved, ...prev])
+      setSearchForm({ name: "", citySlug: "", budgetMin: "", budgetMax: "" })
+      setStatusMsg("Saved search added.")
+    } catch {
+      setErrorMsg("Unable to save search.")
+    } finally {
+      setCreatingSearch(false)
+    }
+  }
+
+  async function handleDeleteSearch(id: string) {
+    const prev = savedSearches
+    setSavedSearches((list) => list.filter((item) => item.id !== id))
+    try {
+      await deleteSavedSearch(id)
+    } catch {
+      setSavedSearches(prev)
+      setErrorMsg("Unable to delete saved search.")
+    }
+  }
+
+  function destinationLabel(slug: string | null) {
+    if (!slug) return "Any destination"
+    const match = destinations.find((d) => d.id === slug)
+    return match ? `${match.city}, ${match.country}` : slug
   }
 
   if (loading || !profile) {
@@ -151,33 +243,51 @@ export function ProfileWorkspace({ authName, authEmail }: ProfileWorkspaceProps)
           </div>
         ) : null}
 
-        {/* Summary card */}
-        <Link href="/visa/applications" className="emz-rich-card group block p-6 transition hover:border-[#e0511f]/30 hover:shadow-md">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">My visa applications</p>
-              <h2 className="mt-1 font-[var(--font-playfair)] text-xl font-semibold text-[#0f172a]">
-                {applications.length === 0
-                  ? "No applications yet"
-                  : `${activeApplications.length} in progress · ${applications.length} total`}
-              </h2>
-              <p className="mt-2 text-sm text-[#64748b]">
-                {applications.length === 0
-                  ? "Start tracking a visa application to see it here."
-                  : applications.slice(0, 2).map((a) => a.label).join(" · ")}
-              </p>
+        {/* Summary cards */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <Link href="/move" className="emz-rich-card group block p-6 transition hover:border-[#e0511f]/30 hover:shadow-md">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">My plan</p>
+                <h2 className="mt-1 font-[var(--font-playfair)] text-xl font-semibold text-[#0f172a]">
+                  {plan?.destinationCity ? `${plan.destinationCity}${plan.destinationCountry ? `, ${plan.destinationCountry}` : ""}` : "No destination saved yet"}
+                </h2>
+                <p className="mt-2 text-sm text-[#64748b]">
+                  {plan
+                    ? `${plan.status.replace(/_/g, " ")} · ${completedTasks}/${tasks.length} tasks done`
+                    : "Save a plan in the Move app to get started."}
+                </p>
+              </div>
+              <ClipboardList className="h-5 w-5 text-[#e0511f]" />
             </div>
-            <ClipboardList className="h-5 w-5 text-[#e0511f]" />
-          </div>
-          <p className="mt-4 text-xs font-semibold text-[#e0511f] group-hover:underline">Open your applications →</p>
-        </Link>
+            <p className="mt-4 text-xs font-semibold text-[#e0511f] group-hover:underline">Open Move app →</p>
+          </Link>
+
+          <Link href="/move" className="emz-rich-card group block p-6 transition hover:border-[#e0511f]/30 hover:shadow-md">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#e0511f]">My bookings</p>
+                <h2 className="mt-1 font-[var(--font-playfair)] text-xl font-semibold text-[#0f172a]">
+                  {activeBookings.length} active reservation{activeBookings.length === 1 ? "" : "s"}
+                </h2>
+                <p className="mt-2 text-sm text-[#64748b]">
+                  {bookings.length === 0
+                    ? "Book trips, stays, or visa support from the Move app."
+                    : bookings.slice(0, 2).map((b) => b.itemTitle).join(" · ")}
+                </p>
+              </div>
+              <Plane className="h-5 w-5 text-[#e0511f]" />
+            </div>
+            <p className="mt-4 text-xs font-semibold text-[#e0511f] group-hover:underline">Manage bookings →</p>
+          </Link>
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-          {/* Personal details */}
+          {/* Personal + move preferences */}
           <article className="emz-rich-card space-y-6 p-6 sm:p-8">
             <div>
               <h2 className="font-[var(--font-playfair)] text-xl font-bold text-[#0f172a]">Personal details</h2>
-              <p className="mt-1 text-sm text-[#64748b]">How we reach you and your nationality for visa lookups</p>
+              <p className="mt-1 text-sm text-[#64748b]">How we reach you and where you&apos;re coming from</p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block text-sm">
@@ -220,26 +330,176 @@ export function ProfileWorkspace({ authName, authEmail }: ProfileWorkspaceProps)
                 </select>
               </label>
             </div>
-          </article>
 
-          {/* Quick links */}
-          <article className="emz-rich-card p-6">
-            <h2 className="font-[var(--font-playfair)] text-lg font-semibold text-[#0f172a]">Quick links</h2>
-            <div className="mt-4 space-y-2">
-              <Link href="/visa" className="flex items-center gap-3 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3 text-sm font-semibold text-[#0f172a] transition hover:border-[#e0511f]/40">
-                <MapPin className="h-4 w-4 text-[#e0511f]" />
-                Look up visa requirements
-              </Link>
-              <Link href="/embassies" className="flex items-center gap-3 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3 text-sm font-semibold text-[#0f172a] transition hover:border-[#e0511f]/40">
-                <MapPin className="h-4 w-4 text-[#e0511f]" />
-                Embassy directory
-              </Link>
-              <Link href="/contact" className="flex items-center gap-3 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3 text-sm font-semibold text-[#0f172a] transition hover:border-[#e0511f]/40">
-                <Sparkles className="h-4 w-4 text-[#e0511f]" />
-                Contact support
-              </Link>
+            <div className="border-t border-[#e2e8f0] pt-6">
+              <h3 className="font-[var(--font-playfair)] text-lg font-semibold text-[#0f172a]">Move preferences</h3>
+              <p className="mt-1 text-sm text-[#64748b]">Helps us tailor destinations and planning tips</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <label className="block text-sm sm:col-span-2">
+                  <span className="mb-1 block font-medium text-[#475569]">Work mode</span>
+                  <select
+                    value={profile.moveWorkMode ?? ""}
+                    onChange={(e) => updateField("moveWorkMode", (e.target.value || null) as UserProfile["moveWorkMode"])}
+                    className="w-full rounded-xl border border-[#dbe4f0] px-3 py-2.5"
+                  >
+                    <option value="">Not set</option>
+                    <option value="remote">Remote</option>
+                    <option value="hybrid">Hybrid</option>
+                    <option value="onsite">On-site assignment</option>
+                    <option value="business_owner">Business owner</option>
+                    <option value="student">Student</option>
+                  </select>
+                </label>
+                <label className="block text-sm sm:col-span-2">
+                  <span className="mb-1 block font-medium text-[#475569]">Stay length</span>
+                  <select
+                    value={profile.moveStayPreference ?? ""}
+                    onChange={(e) => updateField("moveStayPreference", (e.target.value || null) as UserProfile["moveStayPreference"])}
+                    className="w-full rounded-xl border border-[#dbe4f0] px-3 py-2.5"
+                  >
+                    <option value="">Not set</option>
+                    {Object.entries(STAY_LABELS).map(([value, label]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              {destinations.length > 0 ? (
+                <div className="mt-4">
+                  <p className="mb-2 text-sm font-medium text-[#475569]">Preferred destinations</p>
+                  <div className="flex flex-wrap gap-2">
+                    {destinations.map((dest) => {
+                      const active = profile.movePreferredDestinations.includes(dest.id)
+                      return (
+                        <button
+                          key={dest.id}
+                          type="button"
+                          onClick={() => togglePreferredDestination(dest.id)}
+                          className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                            active
+                              ? "bg-[#e0511f] text-white"
+                              : "border border-[#dbe4f0] bg-white text-[#475569] hover:border-[#e0511f]/40"
+                          }`}
+                        >
+                          {dest.city}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : null}
+
+              <label className="mt-4 block text-sm">
+                <span className="mb-1 block font-medium text-[#475569]">Notes</span>
+                <textarea
+                  value={profile.moveNotes}
+                  onChange={(e) => updateField("moveNotes", e.target.value)}
+                  rows={3}
+                  placeholder="Visa constraints, family needs, timing, budget context…"
+                  className="w-full rounded-xl border border-[#dbe4f0] px-3 py-2.5"
+                />
+              </label>
             </div>
           </article>
+
+          {/* Quick links + saved searches */}
+          <div className="space-y-6">
+            <article className="emz-rich-card p-6">
+              <h2 className="font-[var(--font-playfair)] text-lg font-semibold text-[#0f172a]">Quick links</h2>
+              <div className="mt-4 space-y-2">
+                {!fromMove && (
+                  <Link href="/move" className="flex items-center gap-3 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3 text-sm font-semibold text-[#0f172a] transition hover:border-[#e0511f]/40">
+                    <MapPin className="h-4 w-4 text-[#e0511f]" />
+                    Open the Move app
+                  </Link>
+                )}
+                <Link href="/contact" className="flex items-center gap-3 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3 text-sm font-semibold text-[#0f172a] transition hover:border-[#e0511f]/40">
+                  <Sparkles className="h-4 w-4 text-[#e0511f]" />
+                  Contact support
+                </Link>
+              </div>
+            </article>
+
+            <article className="emz-rich-card p-6">
+              <h2 className="font-[var(--font-playfair)] text-lg font-semibold text-[#0f172a]">Saved destination searches</h2>
+              <p className="mt-1 text-sm text-[#64748b]">Bookmark cities and budget ranges to revisit later</p>
+
+              <div className="mt-4 space-y-2">
+                <input
+                  value={searchForm.name}
+                  onChange={(e) => setSearchForm((prev) => ({ ...prev, name: e.target.value }))}
+                  placeholder="Search name"
+                  className="w-full rounded-xl border border-[#dbe4f0] px-3 py-2 text-sm"
+                />
+                <select
+                  value={searchForm.citySlug}
+                  onChange={(e) => setSearchForm((prev) => ({ ...prev, citySlug: e.target.value }))}
+                  className="w-full rounded-xl border border-[#dbe4f0] px-3 py-2 text-sm"
+                >
+                  <option value="">Any destination</option>
+                  {destinations.map((d) => (
+                    <option key={d.id} value={d.id}>{d.city}, {d.country}</option>
+                  ))}
+                </select>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    value={searchForm.budgetMin}
+                    onChange={(e) => setSearchForm((prev) => ({ ...prev, budgetMin: e.target.value }))}
+                    placeholder="Budget min (USD/mo)"
+                    className="rounded-xl border border-[#dbe4f0] px-3 py-2 text-sm"
+                  />
+                  <input
+                    type="number"
+                    min={0}
+                    value={searchForm.budgetMax}
+                    onChange={(e) => setSearchForm((prev) => ({ ...prev, budgetMax: e.target.value }))}
+                    placeholder="Budget max (USD/mo)"
+                    className="rounded-xl border border-[#dbe4f0] px-3 py-2 text-sm"
+                  />
+                </div>
+                <button
+                  type="button"
+                  disabled={creatingSearch}
+                  onClick={() => void handleCreateSearch()}
+                  className="inline-flex items-center gap-2 rounded-full bg-[#091520] px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                >
+                  {creatingSearch ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+                  Save search
+                </button>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {savedSearches.length === 0 ? (
+                  <p className="text-sm text-[#64748b]">No saved searches yet.</p>
+                ) : (
+                  savedSearches.map((search) => (
+                    <div key={search.id} className="flex items-start justify-between gap-2 rounded-xl border border-[#dbe4f0] bg-[#f8fbff] p-3">
+                      <div>
+                        <p className="text-sm font-semibold text-[#0f172a]">{search.name}</p>
+                        <p className="text-xs text-[#64748b]">{destinationLabel(search.citySlug)}</p>
+                        {(search.budgetMin || search.budgetMax) ? (
+                          <p className="mt-0.5 text-xs text-[#64748b]">
+                            ${search.budgetMin?.toLocaleString() ?? "—"} – ${search.budgetMax?.toLocaleString() ?? "—"} / mo
+                          </p>
+                        ) : null}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void handleDeleteSearch(search.id)}
+                        className="rounded-lg border border-[#dbe4f0] p-1.5 text-[#94a3b8] hover:text-red-600"
+                        aria-label="Delete saved search"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </article>
+          </div>
         </div>
       </div>
     </div>

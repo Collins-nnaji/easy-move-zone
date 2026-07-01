@@ -1,6 +1,6 @@
 {
-  "name": "easy-move-zone",
-  "description": "Visa requirements, document checklist, and embassy directory with AI guidance.",
+  "name": "easy-move-zone-property",
+  "description": "Innovative Trust-First Real Estate Platform",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,7 +8,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:setup": "node scripts/run-visa-setup.mjs"
+    "db:setup": "node scripts/run-move-setup.mjs",
+    "catalog:json": "node --experimental-strip-types scripts/generate-move-catalog-json.mjs",
+    "db:seed:catalog": "node scripts/seed-move-catalog.mjs",
+    "db:seed:demo": "node scripts/seed-demo-journey.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1005.0",

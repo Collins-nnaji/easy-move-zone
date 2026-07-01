@@ -4,7 +4,7 @@ import { ContactPageClient } from "@/components/platform/ContactPageClient"
 
 export const metadata: Metadata = {
   title: "Contact | EasyMoveZone",
-  description: "Reach EasyMoveZone for visa requirement questions, document checklist help, and embassy lookups.",
+  description: "Reach EasyMoveZone for move planning, visa questions, bookings, and relocation support.",
 }
 
 function firstString(v: string | string[] | undefined): string | undefined {
