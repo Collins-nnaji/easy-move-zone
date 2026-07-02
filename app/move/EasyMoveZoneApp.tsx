@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type CSSProperties, type ComponentType } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import {
   AlertTriangle,
   BadgeCheck,
@@ -126,12 +126,67 @@ type Screen =
   | "visaBook"
   | "booked";
 
+// Every screen now has a real URL under /move — this is what gives the app a
+// working browser back/forward button, bookmarkable/shareable links, and a
+// nav that can actually highlight where you are. `destId`-scoped screens
+// live under /move/explore/[destId]/...; everything before a destination is
+// chosen (welcome/spectrum/search/matches) doesn't need it in the path.
+function buildMovePath(screen: Screen, destId: string): string {
+  switch (screen) {
+    case "welcome": return "/move";
+    case "spectrum": return "/move/spectrum";
+    case "search": return "/move/search";
+    case "matches": return "/move/explore";
+    case "detail": return `/move/explore/${destId}`;
+    case "intelligence": return `/move/explore/${destId}/intelligence`;
+    case "visa": return `/move/explore/${destId}/visa`;
+    case "awareness": return `/move/explore/${destId}/awareness`;
+    case "settle": return `/move/explore/${destId}/settle`;
+    case "execution": return `/move/explore/${destId}/execution`;
+    case "plan": return `/move/explore/${destId}/plan`;
+    case "book": return `/move/explore/${destId}/book`;
+    case "trips": return `/move/explore/${destId}/book/trips`;
+    case "stays": return `/move/explore/${destId}/book/stays`;
+    case "visaBook": return `/move/explore/${destId}/book/visa`;
+    case "booked": return `/move/explore/${destId}/booked`;
+  }
+}
+
+function screenFromPath(pathname: string): Screen {
+  const rest = pathname.replace(/^\/move\/?/, "");
+  if (rest === "") return "welcome";
+  if (rest === "spectrum") return "spectrum";
+  if (rest === "search") return "search";
+  if (rest === "explore") return "matches";
+  const m = rest.match(/^explore\/[^/]+(?:\/(.*))?$/);
+  if (!m) return "welcome";
+  const sub = m[1];
+  if (!sub) return "detail";
+  const subToScreen: Record<string, Screen> = {
+    intelligence: "intelligence",
+    visa: "visa",
+    awareness: "awareness",
+    settle: "settle",
+    execution: "execution",
+    plan: "plan",
+    book: "book",
+    "book/trips": "trips",
+    "book/stays": "stays",
+    "book/visa": "visaBook",
+    booked: "booked",
+  };
+  return subToScreen[sub] ?? "detail";
+}
+
 export function EasyMoveZoneApp() {
-  const [screen, setScreen] = useState<Screen>("welcome");
+  const pathname = usePathname();
+  const params = useParams();
+  const urlDestId = typeof params?.destId === "string" ? params.destId : null;
+  const [screen, setScreen] = useState<Screen>(() => screenFromPath(pathname));
   const [stayIdx, setStayIdx] = useState(2);
   const [qIndex, setQIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [destId, setDestId] = useState<string | null>(null);
+  const [destId, setDestId] = useState<string | null>(urlDestId);
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [taskIdByKey, setTaskIdByKey] = useState<Record<string, string>>({});
   const [shareOpen, setShareOpen] = useState(false);
@@ -185,16 +240,42 @@ export function EasyMoveZoneApp() {
   const [ready, setReady] = useState(false);
   useEffect(() => {
     if (ready || sessionPending || !catalogLoaded) return;
-    const saved = loadFlowState();
-    const validDest = saved && destinations.some((d) => d.id === saved.destId);
-    const validStay = saved && saved.stayIdx >= 0 && saved.stayIdx < SPECTRUM.length;
-    if (saved?.completed && validDest && validStay) {
-      setStayIdx(saved.stayIdx);
-      setDestId(saved.destId);
-      setScreen("matches");
+    // Only auto-resume on the bare welcome route — a deep link to a specific
+    // screen/destination should always win over a saved flow.
+    if (pathname === "/move") {
+      const saved = loadFlowState();
+      const validDest = saved && destinations.some((d) => d.id === saved.destId);
+      const validStay = saved && saved.stayIdx >= 0 && saved.stayIdx < SPECTRUM.length;
+      if (saved?.completed && validDest && validStay) {
+        setStayIdx(saved.stayIdx);
+        setDestId(saved.destId);
+        setScreen("matches");
+        router.replace(buildMovePath("matches", saved.destId));
+        setReady(true);
+        return;
+      }
     }
     setReady(true);
-  }, [ready, sessionPending, catalogLoaded, destinations]);
+  }, [ready, sessionPending, catalogLoaded, destinations, pathname, router]);
+
+  // Keep local screen/destId state aligned with the URL on back/forward
+  // navigation or any other change that doesn't go through goTo().
+  useEffect(() => {
+    setScreen(screenFromPath(pathname));
+  }, [pathname]);
+
+  useEffect(() => {
+    if (urlDestId && urlDestId !== destId) setDestId(urlDestId);
+  }, [urlDestId]);
+
+  // Updates local state immediately (instant UI) and pushes a real URL so
+  // the browser back/forward button and bookmarking work.
+  function goTo(next: Screen, opts?: { destId?: string }) {
+    const nextDestId = opts?.destId ?? destId ?? "";
+    if (opts?.destId) setDestId(opts.destId);
+    setScreen(next);
+    router.push(buildMovePath(next, nextDestId));
+  }
 
   const mode: Mode = SPECTRUM[stayIdx].mode;
   const cur = SPECTRUM[stayIdx];
@@ -231,10 +312,9 @@ export function EasyMoveZoneApp() {
     const next = { ...answers, [q.id]: opt };
     if (qIndex >= QUESTIONS.length - 1) {
       setAnswers(next);
-      setDestId(ranked[0].id);
       setMoodRanking(null);
       setMoodNote(null);
-      setScreen("matches");
+      goTo("matches", { destId: ranked[0].id });
     } else {
       setAnswers(next);
       setQIndex(qIndex + 1);
@@ -292,22 +372,23 @@ export function EasyMoveZoneApp() {
       const ids = Array.isArray(data.ranking)
         ? data.ranking.filter((id): id is string => typeof id === "string" && destinations.some((d) => d.id === id))
         : [];
+      let resolvedId: string;
       if (ids.length) {
         setMoodRanking(ids);
-        setDestId(ids[0]);
+        resolvedId = ids[0];
       } else {
         setMoodRanking(null);
-        setDestId(ranked[0].id);
+        resolvedId = ranked[0].id;
       }
       setMoodNote(typeof data.note === "string" ? data.note : null);
+      setMoodLoading(false);
+      goTo("matches", { destId: resolvedId });
     } catch {
       setMoodError("Couldn't reach the matcher — showing standard matches instead.");
       setMoodRanking(null);
       setMoodNote(null);
-      setDestId(ranked[0].id);
-    } finally {
       setMoodLoading(false);
-      setScreen("matches");
+      goTo("matches", { destId: ranked[0].id });
     }
   }
 
@@ -394,7 +475,7 @@ export function EasyMoveZoneApp() {
       }
       setTaskIdByKey(idMap);
       setSaveState("saved");
-      setScreen("plan");
+      goTo("plan");
     } catch {
       setSaveState("idle");
     }
@@ -430,7 +511,7 @@ export function EasyMoveZoneApp() {
       });
       setLastBooking(booking);
       setPending(null);
-      setScreen("booked");
+      goTo("booked");
     } catch {
       // Leave the sheet open so the user can retry.
     } finally {
@@ -615,7 +696,7 @@ export function EasyMoveZoneApp() {
         </div>
         <div style={{ flex: 1 }} />
         <button
-          onClick={() => setScreen("spectrum")}
+          onClick={() => goTo("spectrum")}
           style={{ width: "100%", padding: 19, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 17, fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}
         >
           Get started
@@ -676,7 +757,7 @@ export function EasyMoveZoneApp() {
         </div>
 
         <div style={{ flex: 1 }} />
-        <button onClick={() => { setDestId(ranked[0].id); setScreen("matches"); }} style={{ width: "100%", padding: 19, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 17, fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}>Continue</button>
+        <button onClick={() => goTo("matches", { destId: ranked[0].id })} style={{ width: "100%", padding: 19, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 17, fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}>Continue</button>
         </div>
         <FlowAside
           title="The Move Spectrum"
@@ -693,7 +774,7 @@ export function EasyMoveZoneApp() {
 
   function goBackFromExplore() {
     setExploreMode("mood");
-    setScreen(exploreReturnScreen);
+    goTo(exploreReturnScreen);
   }
 
   function Quiz() {
@@ -868,11 +949,11 @@ export function EasyMoveZoneApp() {
         <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>{moodList ? "Matched to your answers" : "Every place that fits how you want to move"}</h2>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 16 }}>
-          <div onClick={() => setScreen("spectrum")} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "#fff", border: "1px solid #e4dfd5", borderRadius: 999, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
+          <div onClick={() => goTo("spectrum")} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "#fff", border: "1px solid #e4dfd5", borderRadius: 999, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
             <span style={{ fontFamily: MONO, fontSize: 11, color: PRIMARY, letterSpacing: ".08em" }}>{cur.label} · {modeInfo.name}</span>
             <span style={{ fontSize: 12, color: MUTE }}>change ↻</span>
           </div>
-          <div onClick={() => { setExploreReturnScreen("matches"); setExploreMode("mood"); setScreen("search"); }} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "#fff", border: "1px solid #e4dfd5", borderRadius: 999, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
+          <div onClick={() => { setExploreReturnScreen("matches"); setExploreMode("mood"); goTo("search"); }} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "#fff", border: "1px solid #e4dfd5", borderRadius: 999, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
             <span style={{ fontFamily: MONO, fontSize: 11, color: PRIMARY, letterSpacing: ".08em" }}>{moodList ? "Refine your mood search" : "Try a mood search"}</span>
             <span style={{ fontSize: 12, color: MUTE }}>{moodList ? "↻" : "→"}</span>
           </div>
@@ -892,7 +973,7 @@ export function EasyMoveZoneApp() {
             const ringOffset = (C22 * (1 - d.match[mode] / 100)).toFixed(1);
             const chips = [d.stats[mode][0][1], d.visa[mode].tag];
             return (
-              <div key={d.id} onClick={() => { setDestId(d.id); setScreen("detail"); }} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 22, overflow: "hidden", cursor: "pointer", boxShadow: "0 4px 18px rgba(0,0,0,.05)" }}>
+              <div key={d.id} onClick={() => goTo("detail", { destId: d.id })} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 22, overflow: "hidden", cursor: "pointer", boxShadow: "0 4px 18px rgba(0,0,0,.05)" }}>
                 <div style={{ height: 152, position: "relative", background: "#ece6da" }}>
                   <ImageSlot src={photos[d.id] ?? d.imageUrl} placeholder={`Drop a ${d.city} photo`} onPick={(u) => setPhotos((p) => ({ ...p, [d.id]: u }))} />
                   {i === 0 && (
@@ -937,12 +1018,12 @@ export function EasyMoveZoneApp() {
     const visa = dest.visa[mode];
     const actionButtons = (
       <>
-        <button onClick={() => setScreen("intelligence")} style={{ width: "100%", padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>Open Travel Intelligence Core →</button>
-        <button onClick={() => setScreen("awareness")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 18, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Open Situational Awareness Core</button>
-        <button onClick={() => setScreen("execution")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 18, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Open Travel Execution Core</button>
+        <button onClick={() => goTo("intelligence")} style={{ width: "100%", padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>Open Travel Intelligence Core →</button>
+        <button onClick={() => goTo("awareness")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 18, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Open Situational Awareness Core</button>
+        <button onClick={() => goTo("execution")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 18, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Open Travel Execution Core</button>
         <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-          <button onClick={() => setScreen("visa")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Visa details</button>
-          <button onClick={() => setScreen("book")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Book now</button>
+          <button onClick={() => goTo("visa")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Visa details</button>
+          <button onClick={() => goTo("book")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Book now</button>
         </div>
       </>
     );
@@ -953,7 +1034,7 @@ export function EasyMoveZoneApp() {
         <div>
         <div className="move-detail-hero" style={{ position: "relative", background: "#e2dccd", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: 22 }}>
           <ImageSlot src={photos[dest.id] ?? dest.imageUrl} placeholder={`Drop a ${dest.city} photo`} onPick={(u) => setPhotos((p) => ({ ...p, [dest.id]: u }))} />
-          <div onClick={() => setScreen("matches")} style={{ position: "absolute", top: 64, left: 18, width: 40, height: 40, borderRadius: 999, background: "rgba(255,255,255,.86)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 19, boxShadow: "0 2px 8px rgba(0,0,0,.12)", zIndex: 2 }}>←</div>
+          <div onClick={() => goTo("matches")} style={{ position: "absolute", top: 64, left: 18, width: 40, height: 40, borderRadius: 999, background: "rgba(255,255,255,.86)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 19, boxShadow: "0 2px 8px rgba(0,0,0,.12)", zIndex: 2 }}>←</div>
           <div style={{ position: "absolute", top: 66, right: 18, background: "rgba(27,35,30,.82)", color: "#fff", padding: "7px 13px", borderRadius: 999, fontFamily: MONO, fontSize: 12, backdropFilter: "blur(4px)", zIndex: 2 }}>{dest.match[mode]}% match</div>
         </div>
 
@@ -1180,20 +1261,20 @@ export function EasyMoveZoneApp() {
   function openIntegration(action: IntegrationAction) {
     switch (action.target) {
       case "trips":
-        setScreen("trips");
+        goTo("trips");
         return;
       case "stays":
-        setScreen("stays");
+        goTo("stays");
         return;
       case "visaBook":
-        setScreen("visaBook");
+        goTo("visaBook");
         return;
       case "plan":
-        setScreen("plan");
+        goTo("plan");
         return;
       case "school":
       case "job":
-        setScreen("visa");
+        goTo("visa");
         return;
     }
   }
@@ -1246,7 +1327,7 @@ export function EasyMoveZoneApp() {
             <SectionLabel title="Alternative fits" core="intelligence" icon={Compass} />
             <div className="move-point-grid" style={{ marginTop: 12 }}>
               {alternatives.map((item) => (
-                <div key={item.id} onClick={() => setDestId(item.id)} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "14px 16px", boxShadow: "0 1px 3px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <div key={item.id} onClick={() => goTo("intelligence", { destId: item.id })} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "14px 16px", boxShadow: "0 1px 3px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                   <div>
                     <div style={{ fontSize: 16, fontWeight: 700 }}>{item.city}</div>
                     <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 3 }}>{item.country} · {item.visa[mode].tag}</div>
@@ -1258,8 +1339,8 @@ export function EasyMoveZoneApp() {
           </div>
 
           <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
-            <button onClick={() => setScreen("visa")} style={{ flex: 1, padding: 15, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Open visa details</button>
-            <button onClick={() => setScreen("awareness")} style={{ flex: 1, padding: 15, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 600, cursor: "pointer" }}>Go to awareness</button>
+            <button onClick={() => goTo("visa")} style={{ flex: 1, padding: 15, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Open visa details</button>
+            <button onClick={() => goTo("awareness")} style={{ flex: 1, padding: 15, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 600, cursor: "pointer" }}>Go to awareness</button>
           </div>
         </div>
       </div>
@@ -1287,8 +1368,8 @@ export function EasyMoveZoneApp() {
           <PointSection title="Embassies, emergency, and help" items={awarenessCore.helpPoints} core="awareness" />
 
           <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
-            <button onClick={() => setScreen("settle")} style={{ flex: 1, padding: 15, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Open settle notes</button>
-            <button onClick={() => setScreen("execution")} style={{ flex: 1, padding: 15, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 600, cursor: "pointer" }}>Go to execution</button>
+            <button onClick={() => goTo("settle")} style={{ flex: 1, padding: 15, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Open settle notes</button>
+            <button onClick={() => goTo("execution")} style={{ flex: 1, padding: 15, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 600, cursor: "pointer" }}>Go to execution</button>
           </div>
         </div>
       </div>
@@ -1346,8 +1427,8 @@ export function EasyMoveZoneApp() {
           </div>
 
           <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
-            <button onClick={() => setScreen("plan")} style={{ flex: 1, padding: 15, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Open my plan</button>
-            <button onClick={() => setScreen("book")} style={{ flex: 1, padding: 15, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 600, cursor: "pointer" }}>Open bookings</button>
+            <button onClick={() => goTo("plan")} style={{ flex: 1, padding: 15, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Open my plan</button>
+            <button onClick={() => goTo("book")} style={{ flex: 1, padding: 15, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 600, cursor: "pointer" }}>Open bookings</button>
           </div>
         </div>
       </div>
@@ -1615,7 +1696,7 @@ export function EasyMoveZoneApp() {
 
         <div className="move-book-grid" style={{ marginTop: 22 }}>
           {cards.map((c) => (
-            <div key={c.type} onClick={() => setScreen(c.go)} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20, boxShadow: "0 2px 10px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 16 }}>
+            <div key={c.type} onClick={() => goTo(c.go)} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20, boxShadow: "0 2px 10px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 16 }}>
               <div style={{ width: 46, height: 46, borderRadius: 14, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#fbeae0", color: PRIMARY, fontSize: 22 }}>{c.icon}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 17, fontWeight: 800, letterSpacing: "-.01em" }}>{c.title}</div>
@@ -1634,7 +1715,7 @@ export function EasyMoveZoneApp() {
     return (
       <div className="move-page-inner">
       <div className="move-page-screen">
-        <div onClick={() => setScreen("book")} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 11, letterSpacing: ".1em", color: PRIMARY, cursor: "pointer" }}>← Book</div>
+        <div onClick={() => goTo("book")} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 11, letterSpacing: ".1em", color: PRIMARY, cursor: "pointer" }}>← Book</div>
         <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE, marginTop: 14 }}>{eyebrow}</div>
         <h2 style={{ fontSize: 25, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>{title}</h2>
         <p style={{ fontSize: 14, color: "#6e746b", margin: "10px 0 0", lineHeight: 1.5 }}>{sub}</p>
@@ -1716,8 +1797,8 @@ export function EasyMoveZoneApp() {
           </div>
         )}
 
-        <button onClick={() => setScreen("plan")} style={{ width: "100%", marginTop: 22, padding: 16, border: "none", borderRadius: 16, background: INK, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>View my plan →</button>
-        <button onClick={() => setScreen("book")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Book something else</button>
+        <button onClick={() => goTo("plan")} style={{ width: "100%", marginTop: 22, padding: 16, border: "none", borderRadius: 16, background: INK, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>View my plan →</button>
+        <button onClick={() => goTo("book")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Book something else</button>
       </div>
       </div>
     );
@@ -1841,7 +1922,7 @@ export function EasyMoveZoneApp() {
               {ranked.map((d) => {
                 const active = d.id === dest.id;
                 return (
-                  <div key={d.id} onClick={() => { setDestId(d.id); setDestSwitchOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 14px", borderRadius: 16, cursor: "pointer", background: active ? PRIMARY : "#fff", color: active ? "#fff" : INK, border: `1px solid ${active ? PRIMARY : "#e4dfd5"}` }}>
+                  <div key={d.id} onClick={() => { goTo(screen, { destId: d.id }); setDestSwitchOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 14px", borderRadius: 16, cursor: "pointer", background: active ? PRIMARY : "#fff", color: active ? "#fff" : INK, border: `1px solid ${active ? PRIMARY : "#e4dfd5"}` }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 15.5, fontWeight: 700 }}>{d.city}</div>
                       <div style={{ fontSize: 12, color: active ? "rgba(255,255,255,.75)" : MUTE, marginTop: 2 }}>{d.country} · {d.match[mode]}% match</div>
@@ -1862,7 +1943,7 @@ export function EasyMoveZoneApp() {
       showNav={showNav}
       tabs={tabs}
       screen={screen}
-      onNavigate={(s) => setScreen(s as Screen)}
+      onNavigate={(s) => goTo(s as Screen)}
       destCity={isFlowScreen ? undefined : dest.city}
       destCountry={isFlowScreen ? undefined : dest.country}
       stayLabel={isFlowScreen ? undefined : cur.label}
