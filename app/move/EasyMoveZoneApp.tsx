@@ -15,7 +15,6 @@ import {
   Gauge,
   GraduationCap,
   Info,
-  LifeBuoy,
   ListChecks,
   MapPin,
   Rocket,
@@ -41,7 +40,6 @@ import {
   type CorePoint,
   type IntegrationAction,
   type PersonaMatch,
-  type ReadinessSection,
 } from "./core-features";
 import { useMoveCatalog } from "./useMoveCatalog";
 import { ImageSlot } from "./ImageSlot";
@@ -319,7 +317,6 @@ type Screen =
   | "matches"
   | "detail"
   | "intelligence"
-  | "awareness"
   | "execution"
   | "visa"
   | "eligibility"
@@ -349,7 +346,6 @@ function buildMovePath(screen: Screen, destId: string): string {
     case "visa": return `/move/explore/${destId}/visa`;
     case "eligibility": return `/move/explore/${destId}/eligibility`;
     case "documents": return `/move/explore/${destId}/documents`;
-    case "awareness": return `/move/explore/${destId}/awareness`;
     case "settle": return `/move/explore/${destId}/settle`;
     case "execution": return `/move/explore/${destId}/execution`;
     case "plan": return `/move/explore/${destId}/plan`;
@@ -377,7 +373,6 @@ function screenFromPath(pathname: string): Screen {
     visa: "visa",
     eligibility: "eligibility",
     documents: "documents",
-    awareness: "awareness",
     settle: "settle",
     execution: "execution",
     plan: "plan",
@@ -1427,7 +1422,6 @@ export function EasyMoveZoneApp() {
     const actionButtons = (
       <>
         <button onClick={() => goTo("intelligence")} style={{ width: "100%", padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>Open Travel Intelligence Core →</button>
-        <button onClick={() => goTo("awareness")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 18, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Open Situational Awareness Core</button>
         <button onClick={() => goTo("execution")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 18, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Open Travel Execution Core</button>
         <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
           <button onClick={() => goTo("visa")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Visa details</button>
@@ -1645,27 +1639,6 @@ export function EasyMoveZoneApp() {
     );
   }
 
-  function ReadinessSectionCard({ section, core }: { section: ReadinessSection; core?: keyof typeof CORE_THEME }) {
-    const theme = core ? CORE_THEME[core] : null;
-    const color = theme?.color ?? PRIMARY;
-    return (
-      <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <ClipboardCheck size={18} strokeWidth={2.4} style={{ color, flexShrink: 0 }} />
-          <div style={{ fontSize: 17.5, fontWeight: 800 }}>{section.title}</div>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 14 }}>
-          {section.items.map((item) => (
-            <div key={item} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-              <CheckCircle2 size={17} strokeWidth={2.2} style={{ color, marginTop: 1, flexShrink: 0, opacity: 0.85 }} />
-              <div style={{ fontSize: 15.5, lineHeight: 1.55, color: "#3f453c" }}>{item}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   function openIntegration(action: IntegrationAction) {
     switch (action.target) {
       case "trips":
@@ -1691,64 +1664,67 @@ export function EasyMoveZoneApp() {
     const alternatives = browseList.filter((item) => item.id !== dest.id).slice(0, 3);
     const tabs: TabDef[] = [
       { id: "decision", label: "Decision", icon: Gauge, content: <MetricGrid items={intelligenceCore.decision} core="intelligence" /> },
-      { id: "visa", label: "Visa intel", icon: ShieldCheck, content: <MetricGrid items={intelligenceCore.visa} core="intelligence" /> },
-      { id: "compliance", label: "Compliance", icon: ListChecks, content: <PointSection title="Legal and compliance navigator" items={intelligenceCore.compliance} core="intelligence" /> },
+      {
+        id: "visa",
+        label: "Visa & compliance",
+        icon: ShieldCheck,
+        content: (
+          <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+            <MetricGrid items={intelligenceCore.visa} core="intelligence" />
+            <PointSection title="Legal and compliance navigator" items={intelligenceCore.compliance} core="intelligence" />
+          </div>
+        ),
+      },
       {
         id: "prep",
-        label: "Prep steps",
+        label: "Prep & alternatives",
         icon: ClipboardCheck,
         content: (
-          <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 20, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
-            <SectionLabel title="Preparation sequence" core="intelligence" icon={ClipboardCheck} />
-            <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 14 }}>
-              {intelligenceCore.prep.map((step, index) => (
-                <div key={step} style={{ display: "flex", gap: 13, alignItems: "flex-start" }}>
-                  <div style={{ width: 28, height: 28, borderRadius: 999, background: CORE_THEME.intelligence.soft, color: CORE_THEME.intelligence.color, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{index + 1}</div>
-                  <div style={{ fontSize: 15.5, lineHeight: 1.6, color: "#3f453c" }}>{step}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ),
-      },
-      {
-        id: "alternatives",
-        label: "Alternatives",
-        icon: Compass,
-        content: (
-          <div>
-            <SectionLabel title="Alternative fits" core="intelligence" icon={Compass} />
-            <div className="move-point-grid" style={{ marginTop: 14 }}>
-              {alternatives.map((item) => (
-                <div key={item.id} onClick={() => goTo("intelligence", { destId: item.id })} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                  <div>
-                    <div style={{ fontSize: 17, fontWeight: 700 }}>{item.city}</div>
-                    <div style={{ fontSize: 13.5, color: "#6e746b", marginTop: 4 }}>{item.country} · {item.visa[mode].tag}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+            <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 20, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
+              <SectionLabel title="Preparation sequence" core="intelligence" icon={ClipboardCheck} />
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 14 }}>
+                {intelligenceCore.prep.map((step, index) => (
+                  <div key={step} style={{ display: "flex", gap: 13, alignItems: "flex-start" }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 999, background: CORE_THEME.intelligence.soft, color: CORE_THEME.intelligence.color, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{index + 1}</div>
+                    <div style={{ fontSize: 15.5, lineHeight: 1.6, color: "#3f453c" }}>{step}</div>
                   </div>
-                  <div style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: CORE_THEME.intelligence.color, whiteSpace: "nowrap" }}>{item.match[mode]}% match</div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+            <div>
+              <SectionLabel title="Alternative fits" core="intelligence" icon={Compass} />
+              <div className="move-point-grid" style={{ marginTop: 14 }}>
+                {alternatives.map((item) => (
+                  <div key={item.id} onClick={() => goTo("intelligence", { destId: item.id })} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                    <div>
+                      <div style={{ fontSize: 17, fontWeight: 700 }}>{item.city}</div>
+                      <div style={{ fontSize: 13.5, color: "#6e746b", marginTop: 4 }}>{item.country} · {item.visa[mode].tag}</div>
+                    </div>
+                    <div style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: CORE_THEME.intelligence.color, whiteSpace: "nowrap" }}>{item.match[mode]}% match</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         ),
       },
-      // ── Folded-in Situational Awareness (was its own tab) ──
-      { id: "map", label: "On the ground", icon: MapPin, content: <PointSection title="Smart map layers" items={awarenessCore.mapLayers} core="intelligence" /> },
       {
-        id: "reality",
-        label: "Reality check",
-        icon: Eye,
+        id: "ground",
+        label: "On the ground",
+        icon: MapPin,
         content: (
-          <div>
-            <SectionLabel title="Country reality check" core="intelligence" icon={Eye} />
-            <MetricGrid items={awarenessCore.reality} core="intelligence" />
+          <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+            <PointSection title="Smart map layers" items={awarenessCore.mapLayers} core="intelligence" />
+            <div>
+              <SectionLabel title="Country reality check" core="intelligence" icon={Eye} />
+              <MetricGrid items={awarenessCore.reality} core="intelligence" />
+            </div>
+            <AlertsSection alerts={awarenessCore.alerts} core="intelligence" />
+            <PointSection title="Embassies, emergency, and help" items={awarenessCore.helpPoints} core="intelligence" />
           </div>
         ),
       },
-      { id: "signals", label: "Live signals", icon: Bell, content: <AlertsSection alerts={awarenessCore.alerts} core="intelligence" /> },
-      { id: "help", label: "Help & embassies", icon: LifeBuoy, content: <PointSection title="Embassies, emergency, and help" items={awarenessCore.helpPoints} core="intelligence" /> },
-      // ── Folded-in Settle essentials ──
-      { id: "settle", label: "Settling in", icon: BadgeCheck, content: <SettleCardsGrid cards={settleCards} variant="move" /> },
     ];
     return (
       <div className="move-page-inner">
@@ -1774,47 +1750,10 @@ export function EasyMoveZoneApp() {
 
           <TabGroup core="intelligence" tabs={tabs} />
 
-          <div style={{ display: "flex", gap: 10, marginTop: 26 }}>
-            <button onClick={() => goTo("visa")} style={{ flex: 1, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 700, cursor: "pointer" }}>Open visa details</button>
-            <button onClick={() => goTo("documents")} style={{ flex: 1, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 600, cursor: "pointer" }}>My documents</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  function Awareness() {
-    const tabs: TabDef[] = [
-      { id: "map", label: "Map layers", icon: MapPin, content: <PointSection title="Smart map layers" items={awarenessCore.mapLayers} core="awareness" /> },
-      {
-        id: "reality",
-        label: "Reality check",
-        icon: Gauge,
-        content: (
-          <div>
-            <SectionLabel title="Country reality check" core="awareness" icon={Gauge} />
-            <MetricGrid items={awarenessCore.reality} core="awareness" />
-          </div>
-        ),
-      },
-      { id: "signals", label: "Live signals", icon: Bell, content: <AlertsSection alerts={awarenessCore.alerts} core="awareness" /> },
-      { id: "help", label: "Help & embassies", icon: LifeBuoy, content: <PointSection title="Embassies, emergency, and help" items={awarenessCore.helpPoints} core="awareness" /> },
-    ];
-    return (
-      <div className="move-page-inner">
-        <div className="move-page-screen">
-          <ModuleHeader
-            core="awareness"
-            eyebrow="Situational Awareness Core"
-            title={`Read the ground in ${dest.city}`}
-            sub="Smart safety layers, reality checks, and live signals that explain what the city feels like now."
-          />
-
-          <TabGroup core="awareness" tabs={tabs} />
-
-          <div style={{ display: "flex", gap: 10, marginTop: 26 }}>
-            <button onClick={() => goTo("settle")} style={{ flex: 1, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 700, cursor: "pointer" }}>Open settle notes</button>
-            <button onClick={() => goTo("execution")} style={{ flex: 1, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 600, cursor: "pointer" }}>Go to execution</button>
+          <div style={{ display: "flex", gap: 10, marginTop: 26, flexWrap: "wrap" }}>
+            <button onClick={() => goTo("visa")} style={{ flex: 1, minWidth: 160, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 700, cursor: "pointer" }}>Open visa details</button>
+            <button onClick={() => goTo("documents")} style={{ flex: 1, minWidth: 160, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 600, cursor: "pointer" }}>My documents</button>
+            <button onClick={() => goTo("settle")} style={{ flex: 1, minWidth: 160, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 600, cursor: "pointer" }}>Settling in</button>
           </div>
         </div>
       </div>
@@ -1837,21 +1776,6 @@ export function EasyMoveZoneApp() {
                   <CheckCircle2 size={17} strokeWidth={2.2} style={{ color: CORE_THEME.execution.color, marginTop: 1, flexShrink: 0, opacity: 0.85 }} />
                   <div style={{ fontSize: 15.5, lineHeight: 1.6, color: "#3f453c" }}>{line}</div>
                 </div>
-              ))}
-            </div>
-          </div>
-        ),
-      },
-      {
-        id: "readiness",
-        label: "Readiness",
-        icon: ClipboardCheck,
-        content: (
-          <div>
-            <SectionLabel title="Travel readiness checklist" core="execution" icon={ClipboardCheck} />
-            <div className="move-point-grid" style={{ marginTop: 14 }}>
-              {executionCore.readiness.map((section) => (
-                <ReadinessSectionCard key={section.title} section={section} core="execution" />
               ))}
             </div>
           </div>
@@ -2763,7 +2687,6 @@ export function EasyMoveZoneApp() {
       case "matches": return catalogLoaded ? Matches() : <MatchesSkeleton />;
       case "detail": return Detail();
       case "intelligence": return Intelligence();
-      case "awareness": return Awareness();
       case "execution": return Execution();
       case "plan": return Plan();
       case "visa": return Visa();
@@ -2781,7 +2704,8 @@ export function EasyMoveZoneApp() {
 
   const tabs: { label: string; screens: Screen[]; go: Screen }[] = [
     { label: "Explore", screens: ["welcome", "spectrum", "search", "matches", "detail"], go: "matches" },
-    { label: "Intelligence", screens: ["intelligence", "visa", "eligibility", "documents", "awareness", "settle"], go: "intelligence" },
+    { label: "Intelligence", screens: ["intelligence", "visa", "eligibility", "settle"], go: "intelligence" },
+    { label: "Documents", screens: ["documents"], go: "documents" },
     { label: "Bookings", screens: ["book", "trips", "stays", "visaBook", "appointments", "booked", "execution", "plan"], go: "book" },
   ];
 
