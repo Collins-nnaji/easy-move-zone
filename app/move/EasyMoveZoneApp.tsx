@@ -9,7 +9,9 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Compass,
+  ExternalLink,
   Eye,
+  FileText,
   Gauge,
   GraduationCap,
   Info,
@@ -19,6 +21,7 @@ import {
   Rocket,
   ShieldCheck,
   Sparkles,
+  Upload,
   Users,
 } from "lucide-react";
 import {
@@ -97,6 +100,112 @@ const MUTE = "#9aa097";
 const HANKEN = "var(--font-hanken), system-ui, sans-serif";
 const MONO = "var(--font-plex-mono), ui-monospace, monospace";
 
+/* ── Eligibility (AI visa assessment) types & options ─── */
+interface EligProfile {
+  nationality: string;
+  age: string;
+  education: string;
+  experience: string;
+  profession: string;
+  english: string;
+  budget: string;
+  family: string;
+  goals: string[];
+  destination: string;
+  timeline: string;
+}
+interface EligMatch {
+  destinationId: string | null;
+  country: string;
+  city: string;
+  visa: string;
+  score: number;
+  timeline: string;
+  costRange: string;
+}
+interface EligResult {
+  matches: EligMatch[];
+  summary: string;
+  nextSteps: string[];
+}
+interface ChecklistItem {
+  label: string;
+  why: string;
+  urgent: boolean;
+}
+interface VisaOption {
+  name: string;
+  who: string;
+  timeline: string;
+  cost: string;
+  difficulty: number;
+  notes: string;
+}
+interface AppointmentsGuide {
+  portalName: string;
+  portalUrl: string;
+  typicalWait: string;
+  waitLevel: number;
+  bookAhead: string;
+  bestTimes: string;
+  prep: string[];
+  notes: string;
+  source?: string;
+}
+
+const DEFAULT_ELIG_PROFILE: EligProfile = {
+  nationality: "", age: "", education: "bachelors", experience: "3", profession: "",
+  english: "fluent", budget: "comfortable", family: "just-me", goals: ["work"],
+  destination: "no-preference", timeline: "3-6 months",
+};
+
+const ELIG_GOALS = [
+  { id: "work", label: "Work" },
+  { id: "study", label: "Study" },
+  { id: "business", label: "Start a business" },
+  { id: "family", label: "Join family" },
+  { id: "remote", label: "Remote / nomad" },
+];
+const ELIG_EDU = [
+  { id: "secondary", label: "Secondary" },
+  { id: "diploma", label: "Diploma" },
+  { id: "bachelors", label: "Bachelor's" },
+  { id: "masters", label: "Master's" },
+  { id: "phd", label: "PhD" },
+];
+const ELIG_ENGLISH = [
+  { id: "beginner", label: "Beginner" },
+  { id: "intermediate", label: "Intermediate" },
+  { id: "fluent", label: "Fluent" },
+  { id: "ielts-6.5", label: "IELTS 6.5+" },
+  { id: "ielts-7.5", label: "IELTS 7.5+" },
+];
+const ELIG_BUDGET = [
+  { id: "lean", label: "Lean" },
+  { id: "comfortable", label: "Comfortable" },
+  { id: "generous", label: "Generous" },
+  { id: "high", label: "High" },
+];
+const ELIG_FAMILY = [
+  { id: "just-me", label: "Just me" },
+  { id: "partner", label: "With partner" },
+  { id: "family", label: "With family" },
+];
+const ELIG_TIMELINE = [
+  { id: "asap", label: "ASAP" },
+  { id: "3-6 months", label: "3–6 months" },
+  { id: "6-12 months", label: "6–12 months" },
+  { id: "1 year+", label: "1 year+" },
+];
+// Number of form steps before the results view (results render at eligStep === ELIG_STEPS).
+const ELIG_STEPS = 3;
+
+function goalToMode(goals: string[]): Mode {
+  if (goals.some((g) => ["study", "work", "family", "business"].includes(g))) return "move";
+  if (goals.some((g) => ["remote", "nomad"].includes(g))) return "nomad";
+  return "trip";
+}
+
 // Each "core" screen (Intelligence / Awareness / Execution) gets its own accent
 // so the three feel visually distinct instead of every section reusing the
 // same orange-on-white card, which is what made the app read as one long list.
@@ -170,6 +279,39 @@ function TabGroup({ core, tabs }: { core: keyof typeof CORE_THEME; tabs: TabDef[
   );
 }
 
+// Code-drawn difficulty meter — 5 segments, filled to `value` (1–5). No assets.
+function DifficultyMeter({ value }: { value: number }) {
+  const v = Math.max(1, Math.min(5, Math.round(value)));
+  // green(easy) → amber → red(hard)
+  const color = v <= 2 ? "#2f7d4f" : v === 3 ? "#b9781f" : "#c0492a";
+  const labels = ["Very easy", "Easy", "Moderate", "Hard", "Very hard"];
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ display: "flex", gap: 3 }} aria-label={`Difficulty ${v} of 5`}>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <span key={i} style={{ width: 16, height: 6, borderRadius: 999, background: i <= v ? color : "#e4dfd5" }} />
+        ))}
+      </div>
+      <span style={{ fontFamily: "var(--font-plex-mono), ui-monospace, monospace", fontSize: 11, color, fontWeight: 600 }}>{labels[v - 1]}</span>
+    </div>
+  );
+}
+
+// Shimmer skeleton block for AI-backed sections while they load.
+function Shimmer({ height = 64 }: { height?: number }) {
+  return <div className="move-shimmer" style={{ height, borderRadius: 14 }} />;
+}
+
+// Small "AI generated for you" affordance.
+function AiChip({ label = "Generated for your profile" }: { label?: string }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 10px", borderRadius: 999, background: "#f6e9df", border: "1px solid #f3d6c4" }}>
+      <Sparkles size={12} strokeWidth={2.4} style={{ color: "#e0511f" }} />
+      <span style={{ fontFamily: "var(--font-plex-mono), ui-monospace, monospace", fontSize: 10, letterSpacing: ".08em", textTransform: "uppercase", color: "#bf5223", fontWeight: 600 }}>{label}</span>
+    </span>
+  );
+}
+
 type Screen =
   | "welcome"
   | "spectrum"
@@ -180,12 +322,15 @@ type Screen =
   | "awareness"
   | "execution"
   | "visa"
+  | "eligibility"
+  | "documents"
   | "settle"
   | "plan"
   | "book"
   | "trips"
   | "stays"
   | "visaBook"
+  | "appointments"
   | "booked";
 
 // Every screen now has a real URL under /move — this is what gives the app a
@@ -202,6 +347,8 @@ function buildMovePath(screen: Screen, destId: string): string {
     case "detail": return `/move/explore/${destId}`;
     case "intelligence": return `/move/explore/${destId}/intelligence`;
     case "visa": return `/move/explore/${destId}/visa`;
+    case "eligibility": return `/move/explore/${destId}/eligibility`;
+    case "documents": return `/move/explore/${destId}/documents`;
     case "awareness": return `/move/explore/${destId}/awareness`;
     case "settle": return `/move/explore/${destId}/settle`;
     case "execution": return `/move/explore/${destId}/execution`;
@@ -210,6 +357,7 @@ function buildMovePath(screen: Screen, destId: string): string {
     case "trips": return `/move/explore/${destId}/book/trips`;
     case "stays": return `/move/explore/${destId}/book/stays`;
     case "visaBook": return `/move/explore/${destId}/book/visa`;
+    case "appointments": return `/move/explore/${destId}/book/appointments`;
     case "booked": return `/move/explore/${destId}/booked`;
   }
 }
@@ -227,6 +375,8 @@ function screenFromPath(pathname: string): Screen {
   const subToScreen: Record<string, Screen> = {
     intelligence: "intelligence",
     visa: "visa",
+    eligibility: "eligibility",
+    documents: "documents",
     awareness: "awareness",
     settle: "settle",
     execution: "execution",
@@ -235,6 +385,7 @@ function screenFromPath(pathname: string): Screen {
     "book/trips": "trips",
     "book/stays": "stays",
     "book/visa": "visaBook",
+    "book/appointments": "appointments",
     booked: "booked",
   };
   return subToScreen[sub] ?? "detail";
@@ -271,6 +422,33 @@ export function EasyMoveZoneApp() {
   const [clarifyAnswer, setClarifyAnswer] = useState<string | null>(null);
   const [clarifyLoading, setClarifyLoading] = useState(false);
   const [clarifyError, setClarifyError] = useState<string | null>(null);
+
+  // Eligibility state — the AI visa-eligibility + document-checklist wedge.
+  const [eligProfile, setEligProfile] = useState<EligProfile>(DEFAULT_ELIG_PROFILE);
+  const [eligStep, setEligStep] = useState(0);
+  const [eligResult, setEligResult] = useState<EligResult | null>(null);
+  const [eligLoading, setEligLoading] = useState(false);
+  const [eligError, setEligError] = useState<string | null>(null);
+  const [eligChecklist, setEligChecklist] = useState<ChecklistItem[] | null>(null);
+  const [eligChecklistFor, setEligChecklistFor] = useState<string | null>(null);
+  const [eligChecklistLoading, setEligChecklistLoading] = useState(false);
+
+  // Visa options (AI-generated routes for the current destination).
+  const [visaRoutes, setVisaRoutes] = useState<VisaOption[]>([]);
+  const [visaRoutesFor, setVisaRoutesFor] = useState<string | null>(null);
+  const [visaRoutesLoading, setVisaRoutesLoading] = useState(false);
+  const [visaRoutesAi, setVisaRoutesAi] = useState(false);
+  const [selectedVisaRoute, setSelectedVisaRoute] = useState<string | null>(null);
+
+  // Documents — uploaded files (this session) + upload status.
+  const [uploadedDocs, setUploadedDocs] = useState<{ label: string; url: string; key: string }[]>([]);
+  const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Visa appointments guidance (AI wait-time + official portal).
+  const [apptGuide, setApptGuide] = useState<AppointmentsGuide | null>(null);
+  const [apptFor, setApptFor] = useState<string | null>(null);
+  const [apptLoading, setApptLoading] = useState(false);
 
   // Booking flow state.
   const [pending, setPending] = useState<PendingBooking | null>(null);
@@ -330,6 +508,10 @@ export function EasyMoveZoneApp() {
     if (urlDestId && urlDestId !== destId) setDestId(urlDestId);
   }, [urlDestId]);
 
+  // Load AI visa routes when the Visa screen is active (re-runs if the
+  // destination or stay mode changes). Keyed on dest+mode so switching either
+  // refreshes the routes. (Placed after dest/mode are defined below.)
+
   // Updates local state immediately (instant UI) and pushes a real URL so
   // the browser back/forward button and bookmarking work.
   function goTo(next: Screen, opts?: { destId?: string }) {
@@ -351,6 +533,23 @@ export function EasyMoveZoneApp() {
     () => destinations.find((d) => d.id === destId) ?? ranked[0],
     [destId, ranked, destinations],
   );
+
+  // Load AI visa routes when the Visa screen is active (re-runs if the
+  // destination or stay mode changes).
+  useEffect(() => {
+    if (screen !== "visa" || !dest?.id) return;
+    if (visaRoutesFor === `${dest.id}:${mode}` && !visaRoutesLoading) return;
+    void runVisaOptions(dest.id, mode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, dest?.id, mode]);
+
+  // Load appointment guidance when the Appointments screen is active.
+  useEffect(() => {
+    if (screen !== "appointments" || !dest?.id) return;
+    if (apptFor === `${dest.id}:${mode}` && !apptLoading) return;
+    void runAppointments(dest.id, mode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, dest?.id, mode]);
 
   // The mood search, when used, overrides the static match-score ordering.
   const moodList = useMemo(() => {
@@ -487,6 +686,153 @@ export function EasyMoveZoneApp() {
       setClarifyError("Couldn't reach the assistant — try again in a moment.");
     } finally {
       setClarifyLoading(false);
+    }
+  }
+
+  async function runAssess() {
+    if (eligLoading) return;
+    setEligLoading(true);
+    setEligError(null);
+    setEligChecklist(null);
+    setEligChecklistFor(null);
+    try {
+      const res = await fetch("/api/assess", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...eligProfile,
+          age: Number(eligProfile.age) || 28,
+          experience: Number(eligProfile.experience) || 0,
+        }),
+      });
+      if (!res.ok) throw new Error("assess failed");
+      const data = (await res.json()) as EligResult;
+      setEligResult({
+        matches: Array.isArray(data.matches) ? data.matches : [],
+        summary: typeof data.summary === "string" ? data.summary : "",
+        nextSteps: Array.isArray(data.nextSteps) ? data.nextSteps : [],
+      });
+      setEligStep(ELIG_STEPS);
+    } catch {
+      setEligError("Couldn't run your assessment — try again in a moment.");
+    } finally {
+      setEligLoading(false);
+    }
+  }
+
+  async function runChecklist(match: EligMatch) {
+    if (eligChecklistLoading) return;
+    setEligChecklistLoading(true);
+    setEligChecklistFor(match.destinationId ?? match.city);
+    setEligChecklist(null);
+    try {
+      const res = await fetch("/api/visa/checklist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          destinationId: match.destinationId,
+          mode: goalToMode(eligProfile.goals),
+          profile: {
+            goals: eligProfile.goals,
+            education: eligProfile.education,
+            english: eligProfile.english,
+            nationality: eligProfile.nationality,
+            family: eligProfile.family,
+          },
+        }),
+      });
+      if (!res.ok) throw new Error("checklist failed");
+      const data = (await res.json()) as { items?: ChecklistItem[] };
+      setEligChecklist(Array.isArray(data.items) ? data.items : []);
+    } catch {
+      setEligError("Couldn't build your checklist — try again in a moment.");
+      setEligChecklistFor(null);
+    } finally {
+      setEligChecklistLoading(false);
+    }
+  }
+
+  async function runVisaOptions(destinationId: string, forMode: Mode) {
+    setVisaRoutesLoading(true);
+    setVisaRoutesFor(`${destinationId}:${forMode}`);
+    setVisaRoutes([]);
+    setSelectedVisaRoute(null);
+    try {
+      const res = await fetch("/api/visa/options", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          destinationId,
+          mode: forMode,
+          profile: {
+            goals: eligProfile.goals,
+            education: eligProfile.education,
+            english: eligProfile.english,
+            nationality: eligProfile.nationality,
+            experience: Number(eligProfile.experience) || undefined,
+          },
+        }),
+      });
+      if (!res.ok) throw new Error("options failed");
+      const data = (await res.json()) as { options?: VisaOption[]; source?: string };
+      setVisaRoutes(Array.isArray(data.options) ? data.options : []);
+      setVisaRoutesAi(data.source === "ai");
+    } catch {
+      setVisaRoutes([]);
+    } finally {
+      setVisaRoutesLoading(false);
+    }
+  }
+
+  async function runAppointments(destinationId: string, forMode: Mode) {
+    setApptLoading(true);
+    setApptFor(`${destinationId}:${forMode}`);
+    setApptGuide(null);
+    try {
+      const res = await fetch("/api/visa/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          destinationId,
+          mode: forMode,
+          profile: { goals: eligProfile.goals, nationality: eligProfile.nationality },
+        }),
+      });
+      if (!res.ok) throw new Error("appointments failed");
+      const data = (await res.json()) as AppointmentsGuide;
+      setApptGuide(data);
+    } catch {
+      setApptGuide(null);
+    } finally {
+      setApptLoading(false);
+    }
+  }
+
+  async function uploadDocument(file: File, label: string) {
+    if (!signedIn) {
+      router.push("/auth?redirect=/move");
+      return;
+    }
+    setUploadError(null);
+    setUploadingDoc(label);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("destId", dest?.id ?? "general");
+      fd.append("label", label);
+      const res = await fetch("/api/documents/upload", { method: "POST", body: fd });
+      const data = (await res.json()) as { url?: string; key?: string; label?: string; error?: string };
+      if (!res.ok) {
+        setUploadError(data.error ?? "Upload failed — try again.");
+        return;
+      }
+      if (data.url && data.key) {
+        setUploadedDocs((prev) => [{ label: data.label ?? label, url: data.url!, key: data.key! }, ...prev]);
+      }
+    } catch {
+      setUploadError("Couldn't reach storage — try again in a moment.");
+    } finally {
+      setUploadingDoc(null);
     }
   }
 
@@ -738,11 +1084,11 @@ export function EasyMoveZoneApp() {
         </div>
         <div style={{ marginTop: 56 }}>
           <h1 style={{ fontSize: 40, lineHeight: 1.04, fontWeight: 800, letterSpacing: "-.02em", margin: 0, textWrap: "balance" } as CSSProperties}>
-            Get there.<br />Stay there.<br />
-            <span style={{ color: PRIMARY }}>Visa sorted.</span>
+            Your move,<br />
+            <span style={{ color: PRIMARY }}>made easy.</span>
           </h1>
-          <p style={{ fontSize: 16.5, lineHeight: 1.5, color: "#5f655c", margin: "22px 0 0", maxWidth: 300 }}>
-            Movement, accommodation, and visa — the three things every move needs, in one app that adapts to how long you&apos;re staying.
+          <p style={{ fontSize: 16.5, lineHeight: 1.5, color: "#5f655c", margin: "22px 0 0", maxWidth: 320 }}>
+            See the visas you qualify for and your exact document checklist — in minutes, no consultant. Then sort movement and accommodation in one app.
           </p>
         </div>
         <div style={{ marginTop: 44, display: "flex", alignItems: "center", gap: 14 }}>
@@ -1386,6 +1732,23 @@ export function EasyMoveZoneApp() {
           </div>
         ),
       },
+      // ── Folded-in Situational Awareness (was its own tab) ──
+      { id: "map", label: "On the ground", icon: MapPin, content: <PointSection title="Smart map layers" items={awarenessCore.mapLayers} core="intelligence" /> },
+      {
+        id: "reality",
+        label: "Reality check",
+        icon: Eye,
+        content: (
+          <div>
+            <SectionLabel title="Country reality check" core="intelligence" icon={Eye} />
+            <MetricGrid items={awarenessCore.reality} core="intelligence" />
+          </div>
+        ),
+      },
+      { id: "signals", label: "Live signals", icon: Bell, content: <AlertsSection alerts={awarenessCore.alerts} core="intelligence" /> },
+      { id: "help", label: "Help & embassies", icon: LifeBuoy, content: <PointSection title="Embassies, emergency, and help" items={awarenessCore.helpPoints} core="intelligence" /> },
+      // ── Folded-in Settle essentials ──
+      { id: "settle", label: "Settling in", icon: BadgeCheck, content: <SettleCardsGrid cards={settleCards} variant="move" /> },
     ];
     return (
       <div className="move-page-inner">
@@ -1413,7 +1776,7 @@ export function EasyMoveZoneApp() {
 
           <div style={{ display: "flex", gap: 10, marginTop: 26 }}>
             <button onClick={() => goTo("visa")} style={{ flex: 1, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 700, cursor: "pointer" }}>Open visa details</button>
-            <button onClick={() => goTo("awareness")} style={{ flex: 1, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 600, cursor: "pointer" }}>Go to awareness</button>
+            <button onClick={() => goTo("documents")} style={{ flex: 1, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 600, cursor: "pointer" }}>My documents</button>
           </div>
         </div>
       </div>
@@ -1649,6 +2012,285 @@ export function EasyMoveZoneApp() {
     );
   }
 
+  function EligChips({ options, value, onPick }: { options: { id: string; label: string }[]; value: string; onPick: (id: string) => void }) {
+    return (
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+        {options.map((o) => {
+          const active = value === o.id;
+          return (
+            <button key={o.id} onClick={() => onPick(o.id)}
+              style={{ padding: "10px 14px", borderRadius: 12, border: `1px solid ${active ? PRIMARY : "#d8d2c6"}`, background: active ? "#f6e9df" : "#fff", color: active ? PRIMARY : INK, fontFamily: HANKEN, fontSize: 14, fontWeight: active ? 700 : 500, cursor: "pointer" }}>
+              {o.label}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
+  function EligField({ label, children }: { label: string; children: React.ReactNode }) {
+    return (
+      <div style={{ marginTop: 18 }}>
+        <div style={{ fontSize: 12.5, fontWeight: 700, color: INK }}>{label}</div>
+        {children}
+      </div>
+    );
+  }
+
+  function DocUploadButton({ label }: { label: string }) {
+    const busy = uploadingDoc === label;
+    return (
+      <label style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 10, border: `1px solid ${busy ? PRIMARY : "#d8d2c6"}`, background: busy ? "#fbeae0" : "#fff", color: busy ? PRIMARY : "#4a5047", fontFamily: HANKEN, fontSize: 12.5, fontWeight: 600, cursor: busy ? "default" : "pointer" }}>
+        <Upload size={13} strokeWidth={2.4} />
+        {busy ? "Uploading…" : "Upload"}
+        <input type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style={{ display: "none" }} disabled={busy}
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadDocument(f, label); e.target.value = ""; }} />
+      </label>
+    );
+  }
+
+  function Documents() {
+    const hasChecklist = !!eligChecklist && eligChecklist.length > 0;
+    return (
+      <div className="move-page-inner">
+      <div className="move-page-screen">
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px 6px 8px", borderRadius: 999, background: "#fbeae0", border: "1px solid #f3d6c4" }}>
+          <span style={{ width: 24, height: 24, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <FileText size={13} strokeWidth={2.4} style={{ color: "#fff" }} />
+          </span>
+          <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>My documents</span>
+        </div>
+        <h2 style={{ fontSize: 30, lineHeight: 1.14, fontWeight: 800, letterSpacing: "-.02em", margin: "16px 0 0" }}>Your document checklist</h2>
+        <p style={{ fontSize: 15.5, color: "#4a5047", margin: "12px 0 0", lineHeight: 1.6 }}>Everything you need for {dest.city}, in one place. Tick items off and upload files to keep them safe.</p>
+
+        {!hasChecklist ? (
+          <div style={{ marginTop: 22, background: "#fff", border: "1px dashed #d8d2c6", borderRadius: 20, padding: 24, textAlign: "center" }}>
+            <ClipboardCheck size={28} strokeWidth={1.8} style={{ color: MUTE }} />
+            <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.55 }}>No checklist yet. Run an eligibility check and pick a visa to generate your tailored document list.</p>
+            <button onClick={() => goTo("eligibility")} style={{ marginTop: 16, padding: "13px 20px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Check my eligibility →</button>
+          </div>
+        ) : (
+          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 10 }}>
+            {eligChecklist!.map((it, k) => {
+              const uploaded = uploadedDocs.find((d) => d.label === it.label);
+              return (
+                <div key={k} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "14px 16px" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                    <span style={{ flexShrink: 0, marginTop: 3, width: 8, height: 8, borderRadius: 999, background: it.urgent ? PRIMARY : "#c9a98f" }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14.5, fontWeight: 700, color: INK }}>{it.label}{it.urgent && <span style={{ fontFamily: MONO, fontSize: 9.5, color: PRIMARY, marginLeft: 8, letterSpacing: ".1em" }}>PRIORITY</span>}</div>
+                      <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 3, lineHeight: 1.45 }}>{it.why}</div>
+                    </div>
+                    {uploaded ? (
+                      <a href={uploaded.url} target="_blank" rel="noopener noreferrer" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 10, background: "#e8f3ec", border: "1px solid #b8ddc6", color: "#2f7d4f", fontFamily: HANKEN, fontSize: 12.5, fontWeight: 700, textDecoration: "none" }}>
+                        <CheckCircle2 size={13} strokeWidth={2.6} /> Saved
+                      </a>
+                    ) : (
+                      <DocUploadButton label={it.label} />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {uploadError && <p style={{ fontSize: 13, color: PRIMARY, margin: "14px 0 0", lineHeight: 1.5 }}>{uploadError}</p>}
+
+        {uploadedDocs.length > 0 && (
+          <div style={{ marginTop: 24 }}>
+            <SectionLabel title="Saved files" icon={FileText} />
+            <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+              {uploadedDocs.map((d) => (
+                <a key={d.key} href={d.url} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", background: "#fff", border: "1px solid #e4dfd5", borderRadius: 12, color: INK, textDecoration: "none" }}>
+                  <FileText size={15} strokeWidth={2.2} style={{ color: PRIMARY }} />
+                  <span style={{ flex: 1, fontSize: 13.5, fontWeight: 600 }}>{d.label}</span>
+                  <span style={{ fontFamily: MONO, fontSize: 11, color: MUTE }}>Open →</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "22px 0 0", lineHeight: 1.5 }}>Files are stored securely to your workspace.<br />Always keep your own copies of official documents.</p>
+      </div>
+      </div>
+    );
+  }
+
+  function Eligibility() {
+    const inResults = eligStep >= ELIG_STEPS && !!eligResult;
+    const inputStyle: CSSProperties = { marginTop: 8, width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fdfcf9", fontFamily: HANKEN, fontSize: 15, color: INK };
+
+    return (
+      <div className="move-page-inner">
+      <div className="move-page-screen">
+        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Eligibility</div>
+        <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>
+          {inResults ? "Your visa matches" : "Know where you can go"}
+        </h2>
+        <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.5 }}>
+          {inResults ? "Ranked by how well your profile fits. Grounded in real destination data." : "A few quick questions — we'll rank the visas you're most likely to qualify for and build your document checklist."}
+        </p>
+
+        {!inResults && (
+          <div style={{ marginTop: 22, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20 }}>
+            {eligStep === 0 && (
+              <>
+                <EligField label="What's your goal?">
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+                    {ELIG_GOALS.map((g) => {
+                      const active = eligProfile.goals.includes(g.id);
+                      return (
+                        <button key={g.id}
+                          onClick={() => setEligProfile((p) => ({ ...p, goals: active ? p.goals.filter((x) => x !== g.id) : [...p.goals, g.id] }))}
+                          style={{ padding: "10px 14px", borderRadius: 12, border: `1px solid ${active ? PRIMARY : "#d8d2c6"}`, background: active ? "#f6e9df" : "#fff", color: active ? PRIMARY : INK, fontFamily: HANKEN, fontSize: 14, fontWeight: active ? 700 : 500, cursor: "pointer" }}>
+                          {g.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </EligField>
+                <EligField label="Your nationality">
+                  <input value={eligProfile.nationality} onChange={(e) => setEligProfile((p) => ({ ...p, nationality: e.target.value }))} placeholder="e.g. Nigerian, Indian, Brazilian…" style={inputStyle} />
+                </EligField>
+                <EligField label="Preferred destination (optional)">
+                  <input value={eligProfile.destination === "no-preference" ? "" : eligProfile.destination} onChange={(e) => setEligProfile((p) => ({ ...p, destination: e.target.value || "no-preference" }))} placeholder="A country, city or region — or leave blank" style={inputStyle} />
+                </EligField>
+              </>
+            )}
+
+            {eligStep === 1 && (
+              <>
+                <EligField label="Highest education">
+                  <EligChips options={ELIG_EDU} value={eligProfile.education} onPick={(id) => setEligProfile((p) => ({ ...p, education: id }))} />
+                </EligField>
+                <EligField label="Your profession / field">
+                  <input value={eligProfile.profession} onChange={(e) => setEligProfile((p) => ({ ...p, profession: e.target.value }))} placeholder="e.g. Software engineer, nurse, teacher…" style={inputStyle} />
+                </EligField>
+                <div style={{ display: "flex", gap: 12 }}>
+                  <EligField label="Age">
+                    <input type="number" min={16} max={80} value={eligProfile.age} onChange={(e) => setEligProfile((p) => ({ ...p, age: e.target.value }))} placeholder="28" style={inputStyle} />
+                  </EligField>
+                  <EligField label="Years of experience">
+                    <input type="number" min={0} max={50} value={eligProfile.experience} onChange={(e) => setEligProfile((p) => ({ ...p, experience: e.target.value }))} placeholder="3" style={inputStyle} />
+                  </EligField>
+                </div>
+                <EligField label="English proficiency">
+                  <EligChips options={ELIG_ENGLISH} value={eligProfile.english} onPick={(id) => setEligProfile((p) => ({ ...p, english: id }))} />
+                </EligField>
+              </>
+            )}
+
+            {eligStep === 2 && (
+              <>
+                <EligField label="Relocation budget">
+                  <EligChips options={ELIG_BUDGET} value={eligProfile.budget} onPick={(id) => setEligProfile((p) => ({ ...p, budget: id }))} />
+                </EligField>
+                <EligField label="Who's coming?">
+                  <EligChips options={ELIG_FAMILY} value={eligProfile.family} onPick={(id) => setEligProfile((p) => ({ ...p, family: id }))} />
+                </EligField>
+                <EligField label="Your timeline">
+                  <EligChips options={ELIG_TIMELINE} value={eligProfile.timeline} onPick={(id) => setEligProfile((p) => ({ ...p, timeline: id }))} />
+                </EligField>
+              </>
+            )}
+
+            {eligError && <p style={{ fontSize: 13, color: PRIMARY, margin: "16px 0 0" }}>{eligError}</p>}
+
+            <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
+              {eligStep > 0 && (
+                <button onClick={() => setEligStep((s) => s - 1)}
+                  style={{ padding: "14px 18px", border: "1px solid #d8d2c6", borderRadius: 14, background: "#fff", color: INK, fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
+                  Back
+                </button>
+              )}
+              {eligStep < ELIG_STEPS - 1 ? (
+                <button onClick={() => setEligStep((s) => s + 1)} disabled={eligStep === 0 && eligProfile.goals.length === 0}
+                  style={{ flex: 1, padding: 15, border: "none", borderRadius: 14, background: INK, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer", opacity: eligStep === 0 && eligProfile.goals.length === 0 ? 0.5 : 1 }}>
+                  Continue →
+                </button>
+              ) : (
+                <button onClick={runAssess} disabled={eligLoading}
+                  style={{ flex: 1, padding: 15, border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: eligLoading ? "default" : "pointer", opacity: eligLoading ? 0.7 : 1, boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>
+                  {eligLoading ? "Assessing…" : "See my matches →"}
+                </button>
+              )}
+            </div>
+            <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 16 }}>
+              {Array.from({ length: ELIG_STEPS }).map((_, i) => (
+                <div key={i} style={{ width: i === eligStep ? 22 : 7, height: 7, borderRadius: 999, background: i === eligStep ? PRIMARY : "#ddd6ca" }} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {inResults && eligResult && (
+          <>
+            {eligResult.summary && (
+              <div style={{ marginTop: 20, background: INK, borderRadius: 22, padding: 22, color: "#fff" }}>
+                <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".16em", textTransform: "uppercase", color: "#f3aa79" }}>Your read</div>
+                <p style={{ fontSize: 15, lineHeight: 1.55, color: "#e6e3dd", margin: "12px 0 0" }}>{eligResult.summary}</p>
+              </div>
+            )}
+
+            <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 12 }}>
+              {eligResult.matches.map((m, i) => (
+                <div key={`${m.city}-${i}`} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18 }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 16, fontWeight: 800, letterSpacing: "-.01em" }}>{m.visa}</div>
+                      <div style={{ fontSize: 13, color: "#6e746b", marginTop: 3 }}>{m.city}, {m.country} · {m.timeline}</div>
+                      <div style={{ fontFamily: MONO, fontSize: 12, color: PRIMARY, marginTop: 6 }}>{m.costRange}</div>
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div style={{ fontFamily: MONO, fontSize: 22, fontWeight: 700, color: m.score >= 70 ? "#2f7d4f" : m.score >= 45 ? "#b9781f" : "#9aa097" }}>{m.score}%</div>
+                      <div style={{ fontSize: 10.5, color: MUTE }}>match</div>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+                    {m.destinationId && (
+                      <button onClick={() => goTo("detail", { destId: m.destinationId! })}
+                        style={{ padding: "10px 14px", border: "1px solid #d8d2c6", borderRadius: 12, background: "#fff", color: INK, fontFamily: HANKEN, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                        View destination →
+                      </button>
+                    )}
+                    <button onClick={async () => { await runChecklist(m); goTo("documents"); }} disabled={eligChecklistLoading && eligChecklistFor === (m.destinationId ?? m.city)}
+                      style={{ flex: 1, padding: "10px 14px", border: "none", borderRadius: 12, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer", opacity: (eligChecklistLoading && eligChecklistFor === (m.destinationId ?? m.city)) ? 0.7 : 1 }}>
+                      {eligChecklistLoading && eligChecklistFor === (m.destinationId ?? m.city) ? "Building…" : "Get document checklist →"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {eligResult.nextSteps.length > 0 && (
+              <div style={{ marginTop: 20, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20 }}>
+                <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Your next steps</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 12 }}>
+                  {eligResult.nextSteps.map((s, i) => (
+                    <div key={i} style={{ display: "flex", gap: 12 }}>
+                      <div style={{ flexShrink: 0, width: 24, height: 24, borderRadius: 999, background: "#f6e9df", color: PRIMARY, fontFamily: MONO, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</div>
+                      <p style={{ fontSize: 14, lineHeight: 1.5, color: INK, margin: 0 }}>{s}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button onClick={() => { setEligStep(0); setEligResult(null); setEligChecklist(null); setEligChecklistFor(null); }}
+              style={{ width: "100%", marginTop: 16, padding: 14, border: "1px solid #d8d2c6", borderRadius: 14, background: "#fff", color: "#6e746b", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+              ← Edit my profile
+            </button>
+          </>
+        )}
+
+        <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "20px 0 0", lineHeight: 1.5 }}>Illustrative guidance for a prototype.<br />Always confirm with an official source before you apply.</p>
+      </div>
+      </div>
+    );
+  }
+
   function Visa() {
     const visa = dest.visa[mode];
     const others = (["trip", "nomad", "move"] as Mode[]).filter((m) => m !== mode).map((m) => ({
@@ -1686,6 +2328,73 @@ export function EasyMoveZoneApp() {
               ))}
             </div>
           </>
+        ),
+      },
+      {
+        id: "routes",
+        label: "Visa routes",
+        icon: BadgeCheck,
+        content: (
+          <div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+              <SectionLabel title={`Routes into ${dest.country}`} icon={BadgeCheck} />
+              {visaRoutesAi && !visaRoutesLoading && visaRoutes.length > 0 && <AiChip />}
+            </div>
+            <p style={{ fontSize: 14, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.55 }}>The common ways in for a {modeInfo.name.toLowerCase()}. Pick the one that fits — it tailors your document checklist.</p>
+
+            {visaRoutesLoading ? (
+              <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+                <Shimmer height={92} /><Shimmer height={92} /><Shimmer height={92} />
+              </div>
+            ) : visaRoutes.length === 0 ? (
+              <p style={{ fontSize: 13.5, color: MUTE, margin: "16px 0 0" }}>No routes loaded yet.</p>
+            ) : (
+              <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+                {visaRoutes.map((r) => {
+                  const active = selectedVisaRoute === r.name;
+                  return (
+                    <button key={r.name} onClick={() => setSelectedVisaRoute(active ? null : r.name)}
+                      style={{ textAlign: "left", background: active ? "#fbeae0" : "#fff", border: `1.5px solid ${active ? PRIMARY : "#e4dfd5"}`, borderRadius: 18, padding: 18, cursor: "pointer", boxShadow: active ? "0 4px 16px rgba(224,81,31,.14)" : "0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 16.5, fontWeight: 800, letterSpacing: "-.01em", color: INK }}>{r.name}</div>
+                          {r.who && <div style={{ fontSize: 13.5, color: "#6e746b", marginTop: 4 }}>{r.who}</div>}
+                        </div>
+                        <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, border: `2px solid ${active ? PRIMARY : "#cbc5b8"}`, background: active ? PRIMARY : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          {active && <CheckCircle2 size={14} strokeWidth={3} style={{ color: "#fff" }} />}
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginTop: 12, alignItems: "center" }}>
+                        <div>
+                          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: MUTE }}>Timeline</div>
+                          <div style={{ fontSize: 13.5, fontWeight: 600, color: INK, marginTop: 2 }}>{r.timeline}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: MUTE }}>Est. cost</div>
+                          <div style={{ fontSize: 13.5, fontWeight: 600, color: INK, marginTop: 2 }}>{r.cost}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: MUTE, marginBottom: 4 }}>Difficulty</div>
+                          <DifficultyMeter value={r.difficulty} />
+                        </div>
+                      </div>
+                      {r.notes && <p style={{ fontSize: 13, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.5 }}>{r.notes}</p>}
+                    </button>
+                  );
+                })}
+                <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                  <button onClick={() => goTo("documents")}
+                    style={{ flex: 1, padding: 14, border: "none", borderRadius: 14, background: INK, color: "#fff", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}>
+                    {selectedVisaRoute ? "Get documents →" : "My documents →"}
+                  </button>
+                  <button onClick={() => goTo("appointments")}
+                    style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 14, background: "#fff", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>
+                    Book appointment →
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         ),
       },
       ...(hasWorkStudy
@@ -1764,6 +2473,11 @@ export function EasyMoveZoneApp() {
         <p style={{ fontSize: 17, color: "#4a5047", margin: "14px 0 0", lineHeight: 1.6 }}>Based on a <b style={{ color: "#4a5047" }}>{cur.label}</b> stay. Change your timeframe and this updates instantly.</p>
         <DestSwitcher />
 
+        <button onClick={() => goTo("eligibility")}
+          style={{ width: "100%", marginTop: 18, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          Check my eligibility →
+        </button>
+
         <TabGroup core="intelligence" tabs={tabs} />
       </div>
       </div>
@@ -1824,6 +2538,7 @@ export function EasyMoveZoneApp() {
       { type: "trip", go: "trips", title: "Book your trip", sub: "Flights & overland routes to get you there", icon: "✈" },
       { type: "stay", go: "stays", title: "Find a stay", sub: mode === "trip" ? "Hotels for your visit" : "Furnished flats & coliving", icon: "⌂" },
       { type: "visa", go: "visaBook", title: "Sort your visa", sub: "From a free checklist to full handling", icon: "✓" },
+      { type: "visa", go: "appointments", title: "Visa appointments", sub: "Typical waits + jump to the official portal", icon: "◷" },
     ];
     return (
       <div className="move-page-inner">
@@ -1845,6 +2560,101 @@ export function EasyMoveZoneApp() {
             </div>
           ))}
         </div>
+
+        <div style={{ marginTop: 22 }}>
+          <SectionLabel title="Before you book" icon={ClipboardCheck} />
+          <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+            <div onClick={() => goTo("plan")} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "15px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ width: 38, height: 38, borderRadius: 11, flexShrink: 0, background: "#fbeae0", color: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center" }}><ClipboardCheck size={18} strokeWidth={2.2} /></span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 15.5, fontWeight: 700 }}>My move plan &amp; readiness</div>
+                <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 2 }}>Your checklist and readiness score before you commit</div>
+              </div>
+              <span style={{ color: PRIMARY, fontSize: 16 }}>→</span>
+            </div>
+            <div onClick={() => goTo("documents")} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "15px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ width: 38, height: 38, borderRadius: 11, flexShrink: 0, background: "#fbeae0", color: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center" }}><FileText size={18} strokeWidth={2.2} /></span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 15.5, fontWeight: 700 }}>My documents</div>
+                <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 2 }}>Your visa document checklist and saved files</div>
+              </div>
+              <span style={{ color: PRIMARY, fontSize: 16 }}>→</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    );
+  }
+
+  function Appointments() {
+    const wait = apptGuide?.waitLevel ?? 3;
+    return (
+      <div className="move-page-inner">
+      <div className="move-page-screen">
+        <div onClick={() => goTo("book")} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 11, letterSpacing: ".1em", color: PRIMARY, cursor: "pointer" }}>← Bookings</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
+          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Visa appointments · {dest.country}</div>
+          {apptGuide?.source === "ai" && !apptLoading && <AiChip label="Tailored guidance" />}
+        </div>
+        <h2 style={{ fontSize: 27, lineHeight: 1.14, fontWeight: 800, letterSpacing: "-.02em", margin: "10px 0 0" }}>Get a consular appointment</h2>
+        <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.55 }}>Typical waits and how to book for a {modeInfo.name.toLowerCase()} — then jump straight to the official portal where live dates actually live.</p>
+        <DestSwitcher />
+
+        {apptLoading ? (
+          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+            <Shimmer height={120} /><Shimmer height={80} /><Shimmer height={140} />
+          </div>
+        ) : !apptGuide ? (
+          <p style={{ fontSize: 13.5, color: MUTE, margin: "20px 0 0" }}>Couldn&apos;t load guidance — try switching destination.</p>
+        ) : (
+          <>
+            {/* Wait-time hero */}
+            <div style={{ marginTop: 20, background: INK, borderRadius: 22, padding: 22, color: "#fff" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".16em", textTransform: "uppercase", color: "#f3aa79" }}>Typical wait</div>
+                <div style={{ display: "flex", gap: 3 }} aria-label={`Backlog ${wait} of 5`}>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <span key={i} style={{ width: 16, height: 6, borderRadius: 999, background: i <= wait ? (wait <= 2 ? "#7fd6a0" : wait === 3 ? "#f3c07a" : "#f0a08c") : "rgba(255,255,255,.18)" }} />
+                  ))}
+                </div>
+              </div>
+              <div style={{ fontSize: 22, fontWeight: 800, margin: "12px 0 0" }}>{apptGuide.typicalWait}</div>
+              <p style={{ fontSize: 14, lineHeight: 1.55, color: "#c9cdc7", margin: "10px 0 0" }}>{apptGuide.bookAhead}</p>
+            </div>
+
+            {/* Official portal — the source of truth */}
+            <div style={{ marginTop: 16, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20 }}>
+              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Official booking portal</div>
+              <div style={{ fontSize: 17, fontWeight: 800, marginTop: 8 }}>{apptGuide.portalName}</div>
+              <p style={{ fontSize: 13, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>{apptGuide.bestTimes}</p>
+              <a href={apptGuide.portalUrl} target="_blank" rel="noopener noreferrer"
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 14, padding: 15, borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, textDecoration: "none", boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>
+                <ExternalLink size={16} strokeWidth={2.4} /> Check live availability →
+              </a>
+            </div>
+
+            {/* Prep before booking */}
+            {apptGuide.prep.length > 0 && (
+              <div style={{ marginTop: 16 }}>
+                <SectionLabel title="Before you book" icon={ClipboardCheck} />
+                <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+                  {apptGuide.prep.map((p, i) => (
+                    <div key={i} style={{ display: "flex", gap: 12, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 14, padding: "13px 15px" }}>
+                      <div style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, background: "#f6e9df", color: PRIMARY, fontFamily: MONO, fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</div>
+                      <div style={{ fontSize: 14, lineHeight: 1.5, color: "#3f453c" }}>{p}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{ marginTop: 18, display: "flex", gap: 10, alignItems: "flex-start", background: "#fbf6ee", border: "1px solid #ece0cd", borderRadius: 14, padding: "13px 15px" }}>
+              <Info size={15} strokeWidth={2.2} style={{ color: "#b9781f", flexShrink: 0, marginTop: 1 }} />
+              <p style={{ fontSize: 12.5, color: "#7a6a4a", margin: 0, lineHeight: 1.5 }}>{apptGuide.notes}</p>
+            </div>
+          </>
+        )}
       </div>
       </div>
     );
@@ -1957,20 +2767,22 @@ export function EasyMoveZoneApp() {
       case "execution": return Execution();
       case "plan": return Plan();
       case "visa": return Visa();
+      case "eligibility": return Eligibility();
+      case "documents": return Documents();
       case "settle": return Settle();
       case "book": return BookHub();
       case "trips": return Trips();
       case "stays": return Stays();
       case "visaBook": return VisaBook();
+      case "appointments": return Appointments();
       case "booked": return Booked();
     }
   }
 
   const tabs: { label: string; screens: Screen[]; go: Screen }[] = [
     { label: "Explore", screens: ["welcome", "spectrum", "search", "matches", "detail"], go: "matches" },
-    { label: "Intelligence", screens: ["intelligence", "visa"], go: "intelligence" },
-    { label: "Awareness", screens: ["awareness", "settle"], go: "awareness" },
-    { label: "Execution", screens: ["execution", "plan", "book", "trips", "stays", "visaBook", "booked"], go: "execution" },
+    { label: "Intelligence", screens: ["intelligence", "visa", "eligibility", "documents", "awareness", "settle"], go: "intelligence" },
+    { label: "Bookings", screens: ["book", "trips", "stays", "visaBook", "appointments", "booked", "execution", "plan"], go: "book" },
   ];
 
   // Avoid a flash of "welcome" while the returning-user redirect above is

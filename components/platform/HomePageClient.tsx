@@ -52,9 +52,9 @@ const steps = [
 ] as const
 
 const heroPoints = [
-  "Movement — flights and routes, booked in one tap",
-  "Accommodation — hotels to furnished flats, matched to your stay",
-  "Visa — the right entry route, from checklist to full handling",
+  "Eligibility — the visas you actually qualify for, ranked in minutes",
+  "Documents — a tailored checklist for your profile and destination",
+  "Move — movement and accommodation, sorted in the same app",
 ] as const
 
 const easeOut = [0.16, 1, 0.3, 1] as const
@@ -100,7 +100,7 @@ export function HomePageClient() {
                 className="inline-flex items-center gap-2 rounded-full border border-[#e0511f]/20 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#bf5223] backdrop-blur"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                Travel intelligence for global movement
+                Relocation intelligence for global movement
               </motion.div>
 
               <motion.h1
@@ -108,15 +108,15 @@ export function HomePageClient() {
                 className="mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl lg:text-[4.4rem]"
                 style={{ textWrap: "balance" } as React.CSSProperties}
               >
-                Get there. Stay there.
+                Your move,
                 <span className="block" style={{ color: PRIMARY }}>
-                  Visa sorted.
+                  made easy.
                 </span>
               </motion.h1>
 
               <motion.p {...fadeUp(0.12, 18)} className="mt-6 max-w-xl text-lg leading-relaxed text-[#5f655c]">
-                The only app that handles movement, accommodation, and visa in one flow — whether
-                you&apos;re leaving for two weeks or two years.
+                See the visas you qualify for and your exact document checklist — in minutes, no
+                consultant. Then sort movement and accommodation in the same app.
               </motion.p>
 
               <motion.div {...fadeUp(0.18, 18)} className="mt-9 flex flex-col gap-3 sm:flex-row">

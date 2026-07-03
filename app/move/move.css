@@ -229,6 +229,9 @@
   border-radius: 26px 26px 0 0;
   padding: 26px 22px 30px;
   width: 100%;
+  max-height: 82vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.28);
 }
 
@@ -248,6 +251,20 @@
   border-radius: 999px;
   background: #cbc5b8;
   margin: 0 auto 18px;
+}
+
+/* Shimmer skeleton for AI-backed sections while they generate. */
+.move-shimmer {
+  background: linear-gradient(100deg, #f0ebe1 30%, #f8f4ec 50%, #f0ebe1 70%);
+  background-size: 200% 100%;
+  animation: move-shimmer 1.3s ease-in-out infinite;
+}
+@keyframes move-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .move-shimmer { animation: none; }
 }
 
 /* ── Desktop (lg+) ── */

@@ -19,9 +19,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Get there. Stay there. Visa sorted.",
+  title: "EasyMoveZone — Your move, made easy.",
   description:
-    "Movement, accommodation, and visa in one app. Book your journey, your stay, and your entry paperwork — adapting to how long you're staying.",
+    "See the visas you qualify for and your exact document checklist in minutes — no consultant. Then sort movement and accommodation, adapting to how long you're staying.",
 };
 
 // Every /move/* route (see EasyMoveZoneApp's screenFromPath/buildMovePath)

@@ -3,9 +3,9 @@ import { PublicShell } from "@/components/platform/PublicShell"
 import { HomePageClient } from "@/components/platform/HomePageClient"
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Get there. Stay there. Visa sorted.",
+  title: "EasyMoveZone — Your move, made easy.",
   description:
-    "Movement, accommodation, and visa in one app. Book how you get there, where you stay, and how you get in — two weeks or forever.",
+    "See the visas you qualify for and your exact document checklist in minutes — no consultant. Then sort movement and accommodation in one app.",
 }
 
 export default async function HomePage() {

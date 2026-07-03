@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import OpenAI from "openai"
+import { type Destination, type Mode } from "@/app/move/data"
+import { getMoveDestinations } from "@/lib/move/get-catalog"
+import { chatJson } from "@/lib/ai/openai"
 
 /* ── Types ───────────────────────────────────────────── */
 interface FormData {
@@ -11,19 +13,37 @@ interface FormData {
     budget: string
     family: string
     goals: string[]
+    nationality: string
     destination: string
     timeline: string
 }
 
 interface VisaMatch {
+    destinationId: string | null
     country: string
+    city: string
     visa: string
     score: number
     timeline: string
     costRange: string
 }
 
-/* ── Scoring helpers ─────────────────────────────────── */
+interface AssessResult {
+    summary: string
+    nextSteps: string[]
+}
+
+/* ── Goal → Mode mapping ─────────────────────────────── */
+// The user's relocation goal maps onto the app's stay "mode", which is how
+// destination visa/stats data is keyed. Study/work/family read as a long-term
+// move; a break or remote-first goal reads as a nomad stint.
+function goalToMode(goals: string[]): Mode {
+    if (goals.some((g) => ["study", "work", "family", "business"].includes(g))) return "move"
+    if (goals.some((g) => ["remote", "nomad"].includes(g))) return "nomad"
+    return "trip"
+}
+
+/* ── Scoring helpers (unchanged, transparent & explainable) ── */
 function clamp(v: number, min = 0, max = 100) {
     return Math.max(min, Math.min(max, v))
 }
@@ -66,87 +86,81 @@ function goalMatch(goals: string[], accepted: string[]): number {
 
 function budgetFit(budget: string, minTier: string): number {
     const tiers: Record<string, number> = {
-        "under-500k": 1, "500k-2m": 2, "2m-5m": 3, "5m-10m": 4, "10m-plus": 5,
+        lean: 1, comfortable: 2, generous: 3, high: 4,
     }
     const got = tiers[budget] ?? 2
-    const need = tiers[minTier] ?? 2
+    const need = tiers[minTier] ?? 1
     if (got >= need) return 0 // no penalty
     return -(need - got) * 6
 }
 
-/* ── Visa definitions ────────────────────────────────── */
+/* ── Profile fit (destination-agnostic slice of the score) ─── */
+// Applies the same rule-based factors used by the legacy engine, but against
+// generic ideals so it can layer on top of any live destination's own match
+// score. Returns a 0–100 signal of how ready this profile is to relocate.
+function profileFit(form: FormData): number {
+    let score = 0
+    score += ageScore(form.age, [22, 45]) // 0–20
+    score += eduScore(form.education, "bachelors") // 0–20
+    score += expScore(form.experience, 3) // 0–20
+    score += englishScore(form.english, "ielts-6.0") // 0–20
+    score += goalMatch(form.goals, ["work", "study", "family", "business", "remote", "nomad"]) // 3 or 20
+    score += budgetFit(form.budget, "comfortable") // 0 or negative
+    return clamp(score)
+}
+
+/* ── DB-driven ranking (primary path) ────────────────── */
+// Blends each destination's own suitability for the chosen mode with the
+// profile-readiness signal, then surfaces that destination's real visa
+// headline/tag for the mode as the recommended pathway.
+function rankDestinations(form: FormData, destinations: Destination[]): VisaMatch[] {
+    const mode = goalToMode(form.goals)
+    const fit = profileFit(form) // shared across all destinations
+
+    return destinations
+        .map((d) => {
+            const destMatch = d.match?.[mode] ?? 60 // destination's own 0–100 suitability
+            let score = Math.round(destMatch * 0.6 + fit * 0.4)
+
+            // Region/destination preference bonus.
+            if (form.destination && form.destination !== "no-preference") {
+                const pref = form.destination.toLowerCase()
+                if (d.region.toLowerCase().includes(pref) || d.country.toLowerCase().includes(pref) || d.city.toLowerCase().includes(pref)) {
+                    score += 8
+                } else {
+                    score -= 4
+                }
+            }
+
+            const visa = d.visa?.[mode]
+            const costStat = (d.stats?.[mode] ?? []).find(([k]) => /cost|rent|1-bed|furnished/i.test(k))
+            return {
+                destinationId: d.id,
+                country: d.country,
+                city: d.city,
+                visa: visa?.headline ?? "Entry route varies",
+                score: clamp(score),
+                timeline: form.timeline || "Varies",
+                costRange: costStat ? `${costStat[0]}: ${costStat[1]}` : (visa?.tag ?? "Varies"),
+            }
+        })
+        .sort((a, b) => b.score - a.score)
+}
+
+/* ── Static fallback (used only when catalog is empty) ── */
+// A trimmed, globalized pathway list so the engine still returns matches when
+// no destinations are seeded. USD, no country hardcoding beyond the visa itself.
 const VISA_DEFS = [
-    // UK
-    {
-        country: "United Kingdom", visa: "Skilled Worker Visa",
-        idealAge: [24, 45] as [number, number], minEdu: "bachelors", idealExp: 3, minEnglish: "ielts-6.0",
-        goals: ["work"], minBudget: "2m-5m", timeline: "3–6 months", costRange: "₦2M – ₦8M",
-    },
-    {
-        country: "United Kingdom", visa: "Student Visa",
-        idealAge: [17, 35] as [number, number], minEdu: "secondary", idealExp: 0, minEnglish: "ielts-5.5",
-        goals: ["study"], minBudget: "2m-5m", timeline: "2–4 months", costRange: "₦3M – ₦12M",
-    },
-    {
-        country: "United Kingdom", visa: "Health & Care Worker Visa",
-        idealAge: [22, 50] as [number, number], minEdu: "diploma", idealExp: 2, minEnglish: "ielts-6.0",
-        goals: ["work"], minBudget: "500k-2m", timeline: "3–5 months", costRange: "₦1.5M – ₦5M",
-    },
-    {
-        country: "United Kingdom", visa: "Global Talent Visa",
-        idealAge: [25, 55] as [number, number], minEdu: "masters", idealExp: 5, minEnglish: "fluent",
-        goals: ["work", "business"], minBudget: "5m-10m", timeline: "3–8 months", costRange: "₦3M – ₦10M",
-    },
-    {
-        country: "United Kingdom", visa: "Innovator Founder Visa",
-        idealAge: [25, 50] as [number, number], minEdu: "bachelors", idealExp: 3, minEnglish: "ielts-6.5",
-        goals: ["business"], minBudget: "10m-plus", timeline: "3–6 months", costRange: "₦5M – ₦15M+",
-    },
-    // Canada
-    {
-        country: "Canada", visa: "Express Entry",
-        idealAge: [23, 35] as [number, number], minEdu: "bachelors", idealExp: 3, minEnglish: "ielts-6.5",
-        goals: ["work"], minBudget: "2m-5m", timeline: "6–12 months", costRange: "₦2M – ₦6M",
-    },
-    {
-        country: "Canada", visa: "Provincial Nominee Program (PNP)",
-        idealAge: [23, 45] as [number, number], minEdu: "diploma", idealExp: 2, minEnglish: "ielts-6.0",
-        goals: ["work"], minBudget: "2m-5m", timeline: "6–18 months", costRange: "₦2M – ₦7M",
-    },
-    {
-        country: "Canada", visa: "Study Permit",
-        idealAge: [17, 35] as [number, number], minEdu: "secondary", idealExp: 0, minEnglish: "ielts-6.0",
-        goals: ["study"], minBudget: "5m-10m", timeline: "2–4 months", costRange: "₦4M – ₦15M",
-    },
-    {
-        country: "Canada", visa: "Spousal Sponsorship",
-        idealAge: [18, 55] as [number, number], minEdu: "secondary", idealExp: 0, minEnglish: "intermediate",
-        goals: ["family"], minBudget: "500k-2m", timeline: "12–24 months", costRange: "₦1M – ₦3M",
-    },
-    // Europe
-    {
-        country: "Europe", visa: "Germany Blue Card",
-        idealAge: [24, 45] as [number, number], minEdu: "bachelors", idealExp: 2, minEnglish: "intermediate",
-        goals: ["work"], minBudget: "2m-5m", timeline: "2–4 months", costRange: "₦2M – ₦6M",
-    },
-    {
-        country: "Europe", visa: "Portugal D7 Visa",
-        idealAge: [25, 60] as [number, number], minEdu: "secondary", idealExp: 0, minEnglish: "beginner",
-        goals: ["work", "business", "family"], minBudget: "5m-10m", timeline: "3–6 months", costRange: "₦3M – ₦8M",
-    },
-    {
-        country: "Europe", visa: "Netherlands Highly Skilled Migrant Visa",
-        idealAge: [24, 45] as [number, number], minEdu: "bachelors", idealExp: 3, minEnglish: "fluent",
-        goals: ["work"], minBudget: "2m-5m", timeline: "1–3 months", costRange: "₦2M – ₦7M",
-    },
-    {
-        country: "Europe", visa: "Ireland Critical Skills Employment Permit",
-        idealAge: [24, 45] as [number, number], minEdu: "bachelors", idealExp: 2, minEnglish: "fluent",
-        goals: ["work"], minBudget: "2m-5m", timeline: "2–4 months", costRange: "₦2M – ₦6M",
-    },
+    { country: "United Kingdom", city: "London", visa: "Skilled Worker Visa", idealAge: [24, 45] as [number, number], minEdu: "bachelors", idealExp: 3, minEnglish: "ielts-6.0", goals: ["work"], minBudget: "comfortable", timeline: "3–6 months", costRange: "$2,600 – $10,000" },
+    { country: "United Kingdom", city: "London", visa: "Student Visa", idealAge: [17, 35] as [number, number], minEdu: "secondary", idealExp: 0, minEnglish: "ielts-5.5", goals: ["study"], minBudget: "comfortable", timeline: "2–4 months", costRange: "$4,000 – $16,000" },
+    { country: "Canada", city: "Toronto", visa: "Express Entry", idealAge: [23, 35] as [number, number], minEdu: "bachelors", idealExp: 3, minEnglish: "ielts-6.5", goals: ["work"], minBudget: "comfortable", timeline: "6–12 months", costRange: "$2,600 – $8,000" },
+    { country: "Canada", city: "Toronto", visa: "Study Permit", idealAge: [17, 35] as [number, number], minEdu: "secondary", idealExp: 0, minEnglish: "ielts-6.0", goals: ["study"], minBudget: "generous", timeline: "2–4 months", costRange: "$5,000 – $20,000" },
+    { country: "Germany", city: "Berlin", visa: "EU Blue Card", idealAge: [24, 45] as [number, number], minEdu: "bachelors", idealExp: 2, minEnglish: "intermediate", goals: ["work"], minBudget: "comfortable", timeline: "2–4 months", costRange: "$2,600 – $8,000" },
+    { country: "Portugal", city: "Lisbon", visa: "D7 / D8 Visa", idealAge: [25, 60] as [number, number], minEdu: "secondary", idealExp: 0, minEnglish: "beginner", goals: ["work", "business", "family", "remote"], minBudget: "generous", timeline: "3–6 months", costRange: "$4,000 – $10,000" },
+    { country: "Netherlands", city: "Amsterdam", visa: "Highly Skilled Migrant Visa", idealAge: [24, 45] as [number, number], minEdu: "bachelors", idealExp: 3, minEnglish: "fluent", goals: ["work"], minBudget: "comfortable", timeline: "1–3 months", costRange: "$2,600 – $9,000" },
 ]
 
-function scoreCandidate(form: FormData): VisaMatch[] {
+function scoreStaticFallback(form: FormData): VisaMatch[] {
     return VISA_DEFS.map((v) => {
         let score = 0
         score += ageScore(form.age, v.idealAge)
@@ -156,35 +170,33 @@ function scoreCandidate(form: FormData): VisaMatch[] {
         score += goalMatch(form.goals, v.goals)
         score += budgetFit(form.budget, v.minBudget)
 
-        // Destination preference bonus
-        if (form.destination !== "no-preference") {
-            const destMap: Record<string, string> = { uk: "United Kingdom", canada: "Canada", europe: "Europe" }
-            if (destMap[form.destination] === v.country) score += 8
-            else score -= 4
-        }
-
-        // Healthcare profession bonus for Health & Care visa
         const healthTerms = ["nurse", "doctor", "carer", "healthcare", "midwife", "pharmacist", "physiotherapist", "medical", "health"]
-        if (v.visa === "Health & Care Worker Visa" && healthTerms.some((t) => form.profession.toLowerCase().includes(t))) {
-            score += 15
-        }
-
-        // Tech/STEM bonus for Blue Card, HSM, Critical Skills
-        const techTerms = ["software", "engineer", "developer", "data", "scientist", "it ", "technology", "tech", "cyber", "ai ", "machine learning"]
-        if (["Germany Blue Card", "Netherlands Highly Skilled Migrant Visa", "Ireland Critical Skills Employment Permit"].includes(v.visa) &&
-            techTerms.some((t) => form.profession.toLowerCase().includes(t))) {
-            score += 10
-        }
+        if (v.visa.includes("Health") && healthTerms.some((t) => form.profession.toLowerCase().includes(t))) score += 15
+        const techTerms = ["software", "engineer", "developer", "data", "scientist", "technology", "tech", "cyber", "machine learning"]
+        if (["EU Blue Card", "Highly Skilled Migrant Visa"].includes(v.visa) && techTerms.some((t) => form.profession.toLowerCase().includes(t))) score += 10
 
         return {
+            destinationId: null,
             country: v.country,
+            city: v.city,
             visa: v.visa,
             score: clamp(score),
             timeline: v.timeline,
             costRange: v.costRange,
         }
-    })
-        .sort((a, b) => b.score - a.score)
+    }).sort((a, b) => b.score - a.score)
+}
+
+/* ── Deterministic fallback narrative (no-AI-key path) ── */
+function fallbackNarrative(form: FormData, top: VisaMatch): AssessResult {
+    return {
+        summary: `As a ${form.profession || "professional"} with ${form.experience} year${form.experience === 1 ? "" : "s"} of experience, your strongest match is the ${top.visa} in ${top.city}, ${top.country} at ${top.score}% fit. Your ${form.education} education and ${form.english} English position you well for this pathway.`,
+        nextSteps: [
+            `Confirm ${top.visa} eligibility on the official ${top.country} immigration site`,
+            "Gather core documents — passport, education certificates, proof of funds",
+            "Get your document checklist below and start the highest-priority items",
+        ],
+    }
 }
 
 /* ── API handler ─────────────────────────────────────── */
@@ -192,88 +204,43 @@ export async function POST(req: NextRequest) {
     try {
         const form: FormData = await req.json()
 
-        // Rule-based scoring
-        const allMatches = scoreCandidate(form)
+        // DB-first: rank live destinations; fall back to static pathways only
+        // when the catalog is empty/unreachable.
+        const { destinations, source } = await getMoveDestinations()
+        const allMatches = source === "database" && destinations.length > 0
+            ? rankDestinations(form, destinations)
+            : scoreStaticFallback(form)
         const topMatches = allMatches.slice(0, 5)
 
-        // Generate personalised summary via OpenAI
-        let summary = ""
-        let nextSteps: string[] = []
+        if (topMatches.length === 0) {
+            return NextResponse.json({ matches: [], summary: "We couldn't find a matching pathway. Try widening your preferences.", nextSteps: [] })
+        }
 
-        const apiKey = process.env.OPENAI_API_KEY
-        if (apiKey) {
-            try {
-                const openai = new OpenAI({ apiKey })
+        const fallback = fallbackNarrative(form, topMatches[0])
 
-                const prompt = `You are an advisor at EasyMoveZone, a Migration Intelligence & Relocation Strategy Firm based in Nigeria. We serve Nigerian professionals, students, healthcare workers, tech professionals, entrepreneurs, and families relocating to UK, Canada, or Europe. Based on the following candidate profile and visa match scores, write a personalised assessment.
+        const system = `You are a relocation strategist inside a global Relocation OS app. You advise people worldwide on visa pathways. Based on the candidate profile and their top visa matches (which are already scored), write an encouraging but realistic assessment. Never invent visa rules, fees or eligibility criteria beyond what is implied by the matches given. Use USD for any money. Reference the person's profession and their #1 match specifically. Respond with raw JSON only: {"summary": "2-3 sentences", "nextSteps": ["step 1", "step 2", "step 3"]}.`
 
-CANDIDATE PROFILE:
+        const user = `CANDIDATE PROFILE
+- Nationality: ${form.nationality || "unspecified"}
 - Age: ${form.age}
 - Education: ${form.education}
-- Years of experience: ${form.experience}
+- Experience: ${form.experience} years
 - Profession: ${form.profession}
-- English proficiency: ${form.english}
+- English: ${form.english}
 - Budget: ${form.budget}
-- Family status: ${form.family}
+- Family: ${form.family}
 - Goals: ${form.goals.join(", ")}
 - Preferred destination: ${form.destination}
 - Timeline: ${form.timeline}
 
-TOP VISA MATCHES (score out of 100):
-${topMatches.map((m, i) => `${i + 1}. ${m.country} — ${m.visa}: ${m.score}% match (Timeline: ${m.timeline}, Cost: ${m.costRange})`).join("\n")}
+TOP VISA MATCHES (score out of 100)
+${topMatches.map((m, i) => `${i + 1}. ${m.city}, ${m.country} — ${m.visa}: ${m.score}% match (Timeline: ${m.timeline}, Cost: ${m.costRange})`).join("\n")}`
 
-Write a response in this exact JSON format (no markdown, just raw JSON):
-{
-  "summary": "A 2-3 sentence personalised summary of their best options and why they are a good fit. Be encouraging but realistic. Mention their profession and top match specifically.",
-  "nextSteps": ["Step 1: specific actionable suggestion", "Step 2: another suggestion", "Step 3: another suggestion"]
-}
+        const narrative = await chatJson<AssessResult>(system, user, fallback)
+        const summary = typeof narrative.summary === "string" && narrative.summary.trim() ? narrative.summary.trim() : fallback.summary
+        const nextSteps = Array.isArray(narrative.nextSteps) && narrative.nextSteps.length ? narrative.nextSteps : fallback.nextSteps
 
-Be concise. Do not use markdown formatting. Only output valid JSON.`
-
-                const completion = await openai.chat.completions.create({
-                    model: "gpt-4o-mini",
-                    messages: [{ role: "user", content: prompt }],
-                    temperature: 0.7,
-                    max_tokens: 400,
-                })
-
-                const raw = completion.choices[0]?.message?.content?.trim() ?? ""
-                try {
-                    const parsed = JSON.parse(raw)
-                    summary = parsed.summary ?? ""
-                    nextSteps = parsed.nextSteps ?? []
-                } catch {
-                    // If parsing fails, use the raw text as summary
-                    summary = raw
-                    nextSteps = [
-                        "Book a strategy call with our team",
-                        "Prepare your documents for the recommended visa",
-                        "Visit our fees page for pricing details",
-                    ]
-                }
-            } catch (aiError) {
-                console.error("OpenAI API error:", aiError)
-                summary = `Based on your profile as a ${form.profession} with ${form.experience} years of experience, your strongest match is the ${topMatches[0].visa} in ${topMatches[0].country} with a ${topMatches[0].score}% compatibility score. Your ${form.education} education and ${form.english} English proficiency position you well for this pathway.`
-                nextSteps = [
-                    "Book a strategy call to discuss your options in detail",
-                    "Start gathering your documents (passport, certificates, references)",
-                    "Visit our fees page to understand the investment required",
-                ]
-            }
-        } else {
-            summary = `Based on your profile as a ${form.profession} with ${form.experience} years of experience, your strongest match is the ${topMatches[0].visa} in ${topMatches[0].country} with a ${topMatches[0].score}% compatibility score. Your ${form.education} education and ${form.english} English proficiency position you well for this pathway.`
-            nextSteps = [
-                "Book a strategy call to discuss your options in detail",
-                "Start gathering your documents (passport, certificates, references)",
-                "Visit our fees page to understand the investment required",
-            ]
-        }
-
-        return NextResponse.json({
-            matches: topMatches,
-            summary,
-            nextSteps,
-        })
+        return NextResponse.json({ matches: topMatches, summary, nextSteps })
     } catch (error) {
         console.error("Assessment error:", error)
         return NextResponse.json({ error: "Assessment failed. Please try again." }, { status: 500 })
