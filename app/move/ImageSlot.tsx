@@ -1,108 +1,75 @@
 "use client";
 
-import { useRef, useState } from "react";
-
 /**
- * Lightweight port of the design's <image-slot>: a user-fillable image
- * placeholder. Empty state shows a subtly-toned frame, a dashed ring and a
- * caption explaining what to drop. Click or drag-drop a photo to fill it.
+ * A static destination image: shows the seeded photo when one exists, or a
+ * designed placeholder themed by region when it doesn't. No upload/pick —
+ * real photos are an admin-managed concern, not a per-user one.
  */
-export function ImageSlot({
+const REGION_GRADIENT: Record<string, [string, string]> = {
+  Europe: ["#3d5a6c", "#1b231e"],
+  "Latin America": ["#b9781f", "#7a3f12"],
+  "Asia-Pacific": ["#1f6f78", "#123a3e"],
+  Africa: ["#8a5a2f", "#4a2f16"],
+  "Middle East": ["#a3652f", "#5c341a"],
+  "North America": ["#3d6b6b", "#1e3636"],
+  Oceania: ["#2f7d7d", "#173e3e"],
+};
+const DEFAULT_GRADIENT: [string, string] = ["#4a5047", "#1b231e"];
+
+export function DestinationImage({
   src,
-  placeholder,
-  onPick,
+  city,
+  country,
+  region,
   style,
 }: {
   src?: string;
-  placeholder: string;
-  onPick: (dataUrl: string) => void;
+  city: string;
+  country?: string;
+  region?: string;
   style?: React.CSSProperties;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [over, setOver] = useState(false);
-
-  function readFile(file: File | undefined | null) {
-    if (!file || !file.type.startsWith("image/")) return;
-    const reader = new FileReader();
-    reader.onload = () => onPick(String(reader.result));
-    reader.readAsDataURL(file);
+  if (src) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt={city}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block", ...style }}
+      />
+    );
   }
 
+  const [from, to] = REGION_GRADIENT[region ?? ""] ?? DEFAULT_GRADIENT;
   return (
     <div
-      onClick={() => inputRef.current?.click()}
-      onDragOver={(e) => {
-        e.preventDefault();
-        setOver(true);
-      }}
-      onDragLeave={() => setOver(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        setOver(false);
-        readFile(e.dataTransfer.files?.[0]);
-      }}
       style={{
         position: "absolute",
         inset: 0,
-        cursor: "pointer",
-        overflow: "hidden",
-        background: src ? "#ece6da" : "rgba(0,0,0,.04)",
+        background: `linear-gradient(155deg, ${from}, ${to})`,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6,
+        textAlign: "center",
+        padding: 14,
+        color: "rgba(255,255,255,.92)",
         ...style,
       }}
     >
-      {src ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={src}
-          alt={placeholder}
-          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-        />
-      ) : (
-        <>
-          {/* dashed ring */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              pointerEvents: "none",
-              border: `1.5px dashed ${over ? "#c96442" : "rgba(0,0,0,.25)"}`,
-              transition: "border-color .12s",
-            }}
-          />
-          {/* caption */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 6,
-              textAlign: "center",
-              padding: 12,
-              color: "rgba(0,0,0,.55)",
-              fontFamily: "var(--font-plex-mono), ui-monospace, monospace",
-            }}
-          >
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.45 }}>
-              <rect x="3" y="4" width="18" height="16" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
-              <circle cx="8.5" cy="9.5" r="1.8" fill="currentColor" />
-              <path d="M4 17l5-5 4 4 3-3 4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span style={{ maxWidth: "90%", fontWeight: 500, fontSize: 12, letterSpacing: ".01em", lineHeight: 1.3 }}>
-              {placeholder}
-            </span>
-          </div>
-        </>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.75 }}>
+        <path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+        <circle cx="12" cy="9" r="2.4" stroke="currentColor" strokeWidth="1.6" />
+      </svg>
+      <span style={{ fontFamily: "var(--font-plex-mono), ui-monospace, monospace", fontSize: 12.5, fontWeight: 600, letterSpacing: ".02em" }}>
+        {city}
+      </span>
+      {country && (
+        <span style={{ fontFamily: "var(--font-plex-mono), ui-monospace, monospace", fontSize: 10.5, opacity: 0.75, letterSpacing: ".08em", textTransform: "uppercase" }}>
+          {country}
+        </span>
       )}
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={(e) => readFile(e.target.files?.[0])}
-      />
     </div>
   );
 }

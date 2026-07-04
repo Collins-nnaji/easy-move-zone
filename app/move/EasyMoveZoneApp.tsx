@@ -3,9 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ComponentType } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import {
-  AlertTriangle,
   BadgeCheck,
-  Bell,
   CheckCircle2,
   ClipboardCheck,
   Compass,
@@ -16,7 +14,6 @@ import {
   GraduationCap,
   Info,
   ListChecks,
-  MapPin,
   Rocket,
   ShieldCheck,
   Sparkles,
@@ -32,17 +29,12 @@ import {
   type Mode,
 } from "./data";
 import {
-  buildSituationalAwarenessCore,
   buildTravelExecutionCore,
-  buildTravelIntelligenceCore,
-  type CoreAlert,
-  type CoreMetric,
-  type CorePoint,
   type IntegrationAction,
   type PersonaMatch,
 } from "./core-features";
 import { useMoveCatalog } from "./useMoveCatalog";
-import { ImageSlot } from "./ImageSlot";
+import { DestinationImage } from "./ImageSlot";
 import { MoveAppShell } from "./MoveAppShell";
 import { SettleCardsGrid } from "@/components/settle/SettleCardsGrid";
 import "./move.css";
@@ -52,7 +44,7 @@ import { savePlan, addTask, fetchWorkspace, updateTaskStatus, fetchGuideByCitySl
 import { moveTaskNote, parseMoveTaskNote } from "@/lib/move/plan-sync";
 import { settleCardsForCity } from "@/lib/settle/cards";
 import { MatchesSkeleton } from "@/components/ui/PageSkeletons";
-import { createBooking } from "@/lib/bookings/client";
+import { createBooking, fetchBookings } from "@/lib/bookings/client";
 import type { BookingType, MoveBooking } from "@/lib/bookings/types";
 import type { SettleCard, TaskCategory, WorkMode } from "@/lib/relocate/types";
 
@@ -319,7 +311,6 @@ type Screen =
   | "intelligence"
   | "execution"
   | "visa"
-  | "eligibility"
   | "documents"
   | "settle"
   | "plan"
@@ -344,7 +335,6 @@ function buildMovePath(screen: Screen, destId: string): string {
     case "detail": return `/move/explore/${destId}`;
     case "intelligence": return `/move/explore/${destId}/intelligence`;
     case "visa": return `/move/explore/${destId}/visa`;
-    case "eligibility": return `/move/explore/${destId}/eligibility`;
     case "documents": return `/move/explore/${destId}/documents`;
     case "settle": return `/move/explore/${destId}/settle`;
     case "execution": return `/move/explore/${destId}/execution`;
@@ -371,7 +361,6 @@ function screenFromPath(pathname: string): Screen {
   const subToScreen: Record<string, Screen> = {
     intelligence: "intelligence",
     visa: "visa",
-    eligibility: "eligibility",
     documents: "documents",
     settle: "settle",
     execution: "execution",
@@ -398,7 +387,6 @@ export function EasyMoveZoneApp() {
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [taskIdByKey, setTaskIdByKey] = useState<Record<string, string>>({});
   const [shareOpen, setShareOpen] = useState(false);
-  const [photos, setPhotos] = useState<Record<string, string>>({});
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [destSwitchOpen, setDestSwitchOpen] = useState(false);
 
@@ -452,6 +440,8 @@ export function EasyMoveZoneApp() {
   const [bookGuests, setBookGuests] = useState(1);
   const [bookState, setBookState] = useState<"idle" | "saving">("idle");
   const [lastBooking, setLastBooking] = useState<MoveBooking | null>(null);
+  const [bookingHistory, setBookingHistory] = useState<MoveBooking[]>([]);
+  const [bookingHistoryLoading, setBookingHistoryLoading] = useState(false);
   const [settleCards, setSettleCards] = useState<SettleCard[]>([]);
   const [settleCommunity, setSettleCommunity] = useState("");
 
@@ -545,6 +535,18 @@ export function EasyMoveZoneApp() {
     void runAppointments(dest.id, mode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, dest?.id, mode]);
+
+  // Load the signed-in user's booking history when the Bookings hub is active.
+  useEffect(() => {
+    if (screen !== "book" || !signedIn) return;
+    let mounted = true;
+    setBookingHistoryLoading(true);
+    fetchBookings()
+      .then((rows) => { if (mounted) setBookingHistory(rows); })
+      .catch(() => { if (mounted) setBookingHistory([]); })
+      .finally(() => { if (mounted) setBookingHistoryLoading(false); });
+    return () => { mounted = false; };
+  }, [screen, signedIn]);
 
   // The mood search, when used, overrides the static match-score ordering.
   const moodList = useMemo(() => {
@@ -663,9 +665,10 @@ export function EasyMoveZoneApp() {
     setDestId(ranked[0].id);
   }
 
-  async function runClarify() {
-    const text = clarifyQuestion.trim();
+  async function runClarify(overrideText?: string) {
+    const text = (overrideText ?? clarifyQuestion).trim();
     if (!text || clarifyLoading) return;
+    if (overrideText) setClarifyQuestion(overrideText);
     setClarifyLoading(true);
     setClarifyError(null);
     try {
@@ -934,26 +937,6 @@ export function EasyMoveZoneApp() {
 
   // ── Move Meter math (driven by ticked plan items) ─────────────────────
   const plan = PLAN[mode];
-  const intelligenceCore = useMemo(
-    () =>
-      buildTravelIntelligenceCore({
-        destination: dest,
-        mode,
-        answers,
-        ranked: browseList,
-        trips: tripOptions,
-        stays: stayOptions,
-      }),
-    [answers, browseList, dest, mode, stayOptions, tripOptions],
-  );
-  const awarenessCore = useMemo(
-    () =>
-      buildSituationalAwarenessCore({
-        destination: dest,
-        stays: stayOptions,
-      }),
-    [dest, stayOptions],
-  );
   const executionCore = useMemo(
     () =>
       buildTravelExecutionCore({
@@ -1378,7 +1361,7 @@ export function EasyMoveZoneApp() {
             return (
               <div key={d.id} onClick={() => goTo("detail", { destId: d.id })} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 22, overflow: "hidden", cursor: "pointer", boxShadow: "0 4px 18px rgba(0,0,0,.05)" }}>
                 <div style={{ height: 152, position: "relative", background: "#ece6da" }}>
-                  <ImageSlot src={photos[d.id] ?? d.imageUrl} placeholder={`Drop a ${d.city} photo`} onPick={(u) => setPhotos((p) => ({ ...p, [d.id]: u }))} />
+                  <DestinationImage src={d.imageUrl} city={d.city} country={d.country} region={d.region} />
                   {i === 0 && (
                     <div style={{ position: "absolute", top: 12, left: 12, background: "#bf6a3c", color: "#fff", padding: "6px 11px", borderRadius: 999, fontFamily: MONO, fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", zIndex: 2 }}>Top match</div>
                   )}
@@ -1435,7 +1418,7 @@ export function EasyMoveZoneApp() {
         <div className="move-detail-layout">
         <div>
         <div className="move-detail-hero" style={{ position: "relative", background: "#e2dccd", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: 22 }}>
-          <ImageSlot src={photos[dest.id] ?? dest.imageUrl} placeholder={`Drop a ${dest.city} photo`} onPick={(u) => setPhotos((p) => ({ ...p, [dest.id]: u }))} />
+          <DestinationImage src={dest.imageUrl} city={dest.city} country={dest.country} region={dest.region} />
           <div onClick={() => goTo("matches")} style={{ position: "absolute", top: 64, left: 18, width: 40, height: 40, borderRadius: 999, background: "rgba(255,255,255,.86)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 19, boxShadow: "0 2px 8px rgba(0,0,0,.12)", zIndex: 2 }}>←</div>
           <div style={{ position: "absolute", top: 66, right: 18, background: "rgba(27,35,30,.82)", color: "#fff", padding: "7px 13px", borderRadius: 999, fontFamily: MONO, fontSize: 12, backdropFilter: "blur(4px)", zIndex: 2 }}>{dest.match[mode]}% match</div>
         </div>
@@ -1500,12 +1483,6 @@ export function EasyMoveZoneApp() {
     );
   }
 
-  function toneAccent(tone?: "positive" | "warning" | "neutral") {
-    if (tone === "positive") return { bg: "#edf7f0", border: "#d7eadf", text: "#216240", icon: CheckCircle2 };
-    if (tone === "warning") return { bg: "#fff4ec", border: "#f3d6c4", text: "#9c3f15", icon: AlertTriangle };
-    return { bg: "#f7f5ee", border: "#e4dfd5", text: "#4a5047", icon: Info };
-  }
-
   // A colored, iconed section label — replaces the old plain mono-uppercase-gray
   // line that made every section of every screen look identical.
   function SectionLabel({ title, core, icon: Icon }: { title: string; core?: keyof typeof CORE_THEME; icon?: ComponentType<{ size?: number; strokeWidth?: number; style?: CSSProperties }> }) {
@@ -1537,80 +1514,6 @@ export function EasyMoveZoneApp() {
         <p style={{ fontSize: 17, color: "#4a5047", margin: "14px 0 0", lineHeight: 1.6, maxWidth: 580 }}>{sub}</p>
         <DestSwitcher />
       </>
-    );
-  }
-
-  function MetricGrid({ items, core }: { items: CoreMetric[]; core?: keyof typeof CORE_THEME }) {
-    const theme = core ? CORE_THEME[core] : null;
-    return (
-      <div className="move-metric-grid" style={{ marginTop: 14 }}>
-        {items.map((item) => {
-          const accent = toneAccent(item.tone);
-          const Icon = accent.icon;
-          return (
-            <div key={item.label} style={{ position: "relative", background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: "18px 18px 18px 22px", boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
-              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, borderRadius: "18px 0 0 18px", background: theme?.color ?? accent.text }} />
-              <div style={{ display: "flex", alignItems: "center", gap: 7, fontFamily: MONO, fontSize: 11.5, letterSpacing: ".09em", textTransform: "uppercase", color: MUTE, fontWeight: 600 }}>
-                <Icon size={14} strokeWidth={2.4} style={{ color: accent.text, flexShrink: 0 }} />
-                {item.label}
-              </div>
-              <span style={{ display: "inline-block", marginTop: 10, padding: "6px 12px", borderRadius: 999, background: accent.bg, border: `1px solid ${accent.border}`, color: accent.text, fontFamily: MONO, fontSize: 12.5, fontWeight: 700, lineHeight: 1.4 }}>{item.value}</span>
-              <p style={{ fontSize: 15.5, lineHeight: 1.55, color: "#3f453c", margin: "13px 0 0" }}>{item.detail}</p>
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-
-  function PointSection({ title, items, core }: { title: string; items: CorePoint[]; core?: keyof typeof CORE_THEME }) {
-    return (
-      <div>
-        <SectionLabel title={title} core={core} />
-        <div className="move-point-grid" style={{ marginTop: 12 }}>
-          {items.map((item) => {
-            const accent = toneAccent(item.tone);
-            const Icon = accent.icon;
-            return (
-              <div key={item.title} style={{ background: accent.bg, border: `1px solid ${accent.border}`, borderRadius: 18, padding: 18 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                  <Icon size={18} strokeWidth={2.4} style={{ color: accent.text, flexShrink: 0 }} />
-                  <div style={{ fontSize: 17.5, fontWeight: 800, color: accent.text }}>{item.title}</div>
-                </div>
-                <p style={{ fontSize: 15.5, lineHeight: 1.6, color: "#3f453c", margin: "10px 0 0" }}>{item.detail}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
-  function AlertsSection({ alerts, core }: { alerts: CoreAlert[]; core?: keyof typeof CORE_THEME }) {
-    const levelIcon = { Calm: CheckCircle2, "Heads up": Info, Watch: AlertTriangle } as const;
-    return (
-      <div>
-        <SectionLabel title="Live signals" core={core} icon={Bell} />
-        <div className="move-alert-grid" style={{ marginTop: 12 }}>
-          {alerts.map((alert) => {
-            const tone = alert.level === "Watch" ? "warning" : alert.level === "Calm" ? "positive" : "neutral";
-            const accent = toneAccent(tone);
-            const Icon = levelIcon[alert.level];
-            return (
-              <div key={`${alert.level}-${alert.title}`} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                  <div style={{ fontSize: 17.5, fontWeight: 800 }}>{alert.title}</div>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "6px 11px", borderRadius: 999, background: accent.bg, border: `1px solid ${accent.border}`, color: accent.text, fontFamily: MONO, fontSize: 11.5, fontWeight: 700, whiteSpace: "nowrap" }}>
-                    <Icon size={12} strokeWidth={2.6} />
-                    {alert.level}
-                  </span>
-                </div>
-                <p style={{ fontSize: 15.5, lineHeight: 1.6, color: "#3f453c", margin: "11px 0 0" }}>{alert.detail}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
     );
   }
 
@@ -1660,71 +1563,19 @@ export function EasyMoveZoneApp() {
     }
   }
 
+  const INTELLIGENCE_STARTER_QUESTIONS = [
+    "Can I travel there right now?",
+    "Should I actually go, or are there trade-offs?",
+    "What visa or compliance rules should I know?",
+    "What should I prepare before I leave?",
+    "Are there better-fitting alternatives?",
+    "What's it like on the ground there today?",
+  ];
+
   function Intelligence() {
-    const alternatives = browseList.filter((item) => item.id !== dest.id).slice(0, 3);
     const tabs: TabDef[] = [
-      { id: "decision", label: "Decision", icon: Gauge, content: <MetricGrid items={intelligenceCore.decision} core="intelligence" /> },
-      {
-        id: "visa",
-        label: "Visa & compliance",
-        icon: ShieldCheck,
-        content: (
-          <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-            <MetricGrid items={intelligenceCore.visa} core="intelligence" />
-            <PointSection title="Legal and compliance navigator" items={intelligenceCore.compliance} core="intelligence" />
-          </div>
-        ),
-      },
-      {
-        id: "prep",
-        label: "Prep & alternatives",
-        icon: ClipboardCheck,
-        content: (
-          <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-            <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 20, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
-              <SectionLabel title="Preparation sequence" core="intelligence" icon={ClipboardCheck} />
-              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 14 }}>
-                {intelligenceCore.prep.map((step, index) => (
-                  <div key={step} style={{ display: "flex", gap: 13, alignItems: "flex-start" }}>
-                    <div style={{ width: 28, height: 28, borderRadius: 999, background: CORE_THEME.intelligence.soft, color: CORE_THEME.intelligence.color, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{index + 1}</div>
-                    <div style={{ fontSize: 15.5, lineHeight: 1.6, color: "#3f453c" }}>{step}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <SectionLabel title="Alternative fits" core="intelligence" icon={Compass} />
-              <div className="move-point-grid" style={{ marginTop: 14 }}>
-                {alternatives.map((item) => (
-                  <div key={item.id} onClick={() => goTo("intelligence", { destId: item.id })} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                    <div>
-                      <div style={{ fontSize: 17, fontWeight: 700 }}>{item.city}</div>
-                      <div style={{ fontSize: 13.5, color: "#6e746b", marginTop: 4 }}>{item.country} · {item.visa[mode].tag}</div>
-                    </div>
-                    <div style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: CORE_THEME.intelligence.color, whiteSpace: "nowrap" }}>{item.match[mode]}% match</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        ),
-      },
-      {
-        id: "ground",
-        label: "On the ground",
-        icon: MapPin,
-        content: (
-          <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-            <PointSection title="Smart map layers" items={awarenessCore.mapLayers} core="intelligence" />
-            <div>
-              <SectionLabel title="Country reality check" core="intelligence" icon={Eye} />
-              <MetricGrid items={awarenessCore.reality} core="intelligence" />
-            </div>
-            <AlertsSection alerts={awarenessCore.alerts} core="intelligence" />
-            <PointSection title="Embassies, emergency, and help" items={awarenessCore.helpPoints} core="intelligence" />
-          </div>
-        ),
-      },
+      { id: "eligibility", label: "Eligibility checker", icon: ClipboardCheck, content: <EligibilityPanel /> },
+      { id: "ask-ai", label: "Ask AI", icon: Sparkles, content: <ClarifyPanel starterQuestions={INTELLIGENCE_STARTER_QUESTIONS} /> },
     ];
     return (
       <div className="move-page-inner">
@@ -1733,20 +1584,8 @@ export function EasyMoveZoneApp() {
             core="intelligence"
             eyebrow="Travel Intelligence Core"
             title={`${dest.city}, decided properly`}
-            sub="Visa intelligence, legal/compliance guidance, and a destination decision coach in one place."
+            sub="Check what visas you qualify for, then ask AI anything else that's still unclear."
           />
-
-          <div style={{ marginTop: 22, background: "linear-gradient(135deg, #fdf1e6, #fbeae0)", border: "1px solid #f3d6c4", borderRadius: 20, padding: 20, display: "flex", gap: 14, alignItems: "flex-start" }}>
-            <span style={{ width: 36, height: 36, borderRadius: 12, background: CORE_THEME.intelligence.color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Sparkles size={17} strokeWidth={2.4} style={{ color: "#fff" }} />
-            </span>
-            <div>
-              <div style={{ fontFamily: MONO, fontSize: 11.5, letterSpacing: ".12em", textTransform: "uppercase", color: "#bf6a3c", fontWeight: 700 }}>Signature output</div>
-              <p style={{ fontSize: 16, lineHeight: 1.6, color: "#4a3626", margin: "9px 0 0" }}>
-                This is the unified answer to: can I go, should I go, what do I need, what laws matter, and what fits me better if this city is not the cleanest choice?
-              </p>
-            </div>
-          </div>
 
           <TabGroup core="intelligence" tabs={tabs} />
 
@@ -1905,11 +1744,26 @@ export function EasyMoveZoneApp() {
     );
   }
 
-  function ClarifyPanel() {
+  function ClarifyPanel({ starterQuestions }: { starterQuestions?: string[] }) {
     return (
       <div style={{ marginTop: 20, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20 }}>
         <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY, fontWeight: 500 }}>Ask AI about {dest.city}</div>
         <p style={{ fontSize: 13, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.5 }}>Grounded in this destination&apos;s visa, settle and healthcare notes — ask whatever&apos;s still unclear.</p>
+        {starterQuestions && starterQuestions.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
+            {starterQuestions.map((q) => (
+              <button
+                key={q}
+                type="button"
+                onClick={() => runClarify(q)}
+                disabled={clarifyLoading}
+                style={{ padding: "9px 13px", borderRadius: 999, border: "1px solid #e4dfd5", background: "#fdfcf9", color: "#4a5047", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, cursor: clarifyLoading ? "default" : "pointer", opacity: clarifyLoading ? 0.6 : 1 }}
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        )}
         <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
           <input
             value={clarifyQuestion}
@@ -1919,7 +1773,7 @@ export function EasyMoveZoneApp() {
             style={{ flex: 1, minWidth: 0, padding: "12px 14px", borderRadius: 14, border: "1px solid #d8d2c6", background: "#fdfcf9", fontFamily: HANKEN, fontSize: 14, color: INK }}
           />
           <button
-            onClick={runClarify}
+            onClick={() => runClarify()}
             disabled={!clarifyQuestion.trim() || clarifyLoading}
             style={{ padding: "12px 18px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: !clarifyQuestion.trim() || clarifyLoading ? "default" : "pointer", opacity: !clarifyQuestion.trim() || clarifyLoading ? 0.6 : 1, whiteSpace: "nowrap" }}
           >
@@ -1991,7 +1845,7 @@ export function EasyMoveZoneApp() {
           <div style={{ marginTop: 22, background: "#fff", border: "1px dashed #d8d2c6", borderRadius: 20, padding: 24, textAlign: "center" }}>
             <ClipboardCheck size={28} strokeWidth={1.8} style={{ color: MUTE }} />
             <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.55 }}>No checklist yet. Run an eligibility check and pick a visa to generate your tailored document list.</p>
-            <button onClick={() => goTo("eligibility")} style={{ marginTop: 16, padding: "13px 20px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Check my eligibility →</button>
+            <button onClick={() => goTo("intelligence")} style={{ marginTop: 16, padding: "13px 20px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Check my eligibility →</button>
           </div>
         ) : (
           <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 10 }}>
@@ -2042,13 +1896,12 @@ export function EasyMoveZoneApp() {
     );
   }
 
-  function Eligibility() {
+  function EligibilityPanel() {
     const inResults = eligStep >= ELIG_STEPS && !!eligResult;
     const inputStyle: CSSProperties = { marginTop: 8, width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fdfcf9", fontFamily: HANKEN, fontSize: 15, color: INK };
 
     return (
-      <div className="move-page-inner">
-      <div className="move-page-screen">
+      <div>
         <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Eligibility</div>
         <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>
           {inResults ? "Your visa matches" : "Know where you can go"}
@@ -2210,7 +2063,6 @@ export function EasyMoveZoneApp() {
         )}
 
         <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "20px 0 0", lineHeight: 1.5 }}>Illustrative guidance for a prototype.<br />Always confirm with an official source before you apply.</p>
-      </div>
       </div>
     );
   }
@@ -2397,7 +2249,7 @@ export function EasyMoveZoneApp() {
         <p style={{ fontSize: 17, color: "#4a5047", margin: "14px 0 0", lineHeight: 1.6 }}>Based on a <b style={{ color: "#4a5047" }}>{cur.label}</b> stay. Change your timeframe and this updates instantly.</p>
         <DestSwitcher />
 
-        <button onClick={() => goTo("eligibility")}
+        <button onClick={() => goTo("intelligence")}
           style={{ width: "100%", marginTop: 18, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
           Check my eligibility →
         </button>
@@ -2474,7 +2326,7 @@ export function EasyMoveZoneApp() {
 
         <div className="move-book-grid" style={{ marginTop: 22 }}>
           {cards.map((c) => (
-            <div key={c.type} onClick={() => goTo(c.go)} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20, boxShadow: "0 2px 10px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 16 }}>
+            <div key={c.go} onClick={() => goTo(c.go)} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20, boxShadow: "0 2px 10px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 16 }}>
               <div style={{ width: 46, height: 46, borderRadius: 14, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#fbeae0", color: PRIMARY, fontSize: 22 }}>{c.icon}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 17, fontWeight: 800, letterSpacing: "-.01em" }}>{c.title}</div>
@@ -2505,6 +2357,37 @@ export function EasyMoveZoneApp() {
               <span style={{ color: PRIMARY, fontSize: 16 }}>→</span>
             </div>
           </div>
+        </div>
+
+        <div style={{ marginTop: 22 }}>
+          <SectionLabel title="Your booking history" icon={ClipboardCheck} />
+          {!signedIn ? (
+            <p style={{ fontSize: 13.5, color: MUTE, margin: "12px 0 0" }}>Sign in to see trips, stays and visa services you&apos;ve booked.</p>
+          ) : bookingHistoryLoading ? (
+            <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+              <Shimmer height={64} /><Shimmer height={64} />
+            </div>
+          ) : bookingHistory.length === 0 ? (
+            <p style={{ fontSize: 13.5, color: MUTE, margin: "12px 0 0" }}>Nothing booked yet — reserve a trip, stay or visa service above to see it here.</p>
+          ) : (
+            <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+              {bookingHistory.map((b) => {
+                const statusAccent = b.status === "confirmed" ? { bg: "#edf7f0", text: "#216240" } : b.status === "cancelled" ? { bg: "#f0ede4", text: "#7a7566" } : { bg: "#fff4ec", text: "#9c3f15" };
+                return (
+                  <div key={b.id} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "14px 16px" }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: MUTE }}>{bookTypeLabel[b.bookingType]} · {b.destinationCity}</div>
+                        <div style={{ fontSize: 15, fontWeight: 700, marginTop: 3 }}>{b.itemTitle}</div>
+                        {b.startDate && <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 3 }}>{b.startDate}{b.endDate ? ` → ${b.endDate}` : ""}</div>}
+                      </div>
+                      <span style={{ flexShrink: 0, padding: "5px 10px", borderRadius: 999, background: statusAccent.bg, color: statusAccent.text, fontFamily: MONO, fontSize: 11, fontWeight: 700, textTransform: "capitalize" }}>{b.status}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
       </div>
@@ -2690,7 +2573,6 @@ export function EasyMoveZoneApp() {
       case "execution": return Execution();
       case "plan": return Plan();
       case "visa": return Visa();
-      case "eligibility": return Eligibility();
       case "documents": return Documents();
       case "settle": return Settle();
       case "book": return BookHub();
@@ -2704,7 +2586,7 @@ export function EasyMoveZoneApp() {
 
   const tabs: { label: string; screens: Screen[]; go: Screen }[] = [
     { label: "Explore", screens: ["welcome", "spectrum", "search", "matches", "detail"], go: "matches" },
-    { label: "Intelligence", screens: ["intelligence", "visa", "eligibility", "settle"], go: "intelligence" },
+    { label: "Intelligence", screens: ["intelligence", "visa", "settle"], go: "intelligence" },
     { label: "Documents", screens: ["documents"], go: "documents" },
     { label: "Bookings", screens: ["book", "trips", "stays", "visaBook", "appointments", "booked", "execution", "plan"], go: "book" },
   ];
