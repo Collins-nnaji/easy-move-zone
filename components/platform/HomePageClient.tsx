@@ -19,42 +19,41 @@ const INK = "#1b231e"
 const pillars = [
   {
     icon: Sparkles,
-    label: "Core 01",
-    title: "Travel Intelligence Core",
-    body: "Visa intelligence, legal guidance, and decision scoring merged into one engine that tells travelers whether they can go, should go, and what to prepare.",
+    label: "Agency 01",
+    title: "AI Eligibility & Visa Advisor",
+    body: "Tell us why you're moving — work, school, or a visa route on its own — and our AI scores what you qualify for, flags risk, and explains the path in plain language, the way a case worker would.",
   },
   {
     icon: MapPin,
-    label: "Core 02",
-    title: "Situational Awareness Core",
-    body: "A real-time destination layer for safety, legal zones, scams, cultural context, embassies, and live events that change the reality on the ground.",
+    label: "Agency 02",
+    title: "Work & School Pathways",
+    body: "Visa-sponsoring jobs and school admissions matched to your destination and profile, with the paperwork and timelines that route actually requires.",
   },
   {
     icon: Check,
-    label: "Core 03",
-    title: "Travel Execution Core",
-    body: "Readiness checklists, traveler personas, and booking connections that turn research into an action plan and the next step toward departure.",
+    label: "Agency 03",
+    title: "Settle-In Concierge",
+    body: "A tailored document checklist and a settling-in guide for your city — housing, banking, healthcare, and the local know-how that gets you from landed to living.",
   },
 ] as const
 
 const spectrum = [
-  { label: "2 weeks", sub: "A quick recce", mode: "Trip Pack" },
-  { label: "1 month", sub: "Test the waters", mode: "Trip Pack" },
-  { label: "1–3 months", sub: "A nomad stint", mode: "Nomad Mode" },
-  { label: "6 months", sub: "Settle for a season", mode: "Move Plan" },
-  { label: "Forever", sub: "Make it home", mode: "Move Plan" },
+  { label: "Work", sub: "Sponsored roles & work visas", mode: "Work Track" },
+  { label: "School", sub: "Admissions & student visas", mode: "Study Track" },
+  { label: "Remote", sub: "Digital nomad routes", mode: "Nomad Track" },
+  { label: "Relocate", sub: "Settle for good", mode: "Move Track" },
 ] as const
 
 const steps = [
-  { step: "01", label: "Tell us about your move", sub: "How long you're staying and what matters most to you." },
-  { step: "02", label: "Get matched & planned", sub: "Honest destination matches plus a checklist that fits your timeline." },
-  { step: "03", label: "Book trip, stay & visa", sub: "Reserve everything in one place and track it in your workspace." },
+  { step: "01", label: "Tell us why you're moving", sub: "Work, school, or a visa route — and where you're headed." },
+  { step: "02", label: "Get your AI eligibility read", sub: "Honest odds, ranked routes, and a checklist built for your case." },
+  { step: "03", label: "Settle in with a plan", sub: "Track your documents, jobs, schools, and settling-in guide in one workspace." },
 ] as const
 
 const heroPoints = [
-  "Eligibility — the visas you actually qualify for, ranked in minutes",
-  "Documents — a tailored checklist for your profile and destination",
-  "Move — movement and accommodation, sorted in the same app",
+  "Eligibility — the work and study visas you actually qualify for, ranked in minutes",
+  "Pathways — visa-sponsoring jobs and school admissions matched to your route",
+  "Settle in — a destination guide and checklist that gets you from landed to living",
 ] as const
 
 const easeOut = [0.16, 1, 0.3, 1] as const
@@ -100,7 +99,7 @@ export function HomePageClient() {
                 className="inline-flex items-center gap-2 rounded-full border border-[#e0511f]/20 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#bf5223] backdrop-blur"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                Relocation intelligence for global movement
+                An AI relocation agency, in your pocket
               </motion.div>
 
               <motion.h1
@@ -108,15 +107,16 @@ export function HomePageClient() {
                 className="mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl lg:text-[4.4rem]"
                 style={{ textWrap: "balance" } as React.CSSProperties}
               >
-                Your move,
+                Relocate for work or school,
                 <span className="block" style={{ color: PRIMARY }}>
-                  made easy.
+                  settle in with confidence.
                 </span>
               </motion.h1>
 
               <motion.p {...fadeUp(0.12, 18)} className="mt-6 max-w-xl text-lg leading-relaxed text-[#5f655c]">
-                See the visas you qualify for and your exact document checklist — in minutes, no
-                consultant. Then sort movement and accommodation in the same app.
+                See the work and study visas you qualify for, get matched to sponsoring jobs and
+                schools, and follow a tailored checklist — all the guidance of a relocation agency,
+                without the consultant fees.
               </motion.p>
 
               <motion.div {...fadeUp(0.18, 18)} className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -126,7 +126,7 @@ export function HomePageClient() {
                   style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
                 >
                   <MapPin className="h-4.5 w-4.5" />
-                  {resumable ? "Continue your move" : "Start your move"}
+                  {resumable ? "Continue your relocation" : "Start your relocation"}
                 </Link>
                 <a
                   href="#how-it-works"
@@ -156,10 +156,10 @@ export function HomePageClient() {
             <motion.div {...fadeUp(0.2, 24)} className="lg:col-span-5">
               <div className="rounded-3xl border border-[#e4dfd5] bg-white/80 p-7 shadow-xl shadow-black/[0.06] backdrop-blur">
                 <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: PRIMARY }}>
-                  The Move Spectrum
+                  Pick your route
                 </div>
                 <p className="mt-3 text-[15px] leading-relaxed text-[#5f655c]">
-                  Tell us how long you&apos;re staying. Everything — visa route, stay type, checklist —
+                  Tell us why you&apos;re moving. Everything — visa route, jobs, schools, checklist —
                   adapts from there.
                 </p>
                 <div className="mt-6 space-y-2.5">
@@ -189,14 +189,15 @@ export function HomePageClient() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div {...fadeUp()} className="max-w-2xl">
             <span className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: PRIMARY }}>
-              Product architecture
+              How the agency works
             </span>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Three cores. One travel system.
+              An AI relocation agency, built as an app.
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-[#5f655c]">
-              EasyMoveZone is built around three connected systems: an intelligence layer that guides the decision,
-              an awareness layer that shows the reality on the ground, and an execution layer that gets the traveler ready to act.
+              EasyMoveZone replaces the relocation consultant with three connected AI tools: one that scores your
+              eligibility and explains the route, one that matches you to the work and school opportunities that
+              support it, and one that helps you settle in once you land.
             </p>
           </motion.div>
 
@@ -239,8 +240,8 @@ export function HomePageClient() {
                 <span className="text-white/50">to landed.</span>
               </h2>
               <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/60">
-                Tell us how long you&apos;re staying. We match your destination, build your plan, then you
-                book movement, accommodation, and visa — all inside the same app.
+                Tell us why you&apos;re moving — work, school, or a visa route on its own. We score your
+                eligibility, match you to opportunities, and build the checklist that gets you settled.
               </p>
               <Link
                 href="/move"
@@ -248,7 +249,7 @@ export function HomePageClient() {
                 style={{ background: PRIMARY, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}
               >
                 <MapPin className="h-4 w-4" />
-                {resumable ? "Continue in the move app" : "Open the move app"}
+                {resumable ? "Continue in the app" : "Open the app"}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </motion.div>
@@ -284,10 +285,11 @@ export function HomePageClient() {
         />
         <motion.div {...fadeUp()} className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
           <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Movement, accommodation, visa — handled.
+            Work visa, school admission, settling in — handled.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-[#5f655c]">
-            Two weeks or forever. One app that books how you get there, where you sleep, and how you get in.
+            One AI relocation agency for every stage of the move — eligibility, opportunities, and the
+            settling-in guide, wherever you&apos;re headed.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
@@ -295,7 +297,7 @@ export function HomePageClient() {
               className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
               style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
             >
-              {resumable ? "Continue your move" : "Start your move"}
+              {resumable ? "Continue your relocation" : "Start your relocation"}
               <ArrowUpRight className="h-4.5 w-4.5" />
             </Link>
             <Link

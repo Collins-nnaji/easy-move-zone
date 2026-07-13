@@ -114,7 +114,7 @@ export function PlatformNav() {
               className="hidden items-center gap-1.5 rounded-full bg-[#e0511f] px-4 py-2 text-[13px] font-bold text-white shadow-sm transition hover:opacity-90 sm:inline-flex"
             >
               <MapPin className="h-3.5 w-3.5" />
-              {resumable ? "Continue your move" : "Start your move"}
+              {resumable ? "Continue your relocation" : "Start your relocation"}
             </Link>
           )}
 

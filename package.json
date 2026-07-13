@@ -1,6 +1,6 @@
 {
-  "name": "easy-move-zone-property",
-  "description": "Innovative Trust-First Real Estate Platform",
+  "name": "easy-move-zone",
+  "description": "AI relocation agency for work, school, and visa moves",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -14,9 +14,6 @@
     "db:seed:demo": "node scripts/seed-demo-journey.mjs"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1005.0",
-    "@aws-sdk/s3-request-presigner": "^3.1005.0",
-    "@azure/storage-blob": "^12.31.0",
     "@neondatabase/auth": "^0.1.0-beta.21",
     "@neondatabase/serverless": "^1.0.2",
     "clsx": "^2.1.1",

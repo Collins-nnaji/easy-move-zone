@@ -17,7 +17,6 @@ import {
   Rocket,
   ShieldCheck,
   Sparkles,
-  Upload,
   Users,
 } from "lucide-react";
 import {
@@ -423,11 +422,6 @@ export function EasyMoveZoneApp() {
   const [visaRoutesAi, setVisaRoutesAi] = useState(false);
   const [selectedVisaRoute, setSelectedVisaRoute] = useState<string | null>(null);
 
-  // Documents — uploaded files (this session) + upload status.
-  const [uploadedDocs, setUploadedDocs] = useState<{ label: string; url: string; key: string }[]>([]);
-  const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-
   // Visa appointments guidance (AI wait-time + official portal).
   const [apptGuide, setApptGuide] = useState<AppointmentsGuide | null>(null);
   const [apptFor, setApptFor] = useState<string | null>(null);
@@ -806,34 +800,6 @@ export function EasyMoveZoneApp() {
     }
   }
 
-  async function uploadDocument(file: File, label: string) {
-    if (!signedIn) {
-      router.push("/auth?redirect=/move");
-      return;
-    }
-    setUploadError(null);
-    setUploadingDoc(label);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("destId", dest?.id ?? "general");
-      fd.append("label", label);
-      const res = await fetch("/api/documents/upload", { method: "POST", body: fd });
-      const data = (await res.json()) as { url?: string; key?: string; label?: string; error?: string };
-      if (!res.ok) {
-        setUploadError(data.error ?? "Upload failed — try again.");
-        return;
-      }
-      if (data.url && data.key) {
-        setUploadedDocs((prev) => [{ label: data.label ?? label, url: data.url!, key: data.key! }, ...prev]);
-      }
-    } catch {
-      setUploadError("Couldn't reach storage — try again in a moment.");
-    } finally {
-      setUploadingDoc(null);
-    }
-  }
-
   async function saveMyPlan() {
     if (!signedIn) {
       router.push("/auth?redirect=/move");
@@ -1062,11 +1028,11 @@ export function EasyMoveZoneApp() {
         </div>
         <div style={{ marginTop: 56 }}>
           <h1 style={{ fontSize: 40, lineHeight: 1.04, fontWeight: 800, letterSpacing: "-.02em", margin: 0, textWrap: "balance" } as CSSProperties}>
-            Your move,<br />
-            <span style={{ color: PRIMARY }}>made easy.</span>
+            Relocate for work or school,<br />
+            <span style={{ color: PRIMARY }}>settle in with confidence.</span>
           </h1>
           <p style={{ fontSize: 16.5, lineHeight: 1.5, color: "#5f655c", margin: "22px 0 0", maxWidth: 320 }}>
-            See the visas you qualify for and your exact document checklist — in minutes, no consultant. Then sort movement and accommodation in one app.
+            See the work and study visas you qualify for and your exact document checklist — in minutes, no consultant. Then get matched to jobs, schools, and a settling-in plan.
           </p>
         </div>
         <div style={{ marginTop: 44, display: "flex", alignItems: "center", gap: 14 }}>
@@ -1090,12 +1056,12 @@ export function EasyMoveZoneApp() {
         <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "16px 0 0" }}>Takes about a minute · no account needed</p>
         </div>
         <FlowAside
-          title="Movement. Accommodation. Visa."
-          text="Three problems, one app. Book how you get there, where you sleep, and how you get in — from a two-week trip to a full relocation."
+          title="Eligibility. Opportunities. Settling in."
+          text="Three problems, one AI relocation agency. Know what you qualify for, get matched to the route, and settle in once you land — for work, school, or a visa on its own."
           steps={[
-            { n: 1, text: "Movement — flights and routes to your destination" },
-            { n: 2, text: "Accommodation — hotels, flats and coliving for your stay" },
-            { n: 3, text: "Visa — the right entry route, matched to your timeline" },
+            { n: 1, text: "Eligibility — the work and study visas you actually qualify for" },
+            { n: 2, text: "Opportunities — visa-sponsoring jobs and school admissions" },
+            { n: 3, text: "Settling in — housing, banking, and local know-how for your city" },
           ]}
         />
       </div>
@@ -1815,18 +1781,6 @@ export function EasyMoveZoneApp() {
     );
   }
 
-  function DocUploadButton({ label }: { label: string }) {
-    const busy = uploadingDoc === label;
-    return (
-      <label style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 10, border: `1px solid ${busy ? PRIMARY : "#d8d2c6"}`, background: busy ? "#fbeae0" : "#fff", color: busy ? PRIMARY : "#4a5047", fontFamily: HANKEN, fontSize: 12.5, fontWeight: 600, cursor: busy ? "default" : "pointer" }}>
-        <Upload size={13} strokeWidth={2.4} />
-        {busy ? "Uploading…" : "Upload"}
-        <input type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style={{ display: "none" }} disabled={busy}
-          onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadDocument(f, label); e.target.value = ""; }} />
-      </label>
-    );
-  }
-
   function Documents() {
     const hasChecklist = !!eligChecklist && eligChecklist.length > 0;
     return (
@@ -1836,10 +1790,10 @@ export function EasyMoveZoneApp() {
           <span style={{ width: 24, height: 24, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <FileText size={13} strokeWidth={2.4} style={{ color: "#fff" }} />
           </span>
-          <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>My documents</span>
+          <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>Document checklist</span>
         </div>
-        <h2 style={{ fontSize: 30, lineHeight: 1.14, fontWeight: 800, letterSpacing: "-.02em", margin: "16px 0 0" }}>Your document checklist</h2>
-        <p style={{ fontSize: 15.5, color: "#4a5047", margin: "12px 0 0", lineHeight: 1.6 }}>Everything you need for {dest.city}, in one place. Tick items off and upload files to keep them safe.</p>
+        <h2 style={{ fontSize: 30, lineHeight: 1.14, fontWeight: 800, letterSpacing: "-.02em", margin: "16px 0 0" }}>What you&apos;ll need to gather</h2>
+        <p style={{ fontSize: 15.5, color: "#4a5047", margin: "12px 0 0", lineHeight: 1.6 }}>Everything you need for {dest.city}, in one place. Keep the originals and copies with you — this is a checklist, not storage.</p>
 
         {!hasChecklist ? (
           <div style={{ marginTop: 22, background: "#fff", border: "1px dashed #d8d2c6", borderRadius: 20, padding: 24, textAlign: "center" }}>
@@ -1849,48 +1803,21 @@ export function EasyMoveZoneApp() {
           </div>
         ) : (
           <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 10 }}>
-            {eligChecklist!.map((it, k) => {
-              const uploaded = uploadedDocs.find((d) => d.label === it.label);
-              return (
-                <div key={k} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "14px 16px" }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                    <span style={{ flexShrink: 0, marginTop: 3, width: 8, height: 8, borderRadius: 999, background: it.urgent ? PRIMARY : "#c9a98f" }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14.5, fontWeight: 700, color: INK }}>{it.label}{it.urgent && <span style={{ fontFamily: MONO, fontSize: 9.5, color: PRIMARY, marginLeft: 8, letterSpacing: ".1em" }}>PRIORITY</span>}</div>
-                      <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 3, lineHeight: 1.45 }}>{it.why}</div>
-                    </div>
-                    {uploaded ? (
-                      <a href={uploaded.url} target="_blank" rel="noopener noreferrer" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 10, background: "#e8f3ec", border: "1px solid #b8ddc6", color: "#2f7d4f", fontFamily: HANKEN, fontSize: 12.5, fontWeight: 700, textDecoration: "none" }}>
-                        <CheckCircle2 size={13} strokeWidth={2.6} /> Saved
-                      </a>
-                    ) : (
-                      <DocUploadButton label={it.label} />
-                    )}
+            {eligChecklist!.map((it, k) => (
+              <div key={k} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "14px 16px" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                  <span style={{ flexShrink: 0, marginTop: 3, width: 8, height: 8, borderRadius: 999, background: it.urgent ? PRIMARY : "#c9a98f" }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14.5, fontWeight: 700, color: INK }}>{it.label}{it.urgent && <span style={{ fontFamily: MONO, fontSize: 9.5, color: PRIMARY, marginLeft: 8, letterSpacing: ".1em" }}>PRIORITY</span>}</div>
+                    <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 3, lineHeight: 1.45 }}>{it.why}</div>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
 
-        {uploadError && <p style={{ fontSize: 13, color: PRIMARY, margin: "14px 0 0", lineHeight: 1.5 }}>{uploadError}</p>}
-
-        {uploadedDocs.length > 0 && (
-          <div style={{ marginTop: 24 }}>
-            <SectionLabel title="Saved files" icon={FileText} />
-            <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
-              {uploadedDocs.map((d) => (
-                <a key={d.key} href={d.url} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", background: "#fff", border: "1px solid #e4dfd5", borderRadius: 12, color: INK, textDecoration: "none" }}>
-                  <FileText size={15} strokeWidth={2.2} style={{ color: PRIMARY }} />
-                  <span style={{ flex: 1, fontSize: 13.5, fontWeight: 600 }}>{d.label}</span>
-                  <span style={{ fontFamily: MONO, fontSize: 11, color: MUTE }}>Open →</span>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "22px 0 0", lineHeight: 1.5 }}>Files are stored securely to your workspace.<br />Always keep your own copies of official documents.</p>
+        <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "22px 0 0", lineHeight: 1.5 }}>We don&apos;t store your files — always keep your own copies of official documents.</p>
       </div>
       </div>
     );
@@ -2352,7 +2279,7 @@ export function EasyMoveZoneApp() {
               <span style={{ width: 38, height: 38, borderRadius: 11, flexShrink: 0, background: "#fbeae0", color: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center" }}><FileText size={18} strokeWidth={2.2} /></span>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 15.5, fontWeight: 700 }}>My documents</div>
-                <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 2 }}>Your visa document checklist and saved files</div>
+                <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 2 }}>Your visa document checklist, ready to work through</div>
               </div>
               <span style={{ color: PRIMARY, fontSize: 16 }}>→</span>
             </div>

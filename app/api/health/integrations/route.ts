@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import { isAzureConfigured } from "@/lib/storage/azure"
 import { chatJson, getAiProvider, getAzureOpenAiConfig } from "@/lib/ai/openai"
 
 /**
@@ -9,22 +8,6 @@ import { chatJson, getAiProvider, getAzureOpenAiConfig } from "@/lib/ai/openai"
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const testAi = searchParams.get("testAi") === "1"
-
-  let azureBlob = { configured: false as boolean, containerExists: false as boolean, error: null as string | null }
-
-  if (isAzureConfigured()) {
-    azureBlob.configured = true
-    try {
-      const { BlobServiceClient } = await import("@azure/storage-blob")
-      const conn = process.env.AZURE_STORAGE_CONNECTION_STRING!
-      const container = process.env.AZURE_STORAGE_CONTAINER ?? "properties"
-      const svc = BlobServiceClient.fromConnectionString(conn)
-      const cont = svc.getContainerClient(container)
-      azureBlob.containerExists = await cont.exists()
-    } catch (e) {
-      azureBlob.error = e instanceof Error ? e.message : "Unknown blob error"
-    }
-  }
 
   const aiProvider = getAiProvider()
   const azureOpenAi = getAzureOpenAiConfig()
@@ -40,7 +23,6 @@ export async function GET(req: Request) {
   }
 
   return NextResponse.json({
-    azureBlob,
     ai: {
       provider: aiProvider,
       azure: azureOpenAi

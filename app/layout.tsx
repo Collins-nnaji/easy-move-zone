@@ -20,24 +20,24 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Movement, accommodation & visa in one app",
+  title: "EasyMoveZone — Relocate and settle in, with an AI agency in your pocket",
   description:
-    "Book your journey, find where you stay, and sort your visa in one place. The all-in-one app for international movement — two weeks or forever.",
+    "Moving abroad for work, school, or a visa? EasyMoveZone is your AI-powered relocation agency — eligibility, document checklists, and settling-in guidance for destinations worldwide, without the consultant fees.",
   metadataBase: process.env.NEXT_PUBLIC_APP_URL
     ? new URL(process.env.NEXT_PUBLIC_APP_URL)
     : undefined,
   openGraph: {
     type: "website",
     siteName: "EasyMoveZone",
-    title: "EasyMoveZone — Get there. Stay there. Visa sorted.",
+    title: "EasyMoveZone — Relocation & settlement, powered by AI",
     description:
-      "Movement, accommodation, and visa in one app. Book how you get there, where you stay, and how you get in.",
+      "Work visas, school admissions, and settling in — sorted by an AI relocation agency built for movers, students, and remote workers.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "EasyMoveZone — Get there. Stay there. Visa sorted.",
+    title: "EasyMoveZone — Relocation & settlement, powered by AI",
     description:
-      "Movement, accommodation, and visa in one app for international relocations and nomad stays.",
+      "Work visas, school admissions, and settling in — sorted by an AI relocation agency built for movers, students, and remote workers.",
   },
   icons: {
     icon: "/emz.png",
