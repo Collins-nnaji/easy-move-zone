@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
+
 /**
- * A static destination image: shows the seeded photo when one exists, or a
- * designed placeholder themed by region when it doesn't. No upload/pick —
+ * A static destination image: shows the seeded photo when one exists and
+ * loads successfully, or a designed placeholder themed by region otherwise
+ * (missing URL, or the hotlinked photo failing to load). No upload/pick —
  * real photos are an admin-managed concern, not a per-user one.
  */
 const REGION_GRADIENT: Record<string, [string, string]> = {
@@ -16,30 +19,17 @@ const REGION_GRADIENT: Record<string, [string, string]> = {
 };
 const DEFAULT_GRADIENT: [string, string] = ["#4a5047", "#1b231e"];
 
-export function DestinationImage({
-  src,
+function PlaceholderTile({
   city,
   country,
   region,
   style,
 }: {
-  src?: string;
   city: string;
   country?: string;
   region?: string;
   style?: React.CSSProperties;
 }) {
-  if (src) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={src}
-        alt={city}
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block", ...style }}
-      />
-    );
-  }
-
   const [from, to] = REGION_GRADIENT[region ?? ""] ?? DEFAULT_GRADIENT;
   return (
     <div
@@ -72,4 +62,39 @@ export function DestinationImage({
       )}
     </div>
   );
+}
+
+export function DestinationImage({
+  src,
+  city,
+  country,
+  region,
+  style,
+}: {
+  src?: string;
+  city: string;
+  country?: string;
+  region?: string;
+  style?: React.CSSProperties;
+}) {
+  const [lastSrc, setLastSrc] = useState(src);
+  const [failed, setFailed] = useState(false);
+  if (src !== lastSrc) {
+    setLastSrc(src);
+    setFailed(false);
+  }
+
+  if (src && !failed) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt={city}
+        onError={() => setFailed(true)}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block", ...style }}
+      />
+    );
+  }
+
+  return <PlaceholderTile city={city} country={country} region={region} style={style} />;
 }
