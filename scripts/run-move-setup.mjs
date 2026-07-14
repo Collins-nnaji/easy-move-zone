@@ -29,6 +29,7 @@ const steps = [
   "db/migrations/20260627_settle_guide_more_destinations.sql",
   "db/migrations/20260628_settle_guide_life_stage_cards.sql",
   "db/migrations/20260629_move_work_study.sql",
+  "db/migrations/20260713_community.sql",
 ]
 
 const postSeedSteps = [

@@ -6,7 +6,6 @@ import type {
   SchoolOption,
   StayOption,
   TripOption,
-  VisaService,
 } from "./data";
 
 type Answers = Record<string, string>;
@@ -56,7 +55,7 @@ export interface IntegrationAction {
   title: string;
   detail: string;
   countLabel: string;
-  target: "trips" | "stays" | "visaBook" | "plan" | "school" | "job";
+  target: "plan" | "school" | "job" | "community";
 }
 
 export interface TravelIntelligenceCore {
@@ -1054,9 +1053,6 @@ export function buildTravelExecutionCore({
   mode,
   answers,
   plan,
-  trips,
-  stays,
-  visaServices,
   schools,
   jobs,
 }: {
@@ -1064,9 +1060,6 @@ export function buildTravelExecutionCore({
   mode: Mode;
   answers: Answers;
   plan: PlanInfo;
-  trips: TripOption[];
-  stays: StayOption[];
-  visaServices: VisaService[];
   schools: SchoolOption[];
   jobs: JobOption[];
 }): TravelExecutionCore {
@@ -1077,7 +1070,6 @@ export function buildTravelExecutionCore({
     personaMatches,
     strategy: [
       `${leadPersona.persona} is your lead travel persona for ${destination.city}.`,
-      `Use ${stays[0]?.area ?? "a transit-rich central district"} as the first-week base and ${trips[0]?.provider ?? "the cleanest route"} as the least-friction way in.`,
       mode === "move"
         ? "Treat this as an execution sprint: documents first, housing second, community third."
         : mode === "nomad"
@@ -1086,24 +1078,6 @@ export function buildTravelExecutionCore({
     ],
     readiness: readinessFor(mode, plan, answers),
     actions: [
-      {
-        title: "Transportation options",
-        detail: "Open live route choices and hold the least-stress way to get there.",
-        countLabel: `${trips.length} routes`,
-        target: "trips",
-      },
-      {
-        title: "Stay options",
-        detail: "Choose a first base matched to your stay length and arrival pace.",
-        countLabel: `${stays.length} stays`,
-        target: "stays",
-      },
-      {
-        title: "Visa support",
-        detail: "Move from self-serve checklist to guided handling if the route is paperwork-heavy.",
-        countLabel: `${visaServices.length} options`,
-        target: "visaBook",
-      },
       {
         title: "Readiness checklist",
         detail: "Turn this module into action with the plan and move meter.",
@@ -1130,6 +1104,12 @@ export function buildTravelExecutionCore({
             },
           ]
         : []),
+      {
+        title: "Community",
+        detail: "Ask people who've made this move — jobs, visas, housing, and settling in.",
+        countLabel: "Discuss",
+        target: "community",
+      },
     ],
   };
 }

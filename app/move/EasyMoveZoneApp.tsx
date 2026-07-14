@@ -7,13 +7,13 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Compass,
-  ExternalLink,
   Eye,
   FileText,
   Gauge,
   GraduationCap,
-  Info,
   ListChecks,
+  MessageCircle,
+  MessageSquare,
   Rocket,
   ShieldCheck,
   Sparkles,
@@ -43,19 +43,20 @@ import { savePlan, addTask, fetchWorkspace, updateTaskStatus, fetchGuideByCitySl
 import { moveTaskNote, parseMoveTaskNote } from "@/lib/move/plan-sync";
 import { settleCardsForCity } from "@/lib/settle/cards";
 import { MatchesSkeleton } from "@/components/ui/PageSkeletons";
-import { createBooking, fetchBookings } from "@/lib/bookings/client";
-import type { BookingType, MoveBooking } from "@/lib/bookings/types";
+import { createBooking } from "@/lib/bookings/client";
+import type { BookingType } from "@/lib/bookings/types";
 import type { SettleCard, TaskCategory, WorkMode } from "@/lib/relocate/types";
+import { fetchTopics, createTopic, fetchTopic, createReply, requestAiReply } from "@/lib/community/client";
+import type { CommunityCategory, CommunityReply, CommunityTopic } from "@/lib/community/types";
 
-// A booking the user is about to confirm in the slide-up sheet.
+type ApplyType = Extract<BookingType, "school" | "job">;
+
+// An application the user is about to confirm in the slide-up sheet.
 interface PendingBooking {
-  type: BookingType;
+  type: ApplyType;
   title: string;
   provider: string;
   price: string;
-  needsDates: boolean;
-  needsRange: boolean;
-  needsGuests: boolean;
 }
 
 // Map a /move work answer to a relocation work mode.
@@ -130,18 +131,6 @@ interface VisaOption {
   difficulty: number;
   notes: string;
 }
-interface AppointmentsGuide {
-  portalName: string;
-  portalUrl: string;
-  typicalWait: string;
-  waitLevel: number;
-  bookAhead: string;
-  bestTimes: string;
-  prep: string[];
-  notes: string;
-  source?: string;
-}
-
 const DEFAULT_ELIG_PROFILE: EligProfile = {
   nationality: "", age: "", education: "bachelors", experience: "3", profession: "",
   english: "fluent", budget: "comfortable", family: "just-me", goals: ["work"],
@@ -313,12 +302,7 @@ type Screen =
   | "documents"
   | "settle"
   | "plan"
-  | "book"
-  | "trips"
-  | "stays"
-  | "visaBook"
-  | "appointments"
-  | "booked";
+  | "community";
 
 // Every screen now has a real URL under /move — this is what gives the app a
 // working browser back/forward button, bookmarkable/shareable links, and a
@@ -338,12 +322,7 @@ function buildMovePath(screen: Screen, destId: string): string {
     case "settle": return `/move/explore/${destId}/settle`;
     case "execution": return `/move/explore/${destId}/execution`;
     case "plan": return `/move/explore/${destId}/plan`;
-    case "book": return `/move/explore/${destId}/book`;
-    case "trips": return `/move/explore/${destId}/book/trips`;
-    case "stays": return `/move/explore/${destId}/book/stays`;
-    case "visaBook": return `/move/explore/${destId}/book/visa`;
-    case "appointments": return `/move/explore/${destId}/book/appointments`;
-    case "booked": return `/move/explore/${destId}/booked`;
+    case "community": return "/move/community";
   }
 }
 
@@ -353,6 +332,7 @@ function screenFromPath(pathname: string): Screen {
   if (rest === "spectrum") return "spectrum";
   if (rest === "search") return "search";
   if (rest === "explore") return "matches";
+  if (rest === "community") return "community";
   const m = rest.match(/^explore\/[^/]+(?:\/(.*))?$/);
   if (!m) return "welcome";
   const sub = m[1];
@@ -364,14 +344,28 @@ function screenFromPath(pathname: string): Screen {
     settle: "settle",
     execution: "execution",
     plan: "plan",
-    book: "book",
-    "book/trips": "trips",
-    "book/stays": "stays",
-    "book/visa": "visaBook",
-    "book/appointments": "appointments",
-    booked: "booked",
   };
   return subToScreen[sub] ?? "detail";
+}
+
+const COMMUNITY_CATEGORIES: { id: CommunityCategory; label: string }[] = [
+  { id: "work", label: "Work" },
+  { id: "study", label: "Study" },
+  { id: "visa", label: "Visa" },
+  { id: "travel", label: "Travel" },
+  { id: "settling", label: "Settling in" },
+  { id: "general", label: "General" },
+];
+
+function timeAgo(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.max(1, Math.round(diffMs / 60000));
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.round(hrs / 24);
+  if (days < 30) return `${days}d ago`;
+  return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
 export function EasyMoveZoneApp() {
@@ -422,27 +416,36 @@ export function EasyMoveZoneApp() {
   const [visaRoutesAi, setVisaRoutesAi] = useState(false);
   const [selectedVisaRoute, setSelectedVisaRoute] = useState<string | null>(null);
 
-  // Visa appointments guidance (AI wait-time + official portal).
-  const [apptGuide, setApptGuide] = useState<AppointmentsGuide | null>(null);
-  const [apptFor, setApptFor] = useState<string | null>(null);
-  const [apptLoading, setApptLoading] = useState(false);
-
-  // Booking flow state.
+  // Application flow state (school/job "apply" — confirms and saves to the
+  // signed-in user's account, no dates or guest counts needed).
   const [pending, setPending] = useState<PendingBooking | null>(null);
-  const [bookStart, setBookStart] = useState("");
-  const [bookEnd, setBookEnd] = useState("");
-  const [bookGuests, setBookGuests] = useState(1);
   const [bookState, setBookState] = useState<"idle" | "saving">("idle");
-  const [lastBooking, setLastBooking] = useState<MoveBooking | null>(null);
-  const [bookingHistory, setBookingHistory] = useState<MoveBooking[]>([]);
-  const [bookingHistoryLoading, setBookingHistoryLoading] = useState(false);
+  const [appliedTitles, setAppliedTitles] = useState<Set<string>>(new Set());
   const [settleCards, setSettleCards] = useState<SettleCard[]>([]);
   const [settleCommunity, setSettleCommunity] = useState("");
+
+  // Community discussion board state.
+  const [communityCategory, setCommunityCategory] = useState<CommunityCategory | "all">("all");
+  const [communityTopics, setCommunityTopics] = useState<CommunityTopic[]>([]);
+  const [communityLoading, setCommunityLoading] = useState(false);
+  const [communityTopicId, setCommunityTopicId] = useState<string | null>(null);
+  const [communityThread, setCommunityThread] = useState<{ topic: CommunityTopic; replies: CommunityReply[] } | null>(null);
+  const [communityThreadLoading, setCommunityThreadLoading] = useState(false);
+  const [newTopicOpen, setNewTopicOpen] = useState(false);
+  const [newTopicTitle, setNewTopicTitle] = useState("");
+  const [newTopicBody, setNewTopicBody] = useState("");
+  const [newTopicCategory, setNewTopicCategory] = useState<CommunityCategory>("general");
+  const [newTopicSaving, setNewTopicSaving] = useState(false);
+  const [newTopicError, setNewTopicError] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [replySaving, setReplySaving] = useState(false);
+  const [aiReplyLoading, setAiReplyLoading] = useState(false);
+  const [aiReplyError, setAiReplyError] = useState<string | null>(null);
 
   const router = useRouter();
   const { data: sessionData, isPending: sessionPending } = authClient.useSession();
   const signedIn = !!sessionData?.user;
-  const { destinations, trips, stays, visaServices, schools, jobs, loaded: catalogLoaded } = useMoveCatalog();
+  const { destinations, schools, jobs, loaded: catalogLoaded } = useMoveCatalog();
 
   // Returning users who've completed the flow before land straight on
   // Explore (the matches screen) with their last destination & stay length,
@@ -522,25 +525,29 @@ export function EasyMoveZoneApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, dest?.id, mode]);
 
-  // Load appointment guidance when the Appointments screen is active.
+  // Load community topics when the Community list is active (re-runs on
+  // category change), and load a thread when a topic is opened.
   useEffect(() => {
-    if (screen !== "appointments" || !dest?.id) return;
-    if (apptFor === `${dest.id}:${mode}` && !apptLoading) return;
-    void runAppointments(dest.id, mode);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, dest?.id, mode]);
-
-  // Load the signed-in user's booking history when the Bookings hub is active.
-  useEffect(() => {
-    if (screen !== "book" || !signedIn) return;
+    if (screen !== "community" || communityTopicId) return;
     let mounted = true;
-    setBookingHistoryLoading(true);
-    fetchBookings()
-      .then((rows) => { if (mounted) setBookingHistory(rows); })
-      .catch(() => { if (mounted) setBookingHistory([]); })
-      .finally(() => { if (mounted) setBookingHistoryLoading(false); });
+    setCommunityLoading(true);
+    fetchTopics(communityCategory)
+      .then((rows) => { if (mounted) setCommunityTopics(rows); })
+      .catch(() => { if (mounted) setCommunityTopics([]); })
+      .finally(() => { if (mounted) setCommunityLoading(false); });
     return () => { mounted = false; };
-  }, [screen, signedIn]);
+  }, [screen, communityCategory, communityTopicId]);
+
+  useEffect(() => {
+    if (screen !== "community" || !communityTopicId) return;
+    let mounted = true;
+    setCommunityThreadLoading(true);
+    fetchTopic(communityTopicId)
+      .then((data) => { if (mounted) setCommunityThread(data); })
+      .catch(() => { if (mounted) setCommunityThread(null); })
+      .finally(() => { if (mounted) setCommunityThreadLoading(false); });
+    return () => { mounted = false; };
+  }, [screen, communityTopicId]);
 
   // The mood search, when used, overrides the static match-score ordering.
   const moodList = useMemo(() => {
@@ -550,12 +557,6 @@ export function EasyMoveZoneApp() {
   }, [moodRanking, destinations]);
   const browseList = moodList ?? ranked;
 
-  const tripOptions = useMemo(() => trips[dest.id] ?? [], [dest.id, trips]);
-  const stayOptions = useMemo(
-    () => (stays[dest.id] ?? []).filter((stay) => stay.forModes.includes(mode)),
-    [dest.id, mode, stays],
-  );
-  const visaOptions = useMemo(() => visaServices[mode] ?? [], [mode, visaServices]);
   const schoolOptions = useMemo(() => schools[dest.id] ?? [], [dest.id, schools]);
   const jobOptions = useMemo(() => jobs[dest.id] ?? [], [dest.id, jobs]);
 
@@ -776,30 +777,6 @@ export function EasyMoveZoneApp() {
     }
   }
 
-  async function runAppointments(destinationId: string, forMode: Mode) {
-    setApptLoading(true);
-    setApptFor(`${destinationId}:${forMode}`);
-    setApptGuide(null);
-    try {
-      const res = await fetch("/api/visa/appointments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          destinationId,
-          mode: forMode,
-          profile: { goals: eligProfile.goals, nationality: eligProfile.nationality },
-        }),
-      });
-      if (!res.ok) throw new Error("appointments failed");
-      const data = (await res.json()) as AppointmentsGuide;
-      setApptGuide(data);
-    } catch {
-      setApptGuide(null);
-    } finally {
-      setApptLoading(false);
-    }
-  }
-
   async function saveMyPlan() {
     if (!signedIn) {
       router.push("/auth?redirect=/move");
@@ -853,11 +830,8 @@ export function EasyMoveZoneApp() {
     }
   }
 
-  // ── Booking flow ──────────────────────────────────────────────────────
+  // ── Application flow (school/job apply) ─────────────────────────────
   function openBooking(p: PendingBooking) {
-    setBookStart("");
-    setBookEnd("");
-    setBookGuests(1);
     setPending(p);
   }
 
@@ -870,20 +844,16 @@ export function EasyMoveZoneApp() {
     if (bookState === "saving") return;
     setBookState("saving");
     try {
-      const booking = await createBooking({
+      await createBooking({
         bookingType: pending.type,
         destinationCity: dest.city,
         destinationCountry: dest.country,
         itemTitle: pending.title,
         provider: pending.provider,
         priceLabel: pending.price,
-        startDate: pending.needsDates ? bookStart || null : null,
-        endDate: pending.needsRange ? bookEnd || null : null,
-        guests: pending.needsGuests ? bookGuests : 1,
       });
-      setLastBooking(booking);
+      setAppliedTitles((prev) => new Set(prev).add(pending.title));
       setPending(null);
-      goTo("booked");
     } catch {
       // Leave the sheet open so the user can retry.
     } finally {
@@ -891,15 +861,79 @@ export function EasyMoveZoneApp() {
     }
   }
 
-  const bookTypeLabel: Record<BookingType, string> = {
-    trip: "Trip",
-    stay: "Stay",
-    visa: "Visa service",
+  const bookTypeLabel: Record<ApplyType, string> = {
     school: "School admission",
     job: "Job application",
   };
 
-  const isApplyType = (t: BookingType) => t === "school" || t === "job";
+  // ── Community discussion board ──────────────────────────────────────
+  async function submitNewTopic() {
+    if (!signedIn) {
+      router.push("/auth?redirect=/move");
+      return;
+    }
+    if (!newTopicTitle.trim() || !newTopicBody.trim()) {
+      setNewTopicError("Add a title and a few details.");
+      return;
+    }
+    setNewTopicSaving(true);
+    setNewTopicError(null);
+    try {
+      const topic = await createTopic({
+        category: newTopicCategory,
+        title: newTopicTitle.trim(),
+        body: newTopicBody.trim(),
+      });
+      setCommunityTopics((prev) => [topic, ...prev]);
+      setNewTopicTitle("");
+      setNewTopicBody("");
+      setNewTopicOpen(false);
+    } catch {
+      setNewTopicError("Couldn't post — try again.");
+    } finally {
+      setNewTopicSaving(false);
+    }
+  }
+
+  async function submitReply() {
+    if (!communityTopicId || !replyText.trim()) return;
+    if (!signedIn) {
+      router.push("/auth?redirect=/move");
+      return;
+    }
+    setReplySaving(true);
+    try {
+      const reply = await createReply(communityTopicId, replyText.trim());
+      setCommunityThread((prev) =>
+        prev ? { topic: { ...prev.topic, replyCount: prev.topic.replyCount + 1 }, replies: [...prev.replies, reply] } : prev,
+      );
+      setReplyText("");
+    } catch {
+      // Leave the draft so the user can retry.
+    } finally {
+      setReplySaving(false);
+    }
+  }
+
+  async function askAi() {
+    if (!communityTopicId) return;
+    if (!signedIn) {
+      router.push("/auth?redirect=/move");
+      return;
+    }
+    setAiReplyError(null);
+    setAiReplyLoading(true);
+    try {
+      const reply = await requestAiReply(communityTopicId);
+      setCommunityThread((prev) =>
+        prev ? { topic: { ...prev.topic, replyCount: prev.topic.replyCount + 1 }, replies: [...prev.replies, reply] } : prev,
+      );
+    } catch {
+      setAiReplyError("Couldn't get an AI answer — try again in a moment.");
+    } finally {
+      setAiReplyLoading(false);
+    }
+  }
 
   // ── Move Meter math (driven by ticked plan items) ─────────────────────
   const plan = PLAN[mode];
@@ -910,13 +944,10 @@ export function EasyMoveZoneApp() {
         mode,
         answers,
         plan,
-        trips: tripOptions,
-        stays: stayOptions,
-        visaServices: visaOptions,
         schools: schoolOptions,
         jobs: jobOptions,
       }),
-    [answers, dest, jobOptions, mode, plan, schoolOptions, stayOptions, tripOptions, visaOptions],
+    [answers, dest, jobOptions, mode, plan, schoolOptions],
   );
   const allKeys: string[] = [];
   plan.phases.forEach((ph, pi) => ph.items.forEach((_, ii) => allKeys.push(`${mode}:${pi}:${ii}`)));
@@ -1374,7 +1405,7 @@ export function EasyMoveZoneApp() {
         <button onClick={() => goTo("execution")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 18, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Open Travel Execution Core</button>
         <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
           <button onClick={() => goTo("visa")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Visa details</button>
-          <button onClick={() => goTo("book")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Book now</button>
+          <button onClick={() => goTo("community")} style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Community</button>
         </div>
       </>
     );
@@ -1510,21 +1541,15 @@ export function EasyMoveZoneApp() {
 
   function openIntegration(action: IntegrationAction) {
     switch (action.target) {
-      case "trips":
-        goTo("trips");
-        return;
-      case "stays":
-        goTo("stays");
-        return;
-      case "visaBook":
-        goTo("visaBook");
-        return;
       case "plan":
         goTo("plan");
         return;
       case "school":
       case "job":
         goTo("visa");
+        return;
+      case "community":
+        goTo("community");
         return;
     }
   }
@@ -1625,7 +1650,7 @@ export function EasyMoveZoneApp() {
 
           <div style={{ display: "flex", gap: 10, marginTop: 26 }}>
             <button onClick={() => goTo("plan")} style={{ flex: 1, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 700, cursor: "pointer" }}>Open my plan</button>
-            <button onClick={() => goTo("book")} style={{ flex: 1, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 600, cursor: "pointer" }}>Open bookings</button>
+            <button onClick={() => goTo("community")} style={{ flex: 1, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 600, cursor: "pointer" }}>Ask the community</button>
           </div>
         </div>
       </div>
@@ -2090,9 +2115,9 @@ export function EasyMoveZoneApp() {
                     style={{ flex: 1, padding: 14, border: "none", borderRadius: 14, background: INK, color: "#fff", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}>
                     {selectedVisaRoute ? "Get documents →" : "My documents →"}
                   </button>
-                  <button onClick={() => goTo("appointments")}
+                  <button onClick={() => goTo("community")}
                     style={{ flex: 1, padding: 14, border: "1px solid #d8d2c6", borderRadius: 14, background: "#fff", color: "#4a5047", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>
-                    Book appointment →
+                    Ask the community →
                   </button>
                 </div>
               </div>
@@ -2114,16 +2139,20 @@ export function EasyMoveZoneApp() {
                     <div style={{ marginTop: 20 }}>
                       <div style={{ fontSize: 13.5, fontWeight: 700, color: INK, marginBottom: 10 }}>School admissions</div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                        {schoolOptions.map((s) => (
-                          <PriceRow
-                            key={s.id}
-                            left={s.institution}
-                            sub={`${s.program} · ${s.level} · ${s.tag}`}
-                            price={s.price}
-                            actionLabel="Apply →"
-                            onClick={() => openBooking({ type: "school", title: `${s.institution} — ${s.program}`, provider: s.institution, price: s.price, needsDates: false, needsRange: false, needsGuests: false })}
-                          />
-                        ))}
+                        {schoolOptions.map((s) => {
+                          const title = `${s.institution} — ${s.program}`;
+                          const applied = appliedTitles.has(title);
+                          return (
+                            <PriceRow
+                              key={s.id}
+                              left={s.institution}
+                              sub={`${s.program} · ${s.level} · ${s.tag}`}
+                              price={s.price}
+                              actionLabel={applied ? "Applied ✓" : "Apply →"}
+                              onClick={() => { if (!applied) openBooking({ type: "school", title, provider: s.institution, price: s.price }); }}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -2132,16 +2161,20 @@ export function EasyMoveZoneApp() {
                     <div style={{ marginTop: 20 }}>
                       <div style={{ fontSize: 13.5, fontWeight: 700, color: INK, marginBottom: 10 }}>Visa-sponsoring jobs</div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                        {jobOptions.map((j) => (
-                          <PriceRow
-                            key={j.id}
-                            left={`${j.company} · ${j.role}`}
-                            sub={`${j.industry} · ${j.tag}`}
-                            price={j.price}
-                            actionLabel="Apply →"
-                            onClick={() => openBooking({ type: "job", title: `${j.role} @ ${j.company}`, provider: j.company, price: j.price, needsDates: false, needsRange: false, needsGuests: false })}
-                          />
-                        ))}
+                        {jobOptions.map((j) => {
+                          const title = `${j.role} @ ${j.company}`;
+                          const applied = appliedTitles.has(title);
+                          return (
+                            <PriceRow
+                              key={j.id}
+                              left={`${j.company} · ${j.role}`}
+                              sub={`${j.industry} · ${j.tag}`}
+                              price={j.price}
+                              actionLabel={applied ? "Applied ✓" : "Apply →"}
+                              onClick={() => { if (!applied) openBooking({ type: "job", title, provider: j.company, price: j.price }); }}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -2236,179 +2269,6 @@ export function EasyMoveZoneApp() {
     );
   }
 
-  function BookHub() {
-    const cards: { type: BookingType; go: Screen; title: string; sub: string; icon: string }[] = [
-      { type: "trip", go: "trips", title: "Book your trip", sub: "Flights & overland routes to get you there", icon: "✈" },
-      { type: "stay", go: "stays", title: "Find a stay", sub: mode === "trip" ? "Hotels for your visit" : "Furnished flats & coliving", icon: "⌂" },
-      { type: "visa", go: "visaBook", title: "Sort your visa", sub: "From a free checklist to full handling", icon: "✓" },
-      { type: "visa", go: "appointments", title: "Visa appointments", sub: "Typical waits + jump to the official portal", icon: "◷" },
-    ];
-    return (
-      <div className="move-page-inner">
-      <div className="move-page-screen">
-        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Book · {dest.city}</div>
-        <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Trip, stay &amp; visa — all in one</h2>
-        <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.5 }}>Everything you need to actually go, tailored to a <b style={{ color: "#4a5047" }}>{cur.label}</b> stay.</p>
-        <DestSwitcher />
-
-        <div className="move-book-grid" style={{ marginTop: 22 }}>
-          {cards.map((c) => (
-            <div key={c.go} onClick={() => goTo(c.go)} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20, boxShadow: "0 2px 10px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 16 }}>
-              <div style={{ width: 46, height: 46, borderRadius: 14, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#fbeae0", color: PRIMARY, fontSize: 22 }}>{c.icon}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 17, fontWeight: 800, letterSpacing: "-.01em" }}>{c.title}</div>
-                <div style={{ fontSize: 13, color: "#6e746b", marginTop: 3 }}>{c.sub}</div>
-              </div>
-              <span style={{ color: PRIMARY, fontSize: 18 }}>→</span>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ marginTop: 22 }}>
-          <SectionLabel title="Before you book" icon={ClipboardCheck} />
-          <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
-            <div onClick={() => goTo("plan")} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "15px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12 }}>
-              <span style={{ width: 38, height: 38, borderRadius: 11, flexShrink: 0, background: "#fbeae0", color: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center" }}><ClipboardCheck size={18} strokeWidth={2.2} /></span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 15.5, fontWeight: 700 }}>My move plan &amp; readiness</div>
-                <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 2 }}>Your checklist and readiness score before you commit</div>
-              </div>
-              <span style={{ color: PRIMARY, fontSize: 16 }}>→</span>
-            </div>
-            <div onClick={() => goTo("documents")} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "15px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12 }}>
-              <span style={{ width: 38, height: 38, borderRadius: 11, flexShrink: 0, background: "#fbeae0", color: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center" }}><FileText size={18} strokeWidth={2.2} /></span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 15.5, fontWeight: 700 }}>My documents</div>
-                <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 2 }}>Your visa document checklist, ready to work through</div>
-              </div>
-              <span style={{ color: PRIMARY, fontSize: 16 }}>→</span>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ marginTop: 22 }}>
-          <SectionLabel title="Your booking history" icon={ClipboardCheck} />
-          {!signedIn ? (
-            <p style={{ fontSize: 13.5, color: MUTE, margin: "12px 0 0" }}>Sign in to see trips, stays and visa services you&apos;ve booked.</p>
-          ) : bookingHistoryLoading ? (
-            <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
-              <Shimmer height={64} /><Shimmer height={64} />
-            </div>
-          ) : bookingHistory.length === 0 ? (
-            <p style={{ fontSize: 13.5, color: MUTE, margin: "12px 0 0" }}>Nothing booked yet — reserve a trip, stay or visa service above to see it here.</p>
-          ) : (
-            <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
-              {bookingHistory.map((b) => {
-                const statusAccent = b.status === "confirmed" ? { bg: "#edf7f0", text: "#216240" } : b.status === "cancelled" ? { bg: "#f0ede4", text: "#7a7566" } : { bg: "#fff4ec", text: "#9c3f15" };
-                return (
-                  <div key={b.id} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "14px 16px" }}>
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: MUTE }}>{bookTypeLabel[b.bookingType]} · {b.destinationCity}</div>
-                        <div style={{ fontSize: 15, fontWeight: 700, marginTop: 3 }}>{b.itemTitle}</div>
-                        {b.startDate && <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 3 }}>{b.startDate}{b.endDate ? ` → ${b.endDate}` : ""}</div>}
-                      </div>
-                      <span style={{ flexShrink: 0, padding: "5px 10px", borderRadius: 999, background: statusAccent.bg, color: statusAccent.text, fontFamily: MONO, fontSize: 11, fontWeight: 700, textTransform: "capitalize" }}>{b.status}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
-      </div>
-    );
-  }
-
-  function Appointments() {
-    const wait = apptGuide?.waitLevel ?? 3;
-    return (
-      <div className="move-page-inner">
-      <div className="move-page-screen">
-        <div onClick={() => goTo("book")} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 11, letterSpacing: ".1em", color: PRIMARY, cursor: "pointer" }}>← Bookings</div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Visa appointments · {dest.country}</div>
-          {apptGuide?.source === "ai" && !apptLoading && <AiChip label="Tailored guidance" />}
-        </div>
-        <h2 style={{ fontSize: 27, lineHeight: 1.14, fontWeight: 800, letterSpacing: "-.02em", margin: "10px 0 0" }}>Get a consular appointment</h2>
-        <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.55 }}>Typical waits and how to book for a {modeInfo.name.toLowerCase()} — then jump straight to the official portal where live dates actually live.</p>
-        <DestSwitcher />
-
-        {apptLoading ? (
-          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 12 }}>
-            <Shimmer height={120} /><Shimmer height={80} /><Shimmer height={140} />
-          </div>
-        ) : !apptGuide ? (
-          <p style={{ fontSize: 13.5, color: MUTE, margin: "20px 0 0" }}>Couldn&apos;t load guidance — try switching destination.</p>
-        ) : (
-          <>
-            {/* Wait-time hero */}
-            <div style={{ marginTop: 20, background: INK, borderRadius: 22, padding: 22, color: "#fff" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".16em", textTransform: "uppercase", color: "#f3aa79" }}>Typical wait</div>
-                <div style={{ display: "flex", gap: 3 }} aria-label={`Backlog ${wait} of 5`}>
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <span key={i} style={{ width: 16, height: 6, borderRadius: 999, background: i <= wait ? (wait <= 2 ? "#7fd6a0" : wait === 3 ? "#f3c07a" : "#f0a08c") : "rgba(255,255,255,.18)" }} />
-                  ))}
-                </div>
-              </div>
-              <div style={{ fontSize: 22, fontWeight: 800, margin: "12px 0 0" }}>{apptGuide.typicalWait}</div>
-              <p style={{ fontSize: 14, lineHeight: 1.55, color: "#c9cdc7", margin: "10px 0 0" }}>{apptGuide.bookAhead}</p>
-            </div>
-
-            {/* Official portal — the source of truth */}
-            <div style={{ marginTop: 16, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20 }}>
-              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>Official booking portal</div>
-              <div style={{ fontSize: 17, fontWeight: 800, marginTop: 8 }}>{apptGuide.portalName}</div>
-              <p style={{ fontSize: 13, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>{apptGuide.bestTimes}</p>
-              <a href={apptGuide.portalUrl} target="_blank" rel="noopener noreferrer"
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 14, padding: 15, borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, textDecoration: "none", boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>
-                <ExternalLink size={16} strokeWidth={2.4} /> Check live availability →
-              </a>
-            </div>
-
-            {/* Prep before booking */}
-            {apptGuide.prep.length > 0 && (
-              <div style={{ marginTop: 16 }}>
-                <SectionLabel title="Before you book" icon={ClipboardCheck} />
-                <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
-                  {apptGuide.prep.map((p, i) => (
-                    <div key={i} style={{ display: "flex", gap: 12, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 14, padding: "13px 15px" }}>
-                      <div style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, background: "#f6e9df", color: PRIMARY, fontFamily: MONO, fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</div>
-                      <div style={{ fontSize: 14, lineHeight: 1.5, color: "#3f453c" }}>{p}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div style={{ marginTop: 18, display: "flex", gap: 10, alignItems: "flex-start", background: "#fbf6ee", border: "1px solid #ece0cd", borderRadius: 14, padding: "13px 15px" }}>
-              <Info size={15} strokeWidth={2.2} style={{ color: "#b9781f", flexShrink: 0, marginTop: 1 }} />
-              <p style={{ fontSize: 12.5, color: "#7a6a4a", margin: 0, lineHeight: 1.5 }}>{apptGuide.notes}</p>
-            </div>
-          </>
-        )}
-      </div>
-      </div>
-    );
-  }
-
-  function BookListShell({ eyebrow, title, sub, children }: { eyebrow: string; title: string; sub: string; children: React.ReactNode }) {
-    return (
-      <div className="move-page-inner">
-      <div className="move-page-screen">
-        <div onClick={() => goTo("book")} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 11, letterSpacing: ".1em", color: PRIMARY, cursor: "pointer" }}>← Book</div>
-        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE, marginTop: 14 }}>{eyebrow}</div>
-        <h2 style={{ fontSize: 25, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>{title}</h2>
-        <p style={{ fontSize: 14, color: "#6e746b", margin: "10px 0 0", lineHeight: 1.5 }}>{sub}</p>
-        <DestSwitcher />
-        <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 12 }}>{children}</div>
-      </div>
-      </div>
-    );
-  }
-
   function PriceRow({ left, sub, price, onClick, actionLabel = "Reserve →" }: { left: string; sub: string; price: string; onClick: () => void; actionLabel?: string }) {
     return (
       <div onClick={onClick} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
@@ -2424,64 +2284,155 @@ export function EasyMoveZoneApp() {
     );
   }
 
-  function Trips() {
-    return (
-      <BookListShell eyebrow={`Trips · ${dest.city}`} title="Get yourself there" sub="Sample routes and fares — reserve to hold your plan.">
-        {tripOptions.map((t) => (
-          <PriceRow key={t.id} left={`${t.provider} · ${t.route}`} sub={t.duration} price={t.price}
-            onClick={() => openBooking({ type: "trip", title: `${t.provider} · ${t.route}`, provider: t.provider, price: t.price, needsDates: true, needsRange: false, needsGuests: false })} />
-        ))}
-      </BookListShell>
-    );
-  }
+  function Community() {
+    if (communityTopicId) {
+      const data = communityThread;
+      return (
+        <div className="move-page-inner">
+        <div className="move-page-screen">
+          <div onClick={() => { setCommunityTopicId(null); setCommunityThread(null); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 11, letterSpacing: ".1em", color: PRIMARY, cursor: "pointer" }}>← Community</div>
 
-  function Stays() {
-    return (
-      <BookListShell eyebrow={`Stays · ${dest.city}`} title={mode === "trip" ? "Where to stay" : "A base for your stay"} sub={mode === "trip" ? "Hotels matched to a short visit." : "Furnished flats and coliving for a longer stay."}>
-        {stayOptions.map((s) => (
-          <PriceRow key={s.id} left={s.name} sub={`${s.area} · ★ ${s.rating}`} price={s.price}
-            onClick={() => openBooking({ type: "stay", title: s.name, provider: s.area, price: s.price, needsDates: true, needsRange: true, needsGuests: true })} />
-        ))}
-      </BookListShell>
-    );
-  }
+          {communityThreadLoading || !data ? (
+            <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+              <Shimmer height={100} /><Shimmer height={64} /><Shimmer height={64} />
+            </div>
+          ) : (
+            <>
+              <div style={{ marginTop: 16, display: "inline-flex", alignItems: "center", gap: 8, padding: "5px 12px", borderRadius: 999, background: "#fbeae0", border: "1px solid #f3d6c4" }}>
+                <span style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>
+                  {COMMUNITY_CATEGORIES.find((c) => c.id === data.topic.category)?.label ?? "General"}
+                </span>
+              </div>
+              <h2 style={{ fontSize: 26, lineHeight: 1.16, fontWeight: 800, letterSpacing: "-.02em", margin: "12px 0 0" }}>{data.topic.title}</h2>
+              <div style={{ fontSize: 12.5, color: MUTE, marginTop: 6 }}>{data.topic.authorName} · {timeAgo(data.topic.createdAt)}</div>
+              <p style={{ fontSize: 15, color: "#3f453c", margin: "16px 0 0", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{data.topic.body}</p>
 
-  function VisaBook() {
-    return (
-      <BookListShell eyebrow={`Visa · ${modeInfo.name}`} title="Sort your visa" sub={`Support tiers matched to a ${cur.label} stay in ${dest.country}.`}>
-        {visaOptions.map((v) => (
-          <PriceRow key={v.id} left={v.title} sub={v.detail} price={v.price}
-            onClick={() => openBooking({ type: "visa", title: v.title, provider: "EasyMoveZone", price: v.price, needsDates: false, needsRange: false, needsGuests: false })} />
-        ))}
-      </BookListShell>
-    );
-  }
+              <div style={{ marginTop: 26 }}>
+                <SectionLabel title={`${data.replies.length} ${data.replies.length === 1 ? "reply" : "replies"}`} icon={MessageSquare} />
+                <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+                  {data.replies.map((r) => (
+                    <div key={r.id} style={{ background: r.isAi ? "#fbf6ee" : "#fff", border: `1px solid ${r.isAi ? "#ece0cd" : "#e4dfd5"}`, borderRadius: 16, padding: "14px 16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        {r.isAi ? (
+                          <AiChip label={r.authorName} />
+                        ) : (
+                          <span style={{ fontSize: 12, fontWeight: 700, color: INK }}>{r.authorName}</span>
+                        )}
+                        <span style={{ fontSize: 11.5, color: MUTE }}>{timeAgo(r.createdAt)}</span>
+                      </div>
+                      <p style={{ fontSize: 14, color: "#3f453c", margin: "8px 0 0", lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{r.body}</p>
+                    </div>
+                  ))}
+                  {data.replies.length === 0 && (
+                    <p style={{ fontSize: 13.5, color: MUTE }}>No replies yet — be the first to weigh in, or ask the AI assistant below.</p>
+                  )}
+                </div>
+              </div>
 
-  function Booked() {
-    const b = lastBooking;
-    const applied = !!b && isApplyType(b.bookingType);
+              <button onClick={askAi} disabled={aiReplyLoading}
+                style={{ marginTop: 20, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: 14, border: "1px solid #f3d6c4", borderRadius: 14, background: "#fbeae0", color: "#9c3f15", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: aiReplyLoading ? "default" : "pointer", opacity: aiReplyLoading ? 0.7 : 1 }}>
+                <Sparkles size={15} strokeWidth={2.4} />
+                {signedIn ? (aiReplyLoading ? "Thinking…" : "Ask the AI assistant") : "Sign in to ask the AI assistant"}
+              </button>
+              {aiReplyError && <p style={{ fontSize: 12.5, color: PRIMARY, margin: "8px 0 0" }}>{aiReplyError}</p>}
+
+              <div style={{ marginTop: 16 }}>
+                <textarea value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder={signedIn ? "Share what you know…" : "Sign in to reply"} disabled={!signedIn}
+                  style={{ width: "100%", minHeight: 88, padding: "13px 14px", borderRadius: 14, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 14.5, color: INK, resize: "vertical" }} />
+                <button onClick={submitReply} disabled={replySaving || !replyText.trim()}
+                  style={{ marginTop: 10, padding: "13px 20px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: replySaving ? "default" : "pointer", opacity: replySaving || !replyText.trim() ? 0.6 : 1 }}>
+                  {signedIn ? (replySaving ? "Posting…" : "Post reply") : "Sign in to reply"}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+        </div>
+      );
+    }
+
     return (
       <div className="move-page-inner">
       <div className="move-page-screen">
-        <div style={{ width: 64, height: 64, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 30, fontWeight: 800, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}>✓</div>
-        <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "20px 0 0" }}>{applied ? "Application sent — you're in" : "Reserved — you're sorted"}</h2>
-        <p style={{ fontSize: 14.5, color: "#6e746b", margin: "10px 0 0", lineHeight: 1.5 }}>{applied ? "We've saved this application to your account. No payment taken." : "We've held this for you and saved it to your account. No payment taken yet."}</p>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px 6px 8px", borderRadius: 999, background: "#fbeae0", border: "1px solid #f3d6c4" }}>
+          <span style={{ width: 24, height: 24, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <MessageCircle size={13} strokeWidth={2.4} style={{ color: "#fff" }} />
+          </span>
+          <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>Community</span>
+        </div>
+        <h2 style={{ fontSize: 30, lineHeight: 1.14, fontWeight: 800, letterSpacing: "-.02em", margin: "16px 0 0" }}>Talk to people making the same move</h2>
+        <p style={{ fontSize: 15.5, color: "#4a5047", margin: "12px 0 0", lineHeight: 1.6 }}>Work visas, school admissions, housing, culture shock — ask, answer, and compare notes with others relocating and traveling.</p>
 
-        {b && (
-          <div style={{ marginTop: 22, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: 20, boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
-            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>{bookTypeLabel[b.bookingType]} · {b.destinationCity}</div>
-            <h3 style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-.01em", margin: "10px 0 0" }}>{b.itemTitle}</h3>
-            {b.provider && <div style={{ fontSize: 13, color: "#6e746b", marginTop: 4 }}>{b.provider}</div>}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
-              {b.priceLabel && <span style={{ background: "#f0ede4", borderRadius: 999, padding: "6px 11px", fontSize: 12, color: "#4a5047", fontWeight: 600, fontFamily: MONO }}>{b.priceLabel}</span>}
-              {b.startDate && <span style={{ background: "#f0ede4", borderRadius: 999, padding: "6px 11px", fontSize: 12, color: "#4a5047", fontWeight: 600, fontFamily: MONO }}>{b.startDate}{b.endDate ? ` → ${b.endDate}` : ""}</span>}
-              <span style={{ background: "#fbeae0", borderRadius: 999, padding: "6px 11px", fontSize: 12, color: "#9c3f15", fontWeight: 600, fontFamily: MONO }}>Ref {b.id.slice(0, 8)}</span>
+        <div style={{ marginTop: 20, display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {(["all", ...COMMUNITY_CATEGORIES.map((c) => c.id)] as (CommunityCategory | "all")[]).map((id) => {
+            const label = id === "all" ? "All" : COMMUNITY_CATEGORIES.find((c) => c.id === id)?.label ?? id;
+            const active = communityCategory === id;
+            return (
+              <button key={id} onClick={() => setCommunityCategory(id)}
+                style={{ padding: "8px 14px", borderRadius: 999, border: `1px solid ${active ? PRIMARY : "#d8d2c6"}`, background: active ? PRIMARY : "#fff", color: active ? "#fff" : "#4a5047", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        <button onClick={() => { if (!signedIn) { router.push("/auth?redirect=/move"); return; } setNewTopicOpen((p) => !p); }}
+          style={{ marginTop: 18, width: "100%", padding: 16, border: "none", borderRadius: 16, background: INK, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
+          {newTopicOpen ? "Cancel" : signedIn ? "Start a new topic" : "Sign in to start a topic"}
+        </button>
+
+        {newTopicOpen && (
+          <div style={{ marginTop: 14, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: 18 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {COMMUNITY_CATEGORIES.map((c) => (
+                <button key={c.id} onClick={() => setNewTopicCategory(c.id)}
+                  style={{ padding: "6px 12px", borderRadius: 999, border: `1px solid ${newTopicCategory === c.id ? PRIMARY : "#d8d2c6"}`, background: newTopicCategory === c.id ? "#fbeae0" : "#fff", color: newTopicCategory === c.id ? PRIMARY : "#6e746b", fontFamily: HANKEN, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                  {c.label}
+                </button>
+              ))}
             </div>
+            <input value={newTopicTitle} onChange={(e) => setNewTopicTitle(e.target.value)} placeholder="What's your question or topic?"
+              style={{ marginTop: 12, width: "100%", padding: "13px 14px", borderRadius: 14, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 15, color: INK }} />
+            <textarea value={newTopicBody} onChange={(e) => setNewTopicBody(e.target.value)} placeholder="Add the details — where, what stage, what you already know."
+              style={{ marginTop: 10, width: "100%", minHeight: 100, padding: "13px 14px", borderRadius: 14, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 14.5, color: INK, resize: "vertical" }} />
+            {newTopicError && <p style={{ fontSize: 12.5, color: PRIMARY, margin: "10px 0 0" }}>{newTopicError}</p>}
+            <button onClick={submitNewTopic} disabled={newTopicSaving}
+              style={{ marginTop: 12, padding: "13px 20px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: newTopicSaving ? "default" : "pointer", opacity: newTopicSaving ? 0.7 : 1 }}>
+              {newTopicSaving ? "Posting…" : "Post topic"}
+            </button>
           </div>
         )}
 
-        <button onClick={() => goTo("plan")} style={{ width: "100%", marginTop: 22, padding: 16, border: "none", borderRadius: 16, background: INK, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>View my plan →</button>
-        <button onClick={() => goTo("book")} style={{ width: "100%", marginTop: 10, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Book something else</button>
+        <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 10 }}>
+          {communityLoading ? (
+            <>
+              <Shimmer height={84} /><Shimmer height={84} /><Shimmer height={84} />
+            </>
+          ) : communityTopics.length === 0 ? (
+            <div style={{ background: "#fff", border: "1px dashed #d8d2c6", borderRadius: 20, padding: 24, textAlign: "center" }}>
+              <MessageCircle size={28} strokeWidth={1.8} style={{ color: MUTE }} />
+              <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.55 }}>No topics here yet — be the first to start the conversation.</p>
+            </div>
+          ) : (
+            communityTopics.map((t) => (
+              <div key={t.id} onClick={() => setCommunityTopicId(t.id)} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: "16px 18px", cursor: "pointer" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                  <span style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>
+                    {COMMUNITY_CATEGORIES.find((c) => c.id === t.category)?.label ?? "General"}
+                  </span>
+                  <span style={{ fontSize: 11.5, color: MUTE }}>{timeAgo(t.createdAt)}</span>
+                </div>
+                <div style={{ fontSize: 16.5, fontWeight: 700, marginTop: 8, color: INK }}>{t.title}</div>
+                <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.body}</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 10, fontSize: 12, color: "#8a8f86" }}>
+                  <MessageSquare size={13} strokeWidth={2.2} />
+                  {t.replyCount} {t.replyCount === 1 ? "reply" : "replies"}
+                  <span style={{ marginLeft: "auto", fontWeight: 600, color: "#4a5047" }}>{t.authorName}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
       </div>
     );
@@ -2502,20 +2453,15 @@ export function EasyMoveZoneApp() {
       case "visa": return Visa();
       case "documents": return Documents();
       case "settle": return Settle();
-      case "book": return BookHub();
-      case "trips": return Trips();
-      case "stays": return Stays();
-      case "visaBook": return VisaBook();
-      case "appointments": return Appointments();
-      case "booked": return Booked();
+      case "community": return Community();
     }
   }
 
   const tabs: { label: string; screens: Screen[]; go: Screen }[] = [
     { label: "Explore", screens: ["welcome", "spectrum", "search", "matches", "detail"], go: "matches" },
-    { label: "Intelligence", screens: ["intelligence", "visa", "settle"], go: "intelligence" },
+    { label: "Intelligence", screens: ["intelligence", "visa", "settle", "execution", "plan"], go: "intelligence" },
     { label: "Documents", screens: ["documents"], go: "documents" },
-    { label: "Bookings", screens: ["book", "trips", "stays", "visaBook", "appointments", "booked", "execution", "plan"], go: "book" },
+    { label: "Community", screens: ["community"], go: "community" },
   ];
 
   // Avoid a flash of "welcome" while the returning-user redirect above is
@@ -2539,38 +2485,11 @@ export function EasyMoveZoneApp() {
             {pending.provider && <div style={{ fontSize: 13.5, color: "#6e746b", marginTop: 4 }}>{pending.provider}</div>}
             <div style={{ fontFamily: MONO, fontSize: 15, fontWeight: 600, color: INK, marginTop: 10 }}>{pending.price}</div>
 
-            {(pending.needsDates || pending.needsGuests) && (
-              <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 12 }}>
-                {pending.needsDates && (
-                  <label style={{ display: "block" }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: "#6e746b" }}>{pending.needsRange ? "Check-in" : "Date"}</span>
-                    <input type="date" value={bookStart} onChange={(e) => setBookStart(e.target.value)} style={{ marginTop: 6, width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 15, color: INK }} />
-                  </label>
-                )}
-                {pending.needsRange && (
-                  <label style={{ display: "block" }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: "#6e746b" }}>Check-out</span>
-                    <input type="date" value={bookEnd} onChange={(e) => setBookEnd(e.target.value)} style={{ marginTop: 6, width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 15, color: INK }} />
-                  </label>
-                )}
-                {pending.needsGuests && (
-                  <label style={{ display: "block" }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: "#6e746b" }}>Guests</span>
-                    <input type="number" min={1} max={20} value={bookGuests} onChange={(e) => setBookGuests(Math.max(1, Number(e.target.value) || 1))} style={{ marginTop: 6, width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 15, color: INK }} />
-                  </label>
-                )}
-              </div>
-            )}
-
             <button onClick={confirmBooking} disabled={bookState === "saving"} style={{ width: "100%", marginTop: 20, padding: 17, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: bookState === "saving" ? "default" : "pointer", opacity: bookState === "saving" ? 0.7 : 1, boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>
-              {isApplyType(pending.type)
-                ? bookState === "saving" ? "Applying…" : signedIn ? "Confirm application" : "Sign in to apply"
-                : bookState === "saving" ? "Reserving…" : signedIn ? "Confirm reservation" : "Sign in to reserve"}
+              {bookState === "saving" ? "Applying…" : signedIn ? "Confirm application" : "Sign in to apply"}
             </button>
             <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "12px 0 0", lineHeight: 1.5 }}>
-              {isApplyType(pending.type)
-                ? "No payment taken — this saves your application to your workspace."
-                : "No payment taken — this holds your choice in your workspace."}
+              No payment taken — this saves your application to your workspace.
             </p>
           </div>
         </div>
@@ -2601,7 +2520,7 @@ export function EasyMoveZoneApp() {
           <div className="move-sheet" onClick={(e) => e.stopPropagation()}>
             <div className="move-sheet-handle" />
             <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Switch destination</div>
-            <p style={{ fontSize: 13.5, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.5 }}>This is what drives everything below — your Plan, Visa, Settle and Book pages all update to match.</p>
+            <p style={{ fontSize: 13.5, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.5 }}>This is what drives everything below — your Plan, Visa and Settle pages all update to match.</p>
             <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10 }}>
               {ranked.map((d) => {
                 const active = d.id === dest.id;
