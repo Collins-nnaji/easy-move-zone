@@ -54,6 +54,8 @@ import { timeAgo } from "@/lib/community/format";
 import type { CommunityCategory, CommunityReply, CommunityTopic } from "@/lib/community/types";
 import { submitRequest } from "@/lib/requests/client";
 import { REQUEST_GOALS, type RequestGoal } from "@/lib/requests/types";
+import { bookService, fetchMyServices } from "@/lib/services/client";
+import { SERVICE_PACKAGES, type ServiceBooking, type ServicePackage } from "@/lib/services/types";
 
 type ApplyType = Extract<BookingType, "school" | "job">;
 
@@ -316,6 +318,7 @@ type Screen =
   | "settle"
   | "plan"
   | "schools"
+  | "services"
   | "community";
 
 // Every screen now has a real URL under /move — this is what gives the app a
@@ -336,6 +339,7 @@ function buildMovePath(screen: Screen, destId: string): string {
     case "execution": return `/move/explore/${destId}/execution`;
     case "plan": return `/move/explore/${destId}/plan`;
     case "schools": return "/move/schools";
+    case "services": return "/move/services";
     case "community": return "/move/community";
   }
 }
@@ -348,6 +352,7 @@ function screenFromPath(pathname: string): Screen {
   if (rest === "explore") return "matches";
   if (rest === "community") return "community";
   if (rest === "schools") return "schools";
+  if (rest === "services") return "services";
   const m = rest.match(/^explore\/[^/]+(?:\/(.*))?$/);
   if (!m) return "welcome";
   const sub = m[1];
@@ -465,6 +470,19 @@ export function EasyMoveZoneApp() {
   const [reqState, setReqState] = useState<"idle" | "saving" | "sent">("idle");
   const [reqError, setReqError] = useState<string | null>(null);
 
+  // Bookable relocation services + manager assignment.
+  const [myServices, setMyServices] = useState<ServiceBooking[]>([]);
+  const [myServicesLoading, setMyServicesLoading] = useState(false);
+  const [pendingService, setPendingService] = useState<ServicePackage | null>(null);
+  const [svcName, setSvcName] = useState("");
+  const [svcEmail, setSvcEmail] = useState("");
+  const [svcPhone, setSvcPhone] = useState("");
+  const [svcDestination, setSvcDestination] = useState("");
+  const [svcNotes, setSvcNotes] = useState("");
+  const [svcState, setSvcState] = useState<"idle" | "saving">("idle");
+  const [svcError, setSvcError] = useState<string | null>(null);
+  const [svcConfirmed, setSvcConfirmed] = useState<ServiceBooking | null>(null);
+
   const router = useRouter();
   const { data: sessionData, isPending: sessionPending } = authClient.useSession();
   const signedIn = !!sessionData?.user;
@@ -571,6 +589,18 @@ export function EasyMoveZoneApp() {
       .finally(() => { if (mounted) setCommunityThreadLoading(false); });
     return () => { mounted = false; };
   }, [screen, communityTopicId]);
+
+  // Load the user's booked services when the Services screen is active.
+  useEffect(() => {
+    if (screen !== "services" || !signedIn) return;
+    let mounted = true;
+    setMyServicesLoading(true);
+    fetchMyServices()
+      .then((rows) => { if (mounted) setMyServices(rows); })
+      .catch(() => { if (mounted) setMyServices([]); })
+      .finally(() => { if (mounted) setMyServicesLoading(false); });
+    return () => { mounted = false; };
+  }, [screen, signedIn]);
 
   // The mood search, when used, overrides the static match-score ordering.
   const moodList = useMemo(() => {
@@ -1027,6 +1057,48 @@ export function EasyMoveZoneApp() {
     } catch (err) {
       setReqError(err instanceof Error ? err.message : "Couldn't send — try again.");
       setReqState("idle");
+    }
+  }
+
+  function openServiceBooking(pkg: ServicePackage) {
+    if (!signedIn) {
+      router.push("/auth?redirect=/move");
+      return;
+    }
+    setSvcName(sessionData?.user?.name ?? svcName);
+    setSvcEmail(sessionData?.user?.email ?? svcEmail);
+    if (!svcDestination && dest?.city) setSvcDestination(`${dest.city}, ${dest.country}`);
+    setSvcError(null);
+    setSvcConfirmed(null);
+    setSvcState("idle");
+    setPendingService(pkg);
+  }
+
+  async function confirmServiceBooking() {
+    if (!pendingService || svcState === "saving") return;
+    if (svcName.trim().length < 2) { setSvcError("Please enter your name."); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(svcEmail.trim())) { setSvcError("Please enter a valid email."); return; }
+    setSvcError(null);
+    setSvcState("saving");
+    try {
+      const booking = await bookService({
+        serviceKey: pendingService.key,
+        destination: svcDestination.trim() || undefined,
+        name: svcName.trim(),
+        email: svcEmail.trim(),
+        phone: svcPhone.trim() || undefined,
+        notes: svcNotes.trim() || undefined,
+      });
+      setMyServices((prev) => [booking, ...prev]);
+      setSvcConfirmed(booking);
+      setSvcNotes("");
+    } catch (err) {
+      if (err instanceof Error && err.message === "unauthorized") {
+        router.push("/auth?redirect=/move");
+        return;
+      }
+      setSvcError(err instanceof Error ? err.message : "Couldn't book — try again.");
+      setSvcState("idle");
     }
   }
 
@@ -2517,6 +2589,98 @@ export function EasyMoveZoneApp() {
     );
   }
 
+  function Services() {
+    const statusLabel: Record<ServiceBooking["status"], string> = {
+      assigned: "Manager assigned", in_progress: "In progress", completed: "Completed", cancelled: "Cancelled",
+    };
+    const statusColor: Record<ServiceBooking["status"], { bg: string; text: string }> = {
+      assigned: { bg: "#fff4ec", text: "#9c3f15" },
+      in_progress: { bg: "#eaf3fb", text: "#1f5c8a" },
+      completed: { bg: "#edf7f0", text: "#216240" },
+      cancelled: { bg: "#f0ede4", text: "#7a7566" },
+    };
+    return (
+      <div className="move-page-inner">
+      <div className="move-page-screen">
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px 6px 8px", borderRadius: 999, background: "#fbeae0", border: "1px solid #f3d6c4" }}>
+          <span style={{ width: 24, height: 24, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <BadgeCheck size={13} strokeWidth={2.4} style={{ color: "#fff" }} />
+          </span>
+          <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>Services</span>
+        </div>
+        <h2 style={{ fontSize: 30, lineHeight: 1.14, fontWeight: 800, letterSpacing: "-.02em", margin: "16px 0 0" }}>Let our team handle it</h2>
+        <p style={{ fontSize: 15.5, color: "#4a5047", margin: "12px 0 0", lineHeight: 1.6 }}>Book a done-for-you relocation service and get paired with a dedicated manager who runs it with you end to end.</p>
+
+        {signedIn && (myServicesLoading || myServices.length > 0) && (
+          <div style={{ marginTop: 24 }}>
+            <SectionLabel title="Your services" icon={BadgeCheck} />
+            {myServicesLoading ? (
+              <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}><Shimmer height={72} /></div>
+            ) : (
+              <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+                {myServices.map((b) => (
+                  <div key={b.id} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "15px 16px" }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 15.5, fontWeight: 700, color: INK }}>{b.serviceName}</div>
+                        {b.destination && <div style={{ fontSize: 12.5, color: "#6e746b", marginTop: 2 }}>{b.destination}</div>}
+                      </div>
+                      <span style={{ flexShrink: 0, padding: "5px 10px", borderRadius: 999, background: statusColor[b.status].bg, color: statusColor[b.status].text, fontFamily: MONO, fontSize: 10.5, fontWeight: 700 }}>{statusLabel[b.status]}</span>
+                    </div>
+                    {b.manager ? (
+                      <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 10, background: "#faf7f0", borderRadius: 12, padding: "10px 12px" }}>
+                        <span style={{ width: 32, height: 32, borderRadius: 999, flexShrink: 0, background: PRIMARY, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700 }}>{b.manager.name.split(" ").map((p) => p[0]).slice(0, 2).join("")}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13.5, fontWeight: 700, color: INK }}>{b.manager.name}</div>
+                          <div style={{ fontSize: 11.5, color: "#6e746b" }}>{b.manager.title}</div>
+                        </div>
+                        <a href={`mailto:${b.manager.email}`} style={{ fontFamily: MONO, fontSize: 11, color: PRIMARY, fontWeight: 700, textDecoration: "none" }}>Email →</a>
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 12.5, color: MUTE, marginTop: 8 }}>A manager will be assigned shortly.</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div style={{ marginTop: 24 }}>
+          <SectionLabel title="Book a service" icon={Rocket} />
+          <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 12 }}>
+            {SERVICE_PACKAGES.map((p) => (
+              <div key={p.key} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: "18px 20px" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 17, fontWeight: 800, letterSpacing: "-.01em" }}>{p.name}</div>
+                    <div style={{ fontSize: 13.5, color: "#6e746b", marginTop: 3, lineHeight: 1.5 }}>{p.tagline}</div>
+                  </div>
+                  <span style={{ flexShrink: 0, fontFamily: MONO, fontSize: 12.5, fontWeight: 700, color: PRIMARY, whiteSpace: "nowrap" }}>{p.priceLabel}</span>
+                </div>
+                <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+                  {p.includes.map((it, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, color: "#3f453c" }}>
+                      <CheckCircle2 size={14} strokeWidth={2.4} style={{ color: "#3f7d4f", flexShrink: 0, marginTop: 1 }} />
+                      {it}
+                    </div>
+                  ))}
+                </div>
+                <button onClick={() => openServiceBooking(p)}
+                  style={{ width: "100%", marginTop: 14, padding: 14, border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>
+                  {signedIn ? "Book & get a manager →" : "Sign in to book →"}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "22px 0 0", lineHeight: 1.5 }}>No payment taken now — booking assigns your manager, who confirms scope and pricing with you first.</p>
+      </div>
+      </div>
+    );
+  }
+
   function Community() {
     if (communityTopicId) {
       const data = communityThread;
@@ -2700,14 +2864,16 @@ export function EasyMoveZoneApp() {
       case "visa": return Visa();
       case "settle": return Settle();
       case "schools": return Schools();
+      case "services": return Services();
       case "community": return Community();
     }
   }
 
   const tabs: { label: string; screens: Screen[]; go: Screen }[] = [
     { label: "Explore", screens: ["welcome", "spectrum", "search", "matches", "detail"], go: "matches" },
-    { label: "Intelligence", screens: ["intelligence", "visa", "settle", "execution", "plan"], go: "intelligence" },
+    { label: "Visas", screens: ["intelligence", "visa", "settle", "execution", "plan"], go: "intelligence" },
     { label: "Schools", screens: ["schools"], go: "schools" },
+    { label: "Services", screens: ["services"], go: "services" },
     { label: "Community", screens: ["community"], go: "community" },
   ];
 
@@ -2793,6 +2959,65 @@ export function EasyMoveZoneApp() {
                   style={{ width: "100%", marginTop: 16, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: reqState === "saving" ? "default" : "pointer", opacity: reqState === "saving" ? 0.7 : 1, boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>
                   {reqState === "saving" ? "Sending…" : "Send request"}
                 </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {pendingService && (
+        <div className="move-overlay move-overlay--sheet" onClick={() => setPendingService(null)}>
+          <div className="move-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="move-sheet-handle" />
+            {svcConfirmed ? (
+              <div style={{ textAlign: "center", padding: "6px 0 4px" }}>
+                <div style={{ width: 56, height: 56, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 26, margin: "0 auto", boxShadow: "0 8px 22px rgba(224,81,31,.34)" }}>✓</div>
+                <h3 style={{ fontSize: 20, fontWeight: 800, margin: "16px 0 0" }}>{svcConfirmed.serviceName} booked</h3>
+                {svcConfirmed.manager ? (
+                  <>
+                    <p style={{ fontSize: 14, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.55 }}>You&apos;ve been paired with a dedicated manager who&apos;ll reach out by email to confirm scope and next steps.</p>
+                    <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 12, background: "#faf7f0", borderRadius: 14, padding: "12px 14px", textAlign: "left" }}>
+                      <span style={{ width: 40, height: 40, borderRadius: 999, flexShrink: 0, background: PRIMARY, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700 }}>{svcConfirmed.manager.name.split(" ").map((p) => p[0]).slice(0, 2).join("")}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14.5, fontWeight: 700, color: INK }}>{svcConfirmed.manager.name}</div>
+                        <div style={{ fontSize: 12, color: "#6e746b" }}>{svcConfirmed.manager.title}</div>
+                      </div>
+                      <a href={`mailto:${svcConfirmed.manager.email}`} style={{ fontFamily: MONO, fontSize: 11, color: PRIMARY, fontWeight: 700, textDecoration: "none" }}>Email →</a>
+                    </div>
+                  </>
+                ) : (
+                  <p style={{ fontSize: 14, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.55 }}>A relocation manager will be assigned shortly and will reach out by email.</p>
+                )}
+                <button onClick={() => setPendingService(null)} style={{ width: "100%", marginTop: 20, padding: 15, border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>Done</button>
+              </div>
+            ) : (
+              <>
+                <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Book service · {pendingService.priceLabel}</div>
+                <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-.01em", margin: "8px 0 0" }}>{pendingService.name}</h3>
+                <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>{pendingService.tagline}</p>
+
+                <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10 }}>
+                  <input value={svcName} onChange={(e) => setSvcName(e.target.value)} placeholder="Your name"
+                    style={{ width: "100%", padding: "13px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 16, color: INK }} />
+                  <input value={svcEmail} onChange={(e) => setSvcEmail(e.target.value)} type="email" inputMode="email" placeholder="Email"
+                    style={{ width: "100%", padding: "13px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 16, color: INK }} />
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <input value={svcPhone} onChange={(e) => setSvcPhone(e.target.value)} type="tel" inputMode="tel" placeholder="Phone (optional)"
+                      style={{ flex: 1, minWidth: 0, padding: "13px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 16, color: INK }} />
+                    <input value={svcDestination} onChange={(e) => setSvcDestination(e.target.value)} placeholder="Destination"
+                      style={{ flex: 1, minWidth: 0, padding: "13px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 16, color: INK }} />
+                  </div>
+                  <textarea value={svcNotes} onChange={(e) => setSvcNotes(e.target.value)} placeholder="Anything your manager should know? (optional)"
+                    style={{ width: "100%", minHeight: 72, padding: "13px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 16, color: INK, resize: "vertical" }} />
+                </div>
+
+                {svcError && <p style={{ fontSize: 12.5, color: PRIMARY, margin: "10px 0 0" }}>{svcError}</p>}
+
+                <button onClick={confirmServiceBooking} disabled={svcState === "saving"}
+                  style={{ width: "100%", marginTop: 16, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: svcState === "saving" ? "default" : "pointer", opacity: svcState === "saving" ? 0.7 : 1, boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>
+                  {svcState === "saving" ? "Booking…" : "Confirm & assign my manager"}
+                </button>
+                <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "12px 0 0", lineHeight: 1.5 }}>No payment now — your manager confirms scope and pricing first.</p>
               </>
             )}
           </div>

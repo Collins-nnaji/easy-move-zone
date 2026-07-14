@@ -106,11 +106,7 @@
      bottom nav. */
   body.move-app-active {
     height: 100dvh;
-    height: 100svh;
     overflow: hidden;
-    position: fixed;
-    inset: 0;
-    width: 100%;
   }
 
   /* Display headings use Bricolage Grotesque */

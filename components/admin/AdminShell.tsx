@@ -2,11 +2,12 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpen, Inbox, LayoutGrid, MapPin, Plane, Users } from "lucide-react"
+import { BadgeCheck, BookOpen, Inbox, LayoutGrid, MapPin, Plane, Users } from "lucide-react"
 import { clsx } from "clsx"
 
 const NAV = [
   { href: "/admin/requests", label: "Requests", icon: Inbox },
+  { href: "/admin/services", label: "Services", icon: BadgeCheck },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/catalog", label: "Move catalog", icon: MapPin },
   { href: "/admin/guides", label: "Country guides", icon: BookOpen },

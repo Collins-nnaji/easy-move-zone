@@ -12,6 +12,9 @@ export const viewport: Viewport = {
   userScalable: false,
   viewportFit: "cover",
   themeColor: "#f6f3ec",
+  // When the on-screen keyboard opens, shrink the layout viewport so fixed
+  // bars and bottom sheets reflow above it instead of being covered.
+  interactiveWidget: "resizes-content",
 };
 
 // Body / UI text — clean, modern, excellent readability
