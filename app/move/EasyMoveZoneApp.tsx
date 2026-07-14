@@ -45,6 +45,7 @@ import { authClient } from "@/lib/auth/client";
 import { savePlan, addTask, fetchWorkspace, updateTaskStatus, fetchGuideByCitySlug } from "@/lib/relocate/client";
 import { moveTaskNote, parseMoveTaskNote } from "@/lib/move/plan-sync";
 import { settleCardsForCity } from "@/lib/settle/cards";
+import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants";
 import { MatchesSkeleton } from "@/components/ui/PageSkeletons";
 import { createBooking, fetchBookings } from "@/lib/bookings/client";
 import type { BookingType } from "@/lib/bookings/types";
@@ -2627,18 +2628,10 @@ export function EasyMoveZoneApp() {
                       </div>
                       <span style={{ flexShrink: 0, padding: "5px 10px", borderRadius: 999, background: statusColor[b.status].bg, color: statusColor[b.status].text, fontFamily: MONO, fontSize: 10.5, fontWeight: 700 }}>{statusLabel[b.status]}</span>
                     </div>
-                    {b.manager ? (
-                      <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 10, background: "#faf7f0", borderRadius: 12, padding: "10px 12px" }}>
-                        <span style={{ width: 32, height: 32, borderRadius: 999, flexShrink: 0, background: PRIMARY, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700 }}>{b.manager.name.split(" ").map((p) => p[0]).slice(0, 2).join("")}</span>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13.5, fontWeight: 700, color: INK }}>{b.manager.name}</div>
-                          <div style={{ fontSize: 11.5, color: "#6e746b" }}>{b.manager.title}</div>
-                        </div>
-                        <a href={`mailto:${b.manager.email}`} style={{ fontFamily: MONO, fontSize: 11, color: PRIMARY, fontWeight: 700, textDecoration: "none" }}>Email →</a>
-                      </div>
-                    ) : (
-                      <div style={{ fontSize: 12.5, color: MUTE, marginTop: 8 }}>A manager will be assigned shortly.</div>
-                    )}
+                    <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8, background: "#faf7f0", borderRadius: 12, padding: "10px 12px" }}>
+                      <span style={{ fontSize: 12.5, color: "#6e746b", flex: 1, minWidth: 0 }}>Our team is on it — questions?</span>
+                      <a href={`mailto:${PUBLIC_CONTACT_EMAIL}`} style={{ fontFamily: MONO, fontSize: 11.5, color: PRIMARY, fontWeight: 700, textDecoration: "none" }}>{PUBLIC_CONTACT_EMAIL}</a>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -2973,21 +2966,11 @@ export function EasyMoveZoneApp() {
               <div style={{ textAlign: "center", padding: "6px 0 4px" }}>
                 <div style={{ width: 56, height: 56, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 26, margin: "0 auto", boxShadow: "0 8px 22px rgba(224,81,31,.34)" }}>✓</div>
                 <h3 style={{ fontSize: 20, fontWeight: 800, margin: "16px 0 0" }}>{svcConfirmed.serviceName} booked</h3>
-                {svcConfirmed.manager ? (
-                  <>
-                    <p style={{ fontSize: 14, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.55 }}>You&apos;ve been paired with a dedicated manager who&apos;ll reach out by email to confirm scope and next steps.</p>
-                    <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 12, background: "#faf7f0", borderRadius: 14, padding: "12px 14px", textAlign: "left" }}>
-                      <span style={{ width: 40, height: 40, borderRadius: 999, flexShrink: 0, background: PRIMARY, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700 }}>{svcConfirmed.manager.name.split(" ").map((p) => p[0]).slice(0, 2).join("")}</span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14.5, fontWeight: 700, color: INK }}>{svcConfirmed.manager.name}</div>
-                        <div style={{ fontSize: 12, color: "#6e746b" }}>{svcConfirmed.manager.title}</div>
-                      </div>
-                      <a href={`mailto:${svcConfirmed.manager.email}`} style={{ fontFamily: MONO, fontSize: 11, color: PRIMARY, fontWeight: 700, textDecoration: "none" }}>Email →</a>
-                    </div>
-                  </>
-                ) : (
-                  <p style={{ fontSize: 14, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.55 }}>A relocation manager will be assigned shortly and will reach out by email.</p>
-                )}
+                <p style={{ fontSize: 14, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.55 }}>Our team will reach out by email to confirm scope, pricing and next steps.</p>
+                <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 10, background: "#faf7f0", borderRadius: 14, padding: "12px 14px", textAlign: "left" }}>
+                  <span style={{ fontSize: 13, color: "#6e746b", flex: 1, minWidth: 0 }}>Reach us anytime at</span>
+                  <a href={`mailto:${PUBLIC_CONTACT_EMAIL}`} style={{ fontFamily: MONO, fontSize: 12, color: PRIMARY, fontWeight: 700, textDecoration: "none" }}>{PUBLIC_CONTACT_EMAIL}</a>
+                </div>
                 <button onClick={() => setPendingService(null)} style={{ width: "100%", marginTop: 20, padding: 15, border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>Done</button>
               </div>
             ) : (

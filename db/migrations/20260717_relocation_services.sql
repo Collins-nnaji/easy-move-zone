@@ -34,9 +34,6 @@ create index if not exists idx_service_bookings_user on service_bookings (auth_u
 create index if not exists idx_service_bookings_status on service_bookings (status, created_at desc);
 create index if not exists idx_service_bookings_manager on service_bookings (manager_id);
 
--- Seed a small managers team (idempotent by email).
-insert into service_managers (name, email, title, specialties, sort_order) values
-  ('Amara Okafor', 'amara@easymovezone.com', 'Senior Relocation Manager', array['relocate','visa','work'], 0),
-  ('Diego Reyes', 'diego@easymovezone.com', 'Study & Student Visa Lead', array['study','visa'], 1),
-  ('Mei Lin', 'mei@easymovezone.com', 'Work & Settling-In Manager', array['work','relocate'], 2)
-on conflict (email) do nothing;
+-- No named managers are seeded — the team is reached at a single inbox
+-- (hello@easymovezone.com, shown in-app). Add real managers here later if you
+-- want per-person assignment from the admin dashboard.
