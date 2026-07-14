@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Visa appointments — EasyMoveZone",
+  title: "Community — EasyMoveZone",
 };
 
-export default function AppointmentsPage() {
+export default function CommunityPage() {
   return null;
 }
