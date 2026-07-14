@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless"
 import { neonAuth } from "@neondatabase/auth/next/server"
 import { chatJson, getAiProvider } from "@/lib/ai/openai"
+import { rateLimit } from "@/lib/rate-limit"
 import type { CommunityCategory, CommunityReply } from "@/lib/community/types"
 
 export const runtime = "nodejs"
@@ -58,6 +59,16 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     const { session, user } = await neonAuth()
     if (!session || !user) return Response.json({ error: "Unauthorized" }, { status: 401 })
     if (!sql) return Response.json({ error: "Database not configured." }, { status: 500 })
+    const authUserId = String(user.id)
+
+    // AI calls cost money — cap at 8 per hour per user across all topics.
+    const limit = await rateLimit(sql, authUserId, "community_ai_reply", 8, 3600)
+    if (!limit.ok) {
+      return Response.json(
+        { error: "You've used the AI assistant a lot this hour — try again later." },
+        { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
+      )
+    }
 
     const topicRows = await sql.query(
       `select id, category, title, body from community_topics where id = $1`,

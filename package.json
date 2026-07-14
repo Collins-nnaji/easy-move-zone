@@ -8,6 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:setup": "node scripts/run-move-setup.mjs",
     "catalog:json": "node --experimental-strip-types scripts/generate-move-catalog-json.mjs",
     "db:seed:catalog": "node scripts/seed-move-catalog.mjs",
@@ -33,6 +35,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "^2.1.9"
   }
 }

@@ -1,5 +1,6 @@
 import { neon } from "@neondatabase/serverless"
 import { neonAuth } from "@neondatabase/auth/next/server"
+import { rateLimit } from "@/lib/rate-limit"
 import type { CommunityReply } from "@/lib/community/types"
 
 export const runtime = "nodejs"
@@ -23,6 +24,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const body = (await request.json()) as Record<string, unknown>
     const replyBody = String(body.body ?? "").trim().slice(0, 4000)
     if (!replyBody) return Response.json({ error: "Reply can't be empty." }, { status: 400 })
+
+    // Max 15 replies per 10 minutes per user.
+    const limit = await rateLimit(sql, authUserId, "community_reply", 15, 600)
+    if (!limit.ok) {
+      return Response.json(
+        { error: "You're replying a lot — take a short break and try again shortly." },
+        { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
+      )
+    }
 
     const topicRows = await sql.query(`select id from community_topics where id = $1`, [id])
     if (!topicRows[0]) return Response.json({ error: "Not found." }, { status: 404 })

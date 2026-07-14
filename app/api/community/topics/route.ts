@@ -1,5 +1,6 @@
 import { neon } from "@neondatabase/serverless"
 import { neonAuth } from "@neondatabase/auth/next/server"
+import { rateLimit } from "@/lib/rate-limit"
 import type { CommunityCategory, CommunityTopic } from "@/lib/community/types"
 
 export const runtime = "nodejs"
@@ -74,6 +75,15 @@ export async function POST(request: Request) {
     const topicBody = String(body.body ?? "").trim().slice(0, 4000)
     if (!title || !topicBody) {
       return Response.json({ error: "Title and body are required." }, { status: 400 })
+    }
+
+    // Max 5 new topics per 10 minutes per user.
+    const limit = await rateLimit(sql, authUserId, "community_topic", 5, 600)
+    if (!limit.ok) {
+      return Response.json(
+        { error: "You're posting a lot — take a short break and try again shortly." },
+        { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
+      )
     }
 
     const rowsRaw = await sql.query(

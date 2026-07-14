@@ -9,8 +9,10 @@ import {
   Compass,
   Eye,
   FileText,
+  Flag,
   Gauge,
   GraduationCap,
+  Info,
   ListChecks,
   MessageCircle,
   MessageSquare,
@@ -44,10 +46,11 @@ import { savePlan, addTask, fetchWorkspace, updateTaskStatus, fetchGuideByCitySl
 import { moveTaskNote, parseMoveTaskNote } from "@/lib/move/plan-sync";
 import { settleCardsForCity } from "@/lib/settle/cards";
 import { MatchesSkeleton } from "@/components/ui/PageSkeletons";
-import { createBooking } from "@/lib/bookings/client";
+import { createBooking, fetchBookings } from "@/lib/bookings/client";
 import type { BookingType } from "@/lib/bookings/types";
 import type { SettleCard, TaskCategory, WorkMode } from "@/lib/relocate/types";
-import { fetchTopics, createTopic, fetchTopic, createReply, requestAiReply } from "@/lib/community/client";
+import { fetchTopics, createTopic, fetchTopic, createReply, requestAiReply, reportContent } from "@/lib/community/client";
+import { timeAgo } from "@/lib/community/format";
 import type { CommunityCategory, CommunityReply, CommunityTopic } from "@/lib/community/types";
 
 type ApplyType = Extract<BookingType, "school" | "job">;
@@ -366,17 +369,6 @@ const COMMUNITY_CATEGORIES: { id: CommunityCategory; label: string }[] = [
   { id: "general", label: "General" },
 ];
 
-function timeAgo(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const mins = Math.max(1, Math.round(diffMs / 60000));
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.round(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.round(hrs / 24);
-  if (days < 30) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-}
-
 export function EasyMoveZoneApp() {
   const pathname = usePathname();
   const params = useParams();
@@ -456,6 +448,8 @@ export function EasyMoveZoneApp() {
   const [replySaving, setReplySaving] = useState(false);
   const [aiReplyLoading, setAiReplyLoading] = useState(false);
   const [aiReplyError, setAiReplyError] = useState<string | null>(null);
+  // Keys are `${type}:${id}` for items the user has reported this session.
+  const [reportedKeys, setReportedKeys] = useState<Set<string>>(new Set());
 
   const router = useRouter();
   const { data: sessionData, isPending: sessionPending } = authClient.useSession();
@@ -959,10 +953,31 @@ export function EasyMoveZoneApp() {
       setCommunityThread((prev) =>
         prev ? { topic: { ...prev.topic, replyCount: prev.topic.replyCount + 1 }, replies: [...prev.replies, reply] } : prev,
       );
-    } catch {
-      setAiReplyError("Couldn't get an AI answer — try again in a moment.");
+    } catch (err) {
+      setAiReplyError(err instanceof Error && err.message !== "unauthorized" ? err.message : "Couldn't get an AI answer — try again in a moment.");
     } finally {
       setAiReplyLoading(false);
+    }
+  }
+
+  async function handleReport(targetType: "topic" | "reply", targetId: string) {
+    if (!signedIn) {
+      router.push("/auth?redirect=/move");
+      return;
+    }
+    const key = `${targetType}:${targetId}`;
+    if (reportedKeys.has(key)) return;
+    // Optimistically mark reported so the control disables immediately.
+    setReportedKeys((prev) => new Set(prev).add(key));
+    try {
+      await reportContent(targetType, targetId, "");
+    } catch {
+      // Roll back so the user can retry if it genuinely failed.
+      setReportedKeys((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
     }
   }
 
@@ -1000,6 +1015,25 @@ export function EasyMoveZoneApp() {
     if (!ready || screen === "welcome") return;
     saveFlowState({ stayIdx, destId: dest.id, completed: true });
   }, [ready, screen, stayIdx, dest.id]);
+
+  // Rehydrate which schools/jobs the user already applied to, so the
+  // "Applied ✓" state survives a page reload (it's persisted as bookings).
+  useEffect(() => {
+    if (!signedIn) return;
+    let cancelled = false;
+    fetchBookings()
+      .then((bookings) => {
+        if (cancelled) return;
+        const titles = bookings
+          .filter((b) => b.bookingType === "school" || b.bookingType === "job")
+          .map((b) => b.itemTitle);
+        if (titles.length) setAppliedTitles((prev) => new Set([...prev, ...titles]));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [signedIn]);
 
   // Hydrate Move Meter checklist from relocation tasks when signed in.
   useEffect(() => {
@@ -2238,6 +2272,7 @@ export function EasyMoveZoneApp() {
         </button>
 
         <TabGroup core="intelligence" tabs={tabs} />
+        <LegalNote />
       </div>
       </div>
     );
@@ -2395,8 +2430,35 @@ export function EasyMoveZoneApp() {
             })
           )}
         </div>
+
+        <LegalNote text="Residency pathways are general guidance, not legal or immigration advice — they change often and depend on your nationality, program, and results. Always confirm with the institution and the official immigration authority." />
       </div>
       </div>
+    );
+  }
+
+  function LegalNote({ text = "Guidance only, not legal or immigration advice. Visa and residency rules change often and depend on your nationality — always confirm with the official government source or a licensed adviser before acting." }: { text?: string }) {
+    return (
+      <div style={{ marginTop: 18, display: "flex", gap: 8, alignItems: "flex-start", background: "#faf7f0", border: "1px solid #ece2d0", borderRadius: 12, padding: "11px 13px" }}>
+        <Info size={14} strokeWidth={2.2} style={{ color: "#a98047", flexShrink: 0, marginTop: 1 }} />
+        <p style={{ fontSize: 11.5, color: "#7a6a4a", margin: 0, lineHeight: 1.5 }}>{text}</p>
+      </div>
+    );
+  }
+
+  function ReportLink({ targetType, targetId }: { targetType: "topic" | "reply"; targetId: string }) {
+    const reported = reportedKeys.has(`${targetType}:${targetId}`);
+    return (
+      <button
+        type="button"
+        onClick={() => handleReport(targetType, targetId)}
+        disabled={reported}
+        title={reported ? "Reported — thanks" : "Report to moderators"}
+        style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: 0, border: "none", background: "transparent", color: reported ? "#8a8f86" : "#b0764f", fontFamily: HANKEN, fontSize: 11.5, fontWeight: 600, cursor: reported ? "default" : "pointer" }}
+      >
+        <Flag size={11} strokeWidth={2.4} />
+        {reported ? "Reported" : "Report"}
+      </button>
     );
   }
 
@@ -2420,7 +2482,10 @@ export function EasyMoveZoneApp() {
                 </span>
               </div>
               <h2 style={{ fontSize: 26, lineHeight: 1.16, fontWeight: 800, letterSpacing: "-.02em", margin: "12px 0 0" }}>{data.topic.title}</h2>
-              <div style={{ fontSize: 12.5, color: MUTE, marginTop: 6 }}>{data.topic.authorName} · {timeAgo(data.topic.createdAt)}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
+                <div style={{ fontSize: 12.5, color: MUTE }}>{data.topic.authorName} · {timeAgo(data.topic.createdAt)}</div>
+                <ReportLink targetType="topic" targetId={data.topic.id} />
+              </div>
               <p style={{ fontSize: 15, color: "#3f453c", margin: "16px 0 0", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{data.topic.body}</p>
 
               <div style={{ marginTop: 26 }}>
@@ -2435,6 +2500,7 @@ export function EasyMoveZoneApp() {
                           <span style={{ fontSize: 12, fontWeight: 700, color: INK }}>{r.authorName}</span>
                         )}
                         <span style={{ fontSize: 11.5, color: MUTE }}>{timeAgo(r.createdAt)}</span>
+                        {!r.isAi && <span style={{ marginLeft: "auto" }}><ReportLink targetType="reply" targetId={r.id} /></span>}
                       </div>
                       <p style={{ fontSize: 14, color: "#3f453c", margin: "8px 0 0", lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{r.body}</p>
                     </div>
@@ -2450,6 +2516,7 @@ export function EasyMoveZoneApp() {
                 <Sparkles size={15} strokeWidth={2.4} />
                 {signedIn ? (aiReplyLoading ? "Thinking…" : "Ask the AI assistant") : "Sign in to ask the AI assistant"}
               </button>
+              <p style={{ fontSize: 11, color: "#a8a395", margin: "8px 2px 0", lineHeight: 1.5 }}>AI answers are a starting point, not legal advice — verify anything important with an official source.</p>
               {aiReplyError && <p style={{ fontSize: 12.5, color: PRIMARY, margin: "8px 0 0" }}>{aiReplyError}</p>}
 
               <div style={{ marginTop: 16 }}>
