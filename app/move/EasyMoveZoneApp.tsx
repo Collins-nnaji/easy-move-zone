@@ -26,6 +26,7 @@ import {
   QUESTIONS,
   SPECTRUM,
   type Mode,
+  type SchoolOption,
 } from "./data";
 import {
   buildTravelExecutionCore,
@@ -51,12 +52,20 @@ import type { CommunityCategory, CommunityReply, CommunityTopic } from "@/lib/co
 
 type ApplyType = Extract<BookingType, "school" | "job">;
 
+// A school/study program with its destination attached — used by the
+// standalone Schools directory, which browses across every destination.
+type SchoolListing = SchoolOption & { destinationId: string; city: string; country: string; region: string };
+
 // An application the user is about to confirm in the slide-up sheet.
 interface PendingBooking {
   type: ApplyType;
   title: string;
   provider: string;
   price: string;
+  /** Overrides the currently selected destination — used when applying from
+   * a cross-destination list like the Schools directory. */
+  destinationCity?: string;
+  destinationCountry?: string;
 }
 
 // Map a /move work answer to a relocation work mode.
@@ -211,8 +220,8 @@ type TabDef = {
 // and lose the selected tab, on every keystroke/state change elsewhere in
 // the app. Splits a screen's sections into one-at-a-time panels instead of
 // one long scroll, which is the whole point: less on screen per glance.
-function TabGroup({ core, tabs }: { core: keyof typeof CORE_THEME; tabs: TabDef[] }) {
-  const [activeId, setActiveId] = useState(tabs[0]?.id);
+function TabGroup({ core, tabs, initialId }: { core: keyof typeof CORE_THEME; tabs: TabDef[]; initialId?: string }) {
+  const [activeId, setActiveId] = useState(initialId ?? tabs[0]?.id);
   const theme = CORE_THEME[core];
   const active = tabs.find((t) => t.id === activeId) ?? tabs[0];
   if (!active) return null;
@@ -299,9 +308,9 @@ type Screen =
   | "intelligence"
   | "execution"
   | "visa"
-  | "documents"
   | "settle"
   | "plan"
+  | "schools"
   | "community";
 
 // Every screen now has a real URL under /move — this is what gives the app a
@@ -318,10 +327,10 @@ function buildMovePath(screen: Screen, destId: string): string {
     case "detail": return `/move/explore/${destId}`;
     case "intelligence": return `/move/explore/${destId}/intelligence`;
     case "visa": return `/move/explore/${destId}/visa`;
-    case "documents": return `/move/explore/${destId}/documents`;
     case "settle": return `/move/explore/${destId}/settle`;
     case "execution": return `/move/explore/${destId}/execution`;
     case "plan": return `/move/explore/${destId}/plan`;
+    case "schools": return "/move/schools";
     case "community": return "/move/community";
   }
 }
@@ -333,6 +342,7 @@ function screenFromPath(pathname: string): Screen {
   if (rest === "search") return "search";
   if (rest === "explore") return "matches";
   if (rest === "community") return "community";
+  if (rest === "schools") return "schools";
   const m = rest.match(/^explore\/[^/]+(?:\/(.*))?$/);
   if (!m) return "welcome";
   const sub = m[1];
@@ -340,7 +350,6 @@ function screenFromPath(pathname: string): Screen {
   const subToScreen: Record<string, Screen> = {
     intelligence: "intelligence",
     visa: "visa",
-    documents: "documents",
     settle: "settle",
     execution: "execution",
     plan: "plan",
@@ -408,6 +417,7 @@ export function EasyMoveZoneApp() {
   const [eligChecklist, setEligChecklist] = useState<ChecklistItem[] | null>(null);
   const [eligChecklistFor, setEligChecklistFor] = useState<string | null>(null);
   const [eligChecklistLoading, setEligChecklistLoading] = useState(false);
+  const [intelligenceInitialTab, setIntelligenceInitialTab] = useState<string | undefined>(undefined);
 
   // Visa options (AI-generated routes for the current destination).
   const [visaRoutes, setVisaRoutes] = useState<VisaOption[]>([]);
@@ -423,6 +433,11 @@ export function EasyMoveZoneApp() {
   const [appliedTitles, setAppliedTitles] = useState<Set<string>>(new Set());
   const [settleCards, setSettleCards] = useState<SettleCard[]>([]);
   const [settleCommunity, setSettleCommunity] = useState("");
+
+  // Schools directory filters (Schools tab).
+  const [schoolsCountry, setSchoolsCountry] = useState<string>("all");
+  const [schoolsResidencyOnly, setSchoolsResidencyOnly] = useState(false);
+  const [schoolsQuery, setSchoolsQuery] = useState("");
 
   // Community discussion board state.
   const [communityCategory, setCommunityCategory] = useState<CommunityCategory | "all">("all");
@@ -559,6 +574,22 @@ export function EasyMoveZoneApp() {
 
   const schoolOptions = useMemo(() => schools[dest.id] ?? [], [dest.id, schools]);
   const jobOptions = useMemo(() => jobs[dest.id] ?? [], [dest.id, jobs]);
+
+  // Global schools & study-programs directory (Schools tab) — every school
+  // across every destination, independent of the picked-destination flow.
+  const allSchools = useMemo<SchoolListing[]>(() => {
+    const out: SchoolListing[] = [];
+    for (const d of destinations) {
+      for (const s of schools[d.id] ?? []) {
+        out.push({ ...s, destinationId: d.id, city: d.city, country: d.country, region: d.region });
+      }
+    }
+    return out;
+  }, [destinations, schools]);
+  const schoolCountries = useMemo(
+    () => Array.from(new Set(allSchools.map((s) => s.country))).sort(),
+    [allSchools],
+  );
 
   function answer(opt: string) {
     const q = QUESTIONS[qIndex];
@@ -846,8 +877,8 @@ export function EasyMoveZoneApp() {
     try {
       await createBooking({
         bookingType: pending.type,
-        destinationCity: dest.city,
-        destinationCountry: dest.country,
+        destinationCity: pending.destinationCity ?? dest.city,
+        destinationCountry: pending.destinationCountry ?? dest.country,
         itemTitle: pending.title,
         provider: pending.provider,
         priceLabel: pending.price,
@@ -1566,6 +1597,7 @@ export function EasyMoveZoneApp() {
   function Intelligence() {
     const tabs: TabDef[] = [
       { id: "eligibility", label: "Eligibility checker", icon: ClipboardCheck, content: <EligibilityPanel /> },
+      { id: "documents", label: "Document checklist", icon: FileText, content: <DocumentsPanel /> },
       { id: "ask-ai", label: "Ask AI", icon: Sparkles, content: <ClarifyPanel starterQuestions={INTELLIGENCE_STARTER_QUESTIONS} /> },
     ];
     return (
@@ -1575,14 +1607,13 @@ export function EasyMoveZoneApp() {
             core="intelligence"
             eyebrow="Travel Intelligence Core"
             title={`${dest.city}, decided properly`}
-            sub="Check what visas you qualify for, then ask AI anything else that's still unclear."
+            sub="Check what visas you qualify for, get your document checklist, then ask AI anything else that's still unclear."
           />
 
-          <TabGroup core="intelligence" tabs={tabs} />
+          <TabGroup core="intelligence" tabs={tabs} initialId={intelligenceInitialTab} />
 
           <div style={{ display: "flex", gap: 10, marginTop: 26, flexWrap: "wrap" }}>
             <button onClick={() => goTo("visa")} style={{ flex: 1, minWidth: 160, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 700, cursor: "pointer" }}>Open visa details</button>
-            <button onClick={() => goTo("documents")} style={{ flex: 1, minWidth: 160, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 600, cursor: "pointer" }}>My documents</button>
             <button onClick={() => goTo("settle")} style={{ flex: 1, minWidth: 160, padding: 16, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15.5, fontWeight: 600, cursor: "pointer" }}>Settling in</button>
           </div>
         </div>
@@ -1806,28 +1837,21 @@ export function EasyMoveZoneApp() {
     );
   }
 
-  function Documents() {
+  function DocumentsPanel() {
     const hasChecklist = !!eligChecklist && eligChecklist.length > 0;
     return (
-      <div className="move-page-inner">
-      <div className="move-page-screen">
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px 6px 8px", borderRadius: 999, background: "#fbeae0", border: "1px solid #f3d6c4" }}>
-          <span style={{ width: 24, height: 24, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <FileText size={13} strokeWidth={2.4} style={{ color: "#fff" }} />
-          </span>
-          <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>Document checklist</span>
-        </div>
-        <h2 style={{ fontSize: 30, lineHeight: 1.14, fontWeight: 800, letterSpacing: "-.02em", margin: "16px 0 0" }}>What you&apos;ll need to gather</h2>
-        <p style={{ fontSize: 15.5, color: "#4a5047", margin: "12px 0 0", lineHeight: 1.6 }}>Everything you need for {dest.city}, in one place. Keep the originals and copies with you — this is a checklist, not storage.</p>
+      <div>
+        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Document checklist</div>
+        <h2 style={{ fontSize: 24, lineHeight: 1.18, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>What you&apos;ll need to gather</h2>
+        <p style={{ fontSize: 15, color: "#4a5047", margin: "10px 0 0", lineHeight: 1.6 }}>Everything you need for {dest.city}, in one place. Keep the originals and copies with you — this is a checklist, not storage.</p>
 
         {!hasChecklist ? (
-          <div style={{ marginTop: 22, background: "#fff", border: "1px dashed #d8d2c6", borderRadius: 20, padding: 24, textAlign: "center" }}>
+          <div style={{ marginTop: 20, background: "#fff", border: "1px dashed #d8d2c6", borderRadius: 20, padding: 24, textAlign: "center" }}>
             <ClipboardCheck size={28} strokeWidth={1.8} style={{ color: MUTE }} />
-            <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.55 }}>No checklist yet. Run an eligibility check and pick a visa to generate your tailored document list.</p>
-            <button onClick={() => goTo("intelligence")} style={{ marginTop: 16, padding: "13px 20px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>Check my eligibility →</button>
+            <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.55 }}>No checklist yet. Use the Eligibility checker tab above and pick a visa to generate your tailored document list.</p>
           </div>
         ) : (
-          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 10 }}>
             {eligChecklist!.map((it, k) => (
               <div key={k} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 16, padding: "14px 16px" }}>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
@@ -1843,7 +1867,6 @@ export function EasyMoveZoneApp() {
         )}
 
         <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "22px 0 0", lineHeight: 1.5 }}>We don&apos;t store your files — always keep your own copies of official documents.</p>
-      </div>
       </div>
     );
   }
@@ -1984,7 +2007,7 @@ export function EasyMoveZoneApp() {
                         View destination →
                       </button>
                     )}
-                    <button onClick={async () => { await runChecklist(m); goTo("documents"); }} disabled={eligChecklistLoading && eligChecklistFor === (m.destinationId ?? m.city)}
+                    <button onClick={async () => { await runChecklist(m); setIntelligenceInitialTab("documents"); goTo("intelligence"); }} disabled={eligChecklistLoading && eligChecklistFor === (m.destinationId ?? m.city)}
                       style={{ flex: 1, padding: "10px 14px", border: "none", borderRadius: 12, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer", opacity: (eligChecklistLoading && eligChecklistFor === (m.destinationId ?? m.city)) ? 0.7 : 1 }}>
                       {eligChecklistLoading && eligChecklistFor === (m.destinationId ?? m.city) ? "Building…" : "Get document checklist →"}
                     </button>
@@ -2111,7 +2134,7 @@ export function EasyMoveZoneApp() {
                   );
                 })}
                 <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-                  <button onClick={() => goTo("documents")}
+                  <button onClick={() => { setIntelligenceInitialTab("documents"); goTo("intelligence"); }}
                     style={{ flex: 1, padding: 14, border: "none", borderRadius: 14, background: INK, color: "#fff", fontFamily: HANKEN, fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}>
                     {selectedVisaRoute ? "Get documents →" : "My documents →"}
                   </button>
@@ -2284,6 +2307,99 @@ export function EasyMoveZoneApp() {
     );
   }
 
+  function Schools() {
+    const q = schoolsQuery.trim().toLowerCase();
+    const filtered = allSchools.filter((s) => {
+      if (schoolsCountry !== "all" && s.country !== schoolsCountry) return false;
+      if (schoolsResidencyOnly && !s.residencyPathway) return false;
+      if (q && !`${s.institution} ${s.program} ${s.city} ${s.country}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+
+    return (
+      <div className="move-page-inner">
+      <div className="move-page-screen">
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px 6px 8px", borderRadius: 999, background: "#fbeae0", border: "1px solid #f3d6c4" }}>
+          <span style={{ width: 24, height: 24, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <GraduationCap size={13} strokeWidth={2.4} style={{ color: "#fff" }} />
+          </span>
+          <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>Schools</span>
+        </div>
+        <h2 style={{ fontSize: 30, lineHeight: 1.14, fontWeight: 800, letterSpacing: "-.02em", margin: "16px 0 0" }}>Study your way to residency</h2>
+        <p style={{ fontSize: 15.5, color: "#4a5047", margin: "12px 0 0", lineHeight: 1.6 }}>Programs across every destination in the app, with an honest read on whether the student visa can actually lead somewhere longer-term.</p>
+
+        <input value={schoolsQuery} onChange={(e) => setSchoolsQuery(e.target.value)} placeholder="Search institution, program, or city…"
+          style={{ marginTop: 20, width: "100%", padding: "13px 14px", borderRadius: 14, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 15, color: INK }} />
+
+        <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <select value={schoolsCountry} onChange={(e) => setSchoolsCountry(e.target.value)}
+            style={{ padding: "9px 12px", borderRadius: 999, border: "1px solid #d8d2c6", background: "#fff", color: "#4a5047", fontFamily: HANKEN, fontSize: 13, fontWeight: 600 }}>
+            <option value="all">All countries</option>
+            {schoolCountries.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <button onClick={() => setSchoolsResidencyOnly((p) => !p)}
+            style={{ padding: "9px 14px", borderRadius: 999, border: `1px solid ${schoolsResidencyOnly ? PRIMARY : "#d8d2c6"}`, background: schoolsResidencyOnly ? PRIMARY : "#fff", color: schoolsResidencyOnly ? "#fff" : "#4a5047", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+            Residency pathway only
+          </button>
+          <span style={{ marginLeft: "auto", fontSize: 12, color: MUTE }}>{filtered.length} program{filtered.length === 1 ? "" : "s"}</span>
+        </div>
+
+        <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 12 }}>
+          {filtered.length === 0 ? (
+            <div style={{ background: "#fff", border: "1px dashed #d8d2c6", borderRadius: 20, padding: 24, textAlign: "center" }}>
+              <GraduationCap size={28} strokeWidth={1.8} style={{ color: MUTE }} />
+              <p style={{ fontSize: 14.5, color: "#6e746b", margin: "12px 0 0", lineHeight: 1.55 }}>No programs match those filters — try a different country or clear the search.</p>
+            </div>
+          ) : (
+            filtered.map((s) => {
+              const title = `${s.institution} — ${s.program}`;
+              const applied = appliedTitles.has(title);
+              return (
+                <div key={s.id} style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: "18px 20px" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: MUTE }}>{s.city}, {s.country} · {s.level}</div>
+                      <div style={{ fontSize: 17, fontWeight: 800, marginTop: 4, letterSpacing: "-.01em" }}>{s.institution}</div>
+                      <div style={{ fontSize: 14, color: "#4a5047", marginTop: 2 }}>{s.program}</div>
+                    </div>
+                    <span style={{ flexShrink: 0, fontFamily: MONO, fontSize: 12.5, fontWeight: 600, color: PRIMARY, whiteSpace: "nowrap" }}>{s.price}</span>
+                  </div>
+
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, padding: "4px 10px", borderRadius: 999, background: "#f0ede4" }}>
+                    <span style={{ fontSize: 11.5, color: "#4a5047", fontWeight: 600 }}>{s.tag}</span>
+                  </div>
+
+                  {s.residencyPathway ? (
+                    <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "flex-start", background: "#f6f9f4", border: "1px solid #dde8d6", borderRadius: 12, padding: "10px 12px" }}>
+                      <BadgeCheck size={15} strokeWidth={2.2} style={{ color: "#3f7d4f", flexShrink: 0, marginTop: 1 }} />
+                      <p style={{ fontSize: 12.5, color: "#3f453c", margin: 0, lineHeight: 1.5 }}>{s.residencyPathway}</p>
+                    </div>
+                  ) : (
+                    <p style={{ fontSize: 12.5, color: MUTE, margin: "10px 0 0", lineHeight: 1.5 }}>No clear residency pathway on record for this program — treat it as study-only unless you confirm otherwise.</p>
+                  )}
+
+                  <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+                    <button onClick={() => goTo("detail", { destId: s.destinationId })}
+                      style={{ padding: "10px 14px", border: "1px solid #d8d2c6", borderRadius: 12, background: "#fff", color: INK, fontFamily: HANKEN, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                      View {s.city} →
+                    </button>
+                    <button
+                      onClick={() => { if (!applied) openBooking({ type: "school", title, provider: s.institution, price: s.price, destinationCity: s.city, destinationCountry: s.country }); }}
+                      disabled={applied}
+                      style={{ flex: 1, padding: "10px 14px", border: "none", borderRadius: 12, background: applied ? "#e8f3ec" : PRIMARY, color: applied ? "#2f7d4f" : "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: applied ? "default" : "pointer" }}>
+                      {applied ? "Applied ✓" : "Apply →"}
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+      </div>
+    );
+  }
+
   function Community() {
     if (communityTopicId) {
       const data = communityThread;
@@ -2451,8 +2567,8 @@ export function EasyMoveZoneApp() {
       case "execution": return Execution();
       case "plan": return Plan();
       case "visa": return Visa();
-      case "documents": return Documents();
       case "settle": return Settle();
+      case "schools": return Schools();
       case "community": return Community();
     }
   }
@@ -2460,7 +2576,7 @@ export function EasyMoveZoneApp() {
   const tabs: { label: string; screens: Screen[]; go: Screen }[] = [
     { label: "Explore", screens: ["welcome", "spectrum", "search", "matches", "detail"], go: "matches" },
     { label: "Intelligence", screens: ["intelligence", "visa", "settle", "execution", "plan"], go: "intelligence" },
-    { label: "Documents", screens: ["documents"], go: "documents" },
+    { label: "Schools", screens: ["schools"], go: "schools" },
     { label: "Community", screens: ["community"], go: "community" },
   ];
 
@@ -2480,7 +2596,7 @@ export function EasyMoveZoneApp() {
         <div className="move-overlay move-overlay--sheet" onClick={() => setPending(null)}>
           <div className="move-sheet" onClick={(e) => e.stopPropagation()}>
             <div className="move-sheet-handle" />
-            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>{bookTypeLabel[pending.type]} · {dest.city}</div>
+            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>{bookTypeLabel[pending.type]} · {pending.destinationCity ?? dest.city}</div>
             <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-.01em", margin: "10px 0 0" }}>{pending.title}</h3>
             {pending.provider && <div style={{ fontSize: 13.5, color: "#6e746b", marginTop: 4 }}>{pending.provider}</div>}
             <div style={{ fontFamily: MONO, fontSize: 15, fontWeight: 600, color: INK, marginTop: 10 }}>{pending.price}</div>

@@ -690,6 +690,8 @@ export interface SchoolOption {
   level: string;
   tag: string;
   price: string;
+  /** How this program's student visa typically leads toward residency, if at all. */
+  residencyPathway?: string;
 }
 
 export interface JobOption {
@@ -704,40 +706,40 @@ export interface JobOption {
 // School admissions, keyed by destination id — real institutions, illustrative programs.
 export const SCHOOLS: Record<string, SchoolOption[]> = {
   lisbon: [
-    { id: "lis-sch1", institution: "Nova School of Business & Economics", program: "MSc in Management", level: "Master's", tag: "Student visa (D4) eligible", price: "€50 application fee" },
+    { id: "lis-sch1", institution: "Nova School of Business & Economics", program: "MSc in Management", level: "Master's", tag: "Student visa (D4) eligible", price: "€50 application fee", residencyPathway: "D4 student visa can convert to a work residency permit (D2/D3); generally leads to permanent residency after 5 years of legal residence." },
   ],
   mexicocity: [
-    { id: "mex-sch1", institution: "Tecnológico de Monterrey", program: "MBA, CDMX campus", level: "Master's", tag: "Student visa eligible", price: "$80 application fee" },
+    { id: "mex-sch1", institution: "Tecnológico de Monterrey", program: "MBA, CDMX campus", level: "Master's", tag: "Student visa eligible", price: "$80 application fee", residencyPathway: "Student visa can convert to a Temporary Resident work visa with a local job offer; typically leads to Permanent Residency after around 4 years." },
   ],
   bangkok: [
-    { id: "bkk-sch1", institution: "Chulalongkorn University", program: "International MBA", level: "Master's", tag: "Non-Immigrant ED visa eligible", price: "฿1,500 application fee" },
+    { id: "bkk-sch1", institution: "Chulalongkorn University", program: "International MBA", level: "Master's", tag: "Non-Immigrant ED visa eligible", price: "฿1,500 application fee", residencyPathway: "No automatic post-study route — graduates generally need to switch to a Non-B work visa with a Thai employer; permanent residency is quota-limited and uncommon." },
   ],
   tbilisi: [
-    { id: "tbs-sch1", institution: "Free University of Tbilisi", program: "BA in International Relations", level: "Bachelor's", tag: "Study residence permit eligible", price: "$30 application fee" },
+    { id: "tbs-sch1", institution: "Free University of Tbilisi", program: "BA in International Relations", level: "Bachelor's", tag: "Study residence permit eligible", price: "$30 application fee", residencyPathway: "Study residence permit can convert to a work residence permit; Georgia offers one of the more accessible long-term residency tracks in the region." },
   ],
   berlin: [
-    { id: "ber-sch1", institution: "Technical University of Berlin", program: "MSc in Computer Science", level: "Master's", tag: "Student visa eligible", price: "€75 application fee" },
+    { id: "ber-sch1", institution: "Technical University of Berlin", program: "MSc in Computer Science", level: "Master's", tag: "Student visa eligible", price: "€75 application fee", residencyPathway: "18-month post-study job-seeker visa after graduation; once employed, the EU Blue Card route can lead to permanent settlement in as little as 21-33 months." },
   ],
   buenosaires: [
-    { id: "bue-sch1", institution: "Universidad de Buenos Aires", program: "MA in Latin American Studies", level: "Master's", tag: "Student visa eligible", price: "$40 application fee" },
+    { id: "bue-sch1", institution: "Universidad de Buenos Aires", program: "MA in Latin American Studies", level: "Master's", tag: "Student visa eligible", price: "$40 application fee", residencyPathway: "Student visa can transition to temporary residency with a job or income; typically leads to permanent residency after about 2 years of legal residence." },
   ],
   tokyo: [
-    { id: "tyo-sch1", institution: "Waseda University", program: "MA in International Studies", level: "Master's", tag: "Student visa (ryugaku) eligible", price: "¥9,800 application fee" },
+    { id: "tyo-sch1", institution: "Waseda University", program: "MA in International Studies", level: "Master's", tag: "Student visa (ryugaku) eligible", price: "¥9,800 application fee", residencyPathway: "Graduates can switch to a job-hunting \"Designated Activities\" visa for up to a year, then a work visa; permanent residency generally requires 5-10 years depending on points earned." },
   ],
   capetown: [
-    { id: "cpt-sch1", institution: "University of Cape Town", program: "MCom in Finance", level: "Master's", tag: "Study visa eligible", price: "R850 application fee" },
+    { id: "cpt-sch1", institution: "University of Cape Town", program: "MCom in Finance", level: "Master's", tag: "Study visa eligible", price: "R850 application fee", residencyPathway: "Study visa can convert to a general or critical-skills work visa; permanent residency is typically available after about 5 years on a qualifying work visa." },
   ],
   dubai: [
-    { id: "dxb-sch1", institution: "American University in Dubai", program: "MBA", level: "Master's", tag: "Student visa eligible", price: "AED 500 application fee" },
+    { id: "dxb-sch1", institution: "American University in Dubai", program: "MBA", level: "Master's", tag: "Student visa eligible", price: "AED 500 application fee", residencyPathway: "No direct citizenship/PR route — graduates usually move to employer-sponsored work residency; standout students may qualify for Golden Visa consideration." },
   ],
   toronto: [
-    { id: "yyz-sch1", institution: "University of Toronto", program: "Master of Information", level: "Master's", tag: "Study permit eligible", price: "CAD 156 application fee" },
+    { id: "yyz-sch1", institution: "University of Toronto", program: "Master of Information", level: "Master's", tag: "Study permit eligible", price: "CAD 156 application fee", residencyPathway: "Post-Graduation Work Permit for up to 3 years; one of the clearest pathways to Permanent Residency via Express Entry / Canadian Experience Class." },
   ],
   sydney: [
-    { id: "syd-sch1", institution: "University of Sydney", program: "Master of Commerce", level: "Master's", tag: "Student visa (subclass 500) eligible", price: "AUD 125 application fee" },
+    { id: "syd-sch1", institution: "University of Sydney", program: "Master of Commerce", level: "Master's", tag: "Student visa (subclass 500) eligible", price: "AUD 125 application fee", residencyPathway: "Temporary Graduate visa (subclass 485) for 2-4 years after study; can lead to permanent residency through skilled-visa streams (subclass 189/190)." },
   ],
   singapore: [
-    { id: "sin-sch1", institution: "National University of Singapore", program: "Master of Computing", level: "Master's", tag: "Student's Pass eligible", price: "SGD 100 application fee" },
+    { id: "sin-sch1", institution: "National University of Singapore", program: "Master of Computing", level: "Master's", tag: "Student's Pass eligible", price: "SGD 100 application fee", residencyPathway: "Student's Pass holders can apply for a work pass after graduation; permanent residency is discretionary and usually requires several years of employment." },
   ],
 };
 

@@ -108,8 +108,8 @@ async function main() {
 
   for (const [index, s] of (catalog.schools ?? []).entries()) {
     await sql`
-      insert into move_schools (id, destination_id, institution, program, level, tag, price, sort_order)
-      values (${s.id}, ${s.destinationId}, ${s.institution}, ${s.program}, ${s.level}, ${s.tag}, ${s.price}, ${index})
+      insert into move_schools (id, destination_id, institution, program, level, tag, price, residency_pathway, sort_order)
+      values (${s.id}, ${s.destinationId}, ${s.institution}, ${s.program}, ${s.level}, ${s.tag}, ${s.price}, ${s.residencyPathway ?? null}, ${index})
       on conflict (id) do update set
         destination_id = excluded.destination_id,
         institution = excluded.institution,
@@ -117,6 +117,7 @@ async function main() {
         level = excluded.level,
         tag = excluded.tag,
         price = excluded.price,
+        residency_pathway = excluded.residency_pathway,
         sort_order = excluded.sort_order
     `
   }

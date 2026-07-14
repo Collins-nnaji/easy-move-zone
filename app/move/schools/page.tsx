@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "My documents — EasyMoveZone",
+  title: "Schools — EasyMoveZone",
 };
 
-export default function DocumentsPage() {
+export default function SchoolsPage() {
   return null;
 }

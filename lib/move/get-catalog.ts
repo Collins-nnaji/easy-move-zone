@@ -66,7 +66,7 @@ async function queryCatalog() {
         order by mode, sort_order asc
       `,
       sql`
-        select id, destination_id, institution, program, level, tag, price
+        select id, destination_id, institution, program, level, tag, price, residency_pathway
         from move_schools
         where active = true
         order by destination_id, sort_order asc

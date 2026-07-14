@@ -57,6 +57,7 @@ type SchoolRow = {
   level: string
   tag: string
   price: string
+  residency_pathway: string | null
 }
 
 type JobRow = {
@@ -150,6 +151,7 @@ export function groupSchools(rows: SchoolRow[]): Record<string, SchoolOption[]> 
       level: row.level,
       tag: row.tag,
       price: row.price,
+      residencyPathway: row.residency_pathway ?? undefined,
     })
     out[row.destination_id] = list
   }

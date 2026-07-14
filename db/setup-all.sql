@@ -954,6 +954,7 @@ create table if not exists move_schools (
   level text not null,
   tag text not null,
   price text not null,
+  residency_pathway text,
   sort_order integer not null default 0,
   active boolean not null default true
 );
