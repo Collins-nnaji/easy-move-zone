@@ -1,7 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Bricolage_Grotesque } from "next/font/google";
 import { AppChrome } from "@/components/layout/AppChrome";
 import "./globals.css";
+
+// App-like mobile behaviour: lock zoom (no pinch / no focus-zoom on inputs)
+// and extend under the notch/home-indicator so fixed bars sit flush.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#f6f3ec",
+};
 
 // Body / UI text — clean, modern, excellent readability
 const jakarta = Plus_Jakarta_Sans({

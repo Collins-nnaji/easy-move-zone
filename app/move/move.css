@@ -8,6 +8,7 @@
   --move-surface: #efece4;
   --move-border: #e4dfd5;
   height: calc(100dvh - 56px);
+  height: calc(100svh - 56px);
   background: var(--move-surface);
   color: var(--move-ink);
   font-family: var(--font-hanken), system-ui, sans-serif;
@@ -30,8 +31,12 @@
 .move-scroll {
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
+  /* Momentum scroll that doesn't chain to the (locked) page behind it. */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 /* ── Mobile bottom nav ── */
@@ -227,11 +232,13 @@
 .move-sheet {
   background: var(--move-surface);
   border-radius: 26px 26px 0 0;
-  padding: 26px 22px 30px;
+  padding: 26px 22px calc(30px + env(safe-area-inset-bottom));
   width: 100%;
-  max-height: 82vh;
+  max-height: 88vh;
+  max-height: 88dvh;
   overflow-y: auto;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.28);
 }
 

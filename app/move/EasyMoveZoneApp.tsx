@@ -52,6 +52,8 @@ import type { SettleCard, TaskCategory, WorkMode } from "@/lib/relocate/types";
 import { fetchTopics, createTopic, fetchTopic, createReply, requestAiReply, reportContent } from "@/lib/community/client";
 import { timeAgo } from "@/lib/community/format";
 import type { CommunityCategory, CommunityReply, CommunityTopic } from "@/lib/community/types";
+import { submitRequest } from "@/lib/requests/client";
+import { REQUEST_GOALS, type RequestGoal } from "@/lib/requests/types";
 
 type ApplyType = Extract<BookingType, "school" | "job">;
 
@@ -450,6 +452,18 @@ export function EasyMoveZoneApp() {
   const [aiReplyError, setAiReplyError] = useState<string | null>(null);
   // Keys are `${type}:${id}` for items the user has reported this session.
   const [reportedKeys, setReportedKeys] = useState<Set<string>>(new Set());
+
+  // Concierge "request help" sheet.
+  const [requestOpen, setRequestOpen] = useState(false);
+  const [reqName, setReqName] = useState("");
+  const [reqEmail, setReqEmail] = useState("");
+  const [reqPhone, setReqPhone] = useState("");
+  const [reqGoal, setReqGoal] = useState<RequestGoal>("relocate");
+  const [reqDestination, setReqDestination] = useState("");
+  const [reqTimeline, setReqTimeline] = useState("");
+  const [reqMessage, setReqMessage] = useState("");
+  const [reqState, setReqState] = useState<"idle" | "saving" | "sent">("idle");
+  const [reqError, setReqError] = useState<string | null>(null);
 
   const router = useRouter();
   const { data: sessionData, isPending: sessionPending } = authClient.useSession();
@@ -981,6 +995,41 @@ export function EasyMoveZoneApp() {
     }
   }
 
+  function openRequest(goal?: RequestGoal) {
+    // Prefill from the session and the current destination where we can.
+    if (!reqName && sessionData?.user?.name) setReqName(sessionData.user.name);
+    if (!reqEmail && sessionData?.user?.email) setReqEmail(sessionData.user.email);
+    if (!reqDestination && dest?.city) setReqDestination(`${dest.city}, ${dest.country}`);
+    if (goal) setReqGoal(goal);
+    setReqError(null);
+    setReqState("idle");
+    setRequestOpen(true);
+  }
+
+  async function submitRequestForm() {
+    if (reqState === "saving") return;
+    if (reqName.trim().length < 2) { setReqError("Please enter your name."); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reqEmail.trim())) { setReqError("Please enter a valid email."); return; }
+    setReqError(null);
+    setReqState("saving");
+    try {
+      await submitRequest({
+        name: reqName.trim(),
+        email: reqEmail.trim(),
+        phone: reqPhone.trim() || undefined,
+        goal: reqGoal,
+        destination: reqDestination.trim() || undefined,
+        timeline: reqTimeline.trim() || undefined,
+        message: reqMessage.trim() || undefined,
+      });
+      setReqState("sent");
+      setReqMessage("");
+    } catch (err) {
+      setReqError(err instanceof Error ? err.message : "Couldn't send — try again.");
+      setReqState("idle");
+    }
+  }
+
   // ── Move Meter math (driven by ticked plan items) ─────────────────────
   const plan = PLAN[mode];
   const executionCore = useMemo(
@@ -1149,7 +1198,13 @@ export function EasyMoveZoneApp() {
         >
           Get started
         </button>
-        <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "16px 0 0" }}>Takes about a minute · no account needed</p>
+        <button
+          onClick={() => openRequest()}
+          style={{ width: "100%", padding: 15, marginTop: 10, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}
+        >
+          Or get expert help →
+        </button>
+        <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "14px 0 0" }}>Takes about a minute · no account needed</p>
         </div>
         <FlowAside
           title="Eligibility. Opportunities. Settling in."
@@ -2546,6 +2601,15 @@ export function EasyMoveZoneApp() {
         <h2 style={{ fontSize: 30, lineHeight: 1.14, fontWeight: 800, letterSpacing: "-.02em", margin: "16px 0 0" }}>Talk to people making the same move</h2>
         <p style={{ fontSize: 15.5, color: "#4a5047", margin: "12px 0 0", lineHeight: 1.6 }}>Work visas, school admissions, housing, culture shock — ask, answer, and compare notes with others relocating and traveling.</p>
 
+        <div onClick={() => openRequest()} style={{ marginTop: 18, background: INK, borderRadius: 18, padding: "16px 18px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
+          <span style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, background: "rgba(224,81,31,.2)", color: "#f3aa79", display: "flex", alignItems: "center", justifyContent: "center" }}><Sparkles size={19} strokeWidth={2.2} /></span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 15.5, fontWeight: 700, color: "#fff" }}>Want 1:1 help?</div>
+            <div style={{ fontSize: 12.5, color: "rgba(255,255,255,.6)", marginTop: 2 }}>Send a request and a specialist follows up by email.</div>
+          </div>
+          <span style={{ color: "#f3aa79", fontSize: 18 }}>→</span>
+        </div>
+
         <div style={{ marginTop: 20, display: "flex", gap: 8, flexWrap: "wrap" }}>
           {(["all", ...COMMUNITY_CATEGORIES.map((c) => c.id)] as (CommunityCategory | "all")[]).map((id) => {
             const label = id === "all" ? "All" : COMMUNITY_CATEGORIES.find((c) => c.id === id)?.label ?? id;
@@ -2674,6 +2738,63 @@ export function EasyMoveZoneApp() {
             <p style={{ textAlign: "center", fontSize: 12, color: "#a8a395", margin: "12px 0 0", lineHeight: 1.5 }}>
               No payment taken — this saves your application to your workspace.
             </p>
+          </div>
+        </div>
+      )}
+
+      {requestOpen && (
+        <div className="move-overlay move-overlay--sheet" onClick={() => setRequestOpen(false)}>
+          <div className="move-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="move-sheet-handle" />
+            {reqState === "sent" ? (
+              <div style={{ textAlign: "center", padding: "8px 0 4px" }}>
+                <div style={{ width: 56, height: 56, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 26, margin: "0 auto", boxShadow: "0 8px 22px rgba(224,81,31,.34)" }}>✓</div>
+                <h3 style={{ fontSize: 20, fontWeight: 800, margin: "16px 0 0" }}>Request received</h3>
+                <p style={{ fontSize: 14, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.55 }}>Our team will review your move and get back to you by email. You can keep exploring in the meantime.</p>
+                <button onClick={() => setRequestOpen(false)} style={{ width: "100%", marginTop: 20, padding: 15, border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>Done</button>
+              </div>
+            ) : (
+              <>
+                <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Get expert help</div>
+                <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-.01em", margin: "8px 0 0" }}>Tell us about your move</h3>
+                <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>Send a request and a specialist will follow up by email — no payment, no obligation.</p>
+
+                <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10 }}>
+                  <input value={reqName} onChange={(e) => setReqName(e.target.value)} placeholder="Your name"
+                    style={{ width: "100%", padding: "13px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 16, color: INK }} />
+                  <input value={reqEmail} onChange={(e) => setReqEmail(e.target.value)} type="email" inputMode="email" placeholder="Email"
+                    style={{ width: "100%", padding: "13px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 16, color: INK }} />
+                  <input value={reqPhone} onChange={(e) => setReqPhone(e.target.value)} type="tel" inputMode="tel" placeholder="Phone or WhatsApp (optional)"
+                    style={{ width: "100%", padding: "13px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 16, color: INK }} />
+
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {REQUEST_GOALS.map((g) => (
+                      <button key={g.id} type="button" onClick={() => setReqGoal(g.id)}
+                        style={{ padding: "8px 12px", borderRadius: 999, border: `1px solid ${reqGoal === g.id ? PRIMARY : "#d8d2c6"}`, background: reqGoal === g.id ? "#fbeae0" : "#fff", color: reqGoal === g.id ? PRIMARY : "#6e746b", fontFamily: HANKEN, fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>
+                        {g.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <input value={reqDestination} onChange={(e) => setReqDestination(e.target.value)} placeholder="Destination"
+                      style={{ flex: 1, minWidth: 0, padding: "13px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 16, color: INK }} />
+                    <input value={reqTimeline} onChange={(e) => setReqTimeline(e.target.value)} placeholder="Timeline"
+                      style={{ flex: 1, minWidth: 0, padding: "13px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 16, color: INK }} />
+                  </div>
+
+                  <textarea value={reqMessage} onChange={(e) => setReqMessage(e.target.value)} placeholder="Anything else we should know? (optional)"
+                    style={{ width: "100%", minHeight: 80, padding: "13px 14px", borderRadius: 12, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 16, color: INK, resize: "vertical" }} />
+                </div>
+
+                {reqError && <p style={{ fontSize: 12.5, color: PRIMARY, margin: "10px 0 0" }}>{reqError}</p>}
+
+                <button onClick={submitRequestForm} disabled={reqState === "saving"}
+                  style={{ width: "100%", marginTop: 16, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: reqState === "saving" ? "default" : "pointer", opacity: reqState === "saving" ? 0.7 : 1, boxShadow: "0 8px 22px rgba(224,81,31,.3)" }}>
+                  {reqState === "saving" ? "Sending…" : "Send request"}
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

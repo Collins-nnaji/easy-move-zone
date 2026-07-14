@@ -32,6 +32,7 @@ const steps = [
   "db/migrations/20260713_community.sql",
   "db/migrations/20260714_schools_residency.sql",
   "db/migrations/20260715_community_safety.sql",
+  "db/migrations/20260716_relocation_requests.sql",
 ]
 
 const postSeedSteps = [

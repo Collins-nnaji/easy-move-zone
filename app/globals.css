@@ -63,6 +63,8 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    /* No pull-to-refresh / rubber-band bounce on the document — app-like. */
+    overscroll-behavior: none;
   }
 
   body {
@@ -76,6 +78,27 @@
       radial-gradient(ellipse 55% 35% at 100% 0%,  rgba(0, 114, 206, 0.05) 0%, transparent 50%);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+    /* Kill the grey tap flash on buttons/links so taps feel native. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Chrome (nav bars, buttons, labels) shouldn't be text-selectable like a
+     web page — but real content and form fields still must be. */
+  button,
+  nav,
+  .move-bottom-nav,
+  .move-sidebar {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  input,
+  textarea,
+  select,
+  [contenteditable],
+  p, span, h1, h2, h3, h4, li, a {
+    -webkit-user-select: auto;
+    user-select: auto;
   }
 
   /* The Move app manages its own internal scroll (.move-scroll); pin the
@@ -83,7 +106,11 @@
      bottom nav. */
   body.move-app-active {
     height: 100dvh;
+    height: 100svh;
     overflow: hidden;
+    position: fixed;
+    inset: 0;
+    width: 100%;
   }
 
   /* Display headings use Bricolage Grotesque */
