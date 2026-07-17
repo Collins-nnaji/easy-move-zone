@@ -66,9 +66,20 @@ describe("sanitizeDestination", () => {
 })
 
 describe("resolveRequestDestination", () => {
-  it("prefers catalog destinations by id", () => {
-    const d = resolveRequestDestination("lisbon", DESTINATIONS, { city: "Fake", country: "Nowhere" })
+  it("uses the catalog entry for a known id with no payload", () => {
+    const d = resolveRequestDestination("lisbon", DESTINATIONS, null)
     expect(d?.city).toBe("Lisbon")
+  })
+
+  it("prefers the client-supplied profile, sanitized against the catalog copy", () => {
+    const d = resolveRequestDestination("lisbon", DESTINATIONS, {
+      city: "Lisbon",
+      country: "Portugal",
+      honest: { move: "Fresh AI take." },
+    })
+    expect(d?.honest.move).toBe("Fresh AI take.")
+    // Missing fields fall back to the catalog copy, not generic filler.
+    expect(d?.visa.move.headline).toBe(DESTINATIONS.find((x) => x.id === "lisbon")!.visa.move.headline)
   })
 
   it("sanitizes a client-supplied custom destination when id is unknown", () => {

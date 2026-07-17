@@ -71,3 +71,55 @@ export function saveCustomDestination(dest: Destination): Destination[] {
   }
   return next;
 }
+
+// AI-regenerated profiles for CATALOG cities. Every destination the user
+// views gets its seeded copy replaced by fresh AI content; the cache keeps
+// that to one generation per city per week instead of one per page view.
+
+const AI_PROFILES_KEY = "emz:ai-profiles";
+const AI_PROFILE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const AI_PROFILES_MAX = 40;
+
+interface CachedProfile {
+  at: number;
+  dest: Destination;
+}
+
+export function loadAiProfiles(): Record<string, Destination> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(AI_PROFILES_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, CachedProfile>;
+    const now = Date.now();
+    const out: Record<string, Destination> = {};
+    for (const [id, entry] of Object.entries(parsed)) {
+      if (
+        entry && typeof entry === "object" &&
+        typeof entry.at === "number" && now - entry.at < AI_PROFILE_TTL_MS &&
+        entry.dest && typeof entry.dest === "object" &&
+        typeof entry.dest.id === "string" && !!entry.dest.visa
+      ) {
+        out[id] = entry.dest;
+      }
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+export function saveAiProfile(dest: Destination) {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = window.localStorage.getItem(AI_PROFILES_KEY);
+    const parsed = raw ? (JSON.parse(raw) as Record<string, CachedProfile>) : {};
+    parsed[dest.id] = { at: Date.now(), dest };
+    const entries = Object.entries(parsed)
+      .sort((a, b) => (b[1]?.at ?? 0) - (a[1]?.at ?? 0))
+      .slice(0, AI_PROFILES_MAX);
+    window.localStorage.setItem(AI_PROFILES_KEY, JSON.stringify(Object.fromEntries(entries)));
+  } catch {
+    /* safe to skip */
+  }
+}

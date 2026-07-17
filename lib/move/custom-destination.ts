@@ -129,19 +129,24 @@ export function sanitizeDestination(raw: unknown, fallback: Destination): Destin
   return out
 }
 
-/** Resolves a request's destination: a known catalog id wins; otherwise a
- * client-supplied custom destination (AI-generated earlier) is sanitized and
- * used, so AI features keep working for any city in the world. */
+/** Resolves a request's destination. A client-supplied profile (the
+ * AI-generated content the user is actually looking at) wins, sanitized
+ * against the catalog copy when the id is known; a bare known id falls back
+ * to the catalog entry; anything else is rejected. This keeps AI features
+ * grounded in the same profile the user sees, for any city in the world. */
 export function resolveRequestDestination(
   destinationId: string,
   catalog: Destination[],
   customPayload: unknown,
 ): Destination | null {
   const known = catalog.find((d) => d.id === destinationId)
-  if (known) return known
-  if (!customPayload || typeof customPayload !== "object") return null
-  const p = customPayload as { city?: unknown; country?: unknown }
-  if (typeof p.city !== "string" || !p.city.trim()) return null
-  const fallback = fallbackCustomDestination(p.city, typeof p.country === "string" ? p.country : undefined)
-  return sanitizeDestination(customPayload, fallback)
+  const p = (customPayload && typeof customPayload === "object" ? customPayload : null) as
+    | { city?: unknown; country?: unknown }
+    | null
+  if (p && typeof p.city === "string" && p.city.trim()) {
+    const fallback =
+      known ?? fallbackCustomDestination(p.city, typeof p.country === "string" ? p.country : undefined)
+    return sanitizeDestination(customPayload, fallback)
+  }
+  return known ?? null
 }

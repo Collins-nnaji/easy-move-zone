@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties, type ComponentType } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ComponentType } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import {
   BadgeCheck,
@@ -41,7 +41,7 @@ import { DestinationImage } from "./ImageSlot";
 import { MoveAppShell } from "./MoveAppShell";
 import { SettleCardsGrid } from "@/components/settle/SettleCardsGrid";
 import "./move.css";
-import { loadCustomDestinations, loadFlowState, saveCustomDestination, saveFlowState } from "./storage";
+import { loadAiProfiles, loadCustomDestinations, loadFlowState, saveAiProfile, saveCustomDestination, saveFlowState } from "./storage";
 import { authClient } from "@/lib/auth/client";
 import { savePlan, addTask, fetchWorkspace, updateTaskStatus, fetchGuideByCitySlug } from "@/lib/relocate/client";
 import { moveTaskNote, parseMoveTaskNote } from "@/lib/move/plan-sync";
@@ -411,6 +411,12 @@ export function EasyMoveZoneApp() {
   const [citySearchLoading, setCitySearchLoading] = useState(false);
   const [citySearchError, setCitySearchError] = useState<string | null>(null);
 
+  // AI-regenerated profiles for catalog cities — the seeded copies are only
+  // placeholders; every profile the user sees gets replaced by AI content.
+  const [aiProfiles, setAiProfiles] = useState<Record<string, Destination>>(() => loadAiProfiles());
+  const [aiAvailable, setAiAvailable] = useState<boolean | null>(null);
+  const enrichAttempted = useRef<Set<string>>(new Set());
+
   // Clarify-with-AI state — a destination-grounded Q&A box on Visa & Settle.
   const [clarifyQuestion, setClarifyQuestion] = useState("");
   const [clarifyAnswer, setClarifyAnswer] = useState<string | null>(null);
@@ -498,13 +504,19 @@ export function EasyMoveZoneApp() {
   const signedIn = !!sessionData?.user;
   const { destinations: catalogDests, schools, jobs, loaded: catalogLoaded } = useMoveCatalog();
 
-  // Catalog destinations + the user's AI-generated custom cities, deduped so
-  // a custom entry never shadows a seeded one. Everything downstream (ranking,
-  // detail, visa, plan, settle, the switcher) works off this merged list.
+  // Catalog destinations (each overlaid with its AI-regenerated profile once
+  // available — id and image stay from the catalog, content comes from AI)
+  // + the user's AI-generated custom cities, deduped so a custom entry never
+  // shadows a seeded one. Everything downstream (ranking, detail, visa, plan,
+  // settle, the switcher) works off this merged list.
   const destinations = useMemo(() => {
     const ids = new Set(catalogDests.map((d) => d.id));
-    return [...catalogDests, ...customDests.filter((d) => !ids.has(d.id))];
-  }, [catalogDests, customDests]);
+    const overlaid = catalogDests.map((d) => {
+      const ai = aiProfiles[d.id];
+      return ai ? { ...ai, id: d.id, imageUrl: d.imageUrl ?? ai.imageUrl } : d;
+    });
+    return [...overlaid, ...customDests.filter((d) => !ids.has(d.id))];
+  }, [catalogDests, customDests, aiProfiles]);
 
   // Returning users who've completed the flow before land straight on
   // Explore (the matches screen) with their last destination & stay length,
@@ -574,6 +586,63 @@ export function EasyMoveZoneApp() {
     () => destinations.find((d) => d.id === destId) ?? ranked[0],
     [destId, ranked, destinations],
   );
+
+  // ── AI profile regeneration for catalog cities ─────────────────────────
+  // One health check tells us whether an AI provider is configured; when it
+  // is, every seeded profile gets replaced by freshly generated AI content —
+  // the active destination first, then the rest in the background. Results
+  // are cached (localStorage, 7-day TTL) so each city generates once.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/health/integrations")
+      .then((r) => r.json())
+      .then((j: { ai?: { provider?: string | null } }) => {
+        if (!cancelled) setAiAvailable(!!j?.ai?.provider);
+      })
+      .catch(() => {
+        if (!cancelled) setAiAvailable(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  async function enrichDestination(id: string): Promise<void> {
+    if (enrichAttempted.current.has(id)) return;
+    enrichAttempted.current.add(id);
+    try {
+      const res = await fetch("/api/move/generate-destination", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ destinationId: id }),
+      });
+      if (!res.ok) return;
+      const data = (await res.json()) as { destination?: Destination; source?: string };
+      if (data.source === "ai" && data.destination) {
+        saveAiProfile(data.destination);
+        setAiProfiles((prev) => ({ ...prev, [id]: data.destination! }));
+      }
+    } catch {
+      // Network hiccup — allow a retry on the next pass.
+      enrichAttempted.current.delete(id);
+    }
+  }
+
+  useEffect(() => {
+    if (aiAvailable !== true || !catalogLoaded) return;
+    let cancelled = false;
+    (async () => {
+      // Active destination first so what's on screen turns AI the soonest,
+      // then the rest of the catalog sequentially (never in parallel bursts).
+      const pending = [destId ?? "", ...catalogDests.map((d) => d.id)]
+        .filter((id, i, arr) => id && arr.indexOf(id) === i)
+        .filter((id) => catalogDests.some((c) => c.id === id) && !aiProfiles[id]);
+      for (const id of pending) {
+        if (cancelled) return;
+        await enrichDestination(id);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aiAvailable, catalogLoaded, destId]);
 
   // Load AI visa routes when the Visa screen is active (re-runs if the
   // destination or stay mode changes).
@@ -736,6 +805,10 @@ export function EasyMoveZoneApp() {
 
   // ── AI city search (dynamic locations) ─────────────────────────────────
   const isCustomDest = customDests.some((c) => c.id === dest.id);
+  // Whether what's on screen for this destination is AI-generated content
+  // (custom cities always are; catalog cities are once their profile lands).
+  const destProfileIsAi = isCustomDest || !!aiProfiles[dest.id];
+  const destProfileRefreshing = aiAvailable === true && !destProfileIsAi && catalogDests.some((c) => c.id === dest.id);
 
   async function searchCity(overrideQuery?: string) {
     const query = (overrideQuery ?? citySearch).trim();
@@ -808,9 +881,10 @@ export function EasyMoveZoneApp() {
           destinationId: dest.id,
           mode,
           question: text,
-          // Custom AI-generated cities aren't in the server catalog — send
-          // the profile along so the answer stays destination-grounded.
-          ...(isCustomDest ? { destination: dest } : {}),
+          // Send the profile the user is actually looking at (AI-generated
+          // for both custom and enriched catalog cities) so the answer is
+          // grounded in the same content on screen.
+          ...(destProfileIsAi ? { destination: dest } : {}),
         }),
       });
       if (!res.ok) throw new Error("clarify failed");
@@ -891,7 +965,10 @@ export function EasyMoveZoneApp() {
     setVisaRoutesFor(`${destinationId}:${forMode}`);
     setVisaRoutes([]);
     setSelectedVisaRoute(null);
-    const customDest = customDests.find((c) => c.id === destinationId);
+    // Send the profile on screen (custom or AI-enriched) as grounding.
+    const groundingDest = customDests.find((c) => c.id === destinationId)
+      ?? aiProfiles[destinationId]
+      ?? null;
     try {
       const res = await fetch("/api/visa/options", {
         method: "POST",
@@ -899,7 +976,7 @@ export function EasyMoveZoneApp() {
         body: JSON.stringify({
           destinationId,
           mode: forMode,
-          ...(customDest ? { destination: customDest } : {}),
+          ...(groundingDest ? { destination: groundingDest } : {}),
           profile: {
             goals: eligProfile.goals,
             education: eligProfile.education,
@@ -1743,8 +1820,16 @@ export function EasyMoveZoneApp() {
           </div>
 
           <div style={{ marginTop: 18, background: "#f6e9df", borderRadius: 18, padding: "18px 18px" }}>
-            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "#bf6a3c", fontWeight: 500 }}>The honest take</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "#bf6a3c", fontWeight: 500 }}>The honest take</div>
+              {destProfileIsAi && <AiChip label="AI generated" />}
+            </div>
             <p style={{ fontSize: 15, lineHeight: 1.5, color: "#5a4636", margin: "10px 0 0" }}>{dest.honest[mode]}</p>
+            {destProfileRefreshing && (
+              <p style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#a06a42", margin: "10px 0 0" }}>
+                <Sparkles size={12} strokeWidth={2.4} /> Refreshing this profile with AI…
+              </p>
+            )}
           </div>
 
           <div style={{ marginTop: 20, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
@@ -2349,6 +2434,12 @@ export function EasyMoveZoneApp() {
               </div>
               <h3 style={{ fontSize: 25, fontWeight: 800, letterSpacing: "-.01em", margin: "18px 0 0" }}>{visa.headline}</h3>
               <p style={{ fontSize: 16, lineHeight: 1.6, color: "#c9cdc7", margin: "12px 0 0" }}>{visa.body}</p>
+              {(destProfileIsAi || destProfileRefreshing) && (
+                <p style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#f8caa6", margin: "14px 0 0" }}>
+                  <Sparkles size={12} strokeWidth={2.4} />
+                  {destProfileIsAi ? "AI generated for your profile — verify with official sources" : "Refreshing with AI…"}
+                </p>
+              )}
             </div>
 
             <SectionLabel title="Compare stay lengths" icon={Gauge} />
