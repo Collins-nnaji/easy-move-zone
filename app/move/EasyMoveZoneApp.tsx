@@ -27,6 +27,7 @@ import {
   PLAN,
   QUESTIONS,
   SPECTRUM,
+  type Destination,
   type Mode,
   type SchoolOption,
 } from "./data";
@@ -40,7 +41,7 @@ import { DestinationImage } from "./ImageSlot";
 import { MoveAppShell } from "./MoveAppShell";
 import { SettleCardsGrid } from "@/components/settle/SettleCardsGrid";
 import "./move.css";
-import { loadFlowState, saveFlowState } from "./storage";
+import { loadCustomDestinations, loadFlowState, saveCustomDestination, saveFlowState } from "./storage";
 import { authClient } from "@/lib/auth/client";
 import { savePlan, addTask, fetchWorkspace, updateTaskStatus, fetchGuideByCitySlug } from "@/lib/relocate/client";
 import { moveTaskNote, parseMoveTaskNote } from "@/lib/move/plan-sync";
@@ -402,6 +403,14 @@ export function EasyMoveZoneApp() {
   const [exploreReturnScreen, setExploreReturnScreen] = useState<Screen>("spectrum");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  // AI city search — the user can type ANY city in the world and the AI
+  // generates a full destination profile for it, so location selection is
+  // dynamic instead of limited to the seeded catalog.
+  const [customDests, setCustomDests] = useState<Destination[]>(() => loadCustomDestinations());
+  const [citySearch, setCitySearch] = useState("");
+  const [citySearchLoading, setCitySearchLoading] = useState(false);
+  const [citySearchError, setCitySearchError] = useState<string | null>(null);
+
   // Clarify-with-AI state — a destination-grounded Q&A box on Visa & Settle.
   const [clarifyQuestion, setClarifyQuestion] = useState("");
   const [clarifyAnswer, setClarifyAnswer] = useState<string | null>(null);
@@ -487,7 +496,15 @@ export function EasyMoveZoneApp() {
   const router = useRouter();
   const { data: sessionData, isPending: sessionPending } = authClient.useSession();
   const signedIn = !!sessionData?.user;
-  const { destinations, schools, jobs, loaded: catalogLoaded } = useMoveCatalog();
+  const { destinations: catalogDests, schools, jobs, loaded: catalogLoaded } = useMoveCatalog();
+
+  // Catalog destinations + the user's AI-generated custom cities, deduped so
+  // a custom entry never shadows a seeded one. Everything downstream (ranking,
+  // detail, visa, plan, settle, the switcher) works off this merged list.
+  const destinations = useMemo(() => {
+    const ids = new Set(catalogDests.map((d) => d.id));
+    return [...catalogDests, ...customDests.filter((d) => !ids.has(d.id))];
+  }, [catalogDests, customDests]);
 
   // Returning users who've completed the flow before land straight on
   // Explore (the matches screen) with their last destination & stay length,
@@ -530,7 +547,7 @@ export function EasyMoveZoneApp() {
 
   useEffect(() => {
     if (urlDestId && urlDestId !== destId) setDestId(urlDestId);
-  }, [urlDestId]);
+  }, [urlDestId, destId]);
 
   // Load AI visa routes when the Visa screen is active (re-runs if the
   // destination or stay mode changes). Keyed on dest+mode so switching either
@@ -633,13 +650,15 @@ export function EasyMoveZoneApp() {
   function answer(opt: string) {
     const q = QUESTIONS[qIndex];
     const next = { ...answers, [q.id]: opt };
+    setAnswers(next);
     if (qIndex >= QUESTIONS.length - 1) {
-      setAnswers(next);
-      setMoodRanking(null);
-      setMoodNote(null);
-      goTo("matches", { destId: ranked[0].id });
+      // Feed the answers to the AI matcher so the quiz actually ranks the
+      // results (previously answers were collected and then ignored).
+      const text = QUESTIONS.map((qq) => next[qq.id]).filter(Boolean).join(", ");
+      setMoodText(text);
+      setExploreMode("mood");
+      void runMoodSearch(text);
     } else {
-      setAnswers(next);
       setQIndex(qIndex + 1);
     }
   }
@@ -715,6 +734,51 @@ export function EasyMoveZoneApp() {
     }
   }
 
+  // ── AI city search (dynamic locations) ─────────────────────────────────
+  const isCustomDest = customDests.some((c) => c.id === dest.id);
+
+  async function searchCity(overrideQuery?: string) {
+    const query = (overrideQuery ?? citySearch).trim();
+    if (query.length < 2 || citySearchLoading) return;
+    setCitySearchLoading(true);
+    setCitySearchError(null);
+    // Already known (catalog or previously generated)? Jump straight there.
+    const local = destinations.find(
+      (d) => d.city.toLowerCase() === query.toLowerCase()
+        || `${d.city}, ${d.country}`.toLowerCase() === query.toLowerCase(),
+    );
+    if (local) {
+      setCitySearchLoading(false);
+      setCitySearch("");
+      setDestSwitchOpen(false);
+      goTo("detail", { destId: local.id });
+      return;
+    }
+    try {
+      const res = await fetch("/api/move/generate-destination", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+      const data = (await res.json()) as { destination?: Destination; error?: string };
+      if (!res.ok || !data.destination) {
+        setCitySearchError(data.error ?? "Couldn't build that destination — try again in a moment.");
+        return;
+      }
+      const d = data.destination;
+      if (!catalogDests.some((c) => c.id === d.id)) {
+        setCustomDests(saveCustomDestination(d));
+      }
+      setCitySearch("");
+      setDestSwitchOpen(false);
+      goTo("detail", { destId: d.id });
+    } catch {
+      setCitySearchError("Couldn't reach the destination builder — try again in a moment.");
+    } finally {
+      setCitySearchLoading(false);
+    }
+  }
+
   function applyFilters() {
     const text = QUESTIONS.map((q) => answers[q.id]).filter(Boolean).join(", ");
     if (!text) return;
@@ -740,7 +804,14 @@ export function EasyMoveZoneApp() {
       const res = await fetch("/api/move/clarify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ destinationId: dest.id, mode, question: text }),
+        body: JSON.stringify({
+          destinationId: dest.id,
+          mode,
+          question: text,
+          // Custom AI-generated cities aren't in the server catalog — send
+          // the profile along so the answer stays destination-grounded.
+          ...(isCustomDest ? { destination: dest } : {}),
+        }),
       });
       if (!res.ok) throw new Error("clarify failed");
       const data = (await res.json()) as { answer?: unknown };
@@ -820,6 +891,7 @@ export function EasyMoveZoneApp() {
     setVisaRoutesFor(`${destinationId}:${forMode}`);
     setVisaRoutes([]);
     setSelectedVisaRoute(null);
+    const customDest = customDests.find((c) => c.id === destinationId);
     try {
       const res = await fetch("/api/visa/options", {
         method: "POST",
@@ -827,6 +899,7 @@ export function EasyMoveZoneApp() {
         body: JSON.stringify({
           destinationId,
           mode: forMode,
+          ...(customDest ? { destination: customDest } : {}),
           profile: {
             goals: eligProfile.goals,
             education: eligProfile.education,
@@ -1220,6 +1293,40 @@ export function EasyMoveZoneApp() {
   }, [dest.id, mode]);
 
   // ───────────────────────────────── Screens ──────────────────────────────
+
+  // The dynamic-location search: type any city in the world and the AI
+  // builds a full destination profile for it on the spot. Rendered on the
+  // search screen, the matches grid and the destination switcher.
+  function CitySearchBar({ compact = false }: { compact?: boolean }) {
+    return (
+      <div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input
+            value={citySearch}
+            onChange={(e) => { setCitySearch(e.target.value); if (citySearchError) setCitySearchError(null); }}
+            onKeyDown={(e) => { if (e.key === "Enter") void searchCity(); }}
+            placeholder={compact ? "Search any city…" : "e.g. Accra, Ghana or Seoul…"}
+            style={{ flex: 1, minWidth: 0, padding: compact ? "12px 14px" : "14px 16px", borderRadius: 14, border: "1px solid #d8d2c6", background: "#fff", fontFamily: HANKEN, fontSize: 15.5, color: INK }}
+          />
+          <button
+            onClick={() => void searchCity()}
+            disabled={citySearch.trim().length < 2 || citySearchLoading}
+            style={{ padding: compact ? "12px 16px" : "14px 20px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 700, cursor: citySearch.trim().length < 2 || citySearchLoading ? "default" : "pointer", opacity: citySearch.trim().length < 2 || citySearchLoading ? 0.6 : 1, whiteSpace: "nowrap", flexShrink: 0 }}
+          >
+            {citySearchLoading ? "Building…" : "Go →"}
+          </button>
+        </div>
+        {citySearchLoading && (
+          <p style={{ fontSize: 12.5, color: "#6e746b", margin: "10px 0 0", display: "flex", alignItems: "center", gap: 6 }}>
+            <Sparkles size={13} strokeWidth={2.4} style={{ color: PRIMARY }} />
+            AI is building a full profile for this city — visa routes, costs, the honest take…
+          </p>
+        )}
+        {citySearchError && <p style={{ fontSize: 12.5, color: PRIMARY, margin: "10px 0 0" }}>{citySearchError}</p>}
+      </div>
+    );
+  }
+
   function FlowAside({ title, text, steps }: { title: string; text: string; steps: { n: number; text: string }[] }) {
     return (
       <div className="move-flow-aside">
@@ -1333,7 +1440,8 @@ export function EasyMoveZoneApp() {
         </div>
 
         <div style={{ flex: 1 }} />
-        <button onClick={() => goTo("matches", { destId: ranked[0].id })} style={{ width: "100%", padding: 19, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 17, fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}>Continue</button>
+        <button onClick={() => { setExploreReturnScreen("spectrum"); setExploreMode("mood"); goTo("search"); }} style={{ width: "100%", padding: 19, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 17, fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}>Continue</button>
+        <button onClick={() => goTo("matches", { destId: ranked[0].id })} style={{ width: "100%", padding: 14, marginTop: 10, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14.5, fontWeight: 600, cursor: "pointer" }}>Skip — browse all destinations</button>
         </div>
         <FlowAside
           title="The Move Spectrum"
@@ -1446,6 +1554,12 @@ export function EasyMoveZoneApp() {
 
         {moodError && <p style={{ fontSize: 13, color: PRIMARY, margin: "16px 0 0" }}>{moodError}</p>}
 
+        <div style={{ marginTop: 26, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: "16px 18px" }}>
+          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>Already know where?</div>
+          <p style={{ fontSize: 13.5, color: "#6e746b", margin: "8px 0 12px", lineHeight: 1.5 }}>Type any city in the world — we&apos;ll build its full profile for you, even if it&apos;s not in our list.</p>
+          {CitySearchBar({})}
+        </div>
+
         <div style={{ flex: 1 }} />
         <button
           onClick={() => runMoodSearch()}
@@ -1533,6 +1647,15 @@ export function EasyMoveZoneApp() {
             <span style={{ fontFamily: MONO, fontSize: 11, color: PRIMARY, letterSpacing: ".08em" }}>{moodList ? "Refine your mood search" : "Try a mood search"}</span>
             <span style={{ fontSize: 12, color: MUTE }}>{moodList ? "↻" : "→"}</span>
           </div>
+        </div>
+
+        <div style={{ marginTop: 16, background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, padding: "16px 18px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Sparkles size={14} strokeWidth={2.4} style={{ color: PRIMARY }} />
+            <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: PRIMARY, fontWeight: 600 }}>Don&apos;t see your city?</span>
+          </div>
+          <p style={{ fontSize: 13, color: "#6e746b", margin: "8px 0 12px", lineHeight: 1.5 }}>Search any city in the world and the AI builds its profile — visas, costs and the honest take.</p>
+          {CitySearchBar({ compact: true })}
         </div>
 
         <FilterPanel />
@@ -2864,7 +2987,7 @@ export function EasyMoveZoneApp() {
 
   const tabs: { label: string; screens: Screen[]; go: Screen }[] = [
     { label: "Explore", screens: ["welcome", "spectrum", "search", "matches", "detail"], go: "matches" },
-    { label: "Visas", screens: ["intelligence", "visa", "settle", "execution", "plan"], go: "intelligence" },
+    { label: "My Move", screens: ["intelligence", "visa", "settle", "execution", "plan"], go: "intelligence" },
     { label: "Schools", screens: ["schools"], go: "schools" },
     { label: "Services", screens: ["services"], go: "services" },
     { label: "Community", screens: ["community"], go: "community" },
@@ -3033,6 +3156,7 @@ export function EasyMoveZoneApp() {
             <div className="move-sheet-handle" />
             <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Switch destination</div>
             <p style={{ fontSize: 13.5, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.5 }}>This is what drives everything below — your Plan, Visa and Settle pages all update to match.</p>
+            <div style={{ margin: "14px 0 4px" }}>{CitySearchBar({ compact: true })}</div>
             <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10 }}>
               {ranked.map((d) => {
                 const active = d.id === dest.id;

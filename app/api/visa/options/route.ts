@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { type Mode } from "@/app/move/data"
 import { getMoveDestinations } from "@/lib/move/get-catalog"
 import { chatJson, getAiProvider } from "@/lib/ai/openai"
+import { resolveRequestDestination } from "@/lib/move/custom-destination"
 
 const VALID_MODES: Mode[] = ["trip", "nomad", "move"]
 const MODE_NAME: Record<Mode, string> = { trip: "short trip", nomad: "nomad stint", move: "long-term move" }
@@ -60,7 +61,7 @@ function fallbackOptions(headline: string, tag: string, modeName: string): Optio
 }
 
 export async function POST(req: NextRequest) {
-  let body: { destinationId?: unknown; mode?: unknown; profile?: unknown }
+  let body: { destinationId?: unknown; mode?: unknown; profile?: unknown; destination?: unknown }
   try {
     body = await req.json()
   } catch {
@@ -72,7 +73,9 @@ export async function POST(req: NextRequest) {
   const profile: ProfileInput = (body.profile && typeof body.profile === "object") ? (body.profile as ProfileInput) : {}
 
   const { destinations } = await getMoveDestinations()
-  const dest = destinations.find((d) => d.id === destinationId)
+  // Accepts AI-generated custom destinations sent by the client alongside
+  // the id, so visa routes work for any city, not just the seeded catalog.
+  const dest = resolveRequestDestination(destinationId, destinations, body.destination)
 
   if (!dest) {
     return NextResponse.json({ error: "Unknown destination." }, { status: 400 })

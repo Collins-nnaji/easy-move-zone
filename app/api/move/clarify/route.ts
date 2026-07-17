@@ -5,6 +5,7 @@ import { getMoveDestinations } from "@/lib/move/get-catalog"
 import { settleCardsForCity } from "@/lib/settle/cards"
 import { GUIDE_SELECT, mapGuideRow } from "@/lib/settle/map-guide"
 import { chatJson, getAiProvider } from "@/lib/ai/openai"
+import { resolveRequestDestination } from "@/lib/move/custom-destination"
 import type { SettleCard } from "@/lib/relocate/types"
 
 const VALID_MODES: Mode[] = ["trip", "nomad", "move"]
@@ -89,7 +90,7 @@ function heuristicAnswer(
 }
 
 export async function POST(req: NextRequest) {
-  let body: { destinationId?: unknown; mode?: unknown; question?: unknown }
+  let body: { destinationId?: unknown; mode?: unknown; question?: unknown; destination?: unknown }
   try {
     body = await req.json()
   } catch {
@@ -105,7 +106,9 @@ export async function POST(req: NextRequest) {
   }
 
   const { destinations } = await getMoveDestinations()
-  const dest = destinations.find((d) => d.id === destinationId)
+  // Custom (AI-generated) destinations aren't in the catalog — the client
+  // sends the profile along and we ground the answer in that instead.
+  const dest = resolveRequestDestination(destinationId, destinations, body.destination)
   if (!dest) {
     return NextResponse.json({ error: "Unknown destination." }, { status: 400 })
   }
