@@ -40,7 +40,7 @@ export interface NewServiceBookingInput {
 
 export const SERVICE_STATUSES: ServiceBookingStatus[] = ["assigned", "in_progress", "completed", "cancelled"]
 
-// The bookable service catalogue. Static — these are the agency's products.
+// The bookable service catalogue. Static — these are the platform's products.
 export const SERVICE_PACKAGES: ServicePackage[] = [
   {
     key: "full-relocation",

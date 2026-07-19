@@ -1465,7 +1465,7 @@ export function EasyMoveZoneApp() {
         </div>
         <FlowAside
           title="Eligibility. Opportunities. Settling in."
-          text="Three problems, one AI relocation agency. Know what you qualify for, get matched to the route, and settle in once you land — for work, school, or a visa on its own."
+          text="Three problems, one app. Know what you qualify for, get matched to the route, and settle in once you land — for work, school, or a visa on its own."
           steps={[
             { n: 1, text: "Eligibility — the work and study visas you actually qualify for" },
             { n: 2, text: "Opportunities — visa-sponsoring jobs and school admissions" },

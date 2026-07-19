@@ -1,6 +1,6 @@
 create extension if not exists pgcrypto;
 
--- Concierge requests: a user asks the agency to help with their move. Captured
+-- Concierge requests: a user asks for help with their move. Captured
 -- here so operators can triage and manage them from the admin dashboard.
 create table if not exists relocation_requests (
   id uuid primary key default gen_random_uuid(),

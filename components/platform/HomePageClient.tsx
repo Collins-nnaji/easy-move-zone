@@ -19,19 +19,19 @@ const INK = "#1b231e"
 const pillars = [
   {
     icon: Sparkles,
-    label: "Agency 01",
+    label: "01",
     title: "AI Eligibility & Visa Advisor",
     body: "Tell us why you're moving — work, school, or a visa route on its own — and our AI scores what you qualify for, flags risk, and explains the path in plain language, the way a case worker would.",
   },
   {
     icon: MapPin,
-    label: "Agency 02",
+    label: "02",
     title: "Work & School Pathways",
     body: "Visa-sponsoring jobs and school admissions matched to your destination and profile, with the paperwork and timelines that route actually requires.",
   },
   {
     icon: Check,
-    label: "Agency 03",
+    label: "03",
     title: "Settle-In Concierge",
     body: "A tailored document checklist and a settling-in guide for your city — housing, banking, healthcare, and the local know-how that gets you from landed to living.",
   },
@@ -99,7 +99,7 @@ export function HomePageClient() {
                 className="inline-flex items-center gap-2 rounded-full border border-[#e0511f]/20 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#bf5223] backdrop-blur"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                An AI relocation agency, in your pocket
+                AI relocation guidance, in your pocket
               </motion.div>
 
               <motion.h1
@@ -115,7 +115,7 @@ export function HomePageClient() {
 
               <motion.p {...fadeUp(0.12, 18)} className="mt-6 max-w-xl text-lg leading-relaxed text-[#5f655c]">
                 See the work and study visas you qualify for, get matched to sponsoring jobs and
-                schools, and follow a tailored checklist — all the guidance of a relocation agency,
+                schools, and follow a tailored checklist — expert-level guidance,
                 without the consultant fees.
               </motion.p>
 
@@ -189,10 +189,10 @@ export function HomePageClient() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div {...fadeUp()} className="max-w-2xl">
             <span className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: PRIMARY }}>
-              How the agency works
+              How it works
             </span>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-              An AI relocation agency, built as an app.
+              Three connected AI tools, built as an app.
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-[#5f655c]">
               EasyMoveZone replaces the relocation consultant with three connected AI tools: one that scores your
@@ -288,7 +288,7 @@ export function HomePageClient() {
             Work visa, school admission, settling in — handled.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-[#5f655c]">
-            One AI relocation agency for every stage of the move — eligibility, opportunities, and the
+            One app for every stage of the move — eligibility, opportunities, and the
             settling-in guide, wherever you&apos;re headed.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
