@@ -4,7 +4,7 @@ import { Mail, ArrowUpRight } from "lucide-react"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 
 const services = [
-  { href: "/move",         label: "Browse shifts",  badge: "Live" },
+  { href: "/move/shifts",         label: "Browse shifts",  badge: "Live" },
   { href: "/move/schedule", label: "My schedule",   badge: null   },
   { href: "/move/wallet",   label: "Instant wallet", badge: null   },
   { href: "/move/vault",    label: "Compliance vault", badge: null },

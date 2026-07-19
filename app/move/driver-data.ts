@@ -213,3 +213,19 @@ export const COMPLIANCE_DOCS: ComplianceDoc[] = [
 ];
 
 export const ZONES = ["DFW North", "DFW Central", "DFW East", "Houston Inner", "Houston Port", "San Antonio"];
+
+export const ZONE_OPTIONS = [
+  { key: "dfw-north", label: "DFW North", sub: "Haslet · Irving · Plano" },
+  { key: "dfw-central", label: "DFW Central", sub: "Dallas · Garland · Mesquite" },
+  { key: "dfw-east", label: "DFW East", sub: "Mesquite · Rockwall · Terrell" },
+  { key: "houston-inner", label: "Houston Inner", sub: "Downtown · Midtown · Heights" },
+  { key: "houston-port", label: "Houston Port", sub: "Port · Baytown · Pasadena" },
+  { key: "san-antonio", label: "San Antonio", sub: "Downtown · North · South" },
+] as const;
+
+export const VEHICLE_OPTIONS = [
+  { key: "sprinter", label: "Sprinter Van", sub: "Last-mile · 12–20 stops", blurb: "High-volume residential and small-business drops. Most shifts pay per day." },
+  { key: "box-truck", label: "Box Truck", sub: "26' · Restaurant & retail", blurb: "Heavier loads, fewer stops. Hourly pay with overtime on long routes." },
+  { key: "client-fleet", label: "Client Fleet", sub: "No vehicle needed", blurb: "Drive the client's branded fleet. Linehaul and hub returns — daily rate." },
+  { key: "flatbed", label: "Flatbed CDL-B", sub: "Construction · Port", blurb: "CDL-B required. Fewer stops, higher skill premium on every shift." },
+] as const;

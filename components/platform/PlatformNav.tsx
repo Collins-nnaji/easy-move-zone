@@ -15,6 +15,8 @@ import { useEffect, useRef, useState } from "react"
 import { authClient } from "@/lib/auth/client"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 
+import { loadDriverFlowState } from "@/app/move/storage"
+
 const guideLinks = [
   { href: "/move", label: "Open the app", icon: Truck },
   { href: "/contact", label: "Contact", icon: Mail },
@@ -24,7 +26,12 @@ export function PlatformNav() {
   const pathname = usePathname()
   const { data: sessionData, isPending: sessionPending, refetch: refetchSession } = authClient.useSession()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [resumable, setResumable] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setResumable(!!loadDriverFlowState()?.completed)
+  }, [])
 
   useEffect(() => {
     const timeout = setTimeout(() => { void refetchSession() }, 120)
@@ -106,7 +113,7 @@ export function PlatformNav() {
               className="hidden items-center gap-1.5 rounded-full bg-[#e0511f] px-4 py-2 text-[13px] font-bold text-white shadow-sm transition hover:opacity-90 sm:inline-flex"
             >
               <Truck className="h-3.5 w-3.5" />
-              Browse shifts
+              {resumable ? "Continue driving" : "Browse shifts"}
             </Link>
           )}
 

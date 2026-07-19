@@ -14,6 +14,8 @@ type MoveAppShellProps = {
   movePct?: number;
   moveDone?: number;
   moveTotal?: number;
+  meterLabel?: string;
+  meterSub?: string;
   isFlowScreen?: boolean;
   children: React.ReactNode;
   modals: React.ReactNode;
@@ -31,6 +33,8 @@ export function MoveAppShell({
   movePct = 0,
   moveDone = 0,
   moveTotal = 0,
+  meterLabel = "Move Meter",
+  meterSub,
   isFlowScreen = false,
   children,
   modals,
@@ -72,10 +76,10 @@ export function MoveAppShell({
 
             {moveTotal > 0 && (
               <div className="move-sidebar__meter">
-                <div className="move-sidebar__meter-label">Move Meter</div>
+                <div className="move-sidebar__meter-label">{meterLabel}</div>
                 <div className="move-sidebar__meter-value">{movePct}%</div>
                 <div className="move-sidebar__meter-sub">
-                  {moveDone} of {moveTotal} steps done
+                  {meterSub ?? `${moveDone} of ${moveTotal} steps done`}
                 </div>
               </div>
             )}

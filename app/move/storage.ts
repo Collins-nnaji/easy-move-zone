@@ -1,9 +1,10 @@
-// Remembers where a returning, signed-in user left off in /move so reopening
-// the app drops them back at their destination instead of the welcome screen.
+// Remembers where a returning user left off in /move so reopening
+// the app drops them back at their shifts feed instead of the welcome screen.
 
 import type { Destination } from "./data";
 
 const KEY = "emz:flow";
+const DRIVER_KEY = "emz:driver-flow";
 const CUSTOM_DESTS_KEY = "emz:custom-dests";
 const CUSTOM_DESTS_MAX = 20;
 
@@ -32,6 +33,34 @@ export function saveFlowState(state: SavedFlowState) {
     window.localStorage.setItem(KEY, JSON.stringify(state));
   } catch {
     /* localStorage unavailable (private mode, quota) — safe to skip */
+  }
+}
+
+export interface DriverFlowState {
+  zone: string;
+  vehicle: string;
+  completed: boolean;
+}
+
+export function loadDriverFlowState(): DriverFlowState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(DRIVER_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<DriverFlowState>;
+    if (typeof parsed.zone !== "string" || typeof parsed.vehicle !== "string") return null;
+    return { zone: parsed.zone, vehicle: parsed.vehicle, completed: !!parsed.completed };
+  } catch {
+    return null;
+  }
+}
+
+export function saveDriverFlowState(state: DriverFlowState) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(DRIVER_KEY, JSON.stringify(state));
+  } catch {
+    /* localStorage unavailable — safe to skip */
   }
 }
 
