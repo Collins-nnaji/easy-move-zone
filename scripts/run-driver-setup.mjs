@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Driver platform DB setup — core auth tables, driver tables, seed shifts,
- * and remove old relocation product tables.
+ * Driver platform DB setup — creates driver tables, seeds shifts,
+ * drops old relocation product tables, and cleans legacy pivots.
  *
  * Usage: npm run db:setup
  */
@@ -16,7 +16,6 @@ const runner = path.join(root, "scripts/run-sql-file.mjs");
 
 const steps = [
   "db/add-contact-submissions.sql",
-  "db/migrations/20260309_user_profiles.sql",
   "db/migrations/20260310_agent_flag_and_admin.sql",
   "db/migrations/20260720_driver_platform.sql",
   "db/migrations/20260720_drop_relocation_product.sql",
@@ -55,9 +54,9 @@ async function main() {
 
   console.log("\nDone. Smoke test checklist:");
   console.log("  1. npm run dev");
-  console.log("  2. Open /move — browse seeded shifts");
+  console.log("  2. Open /move/shifts — browse seeded shifts");
   console.log("  3. Sign up at /auth, claim a shift, clock in");
-  console.log("  4. GET /api/driver/workspace — returns open shifts from database");
+  console.log("  4. GET /api/driver/workspace");
 }
 
 main().catch((err) => {
