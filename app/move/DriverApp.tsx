@@ -16,19 +16,20 @@ import {
 } from "lucide-react";
 import { MoveAppShell } from "./MoveAppShell";
 import {
-  ACTIVE_SHIFT,
-  CLAIMED_SHIFTS,
-  COMPLIANCE_DOCS,
-  INITIAL_SHIFTS,
-  LEDGER,
   VEHICLE_OPTIONS,
   VEHICLE_TAGS,
-  WALLET,
   WAYPOINTS,
   ZONE_OPTIONS,
-  type ComplianceDoc,
-  type Shift,
 } from "./driver-data";
+import {
+  cashOutWallet,
+  claimShift,
+  clockInSession,
+  fetchDriverWorkspace,
+  updateDriverProfile,
+  uploadComplianceDoc,
+} from "@/lib/driver/client";
+import type { ComplianceDoc, Shift, ShiftSession, WalletEntry } from "@/lib/driver/types";
 import { loadDriverFlowState, saveDriverFlowState } from "./storage";
 import "./move.css";
 
@@ -222,19 +223,54 @@ export function DriverApp() {
   const [ready, setReady] = useState(false);
   const [zoneIdx, setZoneIdx] = useState(0);
   const [vehicleIdx, setVehicleIdx] = useState(0);
-  const [openShifts, setOpenShifts] = useState(INITIAL_SHIFTS);
+  const [openShifts, setOpenShifts] = useState<Shift[]>([]);
   const [claimedIds, setClaimedIds] = useState<Set<string>>(new Set());
-  const [myShifts, setMyShifts] = useState(CLAIMED_SHIFTS);
-  const [clockedIn, setClockedIn] = useState(false);
+  const [myShifts, setMyShifts] = useState<Shift[]>([]);
+  const [activeSession, setActiveSession] = useState<ShiftSession | null>(null);
+  const [wallet, setWallet] = useState({ available: 0, pending: 0, lifetime: 0, cashoutFee: 1.99, weekEarnings: 0 });
+  const [ledger, setLedger] = useState<WalletEntry[]>([]);
+  const [compliance, setCompliance] = useState<ComplianceDoc[]>([]);
   const [cashoutOpen, setCashoutOpen] = useState(false);
   const [cashoutDone, setCashoutDone] = useState(false);
   const [filterZone, setFilterZone] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const zone = ZONE_OPTIONS[zoneIdx];
   const vehicle = VEHICLE_OPTIONS[vehicleIdx];
-  const weekEarnings = 720;
-  const verifiedDocs = COMPLIANCE_DOCS.filter((d) => d.status === "verified").length;
-  const compliancePct = Math.round((verifiedDocs / COMPLIANCE_DOCS.length) * 100);
+  const weekEarnings = wallet.weekEarnings;
+  const verifiedDocs = compliance.filter((d) => d.status === "verified").length;
+  const compliancePct = compliance.length ? Math.round((verifiedDocs / compliance.length) * 100) : 0;
+  const clockedIn = activeSession?.status === "active";
+  const todayShift = activeSession?.shift ?? myShifts[0] ?? null;
+  const waypoints = activeSession?.waypoints ?? WAYPOINTS;
+
+  const loadWorkspace = useCallback(async (zoneFilter?: string | null) => {
+    try {
+      setLoadError(null);
+      const data = await fetchDriverWorkspace(zoneFilter ?? filterZone ?? zone.label);
+      setOpenShifts(data.openShifts);
+      setMyShifts(data.myShifts);
+      setActiveSession(data.activeSession);
+      setWallet(data.wallet);
+      setLedger(data.ledger);
+      setCompliance(data.compliance);
+      const zIdx = ZONE_OPTIONS.findIndex((z) => z.label === data.profile.zone);
+      const vIdx = VEHICLE_OPTIONS.findIndex((v) => v.key === data.profile.vehicleType);
+      if (zIdx >= 0) setZoneIdx(zIdx);
+      if (vIdx >= 0) setVehicleIdx(vIdx);
+      if (!filterZone) setFilterZone(data.profile.zone);
+      if (data.profile.onboardingCompleted) {
+        saveDriverFlowState({
+          zone: data.profile.zone,
+          vehicle: VEHICLE_OPTIONS[vIdx >= 0 ? vIdx : 0]?.label ?? vehicle.label,
+          completed: true,
+        });
+      }
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Unable to load shifts.");
+    }
+  }, [filterZone, vehicle.label, zone.label]);
 
   useEffect(() => {
     if (ready) return;
@@ -258,6 +294,11 @@ export function DriverApp() {
   }, [ready, pathname, router]);
 
   useEffect(() => {
+    if (!ready || FLOW_SCREENS.includes(screen)) return;
+    void loadWorkspace();
+  }, [ready, screen, filterZone, loadWorkspace]);
+
+  useEffect(() => {
     setScreen(screenFromPath(pathname));
   }, [pathname]);
 
@@ -269,19 +310,48 @@ export function DriverApp() {
   const completeOnboarding = () => {
     saveDriverFlowState({ zone: zone.label, vehicle: vehicle.label, completed: true });
     setFilterZone(zone.label);
+    void updateDriverProfile({
+      zone: zone.label,
+      vehicleType: vehicle.key,
+      onboardingCompleted: true,
+    }).catch(() => undefined);
     goTo("shifts");
   };
 
-  const handleClaim = (shift: Shift) => {
-    setClaimedIds((prev) => new Set(prev).add(shift.id));
-    setMyShifts((prev) => [{ ...shift, status: "claimed" }, ...prev]);
-    setOpenShifts((prev) => prev.filter((s) => s.id !== shift.id));
-    setTimeout(() => goTo("schedule"), 600);
+  const handleClaim = async (shift: Shift) => {
+    try {
+      setActionError(null);
+      await claimShift(shift.id);
+      setClaimedIds((prev) => new Set(prev).add(shift.id));
+      await loadWorkspace();
+      setTimeout(() => goTo("schedule"), 600);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Sign in to claim shifts.");
+    }
   };
 
-  const filteredShifts = filterZone
-    ? openShifts.filter((s) => s.zone === filterZone || filterZone === "All zones")
-    : openShifts.filter((s) => s.zone === zone.label);
+  const handleClockIn = async () => {
+    if (!activeSession) return;
+    try {
+      setActionError(null);
+      await clockInSession(activeSession.id);
+      await loadWorkspace();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Unable to clock in.");
+    }
+  };
+
+  const handleCashout = async () => {
+    try {
+      setActionError(null);
+      await cashOutWallet();
+      setCashoutDone(true);
+      await loadWorkspace();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Unable to cash out.");
+      setCashoutOpen(false);
+    }
+  };
 
   const isFlowScreen = FLOW_SCREENS.includes(screen);
   const showNav = !isFlowScreen;
@@ -525,7 +595,7 @@ export function DriverApp() {
               <div style={{ textAlign: "center", padding: "40px 20px", borderRadius: 18, border: "1px dashed #d8d2c6", color: MUTE, fontSize: 14 }}>No open shifts in this zone. Try another or check back soon.</div>
             ) : (
               list.map((shift) => (
-                <ShiftCard key={shift.id} shift={shift} onClaim={() => handleClaim(shift)} claimed={claimedIds.has(shift.id)} />
+                <ShiftCard key={shift.id} shift={shift} onClaim={() => void handleClaim(shift)} claimed={claimedIds.has(shift.id)} />
               ))
             )}
           </div>
@@ -541,6 +611,7 @@ export function DriverApp() {
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Schedule · live workspace</div>
           <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Your committed shifts</h2>
 
+          {todayShift ? (
           <div style={{ marginTop: 22, background: clockedIn ? "#eef6ec" : "#fff", border: `2px solid ${clockedIn ? "#2f7d4f" : PRIMARY}`, borderRadius: 22, padding: 20, boxShadow: clockedIn ? "0 0 0 4px rgba(47,125,79,.1)" : "0 4px 18px rgba(224,81,31,.1)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
               <div style={{ width: 8, height: 8, borderRadius: 999, background: clockedIn ? "#2f7d4f" : PRIMARY }} />
@@ -548,27 +619,27 @@ export function DriverApp() {
                 {clockedIn ? "Live shift" : "Today's shift"}
               </span>
             </div>
-            <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-.02em" }}>{formatPayout(ACTIVE_SHIFT)}</div>
-            <p style={{ fontSize: 14, color: "#5f655c", margin: "6px 0 0" }}>{ACTIVE_SHIFT.pickup} · {ACTIVE_SHIFT.startTime} – {ACTIVE_SHIFT.endTime}</p>
+            <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-.02em" }}>{formatPayout(todayShift)}</div>
+            <p style={{ fontSize: 14, color: "#5f655c", margin: "6px 0 0" }}>{todayShift.pickup} · {todayShift.startTime} – {todayShift.endTime}</p>
 
             {!clockedIn ? (
-              <button onClick={() => setClockedIn(true)} style={{ width: "100%", marginTop: 16, padding: 17, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <button onClick={() => void handleClockIn()} style={{ width: "100%", marginTop: 16, padding: 17, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 <MapPin size={16} /> Clock in at warehouse
               </button>
             ) : (
               <>
                 <div style={{ marginTop: 20 }}>
                   <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: MUTE, marginBottom: 12 }}>Route waypoints</div>
-                  {WAYPOINTS.map((wp, i) => (
-                    <div key={wp.id} style={{ display: "flex", gap: 12, marginBottom: i < WAYPOINTS.length - 1 ? 0 : 0 }}>
+                  {waypoints.map((wp, i) => (
+                    <div key={wp.id} style={{ display: "flex", gap: 12, marginBottom: i < waypoints.length - 1 ? 0 : 0 }}>
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 20 }}>
                         <div style={{ width: 10, height: 10, borderRadius: 999, background: wp.done ? "#2f7d4f" : "#e4dfd5" }} />
-                        {i < WAYPOINTS.length - 1 && <div style={{ width: 2, flex: 1, minHeight: 28, background: wp.done ? "#cfe6cf" : "#e4dfd5" }} />}
+                        {i < waypoints.length - 1 && <div style={{ width: 2, flex: 1, minHeight: 28, background: wp.done ? "#cfe6cf" : "#e4dfd5" }} />}
                       </div>
                       <div style={{ paddingBottom: 16, flex: 1 }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: wp.done ? MUTE : INK, textDecoration: wp.done ? "line-through" : "none" }}>{wp.label}</div>
                         <div style={{ fontSize: 12, color: MUTE }}>{wp.address}</div>
-                        {!wp.done && i === WAYPOINTS.findIndex((w) => !w.done) && (
+                        {!wp.done && i === waypoints.findIndex((w) => !w.done) && (
                           <button type="button" style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 8, border: "1px solid #e4dfd5", background: "#fff", fontSize: 12, fontWeight: 600, color: PRIMARY, cursor: "pointer" }}>
                             <Navigation size={12} /> Navigate
                           </button>
@@ -587,6 +658,11 @@ export function DriverApp() {
               </>
             )}
           </div>
+          ) : (
+            <div style={{ marginTop: 22, padding: "24px 20px", borderRadius: 18, border: "1px dashed #d8d2c6", textAlign: "center", color: MUTE, fontSize: 14 }}>
+              No active shift. Claim one from the Shifts tab.
+            </div>
+          )}
 
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, margin: "28px 0 12px" }}>Upcoming this week</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -614,9 +690,9 @@ export function DriverApp() {
 
           <div className="move-metric-grid" style={{ marginTop: 22 }}>
             {[
-              { label: "Available", value: WALLET.available, dark: true },
-              { label: "Pending", value: WALLET.pending, dark: false },
-              { label: "Lifetime", value: WALLET.lifetime, dark: false },
+              { label: "Available", value: wallet.available, dark: true },
+              { label: "Pending", value: wallet.pending, dark: false },
+              { label: "Lifetime", value: wallet.lifetime, dark: false },
             ].map((b) => (
               <div key={b.label} style={{ padding: "18px 18px", borderRadius: 18, background: b.dark ? INK : "#fff", border: b.dark ? "none" : "1px solid #e4dfd5", color: b.dark ? "#fff" : INK, boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
                 <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: b.dark ? "#f3aa79" : MUTE }}>{b.label}</div>
@@ -626,12 +702,12 @@ export function DriverApp() {
           </div>
 
           <button onClick={() => setCashoutOpen(true)} style={{ width: "100%", marginTop: 20, padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-            <Zap size={16} /> Instant cashout — ${WALLET.available} available
+            <Zap size={16} /> Instant cashout — ${wallet.available} available
           </button>
 
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, margin: "28px 0 12px" }}>Transaction history</div>
           <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, overflow: "hidden" }}>
-            {LEDGER.map((entry, i) => (
+            {ledger.map((entry, i) => (
               <div key={entry.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 18px", borderTop: i > 0 ? "1px solid #efe9dd" : "none" }}>
                 <div>
                   <div style={{ fontSize: 14.5, fontWeight: 600 }}>{entry.label}</div>
@@ -667,13 +743,13 @@ export function DriverApp() {
               <div style={{ fontSize: 13, color: "#5f655c", marginTop: 2 }}>Verified</div>
             </div>
             <div style={{ padding: "18px 18px", borderRadius: 18, background: "#fdf6e8", border: "1px solid #f3e0c4" }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: "#b9781f" }}>{COMPLIANCE_DOCS.length - verifiedDocs}</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: "#b9781f" }}>{compliance.length - verifiedDocs}</div>
               <div style={{ fontSize: 13, color: "#5f655c", marginTop: 2 }}>Action needed</div>
             </div>
           </div>
 
           <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 10 }}>
-            {COMPLIANCE_DOCS.map((doc) => {
+            {compliance.map((doc) => {
               const colors = docStatusColor(doc.status);
               return (
                 <div key={doc.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", borderRadius: 18, background: "#fff", border: "1px solid #e4dfd5", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
@@ -689,7 +765,7 @@ export function DriverApp() {
             })}
           </div>
 
-          <button type="button" style={{ marginTop: 20, width: "100%", padding: 17, borderRadius: 18, border: `2px dashed ${PRIMARY}`, background: "#fbeae0", color: "#9c3f15", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <button type="button" onClick={() => void uploadComplianceDoc("hazmat").then(() => loadWorkspace())} style={{ marginTop: 20, width: "100%", padding: 17, borderRadius: 18, border: `2px dashed ${PRIMARY}`, background: "#fbeae0", color: "#9c3f15", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
             <Camera size={16} /> Upload document
           </button>
 
@@ -721,20 +797,20 @@ export function DriverApp() {
         {cashoutDone ? (
           <div style={{ textAlign: "center", padding: "8px 0 4px" }}>
             <div style={{ width: 56, height: 56, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 26, margin: "0 auto", boxShadow: "0 8px 22px rgba(224,81,31,.34)" }}>✓</div>
-            <h3 style={{ fontSize: 20, fontWeight: 800, margin: "16px 0 0" }}>${WALLET.available} on the way</h3>
+            <h3 style={{ fontSize: 20, fontWeight: 800, margin: "16px 0 0" }}>${wallet.available} on the way</h3>
             <p style={{ fontSize: 14, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.55 }}>Arrives in your bank within minutes.</p>
             <button onClick={() => { setCashoutOpen(false); setCashoutDone(false); }} style={{ width: "100%", marginTop: 20, padding: 15, border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>Done</button>
           </div>
         ) : (
           <>
             <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Instant cashout</div>
-            <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-.01em", margin: "8px 0 0" }}>Transfer ${WALLET.available} to your card</h3>
-            <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>Micro-fee of ${WALLET.cashoutFee} — arrives in minutes.</p>
+            <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-.01em", margin: "8px 0 0" }}>Transfer ${wallet.available} to your card</h3>
+            <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>Micro-fee of ${wallet.cashoutFee} — arrives in minutes.</p>
             <div style={{ marginTop: 18, padding: 16, borderRadius: 16, background: "#fbeae0", border: "1px solid #f3d6c4", display: "flex", justifyContent: "space-between" }}>
               <span style={{ fontSize: 14, fontWeight: 600 }}>You receive</span>
-              <span style={{ fontSize: 18, fontWeight: 800, color: PRIMARY }}>${(WALLET.available - WALLET.cashoutFee).toFixed(2)}</span>
+              <span style={{ fontSize: 18, fontWeight: 800, color: PRIMARY }}>${(wallet.available - wallet.cashoutFee).toFixed(2)}</span>
             </div>
-            <button onClick={() => setCashoutDone(true)} style={{ width: "100%", marginTop: 16, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <button onClick={() => void handleCashout()} style={{ width: "100%", marginTop: 16, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
               <Zap size={16} /> Cash out now
             </button>
           </>
@@ -759,13 +835,18 @@ export function DriverApp() {
       modeName={showNav ? "Driver" : undefined}
       movePct={compliancePct}
       moveDone={verifiedDocs}
-      moveTotal={COMPLIANCE_DOCS.length}
+      moveTotal={compliance.length || 6}
       meterLabel="Vault status"
-      meterSub={`${verifiedDocs} of ${COMPLIANCE_DOCS.length} docs verified`}
+      meterSub={`${verifiedDocs} of ${compliance.length || 6} docs verified`}
       isFlowScreen={isFlowScreen}
       modals={modals}
     >
       {screenBody()}
+      {(actionError || loadError) && !isFlowScreen && (
+        <div style={{ position: "fixed", bottom: 88, left: 16, right: 16, zIndex: 40, padding: "12px 16px", borderRadius: 14, background: "#fbeae0", border: "1px solid #f3d6c4", color: "#9c3f15", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,.12)" }}>
+          {actionError ?? loadError}
+        </div>
+      )}
     </MoveAppShell>
   );
 }
