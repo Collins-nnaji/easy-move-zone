@@ -279,7 +279,7 @@ export function DriverApp() {
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Unable to load shifts.");
     }
-  }, [filterZone, vehicle.label, zone.label]);
+  }, [filterZone, filterCargo, vehicle.label, zone.label]);
 
   useEffect(() => {
     if (ready) return;
@@ -305,7 +305,7 @@ export function DriverApp() {
   useEffect(() => {
     if (!ready || FLOW_SCREENS.includes(screen)) return;
     void loadWorkspace();
-  }, [ready, screen, filterZone, loadWorkspace]);
+  }, [ready, screen, filterZone, filterCargo, loadWorkspace]);
 
   useEffect(() => {
     setScreen(screenFromPath(pathname));
