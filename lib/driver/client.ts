@@ -6,9 +6,19 @@ async function parseJson<T>(res: Response): Promise<T> {
   return data;
 }
 
-export async function fetchDriverWorkspace(zone?: string): Promise<DriverWorkspace> {
-  const qs = zone ? `?zone=${encodeURIComponent(zone)}` : "";
-  return parseJson<DriverWorkspace>(await fetch(`/api/driver/workspace${qs}`, { cache: "no-store" }));
+export async function fetchDriverWorkspace(filters?: {
+  zone?: string;
+  cargo?: string;
+  vehicle?: string;
+}): Promise<DriverWorkspace> {
+  const qs = new URLSearchParams();
+  if (filters?.zone) qs.set("zone", filters.zone);
+  if (filters?.cargo) qs.set("cargo", filters.cargo);
+  if (filters?.vehicle) qs.set("vehicle", filters.vehicle);
+  const query = qs.toString();
+  return parseJson<DriverWorkspace>(
+    await fetch(`/api/driver/workspace${query ? `?${query}` : ""}`, { cache: "no-store" }),
+  );
 }
 
 export async function updateDriverProfile(body: Partial<DriverProfile>): Promise<DriverProfile> {
@@ -46,6 +56,20 @@ export async function uploadComplianceDoc(docKey: string): Promise<void> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ docKey }),
+    }),
+  );
+}
+
+export async function completeDriverShift(shiftId: string): Promise<void> {
+  await parseJson(await fetch(`/api/driver/shifts/${shiftId}/complete`, { method: "POST" }));
+}
+
+export async function rateOperator(shiftId: string, stars: number, comment?: string): Promise<void> {
+  await parseJson(
+    await fetch("/api/driver/ratings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ shiftId, stars, comment }),
     }),
   );
 }

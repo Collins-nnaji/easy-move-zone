@@ -17,10 +17,13 @@ import {
 import { SiteLogo } from "@/components/brand/SiteLogo";
 import { MoveAppShell } from "./MoveAppShell";
 import {
+  CARGO_OPTIONS,
+  CARGO_TAGS,
   VEHICLE_OPTIONS,
   VEHICLE_TAGS,
   WAYPOINTS,
   ZONE_OPTIONS,
+  formatRating,
 } from "./driver-data";
 import {
   cashOutWallet,
@@ -234,6 +237,7 @@ export function DriverApp() {
   const [cashoutOpen, setCashoutOpen] = useState(false);
   const [cashoutDone, setCashoutDone] = useState(false);
   const [filterZone, setFilterZone] = useState<string | null>(null);
+  const [filterCargo, setFilterCargo] = useState("all");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -249,7 +253,11 @@ export function DriverApp() {
   const loadWorkspace = useCallback(async (zoneFilter?: string | null) => {
     try {
       setLoadError(null);
-      const data = await fetchDriverWorkspace(zoneFilter ?? filterZone ?? zone.label);
+      const data = await fetchDriverWorkspace({
+        zone: zoneFilter ?? filterZone ?? zone.label,
+        cargo: filterCargo,
+        vehicle: vehicle.key,
+      });
       setOpenShifts(data.openShifts);
       setMyShifts(data.myShifts);
       setActiveSession(data.activeSession);
@@ -377,7 +385,7 @@ export function DriverApp() {
               <span style={{ color: PRIMARY }}>Get paid today.</span>
             </h1>
             <p style={{ fontSize: 16.5, lineHeight: 1.5, color: "#5f655c", margin: "22px 0 0", maxWidth: 320 }}>
-              Browse commercial driving routes in your zone, run them with live GPS tracking, and cash out instantly — no weekly payroll wait.
+              Browse marketplace loads from fleet operators — parcel to tankers. Claim routes, run them with live GPS, and cash out instantly.
             </p>
           </div>
           <div style={{ marginTop: 44, display: "flex", alignItems: "center", gap: 14 }}>
@@ -525,11 +533,13 @@ export function DriverApp() {
 
   function ShiftCard({ shift, onClaim, claimed }: { shift: Shift; onClaim?: () => void; claimed?: boolean }) {
     const tag = VEHICLE_TAGS[shift.vehicle];
+    const cargoTag = CARGO_TAGS[shift.cargo];
     return (
       <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 22, overflow: "hidden", boxShadow: "0 4px 18px rgba(0,0,0,.05)" }}>
         <div style={{ padding: "18px 20px 16px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
             <div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: INK, marginBottom: 4 }}>{shift.title}</div>
               <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-.02em", color: INK }}>{formatPayout(shift)}</div>
               <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".1em", color: MUTE, marginTop: 4 }}>{shift.date} · {shift.hours}h · {shift.distanceMi} mi</div>
             </div>
@@ -541,8 +551,15 @@ export function DriverApp() {
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
             <span style={{ background: tag.bg, color: tag.color, borderRadius: 999, padding: "6px 11px", fontSize: 12, fontWeight: 600, fontFamily: MONO }}>{tag.label}</span>
+            <span style={{ background: cargoTag.bg, color: cargoTag.color, borderRadius: 999, padding: "6px 11px", fontSize: 12, fontWeight: 600, fontFamily: MONO }}>{cargoTag.label}</span>
             <span style={{ background: "#f0ede4", borderRadius: 999, padding: "6px 11px", fontSize: 12, color: "#4a5047", fontWeight: 600, fontFamily: MONO }}>{shift.stops} stops</span>
           </div>
+          {shift.operator && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: 13, color: "#5f655c" }}>
+              <span style={{ fontWeight: 600, color: INK }}>{shift.operator.name}</span>
+              <span style={{ color: "#b9781f", fontWeight: 700 }}>{formatRating(shift.operator.ratingAvg, shift.operator.ratingCount)}</span>
+            </div>
+          )}
           <p style={{ fontSize: 14, lineHeight: 1.5, color: "#5f655c", margin: "13px 0 0" }}>{shift.pickup}</p>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
             <Clock size={14} color={MUTE} />
@@ -580,6 +597,18 @@ export function DriverApp() {
           </div>
 
           <div style={{ marginTop: 16, display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+            {["all", ...CARGO_OPTIONS.map((c) => c.key)].map((c) => (
+              <div
+                key={c}
+                onClick={() => setFilterCargo(c)}
+                style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, cursor: "pointer", background: filterCargo === c ? INK : "#fff", color: filterCargo === c ? "#fff" : "#4a5047", border: `1px solid ${filterCargo === c ? INK : "#e4dfd5"}`, fontSize: 13, fontWeight: 600, transition: "all .15s" }}
+              >
+                {c === "all" ? "All cargo" : CARGO_TAGS[c as keyof typeof CARGO_TAGS].label}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 12, display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
             {["All zones", ...ZONE_OPTIONS.map((z) => z.label)].map((z) => (
               <div
                 key={z}
@@ -771,8 +800,9 @@ export function DriverApp() {
           </button>
 
           <div style={{ marginTop: 22, background: INK, borderRadius: 20, padding: 22, color: "#fff" }}>
-            <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "#f3aa79" }}>Fleet managers</div>
-            <p style={{ fontSize: 14.5, color: "rgba(255,255,255,.7)", margin: "10px 0 0", lineHeight: 1.5 }}>Post shifts with vehicle type, hours, and pay. Verified drivers see the payout instantly.</p>
+            <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "#f3aa79" }}>Fleet operators</div>
+            <p style={{ fontSize: 14.5, color: "rgba(255,255,255,.7)", margin: "10px 0 0", lineHeight: 1.5 }}>Post loads, find rated drivers, and manage workload from the fleet console.</p>
+            <a href="/fleet" style={{ display: "inline-block", marginTop: 14, padding: "10px 16px", borderRadius: 12, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>Open fleet console →</a>
           </div>
         </div>
       </div>

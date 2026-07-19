@@ -1,9 +1,9 @@
 export const BRAND = {
   name: "EasyMoveZone",
   shortName: "EasyMoveZone",
-  tagline: "Commercial driving shifts, instant pay",
+  tagline: "Logistics marketplace for drivers and fleet operators",
   description:
-    "Claim local commercial driving shifts, track your route live, cash out instantly, and keep compliance docs verified — built for drivers and fleet managers.",
+    "Commission-based marketplace connecting independent truck drivers, owner-operators, and fleet operators — from parcel to tankers. Post loads, find rated drivers, claim shifts, and get paid instantly.",
   logo: "/emz.png",
   logoAlt: "EasyMoveZone",
   themeColor: "#e0511f",

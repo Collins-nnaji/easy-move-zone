@@ -6,9 +6,9 @@ import {
   ArrowRight,
   ArrowUpRight,
   Briefcase,
-  Calendar,
   Check,
   Shield,
+  Star,
   Truck,
   Wallet,
   Zap,
@@ -21,39 +21,39 @@ const pages = [
   {
     icon: Truck,
     label: "01",
-    title: "Shift Board",
-    body: "Browse commercial driving shifts in your zone. See payout, vehicle type, route, and hours — then slide to claim instantly.",
+    title: "Marketplace Loads",
+    body: "Browse loads from fleet operators — parcel, heavy goods, tankers, reefers, and more. See payout, cargo type, vehicle, and operator ratings.",
   },
   {
-    icon: Calendar,
+    icon: Star,
     label: "02",
-    title: "Live Schedule",
-    body: "Clock in with GPS verification, follow turn-by-turn waypoints, and collect a digital manager sign-off when the shift ends.",
+    title: "Rated Network",
+    body: "Every driver, truck owner, and fleet operator has ratings. Find reliable partners with transparent reviews after every completed load.",
   },
   {
     icon: Wallet,
     label: "03",
-    title: "Instant Wallet",
-    body: "See available balance, pending payouts, and lifetime earnings. Cash out to your card in seconds for a micro-fee.",
+    title: "Instant Pay",
+    body: "Drivers cash out shift earnings instantly. Fleet operators pay an 8% commission only when a load completes — no upfront fees.",
   },
   {
     icon: Shield,
     label: "04",
     title: "Compliance Vault",
-    body: "Upload and track CDL, background checks, medical certs, and insurance. Stay verified so fleet managers hire you first.",
+    body: "CDL, hazmat, medical certs, and insurance verified in one place. Stay compliant to unlock premium tanker and heavy-goods routes.",
   },
 ] as const
 
 const steps = [
-  { step: "01", label: "Claim a shift", sub: "Browse open routes in your zone and lock one in with a slide." },
-  { step: "02", label: "Run the route", sub: "Clock in at the warehouse, follow waypoints, and sign off at the end." },
-  { step: "03", label: "Get paid instantly", sub: "Cash out earnings to your card — no waiting for weekly payroll." },
+  { step: "01", label: "Post or claim a load", sub: "Fleet operators post routes. Drivers and owner-operators slide to claim." },
+  { step: "02", label: "Run the route", sub: "GPS clock-in, waypoints, and digital sign-off on every run." },
+  { step: "03", label: "Rate & get paid", sub: "Complete the load, rate each other, and cash out the same day." },
 ] as const
 
 const heroPoints = [
-  "Shifts — commercial routes with clear daily or hourly pay, posted in real time",
-  "Live tracking — GPS clock-in, waypoints, and digital sign-off on every run",
-  "Instant pay — cash out shift earnings to your card the same day",
+  "Marketplace — parcel to tankers, heavy goods to last-mile, all cargo types",
+  "Rated network — drivers, truck owners, and fleet operators with transparent reviews",
+  "Commission-based — 8% platform fee on completed loads, instant driver payouts",
 ] as const
 
 const easeOut = [0.16, 1, 0.3, 1] as const
@@ -90,7 +90,7 @@ export function HomePageClient() {
                 className="inline-flex items-center gap-2 rounded-full border border-[#e0511f]/20 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#bf5223] backdrop-blur"
               >
                 <Truck className="h-3.5 w-3.5" />
-                Commercial driving, simplified
+                Logistics marketplace
               </motion.div>
 
               <motion.h1
@@ -98,15 +98,15 @@ export function HomePageClient() {
                 className="mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl lg:text-[4.4rem]"
                 style={{ textWrap: "balance" } as React.CSSProperties}
               >
-                Claim shifts.
+                Find drivers.
                 <span className="block" style={{ color: PRIMARY }}>
-                  Get paid today.
+                  Fill every load.
                 </span>
               </motion.h1>
 
               <motion.p {...fadeUp(0.12, 18)} className="mt-6 max-w-xl text-lg leading-relaxed text-[#5f655c]">
-                EasyMoveZone connects commercial drivers to local logistics shifts — browse routes,
-                run them with live tracking, and cash out instantly. No agency middlemen, no weekly wait.
+                EasyMoveZone is a commission-based marketplace for independent truck drivers,
+                owner-operators, and fleet operators — from small goods to tankers and heavy freight.
               </motion.p>
 
               <motion.div {...fadeUp(0.18, 18)} className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -116,15 +116,15 @@ export function HomePageClient() {
                   style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
                 >
                   <Zap className="h-4.5 w-4.5" />
-                  Browse open shifts
+                  I&apos;m a driver
                 </Link>
-                <a
-                  href="#how-it-works"
+                <Link
+                  href="/fleet"
                   className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white/70 px-7 py-4 text-base font-semibold text-[#4a5047] backdrop-blur transition hover:bg-white"
                 >
-                  How it works
+                  Fleet console
                   <ArrowRight className="h-4 w-4" />
-                </a>
+                </Link>
               </motion.div>
 
               <motion.ul {...fadeUp(0.24, 16)} className="mt-9 flex flex-col gap-2.5">
@@ -145,13 +145,13 @@ export function HomePageClient() {
             <motion.div {...fadeUp(0.2, 24)} className="lg:col-span-5">
               <div className="rounded-3xl border border-[#e4dfd5] bg-white/80 p-7 shadow-xl shadow-black/[0.06] backdrop-blur">
                 <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: PRIMARY }}>
-                  Live shift preview
+                  Live marketplace preview
                 </div>
                 <div className="mt-5 space-y-3">
                   {[
-                    { pay: "$180/day", vehicle: "Sprinter Van", route: "DFW North · 12 stops", hot: true },
-                    { pay: "$25/hr", vehicle: "Box Truck", route: "Houston Inner · 8 drops", hot: false },
-                    { pay: "$165/day", vehicle: "Client Fleet", route: "DFW East · Linehaul", hot: true },
+                    { pay: "$320/day", vehicle: "Semi · Heavy Goods", route: "DFW → OKC linehaul", hot: true, rating: "4.8 ★" },
+                    { pay: "$45/hr", vehicle: "Tanker · Hazmat", route: "Houston Port · 3 stops", hot: true, rating: "4.6 ★" },
+                    { pay: "$180/day", vehicle: "Sprinter · Parcel", route: "DFW North · 12 stops", hot: false, rating: "4.9 ★" },
                   ].map((s) => (
                     <div
                       key={s.pay}
@@ -166,7 +166,10 @@ export function HomePageClient() {
                         )}
                       </div>
                       <div className="mt-1 text-xs font-semibold text-[#5f655c]">{s.vehicle}</div>
-                      <div className="text-xs text-[#8a8f86]">{s.route}</div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-[#8a8f86]">{s.route}</div>
+                        <div className="text-xs font-bold text-[#b9781f]">{s.rating}</div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -183,14 +186,14 @@ export function HomePageClient() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div {...fadeUp()} className="max-w-2xl">
             <span className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: PRIMARY }}>
-              The 4-page app
+              Two sides, one platform
             </span>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Everything a driver needs. Nothing they don&apos;t.
+              Everything logistics needs. Nothing it doesn&apos;t.
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-[#5f655c]">
-              Four focused screens — shifts, schedule, wallet, and compliance — so drivers spend
-              less time navigating and more time earning.
+              Drivers claim loads and get paid instantly. Fleet operators post routes, find rated
+              drivers and truck owners, and manage workload from a dedicated console.
             </p>
           </motion.div>
 
@@ -227,23 +230,31 @@ export function HomePageClient() {
             <motion.div {...fadeUp()}>
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#f3aa79]">How it works</span>
               <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-                From open shift
+                From open load
                 <br />
-                <span className="text-white/50">to cash in hand.</span>
+                <span className="text-white/50">to rated completion.</span>
               </h2>
               <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/60">
-                Claim a route, run it with live GPS tracking, and cash out the same day.
-                Your compliance docs stay verified so you never miss a premium shift.
+                Fleet operators post loads with cargo type and pay. Drivers and owner-operators
+                claim, run the route, and rate each other. Commission is charged only on completion.
               </p>
-              <Link
-                href="/move"
-                className="mt-8 inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:opacity-90"
-                style={{ background: PRIMARY, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}
-              >
-                <Truck className="h-4 w-4" />
-                Open the driver app
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/move"
+                  className="inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:opacity-90"
+                  style={{ background: PRIMARY, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}
+                >
+                  <Truck className="h-4 w-4" />
+                  Driver app
+                </Link>
+                <Link
+                  href="/fleet"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-white/20 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10"
+                >
+                  <Briefcase className="h-4 w-4" />
+                  Fleet console
+                </Link>
+              </div>
             </motion.div>
 
             <div className="flex flex-col gap-4">
@@ -277,29 +288,30 @@ export function HomePageClient() {
         <motion.div {...fadeUp()} className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#e0511f]/20 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#bf5223]">
             <Briefcase className="h-3.5 w-3.5" />
-            Fleet managers
+            Fleet operators
           </div>
           <h2 className="mt-6 text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Post shifts. Fill routes. Same platform.
+            Post loads. Find great rates. Manage workload.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-[#5f655c]">
-            Logistics companies use the same database to post shifts with vehicle type, hours, and pay.
-            Verified drivers see the payout instantly and claim with one slide.
+            The fleet console lets you post parcel, heavy goods, tanker, and refrigerated loads.
+            Browse rated independent drivers and truck owners, track active workload, and pay
+            commission only when loads complete.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href="/move"
+              href="/fleet"
               className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
               style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
             >
-              I&apos;m a driver
+              Open fleet console
               <ArrowUpRight className="h-4.5 w-4.5" />
             </Link>
             <Link
-              href="/contact"
+              href="/move"
               className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white px-7 py-4 text-base font-semibold text-[#4a5047] transition hover:border-[#e0511f]/30"
             >
-              Post shifts as a fleet
+              I&apos;m a driver
             </Link>
           </div>
         </motion.div>

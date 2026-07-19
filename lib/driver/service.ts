@@ -4,12 +4,9 @@ import {
   DEFAULT_WAYPOINTS,
   driverSql,
 } from "./db";
-import { mapComplianceRow, mapShiftRow, mapTxnRow, parseWaypoints, type ShiftRow } from "./mappers";
+import { mapComplianceRow, mapShiftRow, mapTxnRow, parseWaypoints, SHIFT_SELECT, type ShiftRow } from "./mappers";
+import { completeShift as completeShiftCore, submitRating } from "@/lib/fleet/service";
 import type { DriverProfile, DriverWorkspace, ShiftSession, VehicleType } from "./types";
-
-const SHIFT_COLUMNS = `id, payout_cents, payout_type, vehicle_type, vehicle_label,
-  pickup, dropoff, start_time, end_time, hours, zone, distance_mi, stops,
-  demand, shift_date, status`;
 
 export async function ensureDriverProfile(authUserId: string): Promise<DriverProfile> {
   if (!driverSql) throw new Error("Database not configured.");
@@ -33,14 +30,27 @@ export async function ensureDriverProfile(authUserId: string): Promise<DriverPro
   }
 
   const rows = (await driverSql.query(
-    `select zone, vehicle_type, onboarding_completed from driver_profiles where auth_user_id = $1`,
+    `select zone, vehicle_type, owner_type, display_name, rating_avg, rating_count, onboarding_completed
+     from driver_profiles where auth_user_id = $1`,
     [authUserId],
-  )) as Array<{ zone: string; vehicle_type: VehicleType; onboarding_completed: boolean }>;
+  )) as Array<{
+    zone: string;
+    vehicle_type: VehicleType;
+    owner_type: "driver" | "owner";
+    display_name: string | null;
+    rating_avg: string | number;
+    rating_count: number;
+    onboarding_completed: boolean;
+  }>;
 
   const row = rows[0];
   return {
     zone: row?.zone ?? "DFW North",
     vehicleType: row?.vehicle_type ?? "sprinter",
+    ownerType: row?.owner_type ?? "driver",
+    displayName: row?.display_name ?? null,
+    ratingAvg: Number(row?.rating_avg ?? 0),
+    ratingCount: row?.rating_count ?? 0,
     onboardingCompleted: row?.onboarding_completed ?? false,
   };
 }
@@ -55,28 +65,41 @@ export async function updateDriverProfile(
   const current = await ensureDriverProfile(authUserId);
   const zone = patch.zone ?? current.zone;
   const vehicleType = patch.vehicleType ?? current.vehicleType;
+  const ownerType = patch.ownerType ?? current.ownerType;
+  const displayName = patch.displayName ?? current.displayName;
   const onboardingCompleted = patch.onboardingCompleted ?? current.onboardingCompleted;
 
   await driverSql.query(
     `update driver_profiles
-     set zone = $2, vehicle_type = $3, onboarding_completed = $4, updated_at = now()
+     set zone = $2, vehicle_type = $3, owner_type = $4, display_name = $5,
+         onboarding_completed = $6, updated_at = now()
      where auth_user_id = $1`,
-    [authUserId, zone, vehicleType, onboardingCompleted],
+    [authUserId, zone, vehicleType, ownerType, displayName, onboardingCompleted],
   );
 
-  return { zone, vehicleType, onboardingCompleted };
+  return { ...current, zone, vehicleType, ownerType, displayName, onboardingCompleted };
 }
 
-export async function getOpenShifts(zone?: string | null) {
+export async function getOpenShifts(zone?: string | null, cargo?: string | null, vehicle?: string | null) {
   if (!driverSql) return [];
   const params: string[] = [];
-  let where = `status = 'open'`;
+  const clauses = [`sh.status = 'open'`];
+
   if (zone && zone !== "All zones") {
     params.push(zone);
-    where += ` and zone = $${params.length}`;
+    clauses.push(`sh.zone = $${params.length}`);
   }
+  if (cargo && cargo !== "all") {
+    params.push(cargo);
+    clauses.push(`sh.cargo_category = $${params.length}`);
+  }
+  if (vehicle && vehicle !== "all") {
+    params.push(vehicle);
+    clauses.push(`sh.vehicle_type = $${params.length}`);
+  }
+
   const rows = (await driverSql.query(
-    `select ${SHIFT_COLUMNS} from driver_shifts where ${where} order by created_at desc`,
+    `select ${SHIFT_SELECT} where ${clauses.join(" and ")} order by sh.created_at desc`,
     params,
   )) as ShiftRow[];
   return rows.map(mapShiftRow);
@@ -85,9 +108,9 @@ export async function getOpenShifts(zone?: string | null) {
 export async function getMyShifts(authUserId: string) {
   if (!driverSql) return [];
   const rows = (await driverSql.query(
-    `select ${SHIFT_COLUMNS} from driver_shifts
-     where claimed_by = $1 and status in ('claimed', 'active', 'completed')
-     order by claimed_at desc nulls last`,
+    `select ${SHIFT_SELECT}
+     where sh.claimed_by = $1 and sh.status in ('claimed', 'active', 'completed')
+     order by sh.claimed_at desc nulls last`,
     [authUserId],
   )) as ShiftRow[];
   return rows.map(mapShiftRow);
@@ -96,66 +119,32 @@ export async function getMyShifts(authUserId: string) {
 export async function getActiveSession(authUserId: string): Promise<ShiftSession | null> {
   if (!driverSql) return null;
   const rows = (await driverSql.query(
-    `select s.id, s.shift_id, s.status, s.clocked_in_at, s.waypoints,
-            sh.id as sid, sh.payout_cents, sh.payout_type, sh.vehicle_type, sh.vehicle_label,
-            sh.pickup, sh.dropoff, sh.start_time, sh.end_time, sh.hours, sh.zone,
-            sh.distance_mi, sh.stops, sh.demand, sh.shift_date, sh.status as shift_status
-     from driver_shift_sessions s
-     join driver_shifts sh on sh.id = s.shift_id
+    `select s.id as session_id, s.shift_id, s.status as session_status, s.clocked_in_at, s.waypoints,
+            ${SHIFT_SELECT}
+     join driver_shift_sessions s on s.shift_id = sh.id
      where s.auth_user_id = $1 and s.status in ('scheduled', 'active')
      order by s.created_at desc
      limit 1`,
     [authUserId],
-  )) as Array<{
-    id: string;
-    shift_id: string;
-    status: "scheduled" | "active" | "completed";
-    clocked_in_at: string | null;
-    waypoints: unknown;
-    sid: string;
-    payout_cents: number;
-    payout_type: "day" | "hour";
-    vehicle_type: VehicleType;
-    vehicle_label: string;
-    pickup: string;
-    dropoff: string;
-    start_time: string;
-    end_time: string;
-    hours: string | number;
-    zone: string;
-    distance_mi: number;
-    stops: number;
-    demand: "high" | "normal";
-    shift_date: string;
-    shift_status: string;
-  }>;
+  )) as Array<
+    ShiftRow & {
+      session_id: string;
+      shift_id: string;
+      session_status: "scheduled" | "active" | "completed";
+      clocked_in_at: string | null;
+      waypoints: unknown;
+    }
+  >;
 
   const row = rows[0];
   if (!row) return null;
 
-  const shift = mapShiftRow({
-    id: row.sid,
-    payout_cents: row.payout_cents,
-    payout_type: row.payout_type,
-    vehicle_type: row.vehicle_type,
-    vehicle_label: row.vehicle_label,
-    pickup: row.pickup,
-    dropoff: row.dropoff,
-    start_time: row.start_time,
-    end_time: row.end_time,
-    hours: row.hours,
-    zone: row.zone,
-    distance_mi: row.distance_mi,
-    stops: row.stops,
-    demand: row.demand,
-    shift_date: row.shift_date,
-    status: row.shift_status,
-  });
+  const shift = mapShiftRow(row);
 
   return {
-    id: row.id,
+    id: row.session_id,
     shiftId: row.shift_id,
-    status: row.status,
+    status: row.session_status,
     clockedInAt: row.clocked_in_at,
     waypoints: parseWaypoints(row.waypoints).length ? parseWaypoints(row.waypoints) : DEFAULT_WAYPOINTS,
     shift,
@@ -231,15 +220,22 @@ export async function getCompliance(authUserId: string) {
   return rows.map(mapComplianceRow);
 }
 
-export async function buildWorkspace(authUserId: string | null, zoneFilter?: string | null): Promise<DriverWorkspace> {
+export async function buildWorkspace(
+  authUserId: string | null,
+  filters?: { zone?: string | null; cargo?: string | null; vehicle?: string | null },
+): Promise<DriverWorkspace> {
   const defaultProfile: DriverProfile = {
-    zone: zoneFilter ?? "DFW North",
+    zone: filters?.zone ?? "DFW North",
     vehicleType: "sprinter",
+    ownerType: "driver",
+    displayName: null,
+    ratingAvg: 0,
+    ratingCount: 0,
     onboardingCompleted: false,
   };
 
   if (!authUserId || !driverSql) {
-    const openShifts = await getOpenShifts(zoneFilter);
+    const openShifts = await getOpenShifts(filters?.zone, filters?.cargo, filters?.vehicle);
     return {
       profile: defaultProfile,
       openShifts,
@@ -259,10 +255,10 @@ export async function buildWorkspace(authUserId: string | null, zoneFilter?: str
   }
 
   const profile = await ensureDriverProfile(authUserId);
-  const filterZone = zoneFilter ?? profile.zone;
+  const filterZone = filters?.zone ?? profile.zone;
 
   const [openShifts, myShifts, activeSession, wallet, ledger, compliance] = await Promise.all([
-    getOpenShifts(filterZone),
+    getOpenShifts(filterZone, filters?.cargo, filters?.vehicle),
     getMyShifts(authUserId),
     getActiveSession(authUserId),
     getWallet(authUserId),
@@ -312,6 +308,14 @@ export async function clockInSession(authUserId: string, sessionId: string) {
     `update driver_shifts set status = 'active', updated_at = now() where id = $1`,
     [rows[0].shift_id],
   );
+}
+
+export async function completeDriverShift(authUserId: string, shiftId: string) {
+  return completeShiftCore(authUserId, shiftId, "driver");
+}
+
+export async function rateOperator(authUserId: string, shiftId: string, stars: number, comment?: string) {
+  return submitRating(authUserId, { shiftId, stars, comment }, "driver");
 }
 
 export async function cashOut(authUserId: string) {

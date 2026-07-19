@@ -1,5 +1,5 @@
 import { neonAuth } from "@neondatabase/auth/next/server";
-import { buildWorkspace } from "@/lib/driver/service";
+import { buildFleetWorkspace } from "@/lib/fleet/service";
 
 export const runtime = "nodejs";
 
@@ -9,13 +9,12 @@ export async function GET(request: Request) {
     const authUserId = user ? String(user.id) : null;
     const { searchParams } = new URL(request.url);
     const zone = searchParams.get("zone");
-    const cargo = searchParams.get("cargo");
-    const vehicle = searchParams.get("vehicle");
+    const vehicleType = searchParams.get("vehicleType");
 
-    const workspace = await buildWorkspace(authUserId, { zone, cargo, vehicle });
+    const workspace = await buildFleetWorkspace(authUserId, { zone, vehicleType });
     return Response.json(workspace);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unable to load workspace.";
+    const message = err instanceof Error ? err.message : "Unable to load fleet workspace.";
     return Response.json({ error: message }, { status: 500 });
   }
 }

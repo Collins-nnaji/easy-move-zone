@@ -18,8 +18,10 @@ const steps = [
   "db/add-contact-submissions.sql",
   "db/migrations/20260310_agent_flag_and_admin.sql",
   "db/migrations/20260720_driver_platform.sql",
+  "db/migrations/20260721_marketplace.sql",
   "db/migrations/20260720_drop_relocation_product.sql",
   "db/seeds/20260720_driver_shifts_seed.sql",
+  "db/seeds/20260721_marketplace_seed.sql",
   "db/cleanup-unneeded-tables.sql",
 ];
 
@@ -45,7 +47,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("EasyMoveZone — Driver platform DB setup\n");
+  console.log("EasyMoveZone — Marketplace platform DB setup\n");
 
   for (const step of steps) {
     console.log(`→ ${step}`);
@@ -54,9 +56,10 @@ async function main() {
 
   console.log("\nDone. Smoke test checklist:");
   console.log("  1. npm run dev");
-  console.log("  2. Open /move/shifts — browse seeded shifts");
-  console.log("  3. Sign up at /auth, claim a shift, clock in");
-  console.log("  4. GET /api/driver/workspace");
+  console.log("  2. Open /move/shifts — browse marketplace loads");
+  console.log("  3. Open /fleet — fleet operator console");
+  console.log("  4. Sign up at /auth, claim a shift, clock in");
+  console.log("  5. GET /api/driver/workspace and /api/fleet/workspace");
 }
 
 main().catch((err) => {
