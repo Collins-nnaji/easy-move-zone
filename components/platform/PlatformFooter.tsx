@@ -4,15 +4,15 @@ import { Mail, ArrowUpRight } from "lucide-react"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 
 const services = [
-  { href: "/move",         label: "Plan your move", badge: "Move" },
-  { href: "/move",         label: "Book a trip",    badge: null   },
-  { href: "/move",         label: "Find a stay",    badge: null   },
-  { href: "/move",         label: "Sort your visa", badge: "Visa" },
+  { href: "/move",         label: "Browse shifts",  badge: "Live" },
+  { href: "/move/schedule", label: "My schedule",   badge: null   },
+  { href: "/move/wallet",   label: "Instant wallet", badge: null   },
+  { href: "/move/vault",    label: "Compliance vault", badge: null },
 ]
 
 const explore = [
-  { href: "/move", label: "The Move app" },
-  { href: "/contact", label: "Contact" },
+  { href: "/move", label: "Driver app" },
+  { href: "/contact", label: "Fleet managers" },
 ]
 
 const company = [
@@ -44,8 +44,8 @@ export function PlatformFooter() {
               />
             </div>
             <p className="mt-3 text-[13px] leading-relaxed text-slate-400 max-w-xs">
-              Movement, accommodation, and visa in one app — book how you get there, where you stay, and how
-              you get in. Two weeks or forever.
+              Commercial driving shifts with instant pay. Claim routes, run them with live tracking,
+              and cash out the same day.
             </p>
             <a
               href={`mailto:${PUBLIC_CONTACT_EMAIL}`}
@@ -55,7 +55,7 @@ export function PlatformFooter() {
               {PUBLIC_CONTACT_EMAIL}
             </a>
             <p className="mt-2 text-xs text-slate-600">
-              Questions about a move, a visa or a booking? Use the{" "}
+              Questions about shifts, payouts, or fleet posting? Use the{" "}
               <Link href="/contact" className="font-semibold text-orange-200/80 underline decoration-orange-500/30 underline-offset-2 hover:text-white">
                 contact form
               </Link>.
@@ -66,7 +66,7 @@ export function PlatformFooter() {
               href="/move"
               className="mt-6 inline-flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2.5 text-sm font-bold text-orange-300 hover:bg-orange-500/20 hover:text-white transition-all"
             >
-              Start your move
+              Browse open shifts
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
@@ -121,7 +121,7 @@ export function PlatformFooter() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-white/[0.06] pt-6 text-center sm:flex-row sm:text-left">
           <p className="text-[11px] text-[#64748b]">&copy; {new Date().getFullYear()} EasyMoveZone. Nigeria &middot; Lagos &middot; Abuja &middot; Port Harcourt</p>
-          <p className="text-[11px] text-[#64748b]">TRIPS &middot; STAYS &middot; VISAS &middot; MOVE</p>
+          <p className="text-[11px] text-[#64748b]">SHIFTS &middot; SCHEDULE &middot; WALLET &middot; VAULT</p>
         </div>
       </div>
     </footer>

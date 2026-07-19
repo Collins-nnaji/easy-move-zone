@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import {
   LogOut,
   Menu,
-  MapPin,
+  Truck,
   Mail,
   UserRound,
   User,
@@ -14,12 +14,9 @@ import {
 import { useEffect, useRef, useState } from "react"
 import { authClient } from "@/lib/auth/client"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
-import { loadFlowState } from "@/app/move/storage"
 
-// Secondary "guide" destinations — demoted out of the top bar into the menu so the
-// header stays minimal and the app's bottom tabs remain the primary navigation.
 const guideLinks = [
-  { href: "/move", label: "Open the app", icon: MapPin },
+  { href: "/move", label: "Open the app", icon: Truck },
   { href: "/contact", label: "Contact", icon: Mail },
 ] as const
 
@@ -27,12 +24,7 @@ export function PlatformNav() {
   const pathname = usePathname()
   const { data: sessionData, isPending: sessionPending, refetch: refetchSession } = authClient.useSession()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [resumable, setResumable] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    setResumable(!!loadFlowState()?.completed)
-  }, [])
 
   useEffect(() => {
     const timeout = setTimeout(() => { void refetchSession() }, 120)
@@ -113,8 +105,8 @@ export function PlatformNav() {
               href="/move"
               className="hidden items-center gap-1.5 rounded-full bg-[#e0511f] px-4 py-2 text-[13px] font-bold text-white shadow-sm transition hover:opacity-90 sm:inline-flex"
             >
-              <MapPin className="h-3.5 w-3.5" />
-              {resumable ? "Continue your relocation" : "Start your relocation"}
+              <Truck className="h-3.5 w-3.5" />
+              Browse shifts
             </Link>
           )}
 

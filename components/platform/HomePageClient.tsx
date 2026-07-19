@@ -1,74 +1,66 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
 import { motion, useReducedMotion } from "framer-motion"
 import {
   ArrowRight,
   ArrowUpRight,
-  Sparkles,
-  MapPin,
+  Briefcase,
+  Calendar,
   Check,
+  Shield,
+  Truck,
+  Wallet,
+  Zap,
 } from "lucide-react"
-import { loadFlowState } from "@/app/move/storage"
 
-// Brand palette shared with the in-app Move flow.
 const PRIMARY = "#e0511f"
 const INK = "#1b231e"
 
-const pillars = [
+const pages = [
   {
-    icon: Sparkles,
+    icon: Truck,
     label: "01",
-    title: "AI Eligibility & Visa Advisor",
-    body: "Tell us why you're moving — work, school, or a visa route on its own — and our AI scores what you qualify for, flags risk, and explains the path in plain language, the way a case worker would.",
+    title: "Shift Board",
+    body: "Browse commercial driving shifts in your zone. See payout, vehicle type, route, and hours — then slide to claim instantly.",
   },
   {
-    icon: MapPin,
+    icon: Calendar,
     label: "02",
-    title: "Work & School Pathways",
-    body: "Visa-sponsoring jobs and school admissions matched to your destination and profile, with the paperwork and timelines that route actually requires.",
+    title: "Live Schedule",
+    body: "Clock in with GPS verification, follow turn-by-turn waypoints, and collect a digital manager sign-off when the shift ends.",
   },
   {
-    icon: Check,
+    icon: Wallet,
     label: "03",
-    title: "Settle-In Concierge",
-    body: "A tailored document checklist and a settling-in guide for your city — housing, banking, healthcare, and the local know-how that gets you from landed to living.",
+    title: "Instant Wallet",
+    body: "See available balance, pending payouts, and lifetime earnings. Cash out to your card in seconds for a micro-fee.",
   },
-] as const
-
-const spectrum = [
-  { label: "Work", sub: "Sponsored roles & work visas", mode: "Work Track" },
-  { label: "School", sub: "Admissions & student visas", mode: "Study Track" },
-  { label: "Remote", sub: "Digital nomad routes", mode: "Nomad Track" },
-  { label: "Relocate", sub: "Settle for good", mode: "Move Track" },
+  {
+    icon: Shield,
+    label: "04",
+    title: "Compliance Vault",
+    body: "Upload and track CDL, background checks, medical certs, and insurance. Stay verified so fleet managers hire you first.",
+  },
 ] as const
 
 const steps = [
-  { step: "01", label: "Tell us why you're moving", sub: "Work, school, or a visa route — and where you're headed." },
-  { step: "02", label: "Get your AI eligibility read", sub: "Honest odds, ranked routes, and a checklist built for your case." },
-  { step: "03", label: "Settle in with a plan", sub: "Track your documents, jobs, schools, and settling-in guide in one workspace." },
+  { step: "01", label: "Claim a shift", sub: "Browse open routes in your zone and lock one in with a slide." },
+  { step: "02", label: "Run the route", sub: "Clock in at the warehouse, follow waypoints, and sign off at the end." },
+  { step: "03", label: "Get paid instantly", sub: "Cash out earnings to your card — no waiting for weekly payroll." },
 ] as const
 
 const heroPoints = [
-  "Eligibility — the work and study visas you actually qualify for, ranked in minutes",
-  "Pathways — visa-sponsoring jobs and school admissions matched to your route",
-  "Settle in — a destination guide and checklist that gets you from landed to living",
+  "Shifts — commercial routes with clear daily or hourly pay, posted in real time",
+  "Live tracking — GPS clock-in, waypoints, and digital sign-off on every run",
+  "Instant pay — cash out shift earnings to your card the same day",
 ] as const
 
 const easeOut = [0.16, 1, 0.3, 1] as const
 
 export function HomePageClient() {
   const reduceMotion = useReducedMotion()
-  // Returning users who've already been through the questionnaire get a
-  // "continue" CTA instead of being pushed through it again.
-  const [resumable, setResumable] = useState(false)
-  useEffect(() => {
-    const timeout = window.setTimeout(() => {
-      setResumable(!!loadFlowState()?.completed)
-    }, 0)
-    return () => window.clearTimeout(timeout)
-  }, [])
+
   const fadeUp = (delay = 0, y = 18) =>
     reduceMotion
       ? {}
@@ -81,7 +73,6 @@ export function HomePageClient() {
 
   return (
     <div style={{ background: "#efece4", color: INK }} className="overflow-hidden">
-      {/* Hero — photo-free, gradient + typography only */}
       <section className="relative">
         <div
           aria-hidden
@@ -98,8 +89,8 @@ export function HomePageClient() {
                 {...fadeUp(0, 12)}
                 className="inline-flex items-center gap-2 rounded-full border border-[#e0511f]/20 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#bf5223] backdrop-blur"
               >
-                <Sparkles className="h-3.5 w-3.5" />
-                AI relocation guidance, in your pocket
+                <Truck className="h-3.5 w-3.5" />
+                Commercial driving, simplified
               </motion.div>
 
               <motion.h1
@@ -107,16 +98,15 @@ export function HomePageClient() {
                 className="mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl lg:text-[4.4rem]"
                 style={{ textWrap: "balance" } as React.CSSProperties}
               >
-                Relocate for work or school,
+                Claim shifts.
                 <span className="block" style={{ color: PRIMARY }}>
-                  settle in with confidence.
+                  Get paid today.
                 </span>
               </motion.h1>
 
               <motion.p {...fadeUp(0.12, 18)} className="mt-6 max-w-xl text-lg leading-relaxed text-[#5f655c]">
-                See the work and study visas you qualify for, get matched to sponsoring jobs and
-                schools, and follow a tailored checklist — expert-level guidance,
-                without the consultant fees.
+                EasyMoveZone connects commercial drivers to local logistics shifts — browse routes,
+                run them with live tracking, and cash out instantly. No agency middlemen, no weekly wait.
               </motion.p>
 
               <motion.div {...fadeUp(0.18, 18)} className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -125,8 +115,8 @@ export function HomePageClient() {
                   className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
                   style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
                 >
-                  <MapPin className="h-4.5 w-4.5" />
-                  {resumable ? "Continue your relocation" : "Start your relocation"}
+                  <Zap className="h-4.5 w-4.5" />
+                  Browse open shifts
                 </Link>
                 <a
                   href="#how-it-works"
@@ -152,31 +142,36 @@ export function HomePageClient() {
               </motion.ul>
             </div>
 
-            {/* Right: spectrum preview card (no imagery) */}
             <motion.div {...fadeUp(0.2, 24)} className="lg:col-span-5">
               <div className="rounded-3xl border border-[#e4dfd5] bg-white/80 p-7 shadow-xl shadow-black/[0.06] backdrop-blur">
                 <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: PRIMARY }}>
-                  Pick your route
+                  Live shift preview
                 </div>
-                <p className="mt-3 text-[15px] leading-relaxed text-[#5f655c]">
-                  Tell us why you&apos;re moving. Everything — visa route, jobs, schools, checklist —
-                  adapts from there.
-                </p>
-                <div className="mt-6 space-y-2.5">
-                  {spectrum.map((s) => (
+                <div className="mt-5 space-y-3">
+                  {[
+                    { pay: "$180/day", vehicle: "Sprinter Van", route: "DFW North · 12 stops", hot: true },
+                    { pay: "$25/hr", vehicle: "Box Truck", route: "Houston Inner · 8 drops", hot: false },
+                    { pay: "$165/day", vehicle: "Client Fleet", route: "DFW East · Linehaul", hot: true },
+                  ].map((s) => (
                     <div
-                      key={s.label}
-                      className="flex items-center justify-between rounded-2xl border border-[#ece6da] bg-[#faf8f3] px-4 py-3"
+                      key={s.pay}
+                      className="rounded-2xl border border-[#ece6da] bg-[#faf8f3] px-4 py-3.5"
                     >
-                      <div>
-                        <div className="text-[15px] font-bold">{s.label}</div>
-                        <div className="text-xs text-[#8a8f86]">{s.sub}</div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-lg font-extrabold">{s.pay}</div>
+                        {s.hot && (
+                          <span className="rounded-full bg-[#fbeae0] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#9c3f15]">
+                            Hot
+                          </span>
+                        )}
                       </div>
-                      <span className="rounded-full bg-[#fbeae0] px-3 py-1 font-mono text-[11px] font-semibold text-[#9c3f15]">
-                        {s.mode}
-                      </span>
+                      <div className="mt-1 text-xs font-semibold text-[#5f655c]">{s.vehicle}</div>
+                      <div className="text-xs text-[#8a8f86]">{s.route}</div>
                     </div>
                   ))}
+                </div>
+                <div className="mt-5 rounded-2xl bg-[#1b231e] px-4 py-3 text-center text-sm font-bold text-white">
+                  Slide to claim →
                 </div>
               </div>
             </motion.div>
@@ -184,25 +179,23 @@ export function HomePageClient() {
         </div>
       </section>
 
-      {/* Product cores */}
       <section className="relative border-t border-[#e4dfd5] bg-[#f6f3ec] py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div {...fadeUp()} className="max-w-2xl">
             <span className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: PRIMARY }}>
-              How it works
+              The 4-page app
             </span>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Three connected AI tools, built as an app.
+              Everything a driver needs. Nothing they don&apos;t.
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-[#5f655c]">
-              EasyMoveZone replaces the relocation consultant with three connected AI tools: one that scores your
-              eligibility and explains the route, one that matches you to the work and school opportunities that
-              support it, and one that helps you settle in once you land.
+              Four focused screens — shifts, schedule, wallet, and compliance — so drivers spend
+              less time navigating and more time earning.
             </p>
           </motion.div>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {pillars.map((p, i) => {
+          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {pages.map((p, i) => {
               const Icon = p.icon
               return (
                 <motion.div
@@ -228,28 +221,27 @@ export function HomePageClient() {
         </div>
       </section>
 
-      {/* How it works */}
       <section id="how-it-works" className="scroll-mt-20 py-20" style={{ background: INK }}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <motion.div {...fadeUp()}>
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#f3aa79]">How it works</span>
               <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-                From first idea
+                From open shift
                 <br />
-                <span className="text-white/50">to landed.</span>
+                <span className="text-white/50">to cash in hand.</span>
               </h2>
               <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/60">
-                Tell us why you&apos;re moving — work, school, or a visa route on its own. We score your
-                eligibility, match you to opportunities, and build the checklist that gets you settled.
+                Claim a route, run it with live GPS tracking, and cash out the same day.
+                Your compliance docs stay verified so you never miss a premium shift.
               </p>
               <Link
                 href="/move"
                 className="mt-8 inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:opacity-90"
                 style={{ background: PRIMARY, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}
               >
-                <MapPin className="h-4 w-4" />
-                {resumable ? "Continue in the app" : "Open the app"}
+                <Truck className="h-4 w-4" />
+                Open the driver app
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </motion.div>
@@ -273,7 +265,6 @@ export function HomePageClient() {
         </div>
       </section>
 
-      {/* Closing CTA */}
       <section className="relative overflow-hidden py-20" style={{ background: "#f6f3ec" }}>
         <div
           aria-hidden
@@ -284,12 +275,16 @@ export function HomePageClient() {
           }}
         />
         <motion.div {...fadeUp()} className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Work visa, school admission, settling in — handled.
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#e0511f]/20 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#bf5223]">
+            <Briefcase className="h-3.5 w-3.5" />
+            Fleet managers
+          </div>
+          <h2 className="mt-6 text-3xl font-extrabold tracking-tight sm:text-4xl">
+            Post shifts. Fill routes. Same platform.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-[#5f655c]">
-            One app for every stage of the move — eligibility, opportunities, and the
-            settling-in guide, wherever you&apos;re headed.
+            Logistics companies use the same database to post shifts with vehicle type, hours, and pay.
+            Verified drivers see the payout instantly and claim with one slide.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
@@ -297,14 +292,14 @@ export function HomePageClient() {
               className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
               style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
             >
-              {resumable ? "Continue your relocation" : "Start your relocation"}
+              I&apos;m a driver
               <ArrowUpRight className="h-4.5 w-4.5" />
             </Link>
             <Link
               href="/contact"
               className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white px-7 py-4 text-base font-semibold text-[#4a5047] transition hover:border-[#e0511f]/30"
             >
-              Talk to us
+              Post shifts as a fleet
             </Link>
           </div>
         </motion.div>

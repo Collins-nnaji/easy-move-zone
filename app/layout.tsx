@@ -34,24 +34,24 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Relocate and settle in, with AI guidance in your pocket",
+  title: "EasyMoveZone — Commercial driving shifts, instant pay",
   description:
-    "Moving abroad for work, school, or a visa? EasyMoveZone scores your eligibility, builds document checklists, and guides you through settling in for destinations worldwide — without the consultant fees.",
+    "Claim local commercial driving shifts, track your route live, cash out instantly, and keep compliance docs verified — built for drivers and fleet managers.",
   metadataBase: process.env.NEXT_PUBLIC_APP_URL
     ? new URL(process.env.NEXT_PUBLIC_APP_URL)
     : undefined,
   openGraph: {
     type: "website",
     siteName: "EasyMoveZone",
-    title: "EasyMoveZone — Relocation & settlement, powered by AI",
+    title: "EasyMoveZone — Commercial driving shifts, instant pay",
     description:
-      "Work visas, school admissions, and settling in — sorted by AI tools built for movers, students, and remote workers.",
+      "Browse shifts, run routes with live tracking, and cash out the same day. Built for commercial drivers and fleet managers.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "EasyMoveZone — Relocation & settlement, powered by AI",
+    title: "EasyMoveZone — Commercial driving shifts, instant pay",
     description:
-      "Work visas, school admissions, and settling in — sorted by AI tools built for movers, students, and remote workers.",
+      "Browse shifts, run routes with live tracking, and cash out the same day. Built for commercial drivers and fleet managers.",
   },
   icons: {
     icon: "/emz.png",

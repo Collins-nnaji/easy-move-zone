@@ -3,9 +3,9 @@ import { PublicShell } from "@/components/platform/PublicShell"
 import { HomePageClient } from "@/components/platform/HomePageClient"
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — AI-powered relocation guidance",
+  title: "EasyMoveZone — Commercial driving shifts for drivers",
   description:
-    "Relocating for work, school, or a visa? See what you qualify for, get a tailored document checklist, and settle in with AI guidance built for your destination — no consultant required.",
+    "Claim local commercial driving shifts, track routes live, cash out instantly, and keep your compliance docs verified — built for drivers and fleet managers.",
 }
 
 export default async function HomePage() {

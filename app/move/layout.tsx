@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Hanken_Grotesk, IBM_Plex_Mono } from "next/font/google";
-import { EasyMoveZoneApp } from "./EasyMoveZoneApp";
+import { DriverApp } from "./DriverApp";
 
 // The design's type pairing: Hanken Grotesk (UI/display) + IBM Plex Mono
 // (tags, stats, wordmark). Exposed as CSS variables the app references.
@@ -19,20 +19,17 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Your move, made easy.",
+  title: "EasyMoveZone — Commercial driving shifts",
   description:
-    "See the visas you qualify for and your exact document checklist in minutes — no consultant. Then sort movement and accommodation, adapting to how long you're staying.",
+    "Claim local commercial driving shifts, track your route live, cash out instantly, and keep your compliance docs verified — all in one driver app.",
 };
 
-// Every /move/* route (see EasyMoveZoneApp's screenFromPath/buildMovePath)
-// renders through this single client component, which reads the URL itself
-// to decide what to show. The per-route page.tsx files below exist only to
-// register real, bookmarkable URLs with Next.js's router — they render
-// nothing themselves.
+// Every /move/* route renders through this single client component.
+// Per-route page.tsx files register bookmarkable URLs with Next.js.
 export default function MoveLayout() {
   return (
     <div style={{ display: "contents" }} className={`${hanken.variable} ${plexMono.variable}`}>
-      <EasyMoveZoneApp />
+      <DriverApp />
     </div>
   );
 }

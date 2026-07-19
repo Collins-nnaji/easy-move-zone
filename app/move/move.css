@@ -1,4 +1,8 @@
-/* Move app — responsive web layout (mobile unchanged, desktop expands) */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 
 .move-root {
   position: relative;
