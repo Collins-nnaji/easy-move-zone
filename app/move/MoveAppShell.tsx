@@ -1,5 +1,7 @@
 "use client";
 
+import { SiteLogo } from "@/components/brand/SiteLogo";
+
 type Tab = { label: string; go: string; screens?: string[] };
 
 type MoveAppShellProps = {
@@ -44,7 +46,9 @@ export function MoveAppShell({
       <div className="move-shell">
         {showNav && (
           <aside className="move-sidebar">
-            <div className="move-sidebar__brand">EasyMoveZone</div>
+            <div className="move-sidebar__brand">
+              <SiteLogo href="/move/shifts" height={28} />
+            </div>
 
             {destCity && (
               <div className="move-sidebar__context">

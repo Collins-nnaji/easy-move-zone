@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Hanken_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import { DriverApp } from "./DriverApp";
+import { BRAND } from "@/lib/brand";
 
 // The design's type pairing: Hanken Grotesk (UI/display) + IBM Plex Mono
 // (tags, stats, wordmark). Exposed as CSS variables the app references.
@@ -19,9 +20,14 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EasyMoveZone — Commercial driving shifts",
-  description:
-    "Claim local commercial driving shifts, track your route live, cash out instantly, and keep your compliance docs verified — all in one driver app.",
+  title: "Driver app",
+  description: BRAND.description,
+  applicationName: BRAND.shortName,
+  appleWebApp: {
+    capable: true,
+    title: BRAND.shortName,
+    statusBarStyle: "default",
+  },
 };
 
 // Every /move/* route renders through this single client component.

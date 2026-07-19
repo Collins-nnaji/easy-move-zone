@@ -303,12 +303,6 @@
   }
 
   .move-sidebar__brand {
-    font-family: var(--font-plex-mono), ui-monospace, monospace;
-    font-size: 11px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--move-primary);
-    font-weight: 500;
     padding: 0 12px;
   }
 

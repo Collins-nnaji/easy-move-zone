@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { usePathname } from "next/navigation"
 import {
   LogOut,
@@ -14,8 +13,8 @@ import {
 import { useEffect, useRef, useState } from "react"
 import { authClient } from "@/lib/auth/client"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
-
 import { loadDriverFlowState } from "@/app/move/storage"
+import { SiteLogo } from "@/components/brand/SiteLogo"
 
 const guideLinks = [
   { href: "/move", label: "Open the app", icon: Truck },
@@ -94,16 +93,7 @@ export function PlatformNav() {
       <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
 
         {/* Logo */}
-        <Link href="/" className="flex shrink-0 items-center transition hover:opacity-80">
-          <Image
-            src="/emz.png"
-            alt="EasyMoveZone"
-            width={52}
-            height={32}
-            className="h-8 w-auto object-contain"
-            priority
-          />
-        </Link>
+        <SiteLogo href="/" height={32} priority />
 
         {/* Right side: primary CTA + a single account/menu dropdown */}
         <div className="flex items-center gap-2">

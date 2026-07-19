@@ -2,12 +2,13 @@ import type { Metadata } from "next"
 import { Suspense } from "react"
 import { AuthInlineCard } from "@/components/platform/AuthInlineCard"
 import { PublicShell } from "@/components/platform/PublicShell"
-import { Home, Sparkles } from "lucide-react"
+import { SiteLogo } from "@/components/brand/SiteLogo"
+import { Sparkles } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Sign in — EasyMoveZone",
+  title: "Sign in",
   description:
-    "Create an account or sign in to save your move plan, sync your checklist, and manage trip, stay, and visa bookings.",
+    "Create an account or sign in to claim shifts, track your schedule, and cash out earnings.",
 }
 
 export default function AuthPage() {
@@ -21,15 +22,14 @@ export default function AuthPage() {
               <Sparkles className="h-3.5 w-3.5" />
               Secure access
             </span>
-            <div className="mx-auto mt-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#e0511f] to-[#0f4ec4] text-white shadow-lg shadow-[#e0511f]/30">
-              <Home className="h-8 w-8" strokeWidth={2.25} />
+            <div className="mx-auto mt-5 flex items-center justify-center">
+              <SiteLogo href={null} height={48} priority />
             </div>
-            <h1 className="mt-5 font-[var(--font-playfair)] text-4xl font-bold text-[#0f172a] sm:text-[2.5rem]">
-              Welcome to{" "}
-              <span className="bg-gradient-to-r from-[#e0511f] to-[#0f766e] bg-clip-text text-transparent">EasyMoveZone</span>
+            <h1 className="mt-5 font-[var(--font-bricolage)] text-3xl font-bold text-[#0f172a] sm:text-4xl">
+              Welcome back
             </h1>
             <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-[#475569]">
-              Sign in or create an account to save your move plan, track your checklist, and manage bookings.
+              Sign in or create an account to claim shifts, track your schedule, and cash out earnings.
             </p>
           </div>
           <Suspense

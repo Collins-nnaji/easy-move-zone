@@ -1,7 +1,7 @@
 import Link from "next/link"
-import Image from "next/image"
 import { Mail, ArrowUpRight } from "lucide-react"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
+import { SiteLogo } from "@/components/brand/SiteLogo"
 
 const services = [
   { href: "/move/shifts",         label: "Browse shifts",  badge: "Live" },
@@ -34,15 +34,7 @@ export function PlatformFooter() {
 
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-2.5">
-              <Image
-                src="/emz.png"
-                alt="EasyMoveZone Logo"
-                width={140}
-                height={36}
-                className="h-9 w-auto object-contain brightness-0 invert"
-              />
-            </div>
+            <SiteLogo href="/" height={36} invert />
             <p className="mt-3 text-[13px] leading-relaxed text-slate-400 max-w-xs">
               Commercial driving shifts with instant pay. Claim routes, run them with live tracking,
               and cash out the same day.

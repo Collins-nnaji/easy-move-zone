@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Bricolage_Grotesque } from "next/font/google";
 import { AppChrome } from "@/components/layout/AppChrome";
+import { BRAND } from "@/lib/brand";
+import { siteMetadata } from "@/lib/site-metadata";
 import "./globals.css";
 
 // App-like mobile behaviour: lock zoom (no pinch / no focus-zoom on inputs)
@@ -11,7 +13,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#f6f3ec",
+  themeColor: BRAND.backgroundColor,
   // When the on-screen keyboard opens, shrink the layout viewport so fixed
   // bars and bottom sheets reflow above it instead of being covered.
   interactiveWidget: "resizes-content",
@@ -33,32 +35,7 @@ const bricolage = Bricolage_Grotesque({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "EasyMoveZone — Commercial driving shifts, instant pay",
-  description:
-    "Claim local commercial driving shifts, track your route live, cash out instantly, and keep compliance docs verified — built for drivers and fleet managers.",
-  metadataBase: process.env.NEXT_PUBLIC_APP_URL
-    ? new URL(process.env.NEXT_PUBLIC_APP_URL)
-    : undefined,
-  openGraph: {
-    type: "website",
-    siteName: "EasyMoveZone",
-    title: "EasyMoveZone — Commercial driving shifts, instant pay",
-    description:
-      "Browse shifts, run routes with live tracking, and cash out the same day. Built for commercial drivers and fleet managers.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "EasyMoveZone — Commercial driving shifts, instant pay",
-    description:
-      "Browse shifts, run routes with live tracking, and cash out the same day. Built for commercial drivers and fleet managers.",
-  },
-  icons: {
-    icon: "/emz.png",
-    shortcut: "/emz.png",
-    apple: "/emz.png",
-  },
-};
+export const metadata: Metadata = siteMetadata;
 
 export default function RootLayout({
   children,

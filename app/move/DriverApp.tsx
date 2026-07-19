@@ -14,6 +14,7 @@ import {
   Shield,
   Zap,
 } from "lucide-react";
+import { SiteLogo } from "@/components/brand/SiteLogo";
 import { MoveAppShell } from "./MoveAppShell";
 import {
   VEHICLE_OPTIONS,
@@ -367,8 +368,8 @@ export function DriverApp() {
     return (
       <div className="move-flow-inner">
         <div className="move-flow-screen move-flow-screen--welcome">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".22em", textTransform: "uppercase", color: PRIMARY, fontWeight: 500 }}>
-            EasyMoveZone
+          <div style={{ marginTop: 0 }}>
+            <SiteLogo href="/" height={36} />
           </div>
           <div style={{ marginTop: 56 }}>
             <h1 style={{ fontSize: 40, lineHeight: 1.04, fontWeight: 800, letterSpacing: "-.02em", margin: 0, textWrap: "balance" } as CSSProperties}>
