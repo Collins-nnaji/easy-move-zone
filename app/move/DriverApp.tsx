@@ -26,13 +26,18 @@ import {
   formatRating,
 } from "./driver-data";
 import {
-  cashOutWallet,
   claimShift,
   clockInSession,
+  completeDriverShift,
   fetchDriverWorkspace,
   updateDriverProfile,
   uploadComplianceDoc,
 } from "@/lib/driver/client";
+import {
+  cashOutPayment,
+  fetchPaymentStatus,
+  startConnectOnboarding,
+} from "@/lib/payments/client";
 import type { ComplianceDoc, Shift, ShiftSession, WalletEntry } from "@/lib/driver/types";
 import { loadDriverFlowState, saveDriverFlowState } from "./storage";
 import "./move.css";
@@ -240,6 +245,9 @@ export function DriverApp() {
   const [filterCargo, setFilterCargo] = useState("all");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [payoutsEnabled, setPayoutsEnabled] = useState(false);
+  const [stripeConfigured, setStripeConfigured] = useState(false);
+  const [cashoutMessage, setCashoutMessage] = useState<string | null>(null);
 
   const zone = ZONE_OPTIONS[zoneIdx];
   const vehicle = VEHICLE_OPTIONS[vehicleIdx];
@@ -335,7 +343,12 @@ export function DriverApp() {
       await loadWorkspace();
       setTimeout(() => goTo("schedule"), 600);
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Sign in to claim shifts.");
+      const msg = err instanceof Error ? err.message : "Sign in to claim loads.";
+      if (/sign in|401|unauthorized/i.test(msg)) {
+        window.location.href = `/auth?redirect=${encodeURIComponent("/move/shifts")}`;
+        return;
+      }
+      setActionError(msg);
     }
   };
 
@@ -350,10 +363,23 @@ export function DriverApp() {
     }
   };
 
+  const handleCompleteShift = async () => {
+    if (!activeSession) return;
+    try {
+      setActionError(null);
+      await completeDriverShift(activeSession.shiftId);
+      await loadWorkspace();
+      goTo("wallet");
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Unable to complete load.");
+    }
+  };
+
   const handleCashout = async () => {
     try {
       setActionError(null);
-      await cashOutWallet();
+      const result = await cashOutPayment();
+      setCashoutMessage(result.message);
       setCashoutDone(true);
       await loadWorkspace();
     } catch (err) {
@@ -361,6 +387,26 @@ export function DriverApp() {
       setCashoutOpen(false);
     }
   };
+
+  const handleConnectPayouts = async () => {
+    try {
+      setActionError(null);
+      const { url } = await startConnectOnboarding();
+      window.location.href = url;
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Unable to start payout setup.");
+    }
+  };
+
+  useEffect(() => {
+    if (screen !== "wallet") return;
+    void fetchPaymentStatus()
+      .then((s) => {
+        setPayoutsEnabled(s.payoutsEnabled);
+        setStripeConfigured(s.configured);
+      })
+      .catch(() => undefined);
+  }, [screen]);
 
   const isFlowScreen = FLOW_SCREENS.includes(screen);
   const showNav = !isFlowScreen;
@@ -379,48 +425,46 @@ export function DriverApp() {
           <div style={{ marginTop: 0 }}>
             <SiteLogo href="/" height={36} />
           </div>
-          <div style={{ marginTop: 56 }}>
-            <h1 style={{ fontSize: 40, lineHeight: 1.04, fontWeight: 800, letterSpacing: "-.02em", margin: 0, textWrap: "balance" } as CSSProperties}>
-              Claim shifts.<br />
-              <span style={{ color: PRIMARY }}>Get paid today.</span>
+          <div style={{ marginTop: 48 }}>
+            <h1 style={{ fontSize: 36, lineHeight: 1.04, fontWeight: 800, letterSpacing: "-.02em", margin: 0, textWrap: "balance" } as CSSProperties}>
+              Logistics marketplace.<br />
+              <span style={{ color: PRIMARY }}>Pick your side.</span>
             </h1>
-            <p style={{ fontSize: 16.5, lineHeight: 1.5, color: "#5f655c", margin: "22px 0 0", maxWidth: 320 }}>
-              Browse marketplace loads from fleet operators — parcel to tankers. Claim routes, run them with live GPS, and cash out instantly.
+            <p style={{ fontSize: 16, lineHeight: 1.5, color: "#5f655c", margin: "18px 0 0", maxWidth: 340 }}>
+              Drivers and truck owners claim loads. Fleet operators post routes and find rated partners. Commission only on completion.
             </p>
           </div>
-          <div style={{ marginTop: 44, display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-              <div style={{ width: 13, height: 13, borderRadius: 999, background: INK }} />
-              <span style={{ fontFamily: MONO, fontSize: 10, color: MUTE, letterSpacing: ".1em" }}>YOU</span>
-            </div>
-            <div style={{ flex: 1, borderTop: "2px dashed #c3bdb0", marginBottom: 18 }} />
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-              <div style={{ width: 13, height: 13, borderRadius: 999, background: PRIMARY, boxShadow: "0 0 0 5px #fbe0d2" }} />
-              <span style={{ fontFamily: MONO, fontSize: 10, color: PRIMARY, letterSpacing: ".1em" }}>PAID</span>
-            </div>
+          <div style={{ marginTop: 36, display: "flex", flexDirection: "column", gap: 12 }}>
+            <button
+              onClick={() => goTo("setup")}
+              style={{ width: "100%", padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 26px rgba(224,81,31,.34)", textAlign: "left" }}
+            >
+              I&apos;m a driver / truck owner →
+            </button>
+            <a
+              href="/fleet"
+              style={{ width: "100%", padding: 18, border: "1px solid #e4dfd5", borderRadius: 18, background: "#fff", color: INK, fontFamily: HANKEN, fontSize: 16, fontWeight: 700, textDecoration: "none", display: "block" }}
+            >
+              I&apos;m a fleet operator →
+            </a>
+            <button
+              onClick={() => { saveDriverFlowState({ zone: zone.label, vehicle: vehicle.label, completed: true }); goTo("shifts"); }}
+              style={{ width: "100%", padding: 14, border: "none", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+            >
+              Browse open loads without signing up
+            </button>
           </div>
-          <div style={{ flex: 1 }} />
-          <button
-            onClick={() => goTo("setup")}
-            style={{ width: "100%", padding: 19, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 17, fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}
-          >
-            Get started
-          </button>
-          <button
-            onClick={() => { saveDriverFlowState({ zone: zone.label, vehicle: vehicle.label, completed: true }); goTo("shifts"); }}
-            style={{ width: "100%", padding: 15, marginTop: 10, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}
-          >
-            Skip — browse all shifts →
-          </button>
-          <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "14px 0 0" }}>Takes about a minute · no account needed</p>
+          <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "14px 0 0" }}>
+            Claiming, cashout, and posting require an account · <a href="/auth?redirect=/move/shifts" style={{ color: PRIMARY, fontWeight: 600 }}>Sign in</a>
+          </p>
         </div>
         <FlowAside
-          title="Shifts. Schedule. Wallet."
-          text="Three problems, one app. Find open routes, run them with live tracking, and cash out the same day."
+          title="One marketplace. Two apps."
+          text="Drivers earn on loads. Fleet operators fill routes with rated independent drivers and owner-operators."
           steps={[
-            { n: 1, text: "Shifts — commercial routes with clear daily or hourly pay" },
-            { n: 2, text: "Schedule — GPS clock-in, waypoints, and digital sign-off" },
-            { n: 3, text: "Wallet — instant cashout to your card after every run" },
+            { n: 1, text: "Browse loads by cargo — parcel to tankers" },
+            { n: 2, text: "Claim, run, complete — ratings both ways" },
+            { n: 3, text: "Cash out via Stripe Connect to your bank" },
           ]}
         />
       </div>
@@ -684,6 +728,9 @@ export function DriverApp() {
                     <span style={{ fontSize: 13, fontWeight: 600 }}>Manager sign-off</span>
                   </div>
                   <SignaturePad />
+                  <button onClick={() => void handleCompleteShift()} style={{ width: "100%", marginTop: 14, padding: 15, border: "none", borderRadius: 14, background: "#2f7d4f", color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
+                    Complete load &amp; get paid
+                  </button>
                 </div>
               </>
             )}
@@ -734,6 +781,22 @@ export function DriverApp() {
           <button onClick={() => setCashoutOpen(true)} style={{ width: "100%", marginTop: 20, padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
             <Zap size={16} /> Instant cashout — ${wallet.available} available
           </button>
+
+          {stripeConfigured && !payoutsEnabled && (
+            <button onClick={() => void handleConnectPayouts()} style={{ width: "100%", marginTop: 10, padding: 16, borderRadius: 18, border: "1px solid #e4dfd5", background: "#fff", color: INK, fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+              Connect bank account for payouts →
+            </button>
+          )}
+          {!stripeConfigured && (
+            <div style={{ marginTop: 12, padding: "12px 14px", borderRadius: 14, background: "#fdf6e8", border: "1px solid #f3e0c4", fontSize: 13, color: "#9a6318", lineHeight: 1.45 }}>
+              Stripe is not configured yet — cashouts stay on the ledger until you add Stripe keys (see SETUP.md).
+            </div>
+          )}
+          {payoutsEnabled && (
+            <div style={{ marginTop: 12, padding: "12px 14px", borderRadius: 14, background: "#eef6ec", border: "1px solid #cfe6cf", fontSize: 13, color: "#2f7d4f", fontWeight: 600 }}>
+              Payout account connected — cashouts go to your bank.
+            </div>
+          )}
 
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, margin: "28px 0 12px" }}>Transaction history</div>
           <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 18, overflow: "hidden" }}>
@@ -828,9 +891,9 @@ export function DriverApp() {
         {cashoutDone ? (
           <div style={{ textAlign: "center", padding: "8px 0 4px" }}>
             <div style={{ width: 56, height: 56, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 26, margin: "0 auto", boxShadow: "0 8px 22px rgba(224,81,31,.34)" }}>✓</div>
-            <h3 style={{ fontSize: 20, fontWeight: 800, margin: "16px 0 0" }}>${wallet.available} on the way</h3>
-            <p style={{ fontSize: 14, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.55 }}>Arrives in your bank within minutes.</p>
-            <button onClick={() => { setCashoutOpen(false); setCashoutDone(false); }} style={{ width: "100%", marginTop: 20, padding: 15, border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>Done</button>
+            <h3 style={{ fontSize: 20, fontWeight: 800, margin: "16px 0 0" }}>Cashout started</h3>
+            <p style={{ fontSize: 14, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.55 }}>{cashoutMessage ?? "Arrives in your bank within minutes."}</p>
+            <button onClick={() => { setCashoutOpen(false); setCashoutDone(false); setCashoutMessage(null); }} style={{ width: "100%", marginTop: 20, padding: 15, border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>Done</button>
           </div>
         ) : (
           <>

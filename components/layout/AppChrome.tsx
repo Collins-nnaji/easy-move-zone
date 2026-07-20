@@ -8,11 +8,12 @@ import { SupportWidget } from "@/components/platform/SupportWidget"
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
-  // Auth stays fully chrome-free (focused sign-in card).
   const isAuth = pathname === "/auth" || pathname.startsWith("/auth/")
-  // The Move app is the product: it keeps the minimal header but no marketing footer.
-  const isApp = pathname === "/move" || pathname.startsWith("/move/")
-  // Admins have their own support channels — keep the widget off those screens.
+  const isApp =
+    pathname === "/move" ||
+    pathname.startsWith("/move/") ||
+    pathname === "/fleet" ||
+    pathname.startsWith("/fleet/")
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/")
 
   if (isAuth) {
@@ -26,10 +27,10 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <PlatformNav />
+      {!isApp && <PlatformNav />}
       <main className="flex-1 min-w-0">{children}</main>
       {!isApp && <PlatformFooter />}
-      {!isAdmin && <SupportWidget />}
+      {!isAdmin && !isApp && <SupportWidget />}
     </>
   )
 }

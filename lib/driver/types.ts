@@ -35,6 +35,7 @@ export interface Shift {
   operator: OperatorSummary | null;
   claimedBy: string | null;
   claimedDriverName: string | null;
+  funded: boolean;
 }
 
 export interface Waypoint {

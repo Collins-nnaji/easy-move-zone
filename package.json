@@ -1,6 +1,6 @@
 {
   "name": "easy-move-zone",
-  "description": "Commercial driving shifts platform with instant pay for drivers",
+  "description": "Commission-based logistics marketplace for drivers, truck owners, and fleet operators",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,10 +10,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:setup": "node scripts/run-driver-setup.mjs",
-    "catalog:json": "node --experimental-strip-types scripts/generate-move-catalog-json.mjs",
-    "db:seed:catalog": "node scripts/seed-move-catalog.mjs",
-    "db:seed:demo": "node scripts/seed-demo-journey.mjs"
+    "db:setup": "node scripts/run-driver-setup.mjs"
   },
   "dependencies": {
     "@neondatabase/auth": "^0.1.0-beta.21",
@@ -25,6 +22,7 @@
     "openai": "^6.25.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "stripe": "^17.7.0",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {

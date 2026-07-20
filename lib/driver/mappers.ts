@@ -27,12 +27,13 @@ export interface ShiftRow {
   operator_rating_avg?: string | number | null;
   operator_rating_count?: number | null;
   claimed_driver_name?: string | null;
+  funded?: boolean;
 }
 
 const SHIFT_COLUMNS = `sh.id, sh.title, sh.payout_cents, sh.payout_type, sh.vehicle_type, sh.vehicle_label,
   sh.cargo_category, sh.pickup, sh.dropoff, sh.start_time, sh.end_time, sh.hours, sh.zone,
   sh.distance_mi, sh.stops, sh.demand, sh.shift_date, sh.status, sh.commission_bps,
-  sh.posted_by, sh.claimed_by,
+  sh.posted_by, sh.claimed_by, coalesce(sh.funded, false) as funded,
   fo.company_name as operator_name, fo.rating_avg as operator_rating_avg, fo.rating_count as operator_rating_count,
   dp.display_name as claimed_driver_name`;
 
@@ -75,6 +76,7 @@ export function mapShiftRow(row: ShiftRow): Shift {
     operator: mapOperator(row),
     claimedBy: row.claimed_by ?? null,
     claimedDriverName: row.claimed_driver_name ?? null,
+    funded: Boolean(row.funded),
   };
 }
 

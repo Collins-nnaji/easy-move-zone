@@ -8,7 +8,7 @@ import { Sparkles } from "lucide-react"
 export const metadata: Metadata = {
   title: "Sign in",
   description:
-    "Create an account or sign in to claim shifts, track your schedule, and cash out earnings.",
+    "Create an account or sign in to claim loads, post fleet routes, and cash out earnings.",
 }
 
 export default function AuthPage() {
@@ -29,7 +29,7 @@ export default function AuthPage() {
               Welcome back
             </h1>
             <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-[#475569]">
-              Sign in or create an account to claim shifts, track your schedule, and cash out earnings.
+              Sign in to claim loads as a driver, post routes as a fleet operator, or cash out earnings.
             </p>
           </div>
           <Suspense

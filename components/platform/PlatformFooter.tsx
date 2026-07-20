@@ -4,21 +4,21 @@ import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 import { SiteLogo } from "@/components/brand/SiteLogo"
 
 const services = [
-  { href: "/move/shifts",         label: "Browse shifts",  badge: "Live" },
-  { href: "/move/schedule", label: "My schedule",   badge: null   },
-  { href: "/move/wallet",   label: "Instant wallet", badge: null   },
-  { href: "/move/vault",    label: "Compliance vault", badge: null },
+  { href: "/move/shifts", label: "Browse loads", badge: "Live" },
+  { href: "/fleet", label: "Fleet console", badge: null },
+  { href: "/move/wallet", label: "Instant wallet", badge: null },
+  { href: "/move/vault", label: "Compliance vault", badge: null },
 ]
 
 const explore = [
-  { href: "/move", label: "Driver app" },
-  { href: "/contact", label: "Fleet managers" },
+  { href: "/move", label: "Driver / owner-operator" },
+  { href: "/fleet", label: "Fleet operators" },
 ]
 
 const company = [
-  { href: "/contact",          label: "Contact us"      },
-  { href: "/auth",             label: "Sign in"         },
-  { href: "/auth?mode=signup", label: "Create account"  },
+  { href: "/contact", label: "Contact us" },
+  { href: "/auth", label: "Sign in" },
+  { href: "/auth?mode=signup", label: "Create account" },
 ]
 
 export function PlatformFooter() {
@@ -31,13 +31,11 @@ export function PlatformFooter() {
 
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr]">
-
-          {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <SiteLogo href="/" height={36} invert />
             <p className="mt-3 text-[13px] leading-relaxed text-slate-400 max-w-xs">
-              Commercial driving shifts with instant pay. Claim routes, run them with live tracking,
-              and cash out the same day.
+              Commission-based logistics marketplace. Drivers and truck owners claim loads;
+              fleet operators post routes and manage workload.
             </p>
             <a
               href={`mailto:${PUBLIC_CONTACT_EMAIL}`}
@@ -46,33 +44,33 @@ export function PlatformFooter() {
               <Mail className="h-4 w-4 text-orange-400/80" aria-hidden />
               {PUBLIC_CONTACT_EMAIL}
             </a>
-            <p className="mt-2 text-xs text-slate-600">
-              Questions about shifts, payouts, or fleet posting? Use the{" "}
-              <Link href="/contact" className="font-semibold text-orange-200/80 underline decoration-orange-500/30 underline-offset-2 hover:text-white">
-                contact form
-              </Link>.
-            </p>
 
-            {/* Primary CTA */}
-            <Link
-              href="/move"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2.5 text-sm font-bold text-orange-300 hover:bg-orange-500/20 hover:text-white transition-all"
-            >
-              Browse open shifts
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Link
+                href="/move"
+                className="inline-flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2.5 text-sm font-bold text-orange-300 hover:bg-orange-500/20 hover:text-white transition-all"
+              >
+                Driver app
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/fleet"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-4 py-2.5 text-sm font-bold text-white/80 hover:bg-white/10 transition-all"
+              >
+                Fleet console
+              </Link>
+            </div>
           </div>
 
-          {/* Services */}
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Services</h4>
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Product</h4>
             <ul className="space-y-2.5">
               {services.map(({ href, label, badge }) => (
                 <li key={label}>
                   <Link href={href} className="group inline-flex items-center gap-2 text-[13px] text-slate-400 transition hover:text-white">
                     {label}
                     {badge && (
-                      <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-[9px] font-bold text-orange-400 group-hover:bg-orange-500/30">
+                      <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-[9px] font-bold text-orange-400">
                         {badge}
                       </span>
                     )}
@@ -82,9 +80,8 @@ export function PlatformFooter() {
             </ul>
           </div>
 
-          {/* Explore */}
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Explore</h4>
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Roles</h4>
             <ul className="space-y-2.5">
               {explore.map(({ href, label }) => (
                 <li key={label}>
@@ -96,7 +93,6 @@ export function PlatformFooter() {
             </ul>
           </div>
 
-          {/* Company */}
           <div>
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Platform</h4>
             <ul className="space-y-2.5">
@@ -112,8 +108,8 @@ export function PlatformFooter() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-white/[0.06] pt-6 text-center sm:flex-row sm:text-left">
-          <p className="text-[11px] text-[#64748b]">&copy; {new Date().getFullYear()} EasyMoveZone. Nigeria &middot; Lagos &middot; Abuja &middot; Port Harcourt</p>
-          <p className="text-[11px] text-[#64748b]">SHIFTS &middot; SCHEDULE &middot; WALLET &middot; VAULT</p>
+          <p className="text-[11px] text-[#64748b]">&copy; {new Date().getFullYear()} EasyMoveZone. Logistics marketplace.</p>
+          <p className="text-[11px] text-[#64748b]">DRIVERS · FLEET · PAYOUTS · RATINGS</p>
         </div>
       </div>
     </footer>

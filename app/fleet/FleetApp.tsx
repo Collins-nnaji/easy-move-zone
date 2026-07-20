@@ -28,6 +28,7 @@ import {
   postFleetShift,
   updateFleetProfile,
 } from "@/lib/fleet/client";
+import { fundLoad } from "@/lib/payments/client";
 import type { FleetWorkspace, MarketplaceDriver, Shift } from "@/lib/driver/types";
 import type { CargoCategory, VehicleType } from "@/lib/marketplace/taxonomy";
 import "@/app/move/move.css";
@@ -221,6 +222,21 @@ export function FleetApp() {
     }
   };
 
+  const handleFund = async (shiftId: string) => {
+    try {
+      setActionError(null);
+      const { url } = await fundLoad(shiftId);
+      window.location.href = url;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unable to fund load.";
+      if (/sign in|401|unauthorized/i.test(msg)) {
+        window.location.href = `/auth?redirect=${encodeURIComponent("/fleet/loads")}`;
+        return;
+      }
+      setActionError(msg);
+    }
+  };
+
   const stats = workspace?.stats ?? { openLoads: 0, activeLoads: 0, completedLoads: 0, commissionEarned: 0, totalPosted: 0 };
   const drivers = workspace?.drivers ?? [];
   const postedShifts = workspace?.postedShifts ?? [];
@@ -355,18 +371,26 @@ export function FleetApp() {
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
           <span style={{ background: vTag.bg, color: vTag.color, borderRadius: 999, padding: "5px 10px", fontSize: 11, fontWeight: 600, fontFamily: MONO }}>{vTag.label}</span>
           <span style={{ background: cTag.bg, color: cTag.color, borderRadius: 999, padding: "5px 10px", fontSize: 11, fontWeight: 600, fontFamily: MONO }}>{cTag.label}</span>
+          {shift.funded ? (
+            <span style={{ background: "#eef6ec", color: "#2f7d4f", borderRadius: 999, padding: "5px 10px", fontSize: 11, fontWeight: 600, fontFamily: MONO }}>Funded</span>
+          ) : (
+            <span style={{ background: "#fdf6e8", color: "#9a6318", borderRadius: 999, padding: "5px 10px", fontSize: 11, fontWeight: 600, fontFamily: MONO }}>Unfunded</span>
+          )}
         </div>
         <p style={{ fontSize: 13.5, color: "#5f655c", margin: "10px 0 0" }}>{shift.pickup} → {shift.dropoff}</p>
         {shift.claimedDriverName && (
           <p style={{ fontSize: 13, color: INK, margin: "8px 0 0", fontWeight: 600 }}>Claimed by {shift.claimedDriverName}</p>
         )}
         {showActions && (
-          <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+          <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
+            {shift.status === "open" && !shift.funded && (
+              <button type="button" onClick={() => void handleFund(shift.id)} style={{ flex: 1, minWidth: 120, padding: 12, borderRadius: 12, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Fund with Stripe</button>
+            )}
             {shift.status === "open" && (
-              <button type="button" onClick={() => void handleCancel(shift.id)} style={{ flex: 1, padding: 12, borderRadius: 12, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
+              <button type="button" onClick={() => void handleCancel(shift.id)} style={{ flex: 1, minWidth: 100, padding: 12, borderRadius: 12, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
             )}
             {(shift.status === "claimed" || shift.status === "active") && (
-              <button type="button" onClick={() => void handleComplete(shift.id)} style={{ flex: 1, padding: 12, borderRadius: 12, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Mark complete</button>
+              <button type="button" onClick={() => void handleComplete(shift.id)} style={{ flex: 1, minWidth: 120, padding: 12, borderRadius: 12, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Mark complete</button>
             )}
           </div>
         )}

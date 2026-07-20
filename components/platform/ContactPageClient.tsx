@@ -99,7 +99,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
             transition={{ duration: 0.5, delay: 0.08, ease: easeOut }}
             className="mt-4 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base"
           >
-            Questions about trips, stays, visas, or your relocation plan? Send a note — we read every message.
+            Questions about loads, payouts, fleet posting, or compliance? Send a note — we read every message.
           </motion.p>
 
           <motion.div
@@ -118,7 +118,14 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               href="/move"
               className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 underline decoration-orange-500/35 underline-offset-4 hover:text-white"
             >
-              Plan your move
+              Open driver app
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/fleet"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 underline decoration-orange-500/35 underline-offset-4 hover:text-white"
+            >
+              Fleet console
               <ArrowRight className="h-4 w-4" />
             </Link>
           </motion.div>
@@ -133,11 +140,11 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               <ul className="mt-6 space-y-4 text-sm text-[#475569]">
                 <li className="flex gap-3">
                   <MessageSquare className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />
-                  <span>Move planning, bookings, and workspace questions.</span>
+                  <span>Driver payouts, compliance vault, and load claims.</span>
                 </li>
                 <li className="flex gap-3">
                   <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />
-                  <span>Visa routes, settling-in guides, and destination advice.</span>
+                  <span>Fleet posting, funding loads, and finding rated drivers.</span>
                 </li>
                 <li className="flex gap-3">
                   <Phone className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />

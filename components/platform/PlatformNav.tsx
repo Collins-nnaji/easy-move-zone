@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
+  Briefcase,
   LogOut,
   Menu,
   Truck,
@@ -17,7 +18,8 @@ import { loadDriverFlowState } from "@/app/move/storage"
 import { SiteLogo } from "@/components/brand/SiteLogo"
 
 const guideLinks = [
-  { href: "/move", label: "Open the app", icon: Truck },
+  { href: "/move", label: "Driver app", icon: Truck },
+  { href: "/fleet", label: "Fleet console", icon: Briefcase },
   { href: "/contact", label: "Contact", icon: Mail },
 ] as const
 
@@ -84,6 +86,8 @@ export function PlatformNav() {
   const user = sessionData?.user ?? null
   const initials = getInitials(user?.name, user?.email)
   const onMove = pathname === "/move" || pathname.startsWith("/move/")
+  const onFleet = pathname === "/fleet" || pathname.startsWith("/fleet/")
+  const onApp = onMove || onFleet
 
   return (
     <header
@@ -97,14 +101,23 @@ export function PlatformNav() {
 
         {/* Right side: primary CTA + a single account/menu dropdown */}
         <div className="flex items-center gap-2">
-          {!onMove && (
-            <Link
-              href="/move"
-              className="hidden items-center gap-1.5 rounded-full bg-[#e0511f] px-4 py-2 text-[13px] font-bold text-white shadow-sm transition hover:opacity-90 sm:inline-flex"
-            >
-              <Truck className="h-3.5 w-3.5" />
-              {resumable ? "Continue driving" : "Browse shifts"}
-            </Link>
+          {!onApp && (
+            <>
+              <Link
+                href="/fleet"
+                className="hidden items-center gap-1.5 rounded-full border border-[#d8d2c6] bg-white px-4 py-2 text-[13px] font-semibold text-[#4a5047] transition hover:border-[#e0511f]/40 sm:inline-flex"
+              >
+                <Briefcase className="h-3.5 w-3.5" />
+                Fleet
+              </Link>
+              <Link
+                href="/move"
+                className="hidden items-center gap-1.5 rounded-full bg-[#e0511f] px-4 py-2 text-[13px] font-bold text-white shadow-sm transition hover:opacity-90 sm:inline-flex"
+              >
+                <Truck className="h-3.5 w-3.5" />
+                {resumable ? "Continue driving" : "Browse loads"}
+              </Link>
+            </>
           )}
 
           <div className="relative" ref={menuRef}>
