@@ -61,3 +61,17 @@ export async function rateFromFleet(input: RateInput): Promise<void> {
     }),
   );
 }
+
+export async function bookDriver(input: {
+  driverUserId: string;
+  shiftId: string;
+  message?: string;
+}): Promise<void> {
+  await parseJson(
+    await fetch("/api/fleet/offers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    }),
+  );
+}

@@ -111,18 +111,18 @@ export function HomePageClient() {
 
               <motion.div {...fadeUp(0.18, 18)} className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/move"
+                  href="/move/shifts"
                   className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
                   style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
                 >
                   <Zap className="h-4.5 w-4.5" />
-                  I&apos;m a driver
+                  Book a load
                 </Link>
                 <Link
-                  href="/fleet"
+                  href="/fleet/dashboard"
                   className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white/70 px-7 py-4 text-base font-semibold text-[#4a5047] backdrop-blur transition hover:bg-white"
                 >
-                  Fleet console
+                  Book a driver
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </motion.div>
@@ -240,19 +240,19 @@ export function HomePageClient() {
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/move"
+                  href="/move/shifts"
                   className="inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:opacity-90"
                   style={{ background: PRIMARY, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}
                 >
                   <Truck className="h-4 w-4" />
-                  Driver app
+                  Book a load
                 </Link>
                 <Link
-                  href="/fleet"
+                  href="/fleet/drivers"
                   className="inline-flex items-center gap-2 rounded-2xl border border-white/20 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10"
                 >
                   <Briefcase className="h-4 w-4" />
-                  Fleet console
+                  Book a driver
                 </Link>
               </div>
             </motion.div>
@@ -300,18 +300,18 @@ export function HomePageClient() {
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href="/fleet"
+              href="/fleet/drivers"
               className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
               style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
             >
-              Open fleet console
+              Book a driver
               <ArrowUpRight className="h-4.5 w-4.5" />
             </Link>
             <Link
-              href="/move"
+              href="/move/shifts"
               className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white px-7 py-4 text-base font-semibold text-[#4a5047] transition hover:border-[#e0511f]/30"
             >
-              I&apos;m a driver
+              Book a load
             </Link>
           </div>
         </motion.div>

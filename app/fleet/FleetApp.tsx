@@ -22,6 +22,7 @@ import {
   formatRating,
 } from "@/app/move/driver-data";
 import {
+  bookDriver,
   cancelFleetShift,
   completeFleetShift,
   fetchFleetWorkspace,
@@ -29,7 +30,7 @@ import {
   updateFleetProfile,
 } from "@/lib/fleet/client";
 import { fundLoad } from "@/lib/payments/client";
-import type { FleetWorkspace, MarketplaceDriver, Shift } from "@/lib/driver/types";
+import type { BookingOfferSummary, FleetWorkspace, MarketplaceDriver, Shift } from "@/lib/driver/types";
 import type { CargoCategory, VehicleType } from "@/lib/marketplace/taxonomy";
 import "@/app/move/move.css";
 
@@ -102,6 +103,10 @@ export function FleetApp() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [postSuccess, setPostSuccess] = useState(false);
+  const [bookDriverId, setBookDriverId] = useState<string | null>(null);
+  const [bookShiftId, setBookShiftId] = useState<string>("");
+  const [bookMessage, setBookMessage] = useState("");
+  const [bookBusy, setBookBusy] = useState(false);
 
   const [postForm, setPostForm] = useState({
     title: "",
@@ -198,7 +203,12 @@ export function FleetApp() {
       await loadWorkspace();
       setTimeout(() => { setPostSuccess(false); goTo("loads"); }, 1200);
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Sign in to post loads.");
+      const msg = err instanceof Error ? err.message : "Sign in to post loads.";
+      if (/sign in|401|unauthorized/i.test(msg)) {
+        window.location.href = `/auth?redirect=${encodeURIComponent("/fleet/post")}`;
+        return;
+      }
+      setActionError(msg);
     }
   };
 
@@ -237,10 +247,44 @@ export function FleetApp() {
     }
   };
 
+  const handleBookDriver = async () => {
+    if (!bookDriverId || !bookShiftId) {
+      setActionError("Pick an open load to book this driver.");
+      return;
+    }
+    try {
+      setBookBusy(true);
+      setActionError(null);
+      await bookDriver({
+        driverUserId: bookDriverId,
+        shiftId: bookShiftId,
+        message: bookMessage || undefined,
+      });
+      setBookDriverId(null);
+      setBookShiftId("");
+      setBookMessage("");
+      await loadWorkspace();
+      goTo("loads");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unable to book driver.";
+      if (/sign in|401|unauthorized/i.test(msg)) {
+        window.location.href = `/auth?redirect=${encodeURIComponent("/fleet/drivers")}`;
+        return;
+      }
+      setActionError(msg);
+    } finally {
+      setBookBusy(false);
+    }
+  };
+
   const stats = workspace?.stats ?? { openLoads: 0, activeLoads: 0, completedLoads: 0, commissionEarned: 0, totalPosted: 0 };
   const drivers = workspace?.drivers ?? [];
   const postedShifts = workspace?.postedShifts ?? [];
   const activeWorkload = workspace?.activeWorkload ?? [];
+  const pendingOffers = workspace?.pendingOffers ?? [];
+  const notifications = workspace?.notifications ?? [];
+  const openLoads = postedShifts.filter((s) => s.status === "open");
+  const bookingDriver = drivers.find((d) => d.id === bookDriverId) ?? null;
 
   function Welcome() {
     return (
@@ -350,6 +394,16 @@ export function FleetApp() {
           )}
         </div>
         {driver.bio && <p style={{ fontSize: 13.5, color: "#5f655c", margin: "12px 0 0", lineHeight: 1.45 }}>{driver.bio}</p>}
+        <button
+          type="button"
+          onClick={() => {
+            setBookDriverId(driver.id);
+            setBookShiftId(openLoads[0]?.id ?? "");
+          }}
+          style={{ width: "100%", marginTop: 14, padding: 12, border: "none", borderRadius: 12, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+        >
+          Book this driver
+        </button>
       </div>
     );
   }
@@ -404,6 +458,19 @@ export function FleetApp() {
         <div className="move-page-screen">
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Fleet console · {companyName}</div>
           <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Workload overview</h2>
+
+          {notifications[0] && (
+            <div style={{ marginTop: 16, padding: "14px 16px", borderRadius: 16, background: "#eef6ec", border: "1px solid #cfe6cf" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#2f7d4f" }}>{notifications[0].title}</div>
+              <div style={{ fontSize: 13, color: "#5f655c", marginTop: 4 }}>{notifications[0].body}</div>
+            </div>
+          )}
+
+          {pendingOffers.length > 0 && (
+            <div style={{ marginTop: 14, padding: "12px 14px", borderRadius: 14, background: "#fbeae0", border: "1px solid #f3d6c4", fontSize: 13, color: "#9c3f15", fontWeight: 600 }}>
+              {pendingOffers.length} booking offer{pendingOffers.length === 1 ? "" : "s"} waiting for driver accept
+            </div>
+          )}
 
           <div className="move-metric-grid" style={{ marginTop: 22 }}>
             {[
@@ -481,8 +548,18 @@ export function FleetApp() {
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Find drivers · {zone.label}</div>
-          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Rated drivers & truck owners</h2>
+          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Book drivers · {zone.label}</div>
+          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Find &amp; book rated partners</h2>
+          <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>
+            Tap Book, pick an open load, and the driver gets a direct offer to accept.
+          </p>
+
+          {openLoads.length === 0 && (
+            <div style={{ marginTop: 16, padding: 16, borderRadius: 16, background: "#fdf6e8", border: "1px solid #f3e0c4", fontSize: 13, color: "#9a6318" }}>
+              Post an open load first, then come back to book a driver onto it.{" "}
+              <button type="button" onClick={() => goTo("post")} style={{ color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>Post load →</button>
+            </div>
+          )}
 
           <div style={{ display: "flex", gap: 8, marginTop: 16, overflowX: "auto", paddingBottom: 4 }}>
             <button type="button" onClick={() => setDriverVehicleFilter("all")} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, border: `1px solid ${driverVehicleFilter === "all" ? PRIMARY : "#e4dfd5"}`, background: driverVehicleFilter === "all" ? PRIMARY : "#fff", color: driverVehicleFilter === "all" ? "#fff" : INK, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>All vehicles</button>
@@ -542,9 +619,57 @@ export function FleetApp() {
   const tabs = [
     { label: "Dashboard", screens: ["dashboard"], go: "dashboard" as Screen },
     { label: "Post Load", screens: ["post"], go: "post" as Screen },
-    { label: "Find Drivers", screens: ["drivers"], go: "drivers" as Screen },
+    { label: "Book Drivers", screens: ["drivers"], go: "drivers" as Screen },
     { label: "My Loads", screens: ["loads"], go: "loads" as Screen },
   ];
+
+  const bookModal = bookDriverId ? (
+    <div className="move-overlay move-overlay--sheet" onClick={() => setBookDriverId(null)}>
+      <div className="move-sheet" onClick={(e) => e.stopPropagation()}>
+        <div className="move-sheet-handle" />
+        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Book driver</div>
+        <h3 style={{ fontSize: 20, fontWeight: 800, margin: "8px 0 0" }}>{bookingDriver?.displayName ?? "Driver"}</h3>
+        <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0" }}>Choose one of your open loads. They get a direct offer to accept.</p>
+
+        {openLoads.length === 0 ? (
+          <div style={{ marginTop: 18, padding: 16, borderRadius: 14, background: "#fdf6e8", color: "#9a6318", fontSize: 13 }}>
+            No open loads yet. Post a load first.
+            <button type="button" onClick={() => { setBookDriverId(null); goTo("post"); }} style={{ display: "block", marginTop: 10, color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>Post load →</button>
+          </div>
+        ) : (
+          <>
+            <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
+              {openLoads.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setBookShiftId(s.id)}
+                  style={{ textAlign: "left", padding: "12px 14px", borderRadius: 14, border: `1px solid ${bookShiftId === s.id ? PRIMARY : "#e4dfd5"}`, background: bookShiftId === s.id ? "#fbeae0" : "#fff", cursor: "pointer" }}
+                >
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>{s.title}</div>
+                  <div style={{ fontSize: 12, color: MUTE, marginTop: 2 }}>{formatPayout(s)} · {s.zone}</div>
+                </button>
+              ))}
+            </div>
+            <input
+              placeholder="Optional message to driver"
+              value={bookMessage}
+              onChange={(e) => setBookMessage(e.target.value)}
+              style={{ width: "100%", marginTop: 12, padding: "12px 14px", borderRadius: 12, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 14 }}
+            />
+            <button
+              type="button"
+              disabled={bookBusy || !bookShiftId}
+              onClick={() => void handleBookDriver()}
+              style={{ width: "100%", marginTop: 14, padding: 15, border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer", opacity: bookBusy || !bookShiftId ? 0.6 : 1 }}
+            >
+              {bookBusy ? "Sending offer…" : "Send booking offer"}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  ) : null;
 
   if (!ready) {
     return <div className="move-root" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}><div className="move-shimmer" style={{ width: 200, height: 24, borderRadius: 8 }} /></div>;
@@ -566,7 +691,7 @@ export function FleetApp() {
       meterLabel="Fill rate"
       meterSub={`${stats.completedLoads} of ${stats.totalPosted} loads completed`}
       isFlowScreen={isFlowScreen}
-      modals={null}
+      modals={bookModal}
     >
       {screenBody()}
       {(actionError || loadError) && !isFlowScreen && (

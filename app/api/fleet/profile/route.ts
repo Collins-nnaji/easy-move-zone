@@ -1,4 +1,5 @@
 import { neonAuth } from "@neondatabase/auth/next/server";
+import { saveContactEmail } from "@/lib/booking/offers";
 import { updateFleetProfile } from "@/lib/fleet/service";
 
 export const runtime = "nodejs";
@@ -14,6 +15,8 @@ export async function PATCH(request: Request) {
       zone?: string;
       onboardingCompleted?: boolean;
     };
+
+    if (user.email) await saveContactEmail("fleet", String(user.id), String(user.email));
 
     const profile = await updateFleetProfile(String(user.id), body);
     return Response.json({ profile });

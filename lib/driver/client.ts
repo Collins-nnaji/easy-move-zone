@@ -64,12 +64,22 @@ export async function completeDriverShift(shiftId: string): Promise<void> {
   await parseJson(await fetch(`/api/driver/shifts/${shiftId}/complete`, { method: "POST" }));
 }
 
-export async function rateOperator(shiftId: string, stars: number, comment?: string): Promise<void> {
-  await parseJson(
-    await fetch("/api/driver/ratings", {
+export async function acceptOfferApi(offerId: string): Promise<{ shiftId: string }> {
+  return parseJson(
+    await fetch(`/api/driver/offers/${offerId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ shiftId, stars, comment }),
+      body: JSON.stringify({ action: "accept" }),
+    }),
+  );
+}
+
+export async function declineOfferApi(offerId: string): Promise<void> {
+  await parseJson(
+    await fetch(`/api/driver/offers/${offerId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "decline" }),
     }),
   );
 }

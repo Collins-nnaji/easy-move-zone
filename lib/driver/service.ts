@@ -6,7 +6,20 @@ import {
 } from "./db";
 import { mapComplianceRow, mapShiftRow, mapTxnRow, parseWaypoints, SHIFT_SELECT, type ShiftRow } from "./mappers";
 import { completeShift as completeShiftCore, submitRating } from "@/lib/fleet/service";
-import type { DriverProfile, DriverWorkspace, ShiftSession, VehicleType } from "./types";
+import { getOffersForDriver } from "@/lib/booking/offers";
+import type { BookingOfferSummary, DriverProfile, DriverWorkspace, ShiftSession, VehicleType } from "./types";
+
+function toOfferSummary(offers: Awaited<ReturnType<typeof getOffersForDriver>>): BookingOfferSummary[] {
+  return offers.map((o) => ({
+    id: o.id,
+    shiftId: o.shiftId,
+    status: o.status,
+    message: o.message,
+    companyName: o.companyName,
+    driverName: o.driverName,
+    shift: o.shift,
+  }));
+}
 
 export async function ensureDriverProfile(authUserId: string): Promise<DriverProfile> {
   if (!driverSql) throw new Error("Database not configured.");
@@ -251,22 +264,33 @@ export async function buildWorkspace(
         detail: d.detail,
         expiresAt: d.docKey === "medical" ? "Aug 19, 2026" : undefined,
       })),
+      offers: [],
     };
   }
 
   const profile = await ensureDriverProfile(authUserId);
   const filterZone = filters?.zone ?? profile.zone;
 
-  const [openShifts, myShifts, activeSession, wallet, ledger, compliance] = await Promise.all([
+  const [openShifts, myShifts, activeSession, wallet, ledger, compliance, offers] = await Promise.all([
     getOpenShifts(filterZone, filters?.cargo, filters?.vehicle),
     getMyShifts(authUserId),
     getActiveSession(authUserId),
     getWallet(authUserId),
     getLedger(authUserId),
     getCompliance(authUserId),
+    getOffersForDriver(authUserId),
   ]);
 
-  return { profile, openShifts, myShifts, activeSession, wallet, ledger, compliance };
+  return {
+    profile,
+    openShifts,
+    myShifts,
+    activeSession,
+    wallet,
+    ledger,
+    compliance,
+    offers: toOfferSummary(offers),
+  };
 }
 
 export async function claimShift(authUserId: string, shiftId: string) {

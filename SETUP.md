@@ -11,6 +11,18 @@ Simplified product surface:
 | `/profile` | Signed-in users | Marketplace account |
 | `/contact` | Everyone | Support |
 
+## Phase 1 booking (live)
+
+- Drivers: Home → **Book a load** → `/move/shifts` → slide to claim (sign in only if needed)
+- Fleet: **Book this driver** → pick open load → driver gets Accept offer
+- Claim emails: set `RESEND_API_KEY` + `RESEND_FROM_EMAIL` (otherwise in-app notification only)
+
+Then run:
+
+```bash
+npm run db:setup
+```
+
 ## 1. Already wired (Neon)
 
 These should already exist in your hosting environment:

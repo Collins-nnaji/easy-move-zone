@@ -26,9 +26,11 @@ import {
   formatRating,
 } from "./driver-data";
 import {
+  acceptOfferApi,
   claimShift,
   clockInSession,
   completeDriverShift,
+  declineOfferApi,
   fetchDriverWorkspace,
   updateDriverProfile,
   uploadComplianceDoc,
@@ -38,7 +40,7 @@ import {
   fetchPaymentStatus,
   startConnectOnboarding,
 } from "@/lib/payments/client";
-import type { ComplianceDoc, Shift, ShiftSession, WalletEntry } from "@/lib/driver/types";
+import type { BookingOfferSummary, ComplianceDoc, Shift, ShiftSession, WalletEntry } from "@/lib/driver/types";
 import { loadDriverFlowState, saveDriverFlowState } from "./storage";
 import "./move.css";
 
@@ -239,6 +241,7 @@ export function DriverApp() {
   const [wallet, setWallet] = useState({ available: 0, pending: 0, lifetime: 0, cashoutFee: 1.99, weekEarnings: 0 });
   const [ledger, setLedger] = useState<WalletEntry[]>([]);
   const [compliance, setCompliance] = useState<ComplianceDoc[]>([]);
+  const [offers, setOffers] = useState<BookingOfferSummary[]>([]);
   const [cashoutOpen, setCashoutOpen] = useState(false);
   const [cashoutDone, setCashoutDone] = useState(false);
   const [filterZone, setFilterZone] = useState<string | null>(null);
@@ -264,7 +267,6 @@ export function DriverApp() {
       const data = await fetchDriverWorkspace({
         zone: zoneFilter ?? filterZone ?? zone.label,
         cargo: filterCargo,
-        vehicle: vehicle.key,
       });
       setOpenShifts(data.openShifts);
       setMyShifts(data.myShifts);
@@ -272,6 +274,7 @@ export function DriverApp() {
       setWallet(data.wallet);
       setLedger(data.ledger);
       setCompliance(data.compliance);
+      setOffers(data.offers ?? []);
       const zIdx = ZONE_OPTIONS.findIndex((z) => z.label === data.profile.zone);
       const vIdx = VEHICLE_OPTIONS.findIndex((v) => v.key === data.profile.vehicleType);
       if (zIdx >= 0) setZoneIdx(zIdx);
@@ -287,7 +290,7 @@ export function DriverApp() {
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Unable to load shifts.");
     }
-  }, [filterZone, filterCargo, vehicle.label, zone.label]);
+  }, [filterZone, filterCargo, zone.label]);
 
   useEffect(() => {
     if (ready) return;
@@ -311,7 +314,7 @@ export function DriverApp() {
   }, [ready, pathname, router]);
 
   useEffect(() => {
-    if (!ready || FLOW_SCREENS.includes(screen)) return;
+    if (!ready) return;
     void loadWorkspace();
   }, [ready, screen, filterZone, filterCargo, loadWorkspace]);
 
@@ -349,6 +352,32 @@ export function DriverApp() {
         return;
       }
       setActionError(msg);
+    }
+  };
+
+  const handleAcceptOffer = async (offerId: string) => {
+    try {
+      setActionError(null);
+      await acceptOfferApi(offerId);
+      await loadWorkspace();
+      goTo("schedule");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unable to accept booking.";
+      if (/sign in|401|unauthorized/i.test(msg)) {
+        window.location.href = `/auth?redirect=${encodeURIComponent("/move/shifts")}`;
+        return;
+      }
+      setActionError(msg);
+    }
+  };
+
+  const handleDeclineOffer = async (offerId: string) => {
+    try {
+      setActionError(null);
+      await declineOfferApi(offerId);
+      await loadWorkspace();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Unable to decline offer.");
     }
   };
 
@@ -436,23 +465,26 @@ export function DriverApp() {
           </div>
           <div style={{ marginTop: 36, display: "flex", flexDirection: "column", gap: 12 }}>
             <button
-              onClick={() => goTo("setup")}
+              onClick={() => {
+                saveDriverFlowState({ zone: zone.label, vehicle: vehicle.label, completed: true });
+                goTo("shifts");
+              }}
               style={{ width: "100%", padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 26px rgba(224,81,31,.34)", textAlign: "left" }}
             >
-              I&apos;m a driver / truck owner →
+              Book a load now →
+            </button>
+            <button
+              onClick={() => goTo("setup")}
+              style={{ width: "100%", padding: 16, border: "1px solid #e4dfd5", borderRadius: 18, background: "#fff", color: INK, fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}
+            >
+              Set my zone &amp; vehicle first
             </button>
             <a
-              href="/fleet"
-              style={{ width: "100%", padding: 18, border: "1px solid #e4dfd5", borderRadius: 18, background: "#fff", color: INK, fontFamily: HANKEN, fontSize: 16, fontWeight: 700, textDecoration: "none", display: "block" }}
+              href="/fleet/drivers"
+              style={{ width: "100%", padding: 16, border: "none", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, textDecoration: "none", display: "block", textAlign: "center" }}
             >
-              I&apos;m a fleet operator →
+              I need to book a driver instead →
             </a>
-            <button
-              onClick={() => { saveDriverFlowState({ zone: zone.label, vehicle: vehicle.label, completed: true }); goTo("shifts"); }}
-              style={{ width: "100%", padding: 14, border: "none", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
-            >
-              Browse open loads without signing up
-            </button>
           </div>
           <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "14px 0 0" }}>
             Claiming, cashout, and posting require an account · <a href="/auth?redirect=/move/shifts" style={{ color: PRIMARY, fontWeight: 600 }}>Sign in</a>
@@ -508,7 +540,7 @@ export function DriverApp() {
               <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Shifts in {zone.label}</div>
             </div>
             <p style={{ fontSize: 16, color: "#4a5047", margin: "12px 0 0", lineHeight: 1.45 }}>
-              {openShifts.filter((s) => s.zone === zone.label).length} open routes right now — sprinter, box truck, and client fleet.
+              {openShifts.length} open loads right now across zones — slide to claim in one tap.
             </p>
           </div>
 
@@ -627,7 +659,25 @@ export function DriverApp() {
       <div className="move-page-inner">
         <div className="move-page-screen">
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Shifts · {activeFilter}</div>
-          <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Available routes near you</h2>
+          <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Book a load near you</h2>
+
+          {offers.length > 0 && (
+            <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Direct bookings for you</div>
+              {offers.map((offer) => (
+                <div key={offer.id} style={{ background: "#fff", border: `2px solid ${PRIMARY}`, borderRadius: 20, padding: "16px 18px", boxShadow: "0 4px 18px rgba(224,81,31,.12)" }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{offer.companyName ?? "Fleet"} booked you</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, marginTop: 4 }}>{formatPayout(offer.shift)}</div>
+                  <p style={{ fontSize: 13.5, color: "#5f655c", margin: "8px 0 0" }}>{offer.shift.pickup} → {offer.shift.dropoff}</p>
+                  {offer.message && <p style={{ fontSize: 13, color: MUTE, margin: "6px 0 0" }}>{offer.message}</p>}
+                  <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+                    <button type="button" onClick={() => void handleAcceptOffer(offer.id)} style={{ flex: 1, padding: 12, border: "none", borderRadius: 12, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Accept booking</button>
+                    <button type="button" onClick={() => void handleDeclineOffer(offer.id)} style={{ flex: 1, padding: 12, borderRadius: 12, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Decline</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 16 }}>
             <div onClick={() => goTo("setup")} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "#fff", border: "1px solid #e4dfd5", borderRadius: 999, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>

@@ -20,6 +20,7 @@ const steps = [
   "db/migrations/20260720_driver_platform.sql",
   "db/migrations/20260721_marketplace.sql",
   "db/migrations/20260721_payments.sql",
+  "db/migrations/20260721_booking_offers.sql",
   "db/migrations/20260720_drop_relocation_product.sql",
   "db/seeds/20260720_driver_shifts_seed.sql",
   "db/seeds/20260721_marketplace_seed.sql",

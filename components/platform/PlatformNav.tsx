@@ -115,7 +115,7 @@ export function PlatformNav() {
                 className="hidden items-center gap-1.5 rounded-full bg-[#e0511f] px-4 py-2 text-[13px] font-bold text-white shadow-sm transition hover:opacity-90 sm:inline-flex"
               >
                 <Truck className="h-3.5 w-3.5" />
-                {resumable ? "Continue driving" : "Browse loads"}
+                {resumable ? "Continue driving" : "Book a load"}
               </Link>
             </>
           )}

@@ -97,6 +97,17 @@ export interface DriverWorkspace {
   wallet: WalletSnapshot;
   ledger: WalletEntry[];
   compliance: ComplianceDoc[];
+  offers: BookingOfferSummary[];
+}
+
+export interface BookingOfferSummary {
+  id: string;
+  shiftId: string;
+  status: "pending" | "accepted" | "declined" | "cancelled" | "expired";
+  message: string | null;
+  companyName: string | null;
+  driverName: string | null;
+  shift: Shift;
 }
 
 export interface MarketplaceDriver {
@@ -135,6 +146,16 @@ export interface FleetWorkspace {
   postedShifts: Shift[];
   activeWorkload: Shift[];
   drivers: MarketplaceDriver[];
+  pendingOffers: BookingOfferSummary[];
+  notifications: Array<{
+    id: string;
+    kind: string;
+    title: string;
+    body: string;
+    link: string | null;
+    readAt: string | null;
+    createdAt: string;
+  }>;
 }
 
 export interface PostShiftInput {

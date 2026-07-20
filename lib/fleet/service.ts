@@ -1,7 +1,9 @@
 import { driverSql } from "@/lib/driver/db";
 import { COMMISSION_BPS, commissionCents, netPayoutCents } from "@/lib/marketplace/taxonomy";
 import { mapShiftRow, SHIFT_SELECT, type ShiftRow } from "@/lib/driver/mappers";
+import { getNotifications, getOffersForFleet } from "@/lib/booking/offers";
 import type {
+  BookingOfferSummary,
   FleetProfile,
   FleetStats,
   FleetWorkspace,
@@ -9,6 +11,18 @@ import type {
   PostShiftInput,
   RateInput,
 } from "@/lib/driver/types";
+
+function toOfferSummary(offers: Awaited<ReturnType<typeof getOffersForFleet>>): BookingOfferSummary[] {
+  return offers.map((o) => ({
+    id: o.id,
+    shiftId: o.shiftId,
+    status: o.status,
+    message: o.message,
+    companyName: o.companyName,
+    driverName: o.driverName,
+    shift: o.shift,
+  }));
+}
 
 export async function ensureFleetProfile(authUserId: string): Promise<FleetProfile> {
   if (!driverSql) throw new Error("Database not configured.");
@@ -185,17 +199,29 @@ export async function buildFleetWorkspace(
       postedShifts: [],
       activeWorkload: [],
       drivers,
+      pendingOffers: [],
+      notifications: [],
     };
   }
 
   const profile = await ensureFleetProfile(authUserId);
-  const [stats, postedShifts, activeWorkload] = await Promise.all([
+  const [stats, postedShifts, activeWorkload, pendingOffers, notifications] = await Promise.all([
     getFleetStats(authUserId),
     getPostedShifts(authUserId),
     getActiveWorkload(authUserId),
+    getOffersForFleet(authUserId),
+    getNotifications(authUserId),
   ]);
 
-  return { profile, stats, postedShifts, activeWorkload, drivers };
+  return {
+    profile,
+    stats,
+    postedShifts,
+    activeWorkload,
+    drivers,
+    pendingOffers: toOfferSummary(pendingOffers),
+    notifications,
+  };
 }
 
 export async function postShift(authUserId: string, input: PostShiftInput) {

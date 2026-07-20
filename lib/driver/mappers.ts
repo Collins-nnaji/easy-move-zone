@@ -37,6 +37,8 @@ const SHIFT_COLUMNS = `sh.id, sh.title, sh.payout_cents, sh.payout_type, sh.vehi
   fo.company_name as operator_name, fo.rating_avg as operator_rating_avg, fo.rating_count as operator_rating_count,
   dp.display_name as claimed_driver_name`;
 
+export { SHIFT_COLUMNS };
+
 export const SHIFT_SELECT = `${SHIFT_COLUMNS} from driver_shifts sh
   left join fleet_operator_profiles fo on fo.auth_user_id = sh.posted_by
   left join driver_profiles dp on dp.auth_user_id = sh.claimed_by`;
