@@ -2,30 +2,37 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { Briefcase, CheckCircle2, Loader2, Truck, User } from "lucide-react"
+import { ArrowUpRight, Briefcase, CheckCircle2, Loader2, Truck, User } from "lucide-react"
 import { authClient } from "@/lib/auth/client"
 import { fetchDriverWorkspace, updateDriverProfile } from "@/lib/driver/client"
 import { fetchFleetWorkspace, updateFleetProfile } from "@/lib/fleet/client"
-import type { DriverProfile } from "@/lib/driver/types"
-import type { FleetProfile } from "@/lib/driver/types"
+import type { DriverProfile, FleetProfile } from "@/lib/driver/types"
 
 interface ProfileWorkspaceProps {
   authName: string
   authEmail: string
-  fromMove?: boolean
+  initialRole?: "driver" | "fleet"
 }
 
-export function ProfileWorkspace({ authName, authEmail, fromMove = false }: ProfileWorkspaceProps) {
+export function ProfileWorkspace({
+  authName,
+  authEmail,
+  initialRole = "driver",
+}: ProfileWorkspaceProps) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [statusMsg, setStatusMsg] = useState("")
   const [errorMsg, setErrorMsg] = useState("")
-  const [role, setRole] = useState<"driver" | "fleet">(fromMove ? "driver" : "driver")
+  const [role, setRole] = useState<"driver" | "fleet">(initialRole)
   const [displayName, setDisplayName] = useState(authName)
   const [zone, setZone] = useState("DFW North")
   const [companyName, setCompanyName] = useState("")
   const [driver, setDriver] = useState<DriverProfile | null>(null)
   const [fleet, setFleet] = useState<FleetProfile | null>(null)
+
+  useEffect(() => {
+    setRole(initialRole)
+  }, [initialRole])
 
   useEffect(() => {
     let mounted = true
@@ -39,10 +46,18 @@ export function ProfileWorkspace({ authName, authEmail, fromMove = false }: Prof
         if (!mounted) return
         setDriver(d.profile)
         setFleet(f.profile)
-        setDisplayName(d.profile.displayName || authName)
-        setZone(d.profile.zone)
+        setDisplayName(d.profile.displayName || f.profile.contactName || authName)
+        setZone(initialRole === "fleet" ? f.profile.zone : d.profile.zone)
         setCompanyName(f.profile.companyName)
-        if (f.profile.onboardingCompleted && !d.profile.onboardingCompleted) setRole("fleet")
+        // Only auto-pick fleet when no explicit from= query was provided via initialRole default path
+        if (
+          initialRole === "driver" &&
+          f.profile.onboardingCompleted &&
+          !d.profile.onboardingCompleted
+        ) {
+          setRole("fleet")
+          setZone(f.profile.zone)
+        }
       } catch (err) {
         if (mounted) setErrorMsg(err instanceof Error ? err.message : "Unable to load profile.")
       } finally {
@@ -50,8 +65,10 @@ export function ProfileWorkspace({ authName, authEmail, fromMove = false }: Prof
       }
     }
     void load()
-    return () => { mounted = false }
-  }, [authName])
+    return () => {
+      mounted = false
+    }
+  }, [authName, initialRole])
 
   async function save() {
     setSaving(true)
@@ -106,10 +123,17 @@ export function ProfileWorkspace({ authName, authEmail, fromMove = false }: Prof
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-2">
+        <p className="mt-4 text-sm leading-relaxed text-[#5f655c]">
+          One account works for both sides of the marketplace. Edit the active role below, then open either app.
+        </p>
+
+        <div className="mt-5 grid grid-cols-2 gap-2">
           <button
             type="button"
-            onClick={() => setRole("driver")}
+            onClick={() => {
+              setRole("driver")
+              if (driver?.zone) setZone(driver.zone)
+            }}
             className={`flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition ${
               role === "driver" ? "border-[#e0511f] bg-[#fbeae0] text-[#9c3f15]" : "border-[#e4dfd5] text-[#4a5047]"
             }`}
@@ -118,7 +142,10 @@ export function ProfileWorkspace({ authName, authEmail, fromMove = false }: Prof
           </button>
           <button
             type="button"
-            onClick={() => setRole("fleet")}
+            onClick={() => {
+              setRole("fleet")
+              if (fleet?.zone) setZone(fleet.zone)
+            }}
             className={`flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition ${
               role === "fleet" ? "border-[#e0511f] bg-[#fbeae0] text-[#9c3f15]" : "border-[#e4dfd5] text-[#4a5047]"
             }`}
@@ -159,9 +186,15 @@ export function ProfileWorkspace({ authName, authEmail, fromMove = false }: Prof
         {(driver || fleet) && (
           <div className="mt-5 rounded-2xl bg-[#faf8f3] px-4 py-3 text-sm text-[#5f655c]">
             {role === "driver" ? (
-              <>Rating: {driver?.ratingAvg?.toFixed(1) ?? "0.0"} ★ ({driver?.ratingCount ?? 0} reviews)</>
+              <>
+                Rating: {driver?.ratingAvg?.toFixed(1) ?? "0.0"} ★ ({driver?.ratingCount ?? 0} reviews)
+                {driver?.verified ? " · Verified" : ""}
+              </>
             ) : (
-              <>Fleet rating: {fleet?.ratingAvg?.toFixed(1) ?? "0.0"} ★ ({fleet?.ratingCount ?? 0} reviews) · {fleet?.commissionBps ? fleet.commissionBps / 100 : 8}% commission</>
+              <>
+                Fleet rating: {fleet?.ratingAvg?.toFixed(1) ?? "0.0"} ★ ({fleet?.ratingCount ?? 0} reviews) ·{" "}
+                {fleet?.commissionBps ? fleet.commissionBps / 100 : 8}% commission
+              </>
             )}
           </div>
         )}
@@ -182,21 +215,32 @@ export function ProfileWorkspace({ authName, authEmail, fromMove = false }: Prof
           {saving ? "Saving…" : "Save profile"}
         </button>
 
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
           <Link
-            href={role === "driver" ? "/move/shifts" : "/fleet/dashboard"}
-            className="rounded-2xl border border-[#e4dfd5] py-3 text-center text-sm font-bold text-[#4a5047]"
+            href="/move/shifts"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#e4dfd5] bg-[#faf8f3] py-3 text-sm font-bold text-[#1b231e]"
           >
-            Open {role === "driver" ? "driver" : "fleet"} app
+            <Truck className="h-4 w-4 text-[#e0511f]" />
+            Open Driver app
+            <ArrowUpRight className="h-3.5 w-3.5 text-[#9aa097]" />
           </Link>
-          <button
-            type="button"
-            onClick={() => void signOut()}
-            className="rounded-2xl border border-[#f3d6c4] py-3 text-sm font-bold text-[#c0492a]"
+          <Link
+            href="/fleet/dashboard"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#e4dfd5] bg-[#faf8f3] py-3 text-sm font-bold text-[#1b231e]"
           >
-            Sign out
-          </button>
+            <Briefcase className="h-4 w-4 text-[#e0511f]" />
+            Open Fleet console
+            <ArrowUpRight className="h-3.5 w-3.5 text-[#9aa097]" />
+          </Link>
         </div>
+
+        <button
+          type="button"
+          onClick={() => void signOut()}
+          className="mt-3 w-full rounded-2xl border border-[#f3d6c4] py-3 text-sm font-bold text-[#c0492a]"
+        >
+          Sign out
+        </button>
       </div>
     </div>
   )

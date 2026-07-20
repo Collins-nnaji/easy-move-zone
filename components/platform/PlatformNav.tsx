@@ -179,7 +179,7 @@ export function PlatformNav() {
                   {user ? (
                     <>
                       <Link
-                        href={onMove ? "/profile?from=move" : "/profile"}
+                        href={onFleet ? "/profile?from=fleet" : onMove ? "/profile?from=move" : "/profile"}
                         onClick={() => setMenuOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-[#4a5047] transition hover:bg-[#faf8f3] hover:text-[#1b231e]"
                       >

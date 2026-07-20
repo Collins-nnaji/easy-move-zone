@@ -2,6 +2,7 @@
 
 import { ChevronRight } from "lucide-react";
 import { SiteLogo } from "@/components/brand/SiteLogo";
+import { AppAccountMenu } from "@/components/move/AppAccountMenu";
 
 type Tab = { label: string; shortLabel?: string; go: string; screens?: string[] };
 
@@ -10,6 +11,8 @@ type MoveAppShellProps = {
   tabs: Tab[];
   screen: string;
   onNavigate: (screen: string) => void;
+  /** Which marketplace app this shell is hosting */
+  appRole?: "driver" | "fleet";
   /** Breadcrumb root — e.g. "Driver" or "Fleet" */
   appLabel?: string;
   /** Logo / breadcrumb home href */
@@ -33,6 +36,7 @@ export function MoveAppShell({
   tabs,
   screen,
   onNavigate,
+  appRole = "driver",
   appLabel = "App",
   appHomeHref = "/move",
   destCity,
@@ -50,6 +54,7 @@ export function MoveAppShell({
 }: MoveAppShellProps) {
   const activeTab = tabs.find((t) => (t.screens ? t.screens.includes(screen) : screen === t.go));
   const crumbLabel = activeTab?.shortLabel ?? activeTab?.label ?? appLabel;
+  const contextLabel = appRole === "fleet" ? "Your operation" : "Your zone";
 
   return (
     <div className="move-root">
@@ -62,7 +67,7 @@ export function MoveAppShell({
 
             {destCity && (
               <div className="move-sidebar__context">
-                <div className="move-sidebar__context-label">Your destination</div>
+                <div className="move-sidebar__context-label">{contextLabel}</div>
                 <div className="move-sidebar__context-city">{destCity}</div>
                 <div className="move-sidebar__context-meta">
                   {destCountry}
@@ -87,6 +92,10 @@ export function MoveAppShell({
                 );
               })}
             </nav>
+
+            <div className="move-sidebar__account">
+              <AppAccountMenu role={appRole} />
+            </div>
 
             {moveTotal > 0 && (
               <div className="move-sidebar__meter">
@@ -116,6 +125,7 @@ export function MoveAppShell({
                   <ChevronRight className="move-breadcrumb__sep" aria-hidden size={14} />
                   <span className="move-breadcrumb__current">{crumbLabel}</span>
                 </nav>
+                <AppAccountMenu role={appRole} compact />
               </div>
               <nav className="move-pill-nav" aria-label={`${appLabel} sections`}>
                 {tabs.map((t) => {

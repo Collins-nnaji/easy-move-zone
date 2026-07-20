@@ -1236,6 +1236,7 @@ export function DriverApp() {
       tabs={tabs}
       screen={screen}
       onNavigate={(s) => goTo(s as Screen)}
+      appRole="driver"
       appLabel="Driver"
       appHomeHref="/move/shifts"
       destCity={showNav ? (filterZone ?? zone.label) : undefined}
