@@ -32,6 +32,7 @@ import {
   completeDriverShift,
   declineOfferApi,
   fetchDriverWorkspace,
+  rateOperator,
   updateDriverProfile,
   uploadComplianceDoc,
 } from "@/lib/driver/client";
@@ -40,7 +41,7 @@ import {
   fetchPaymentStatus,
   startConnectOnboarding,
 } from "@/lib/payments/client";
-import type { BookingOfferSummary, ComplianceDoc, Shift, ShiftSession, WalletEntry } from "@/lib/driver/types";
+import type { BookingOfferSummary, ComplianceDoc, PendingRating, Shift, ShiftSession, WalletEntry } from "@/lib/driver/types";
 import { loadDriverFlowState, saveDriverFlowState } from "./storage";
 import "./move.css";
 
@@ -242,6 +243,12 @@ export function DriverApp() {
   const [ledger, setLedger] = useState<WalletEntry[]>([]);
   const [compliance, setCompliance] = useState<ComplianceDoc[]>([]);
   const [offers, setOffers] = useState<BookingOfferSummary[]>([]);
+  const [pendingRatings, setPendingRatings] = useState<PendingRating[]>([]);
+  const [rateTarget, setRateTarget] = useState<PendingRating | null>(null);
+  const [rateStars, setRateStars] = useState(5);
+  const [rateComment, setRateComment] = useState("");
+  const [profileVerified, setProfileVerified] = useState(false);
+  const [vaultBusyKey, setVaultBusyKey] = useState<string | null>(null);
   const [cashoutOpen, setCashoutOpen] = useState(false);
   const [cashoutDone, setCashoutDone] = useState(false);
   const [filterZone, setFilterZone] = useState<string | null>(null);
@@ -275,6 +282,13 @@ export function DriverApp() {
       setLedger(data.ledger);
       setCompliance(data.compliance);
       setOffers(data.offers ?? []);
+      setPendingRatings(data.pendingRatings ?? []);
+      setProfileVerified(Boolean(data.profile.verified));
+      if (!rateTarget && (data.pendingRatings?.length ?? 0) > 0) {
+        setRateTarget(data.pendingRatings![0]);
+        setRateStars(5);
+        setRateComment("");
+      }
       const zIdx = ZONE_OPTIONS.findIndex((z) => z.label === data.profile.zone);
       const vIdx = VEHICLE_OPTIONS.findIndex((v) => v.key === data.profile.vehicleType);
       if (zIdx >= 0) setZoneIdx(zIdx);
@@ -401,6 +415,47 @@ export function DriverApp() {
       goTo("wallet");
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Unable to complete load.");
+    }
+  };
+
+  const handleRateSubmit = async () => {
+    if (!rateTarget) return;
+    try {
+      setActionError(null);
+      const ratedId = rateTarget.shiftId;
+      await rateOperator(ratedId, rateStars, rateComment || undefined);
+      setRateTarget(null);
+      setRateStars(5);
+      setRateComment("");
+      await loadWorkspace();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Unable to submit rating.");
+    }
+  };
+
+  const handleVaultUpload = async (docKey: string, file: File | null) => {
+    try {
+      setActionError(null);
+      setVaultBusyKey(docKey);
+      if (!file) {
+        await uploadComplianceDoc(docKey);
+      } else {
+        const buffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+        let binary = "";
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        const fileBase64 = btoa(binary);
+        await uploadComplianceDoc(docKey, {
+          fileName: file.name,
+          fileMime: file.type || "application/octet-stream",
+          fileBase64,
+        });
+      }
+      await loadWorkspace();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Unable to upload document.");
+    } finally {
+      setVaultBusyKey(null);
     }
   };
 
@@ -635,9 +690,12 @@ export function DriverApp() {
             </span>
           </div>
           {shift.operator && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: 13, color: "#5f655c" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: 13, color: "#5f655c", flexWrap: "wrap" }}>
               <span style={{ fontWeight: 600, color: INK }}>{shift.operator.name}</span>
               <span style={{ color: "#b9781f", fontWeight: 700 }}>{formatRating(shift.operator.ratingAvg, shift.operator.ratingCount)}</span>
+              {shift.operator.verified && (
+                <span style={{ background: "#eef6ec", color: "#2f7d4f", borderRadius: 999, padding: "3px 8px", fontSize: 11, fontWeight: 700, fontFamily: MONO }}>Verified</span>
+              )}
             </div>
           )}
           <p style={{ fontSize: 14, lineHeight: 1.5, color: "#5f655c", margin: "13px 0 0" }}>{shift.pickup}</p>
@@ -887,7 +945,23 @@ export function DriverApp() {
         <div className="move-page-screen">
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Vault · compliance</div>
           <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Your credentials</h2>
-          <p style={{ fontSize: 15, color: "#5f655c", margin: "10px 0 0", lineHeight: 1.5 }}>Logistics companies hire from verified rosters. Keep everything current to unlock premium shifts.</p>
+          <p style={{ fontSize: 15, color: "#5f655c", margin: "10px 0 0", lineHeight: 1.5 }}>
+            Upload CDL, background check, medical card, and insurance to earn your Verified badge.
+          </p>
+
+          {profileVerified ? (
+            <div style={{ marginTop: 16, padding: "14px 16px", borderRadius: 16, background: "#eef6ec", border: "1px solid #cfe6cf", display: "flex", alignItems: "center", gap: 10 }}>
+              <Shield size={18} color="#2f7d4f" />
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#2f7d4f" }}>Verified driver</div>
+                <div style={{ fontSize: 12.5, color: "#5f655c", marginTop: 2 }}>Required docs on file — preferred in fleet search</div>
+              </div>
+            </div>
+          ) : (
+            <div style={{ marginTop: 16, padding: "14px 16px", borderRadius: 16, background: "#fdf6e8", border: "1px solid #f3e0c4", fontSize: 13.5, color: "#9a6318", fontWeight: 600 }}>
+              Upload required docs to get verified. Verified drivers rank higher in Find Drivers.
+            </div>
+          )}
 
           <div className="move-metric-grid" style={{ marginTop: 22 }}>
             <div style={{ padding: "18px 18px", borderRadius: 18, background: "#eef6ec", border: "1px solid #cfe6cf" }}>
@@ -903,23 +977,42 @@ export function DriverApp() {
           <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 10 }}>
             {compliance.map((doc) => {
               const colors = docStatusColor(doc.status);
+              const busy = vaultBusyKey === doc.docKey;
               return (
                 <div key={doc.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", borderRadius: 18, background: "#fff", border: "1px solid #e4dfd5", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
                   <div style={{ width: 10, height: 10, borderRadius: 999, background: colors.dot, flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14.5, fontWeight: 600 }}>{doc.name}</div>
-                    <div style={{ fontSize: 12.5, color: MUTE, marginTop: 2 }}>{doc.detail}</div>
+                    <div style={{ fontSize: 12.5, color: MUTE, marginTop: 2 }}>
+                      {doc.hasFile
+                        ? `On file${doc.fileName ? ` · ${doc.fileName}` : ""}`
+                        : doc.detail || "Not uploaded"}
+                    </div>
                     {doc.expiresAt && <div style={{ fontSize: 11.5, color: colors.text, marginTop: 4, fontWeight: 600 }}>Expires {doc.expiresAt}</div>}
                   </div>
-                  <span style={{ padding: "4px 10px", borderRadius: 999, background: colors.bg, color: colors.text, fontFamily: MONO, fontSize: 10, fontWeight: 600, whiteSpace: "nowrap" }}>{docStatusLabel(doc.status)}</span>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+                    <span style={{ padding: "4px 10px", borderRadius: 999, background: colors.bg, color: colors.text, fontFamily: MONO, fontSize: 10, fontWeight: 600, whiteSpace: "nowrap" }}>{docStatusLabel(doc.status)}</span>
+                    <label style={{ display: "inline-flex", alignItems: "center", gap: 4, color: PRIMARY, fontSize: 12, fontWeight: 700, cursor: vaultBusyKey ? "default" : "pointer", opacity: vaultBusyKey && !busy ? 0.5 : 1 }}>
+                      <Camera size={12} />
+                      {busy ? "Uploading…" : doc.hasFile ? "Replace" : "Upload"}
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*"
+                        style={{ display: "none" }}
+                        disabled={vaultBusyKey !== null}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] ?? null;
+                          e.target.value = "";
+                          if (!file) return;
+                          void handleVaultUpload(doc.docKey, file);
+                        }}
+                      />
+                    </label>
+                  </div>
                 </div>
               );
             })}
           </div>
-
-          <button type="button" onClick={() => void uploadComplianceDoc("hazmat").then(() => loadWorkspace())} style={{ marginTop: 20, width: "100%", padding: 17, borderRadius: 18, border: `2px dashed ${PRIMARY}`, background: "#fbeae0", color: "#9c3f15", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-            <Camera size={16} /> Upload document
-          </button>
 
           <div style={{ marginTop: 22, background: INK, borderRadius: 20, padding: 22, color: "#fff" }}>
             <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "#f3aa79" }}>Fleet operators</div>
@@ -943,7 +1036,71 @@ export function DriverApp() {
     }
   }
 
-  const modals = cashoutOpen ? (
+  const rateModal = rateTarget ? (
+    <div className="move-overlay move-overlay--sheet" onClick={() => setRateTarget(null)}>
+      <div className="move-sheet" onClick={(e) => e.stopPropagation()}>
+        <div className="move-sheet-handle" />
+        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Rate fleet</div>
+        <h3 style={{ fontSize: 20, fontWeight: 800, margin: "8px 0 0" }}>How was {rateTarget.counterpartyName}?</h3>
+        <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>
+          {rateTarget.title} · ${rateTarget.payout} — your rating helps other drivers.
+        </p>
+        <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 18 }}>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => setRateStars(n)}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                border: "none",
+                background: rateStars >= n ? PRIMARY : "#f0ede4",
+                color: rateStars >= n ? "#fff" : "#9aa097",
+                fontFamily: HANKEN,
+                fontSize: 16,
+                fontWeight: 800,
+                cursor: "pointer",
+              }}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+        <textarea
+          value={rateComment}
+          onChange={(e) => setRateComment(e.target.value)}
+          placeholder="Optional comment"
+          rows={3}
+          style={{ width: "100%", marginTop: 16, padding: "12px 14px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 14, resize: "vertical" }}
+        />
+        <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+          <button
+            type="button"
+            onClick={() => {
+              const rest = pendingRatings.filter((r) => r.shiftId !== rateTarget.shiftId);
+              setRateTarget(rest[0] ?? null);
+              setRateStars(5);
+              setRateComment("");
+            }}
+            style={{ flex: 1, padding: 14, borderRadius: 14, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+          >
+            Skip
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleRateSubmit()}
+            style={{ flex: 1, padding: 14, borderRadius: 14, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+          >
+            Submit rating
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  const cashoutModal = cashoutOpen ? (
     <div className="move-overlay move-overlay--sheet" onClick={() => setCashoutOpen(false)}>
       <div className="move-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="move-sheet-handle" />
@@ -971,6 +1128,8 @@ export function DriverApp() {
       </div>
     </div>
   ) : null;
+
+  const modals = rateModal ?? cashoutModal;
 
   if (!ready) {
     return <div className="move-root" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}><div className="move-shimmer" style={{ width: 200, height: 24, borderRadius: 8 }} /></div>;

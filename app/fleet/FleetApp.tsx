@@ -27,10 +27,11 @@ import {
   completeFleetShift,
   fetchFleetWorkspace,
   postFleetShift,
+  rateFromFleet,
   updateFleetProfile,
 } from "@/lib/fleet/client";
 import { fundLoad } from "@/lib/payments/client";
-import type { BookingOfferSummary, FleetWorkspace, MarketplaceDriver, Shift } from "@/lib/driver/types";
+import type { BookingOfferSummary, FleetWorkspace, MarketplaceDriver, PendingRating, Shift } from "@/lib/driver/types";
 import type { CargoCategory, VehicleType } from "@/lib/marketplace/taxonomy";
 import "@/app/move/move.css";
 
@@ -107,6 +108,9 @@ export function FleetApp() {
   const [bookShiftId, setBookShiftId] = useState<string>("");
   const [bookMessage, setBookMessage] = useState("");
   const [bookBusy, setBookBusy] = useState(false);
+  const [rateTarget, setRateTarget] = useState<PendingRating | null>(null);
+  const [rateStars, setRateStars] = useState(5);
+  const [rateComment, setRateComment] = useState("");
 
   const [postForm, setPostForm] = useState({
     title: "",
@@ -139,6 +143,16 @@ export function FleetApp() {
       setContactName(data.profile.contactName ?? "");
       const zIdx = ZONE_OPTIONS.findIndex((z) => z.label === data.profile.zone);
       if (zIdx >= 0) setZoneIdx(zIdx);
+      setRateTarget((current) => {
+        if (current) return current;
+        const pending = data.pendingRatings ?? [];
+        if (pending.length > 0) {
+          setRateStars(5);
+          setRateComment("");
+          return pending[0];
+        }
+        return null;
+      });
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Unable to load fleet console.");
     }
@@ -234,6 +248,24 @@ export function FleetApp() {
     }
   };
 
+  const handleRateSubmit = async () => {
+    if (!rateTarget) return;
+    try {
+      setActionError(null);
+      await rateFromFleet({
+        shiftId: rateTarget.shiftId,
+        stars: rateStars,
+        comment: rateComment || undefined,
+      });
+      setRateTarget(null);
+      setRateStars(5);
+      setRateComment("");
+      await loadWorkspace();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Unable to submit rating.");
+    }
+  };
+
   const handleCancel = async (shiftId: string) => {
     try {
       setActionError(null);
@@ -299,6 +331,7 @@ export function FleetApp() {
   const activeWorkload = workspace?.activeWorkload ?? [];
   const pendingOffers = workspace?.pendingOffers ?? [];
   const notifications = workspace?.notifications ?? [];
+  const pendingRatings = workspace?.pendingRatings ?? [];
   const openLoads = postedShifts.filter((s) => s.status === "open");
   const bookableLoads = openLoads.filter((s) => s.funded);
   const bookingDriver = drivers.find((d) => d.id === bookDriverId) ?? null;
@@ -392,7 +425,12 @@ export function FleetApp() {
       <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: "18px 20px", boxShadow: "0 2px 12px rgba(0,0,0,.04)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
           <div>
-            <div style={{ fontSize: 17, fontWeight: 800 }}>{driver.displayName}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ fontSize: 17, fontWeight: 800 }}>{driver.displayName}</div>
+              {driver.verified && (
+                <span style={{ background: "#eef6ec", color: "#2f7d4f", borderRadius: 999, padding: "3px 8px", fontSize: 11, fontWeight: 700, fontFamily: MONO }}>Verified</span>
+              )}
+            </div>
             <div style={{ fontSize: 13, color: MUTE, marginTop: 2 }}>
               {driver.ownerType === "owner" ? "Truck owner" : "Driver"} · {driver.zone}
             </div>
@@ -486,6 +524,12 @@ export function FleetApp() {
           {pendingOffers.length > 0 && (
             <div style={{ marginTop: 14, padding: "12px 14px", borderRadius: 14, background: "#fbeae0", border: "1px solid #f3d6c4", fontSize: 13, color: "#9c3f15", fontWeight: 600 }}>
               {pendingOffers.length} booking offer{pendingOffers.length === 1 ? "" : "s"} waiting for driver accept
+            </div>
+          )}
+
+          {pendingRatings.length > 0 && (
+            <div style={{ marginTop: 14, padding: "12px 14px", borderRadius: 14, background: "#eef6ec", border: "1px solid #cfe6cf", fontSize: 13, color: "#2f7d4f", fontWeight: 600 }}>
+              {pendingRatings.length} completed load{pendingRatings.length === 1 ? "" : "s"} waiting for your rating
             </div>
           )}
 
@@ -644,6 +688,70 @@ export function FleetApp() {
     { label: "My Loads", screens: ["loads"], go: "loads" as Screen },
   ];
 
+  const rateModal = rateTarget ? (
+    <div className="move-overlay move-overlay--sheet" onClick={() => setRateTarget(null)}>
+      <div className="move-sheet" onClick={(e) => e.stopPropagation()}>
+        <div className="move-sheet-handle" />
+        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Rate driver</div>
+        <h3 style={{ fontSize: 20, fontWeight: 800, margin: "8px 0 0" }}>How was {rateTarget.counterpartyName}?</h3>
+        <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>
+          {rateTarget.title} · ${rateTarget.payout} — ratings keep the marketplace trustworthy.
+        </p>
+        <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 18 }}>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => setRateStars(n)}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                border: "none",
+                background: rateStars >= n ? PRIMARY : "#f0ede4",
+                color: rateStars >= n ? "#fff" : "#9aa097",
+                fontFamily: HANKEN,
+                fontSize: 16,
+                fontWeight: 800,
+                cursor: "pointer",
+              }}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+        <textarea
+          value={rateComment}
+          onChange={(e) => setRateComment(e.target.value)}
+          placeholder="Optional comment"
+          rows={3}
+          style={{ width: "100%", marginTop: 16, padding: "12px 14px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 14, resize: "vertical" }}
+        />
+        <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+          <button
+            type="button"
+            onClick={() => {
+              const rest = pendingRatings.filter((r) => r.shiftId !== rateTarget.shiftId);
+              setRateTarget(rest[0] ?? null);
+              setRateStars(5);
+              setRateComment("");
+            }}
+            style={{ flex: 1, padding: 14, borderRadius: 14, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+          >
+            Skip
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleRateSubmit()}
+            style={{ flex: 1, padding: 14, borderRadius: 14, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+          >
+            Submit rating
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   const bookModal = bookDriverId ? (
     <div className="move-overlay move-overlay--sheet" onClick={() => setBookDriverId(null)}>
       <div className="move-sheet" onClick={(e) => e.stopPropagation()}>
@@ -694,6 +802,8 @@ export function FleetApp() {
     </div>
   ) : null;
 
+  const modals = rateModal ?? bookModal;
+
   if (!ready) {
     return <div className="move-root" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}><div className="move-shimmer" style={{ width: 200, height: 24, borderRadius: 8 }} /></div>;
   }
@@ -714,7 +824,7 @@ export function FleetApp() {
       meterLabel="Fill rate"
       meterSub={`${stats.completedLoads} of ${stats.totalPosted} loads completed`}
       isFlowScreen={isFlowScreen}
-      modals={bookModal}
+      modals={modals}
     >
       {screenBody()}
       {(actionError || loadError) && !isFlowScreen && (

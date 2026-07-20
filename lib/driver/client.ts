@@ -50,18 +50,31 @@ export async function cashOutWallet(): Promise<{ amount: number }> {
   );
 }
 
-export async function uploadComplianceDoc(docKey: string): Promise<void> {
+export async function uploadComplianceDoc(
+  docKey: string,
+  file?: { fileName: string; fileMime: string; fileBase64: string },
+): Promise<void> {
   await parseJson(
     await fetch("/api/driver/vault", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ docKey }),
+      body: JSON.stringify({ docKey, ...file }),
     }),
   );
 }
 
 export async function completeDriverShift(shiftId: string): Promise<void> {
   await parseJson(await fetch(`/api/driver/shifts/${shiftId}/complete`, { method: "POST" }));
+}
+
+export async function rateOperator(shiftId: string, stars: number, comment?: string): Promise<void> {
+  await parseJson(
+    await fetch("/api/driver/ratings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ shiftId, stars, comment }),
+    }),
+  );
 }
 
 export async function acceptOfferApi(offerId: string): Promise<{ shiftId: string }> {

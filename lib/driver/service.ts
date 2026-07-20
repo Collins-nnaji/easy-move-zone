@@ -43,7 +43,7 @@ export async function ensureDriverProfile(authUserId: string): Promise<DriverPro
   }
 
   const rows = (await driverSql.query(
-    `select zone, vehicle_type, owner_type, display_name, rating_avg, rating_count, onboarding_completed
+    `select zone, vehicle_type, owner_type, display_name, rating_avg, rating_count, coalesce(verified, false) as verified, onboarding_completed
      from driver_profiles where auth_user_id = $1`,
     [authUserId],
   )) as Array<{
@@ -53,6 +53,7 @@ export async function ensureDriverProfile(authUserId: string): Promise<DriverPro
     display_name: string | null;
     rating_avg: string | number;
     rating_count: number;
+    verified: boolean;
     onboarding_completed: boolean;
   }>;
 
@@ -64,6 +65,7 @@ export async function ensureDriverProfile(authUserId: string): Promise<DriverPro
     displayName: row?.display_name ?? null,
     ratingAvg: Number(row?.rating_avg ?? 0),
     ratingCount: row?.rating_count ?? 0,
+    verified: row?.verified ?? false,
     onboardingCompleted: row?.onboarding_completed ?? false,
   };
 }
@@ -217,7 +219,8 @@ export async function getCompliance(authUserId: string) {
   if (!driverSql) return [];
   await ensureDriverProfile(authUserId);
   const rows = (await driverSql.query(
-    `select id, doc_key, name, status, detail, expires_at
+    `select id, doc_key, name, status, detail, expires_at, file_name,
+            (file_data is not null or file_name is not null) as has_file
      from driver_compliance_docs
      where auth_user_id = $1
      order by name`,
@@ -229,8 +232,36 @@ export async function getCompliance(authUserId: string) {
     status: "verified" | "pending" | "expiring" | "missing";
     detail: string | null;
     expires_at: string | null;
+    file_name: string | null;
+    has_file: boolean;
   }>;
   return rows.map(mapComplianceRow);
+}
+
+export async function getPendingRatingsForDriver(authUserId: string) {
+  if (!driverSql) return [];
+  const rows = (await driverSql.query(
+    `select sh.id, coalesce(sh.title, sh.vehicle_label) as title, sh.payout_cents,
+            coalesce(fo.company_name, 'Fleet operator') as counterparty
+     from driver_shifts sh
+     left join fleet_operator_profiles fo on fo.auth_user_id = sh.posted_by
+     where sh.claimed_by = $1
+       and sh.status = 'completed'
+       and not exists (
+         select 1 from marketplace_ratings r
+         where r.shift_id = sh.id and r.from_user_id = $1
+       )
+     order by sh.updated_at desc
+     limit 10`,
+    [authUserId],
+  )) as Array<{ id: string; title: string; payout_cents: number; counterparty: string }>;
+
+  return rows.map((r) => ({
+    shiftId: r.id,
+    title: r.title,
+    counterpartyName: r.counterparty,
+    payout: r.payout_cents / 100,
+  }));
 }
 
 export async function buildWorkspace(
@@ -244,6 +275,7 @@ export async function buildWorkspace(
     displayName: null,
     ratingAvg: 0,
     ratingCount: 0,
+    verified: false,
     onboardingCompleted: false,
   };
 
@@ -265,13 +297,14 @@ export async function buildWorkspace(
         expiresAt: d.docKey === "medical" ? "Aug 19, 2026" : undefined,
       })),
       offers: [],
+      pendingRatings: [],
     };
   }
 
   const profile = await ensureDriverProfile(authUserId);
   const filterZone = filters?.zone ?? profile.zone;
 
-  const [openShifts, myShifts, activeSession, wallet, ledger, compliance, offers] = await Promise.all([
+  const [openShifts, myShifts, activeSession, wallet, ledger, compliance, offers, pendingRatings] = await Promise.all([
     getOpenShifts(filterZone, filters?.cargo, filters?.vehicle),
     getMyShifts(authUserId),
     getActiveSession(authUserId),
@@ -279,6 +312,7 @@ export async function buildWorkspace(
     getLedger(authUserId),
     getCompliance(authUserId),
     getOffersForDriver(authUserId),
+    getPendingRatingsForDriver(authUserId),
   ]);
 
   return {
@@ -290,6 +324,7 @@ export async function buildWorkspace(
     ledger,
     compliance,
     offers: toOfferSummary(offers),
+    pendingRatings,
   };
 }
 
@@ -389,17 +424,19 @@ export async function cashOut(authUserId: string) {
   return payout / 100;
 }
 
-export async function submitComplianceDoc(authUserId: string, docKey: string) {
+export async function submitComplianceDoc(
+  authUserId: string,
+  docKey: string,
+  file?: { fileName?: string; fileMime?: string; fileBase64?: string },
+) {
   if (!driverSql) throw new Error("Database not configured.");
   await ensureDriverProfile(authUserId);
-
-  const rows = (await driverSql.query(
-    `update driver_compliance_docs
-     set status = 'pending', updated_at = now()
-     where auth_user_id = $1 and doc_key = $2
-     returning id`,
-    [authUserId, docKey],
-  )) as Array<{ id: string }>;
-
-  if (!rows[0]) throw new Error("Document type not found.");
+  const { uploadComplianceDocument } = await import("./vault");
+  return uploadComplianceDocument({
+    authUserId,
+    docKey,
+    fileName: file?.fileName,
+    fileMime: file?.fileMime,
+    fileBase64: file?.fileBase64,
+  });
 }

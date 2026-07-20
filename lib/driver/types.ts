@@ -9,6 +9,7 @@ export interface OperatorSummary {
   name: string;
   ratingAvg: number;
   ratingCount: number;
+  verified?: boolean;
 }
 
 export interface Shift {
@@ -77,6 +78,8 @@ export interface ComplianceDoc {
   status: "verified" | "pending" | "expiring" | "missing";
   detail: string;
   expiresAt?: string;
+  hasFile?: boolean;
+  fileName?: string;
 }
 
 export interface DriverProfile {
@@ -86,7 +89,15 @@ export interface DriverProfile {
   displayName: string | null;
   ratingAvg: number;
   ratingCount: number;
+  verified: boolean;
   onboardingCompleted: boolean;
+}
+
+export interface PendingRating {
+  shiftId: string;
+  title: string;
+  counterpartyName: string;
+  payout: number;
 }
 
 export interface DriverWorkspace {
@@ -98,6 +109,7 @@ export interface DriverWorkspace {
   ledger: WalletEntry[];
   compliance: ComplianceDoc[];
   offers: BookingOfferSummary[];
+  pendingRatings: PendingRating[];
 }
 
 export interface BookingOfferSummary {
@@ -120,6 +132,7 @@ export interface MarketplaceDriver {
   ratingCount: number;
   rateHint: number | null;
   bio: string | null;
+  verified: boolean;
 }
 
 export interface FleetProfile {
@@ -129,6 +142,7 @@ export interface FleetProfile {
   ratingAvg: number;
   ratingCount: number;
   commissionBps: number;
+  verified: boolean;
   onboardingCompleted: boolean;
 }
 
@@ -156,6 +170,7 @@ export interface FleetWorkspace {
     readAt: string | null;
     createdAt: string;
   }>;
+  pendingRatings: PendingRating[];
 }
 
 export interface PostShiftInput {

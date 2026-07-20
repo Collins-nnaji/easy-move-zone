@@ -17,8 +17,10 @@ const explore = [
 
 const company = [
   { href: "/contact", label: "Contact us" },
+  { href: "/legal/terms", label: "Terms" },
+  { href: "/legal/privacy", label: "Privacy" },
+  { href: "/legal/independent-contractor", label: "Contractor notice" },
   { href: "/auth", label: "Sign in" },
-  { href: "/auth?mode=signup", label: "Create account" },
 ]
 
 export function PlatformFooter() {

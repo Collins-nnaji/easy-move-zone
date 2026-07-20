@@ -33,7 +33,8 @@ export async function ensureFleetProfile(authUserId: string): Promise<FleetProfi
   );
 
   const rows = (await driverSql.query(
-    `select company_name, contact_name, zone, rating_avg, rating_count, commission_bps, onboarding_completed
+    `select company_name, contact_name, zone, rating_avg, rating_count, commission_bps,
+            coalesce(verified, false) as verified, onboarding_completed
      from fleet_operator_profiles where auth_user_id = $1`,
     [authUserId],
   )) as Array<{
@@ -43,6 +44,7 @@ export async function ensureFleetProfile(authUserId: string): Promise<FleetProfi
     rating_avg: string | number;
     rating_count: number;
     commission_bps: number;
+    verified: boolean;
     onboarding_completed: boolean;
   }>;
 
@@ -54,6 +56,7 @@ export async function ensureFleetProfile(authUserId: string): Promise<FleetProfi
     ratingAvg: Number(row?.rating_avg ?? 0),
     ratingCount: row?.rating_count ?? 0,
     commissionBps: row?.commission_bps ?? COMMISSION_BPS,
+    verified: row?.verified ?? false,
     onboardingCompleted: row?.onboarding_completed ?? false,
   };
 }
@@ -145,10 +148,10 @@ export async function searchDrivers(zone?: string | null, vehicleType?: string |
 
   const rows = (await driverSql.query(
     `select auth_user_id, display_name, owner_type, vehicle_type, zone,
-            rating_avg, rating_count, rate_hint_cents, bio
+            rating_avg, rating_count, rate_hint_cents, bio, coalesce(verified, false) as verified
      from driver_profiles
      where ${clauses.join(" and ")}
-     order by rating_avg desc, rating_count desc
+     order by verified desc, rating_avg desc, rating_count desc
      limit 50`,
     params,
   )) as Array<{
@@ -161,6 +164,7 @@ export async function searchDrivers(zone?: string | null, vehicleType?: string |
     rating_count: number;
     rate_hint_cents: number | null;
     bio: string | null;
+    verified: boolean;
   }>;
 
   return rows.map((r) => ({
@@ -173,6 +177,7 @@ export async function searchDrivers(zone?: string | null, vehicleType?: string |
     ratingCount: r.rating_count,
     rateHint: r.rate_hint_cents ? r.rate_hint_cents / 100 : null,
     bio: r.bio,
+    verified: r.verified,
   }));
 }
 
@@ -187,6 +192,7 @@ export async function buildFleetWorkspace(
     ratingAvg: 0,
     ratingCount: 0,
     commissionBps: COMMISSION_BPS,
+    verified: false,
     onboardingCompleted: false,
   };
 
@@ -201,16 +207,18 @@ export async function buildFleetWorkspace(
       drivers,
       pendingOffers: [],
       notifications: [],
+      pendingRatings: [],
     };
   }
 
   const profile = await ensureFleetProfile(authUserId);
-  const [stats, postedShifts, activeWorkload, pendingOffers, notifications] = await Promise.all([
+  const [stats, postedShifts, activeWorkload, pendingOffers, notifications, pendingRatings] = await Promise.all([
     getFleetStats(authUserId),
     getPostedShifts(authUserId),
     getActiveWorkload(authUserId),
     getOffersForFleet(authUserId),
     getNotifications(authUserId),
+    getPendingRatingsForFleet(authUserId),
   ]);
 
   return {
@@ -221,7 +229,34 @@ export async function buildFleetWorkspace(
     drivers,
     pendingOffers: toOfferSummary(pendingOffers),
     notifications,
+    pendingRatings,
   };
+}
+
+async function getPendingRatingsForFleet(authUserId: string) {
+  if (!driverSql) return [];
+  const rows = (await driverSql.query(
+    `select sh.id, coalesce(sh.title, sh.vehicle_label) as title, sh.payout_cents,
+            coalesce(dp.display_name, 'Driver') as counterparty
+     from driver_shifts sh
+     left join driver_profiles dp on dp.auth_user_id = sh.claimed_by
+     where sh.posted_by = $1
+       and sh.status = 'completed'
+       and not exists (
+         select 1 from marketplace_ratings r
+         where r.shift_id = sh.id and r.from_user_id = $1
+       )
+     order by sh.updated_at desc
+     limit 10`,
+    [authUserId],
+  )) as Array<{ id: string; title: string; payout_cents: number; counterparty: string }>;
+
+  return rows.map((r) => ({
+    shiftId: r.id,
+    title: r.title,
+    counterpartyName: r.counterparty,
+    payout: r.payout_cents / 100,
+  }));
 }
 
 export async function postShift(authUserId: string, input: PostShiftInput) {

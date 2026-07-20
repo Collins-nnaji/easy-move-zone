@@ -26,6 +26,7 @@ export interface ShiftRow {
   operator_name?: string | null;
   operator_rating_avg?: string | number | null;
   operator_rating_count?: number | null;
+  operator_verified?: boolean | null;
   claimed_driver_name?: string | null;
   funded?: boolean;
 }
@@ -35,6 +36,7 @@ const SHIFT_COLUMNS = `sh.id, sh.title, sh.payout_cents, sh.payout_type, sh.vehi
   sh.distance_mi, sh.stops, sh.demand, sh.shift_date, sh.status, sh.commission_bps,
   sh.posted_by, sh.claimed_by, coalesce(sh.funded, false) as funded,
   fo.company_name as operator_name, fo.rating_avg as operator_rating_avg, fo.rating_count as operator_rating_count,
+  coalesce(fo.verified, false) as operator_verified,
   dp.display_name as claimed_driver_name`;
 
 export { SHIFT_COLUMNS };
@@ -50,6 +52,7 @@ export function mapOperator(row: ShiftRow): OperatorSummary | null {
     name: row.operator_name,
     ratingAvg: Number(row.operator_rating_avg ?? 0),
     ratingCount: row.operator_rating_count ?? 0,
+    verified: Boolean(row.operator_verified),
   };
 }
 
@@ -109,6 +112,9 @@ export function mapComplianceRow(row: {
   status: ComplianceDoc["status"];
   detail: string | null;
   expires_at: string | null;
+  file_name?: string | null;
+  file_data?: string | null;
+  has_file?: boolean | null;
 }): ComplianceDoc {
   return {
     id: row.id,
@@ -119,6 +125,8 @@ export function mapComplianceRow(row: {
     expiresAt: row.expires_at
       ? new Date(row.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
       : undefined,
+    hasFile: Boolean(row.has_file ?? (row.file_data || row.file_name)),
+    fileName: row.file_name ?? undefined,
   };
 }
 

@@ -11,6 +11,15 @@ Simplified product surface:
 | `/profile` | Signed-in users | Marketplace account |
 | `/contact` | Everyone | Support |
 
+## Phase 3 trust & legal (live)
+
+- **Vault uploads:** Drivers upload CDL / background / medical / insurance files from `/move/vault` (stored as base64 in Postgres for now; max ~1.5MB)
+- **Verified badge:** Uploading the four required docs marks the driver `verified`; verified drivers sort first in fleet Find Drivers
+- **Bilateral ratings:** After a load completes, driver and fleet each get a rating sheet (1–5 + optional comment)
+- **Legal pages:** `/legal/terms`, `/legal/privacy`, `/legal/independent-contractor` (linked in footer)
+
+Ops KYC review queue lands in Phase 4. For object storage later, swap vault file_data for S3/R2/Blob and keep the same API shape.
+
 ## Phase 2 escrow (live)
 
 - Drivers can **only claim funded loads**
@@ -99,7 +108,9 @@ RESEND_FROM_EMAIL=
 | Driver wallet ledger | Live | — |
 | Stripe Connect payouts | Code ready | Stripe keys + Connect Express + webhook |
 | Fleet load funding | Code ready | Same Stripe account + Checkout |
-| Document uploads (Vault) | Status flip only | S3/R2/Blob storage + review UI |
+| Document uploads (Vault) | Live (DB base64) | S3/R2/Blob + admin KYC review (Phase 4) |
+| Bilateral ratings | Live | — |
+| Terms / Privacy / IC notice | Live | Legal counsel review before production |
 | Live GPS / maps | Placeholder waypoints | Google Maps or Mapbox API key + geolocation |
 | SMS / push notifications | Not built | Twilio or OneSignal |
 | Marketplace admin ops | Old relocation admin still exists | Rebuild `/admin` for KYC, cashouts, disputes |
@@ -113,11 +124,13 @@ Home
  │    welcome → zone → vehicle → shifts → schedule → wallet → vault
  │    claim / cashout require sign-in
  │    complete load credits wallet (minus 8% commission)
+ │    rate fleet → upload vault docs for Verified badge
  │
  └─ Fleet console (/fleet)
       setup → dashboard → post load → find drivers → my loads
       fund load via Stripe Checkout
       mark complete → driver paid, commission recorded
+      rate driver · Verified badge on partner cards
 ```
 
 Dead relocation/travel routes (explore, visas, schools, etc.) have been removed from the app tree.
