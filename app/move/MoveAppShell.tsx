@@ -1,8 +1,10 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { SiteLogo } from "@/components/brand/SiteLogo";
 import { AppAccountMenu } from "@/components/move/AppAccountMenu";
+import { softSpring, screenTransition, screenVariants } from "@/lib/motion/presets";
 
 type Tab = { label: string; shortLabel?: string; go: string; screens?: string[] };
 
@@ -11,11 +13,8 @@ type MoveAppShellProps = {
   tabs: Tab[];
   screen: string;
   onNavigate: (screen: string) => void;
-  /** Which marketplace app this shell is hosting */
   appRole?: "driver" | "fleet";
-  /** Breadcrumb root — e.g. "Driver" or "Fleet" */
   appLabel?: string;
-  /** Logo / breadcrumb home href */
   appHomeHref?: string;
   destCity?: string;
   destCountry?: string;
@@ -52,6 +51,7 @@ export function MoveAppShell({
   children,
   modals,
 }: MoveAppShellProps) {
+  const reduceMotion = useReducedMotion();
   const activeTab = tabs.find((t) => (t.screens ? t.screens.includes(screen) : screen === t.go));
   const crumbLabel = activeTab?.shortLabel ?? activeTab?.label ?? appLabel;
   const contextLabel = appRole === "fleet" ? "Your operation" : "Your zone";
@@ -100,7 +100,15 @@ export function MoveAppShell({
             {moveTotal > 0 && (
               <div className="move-sidebar__meter">
                 <div className="move-sidebar__meter-label">{meterLabel}</div>
-                <div className="move-sidebar__meter-value">{movePct}%</div>
+                <motion.div
+                  className="move-sidebar__meter-value"
+                  key={movePct}
+                  initial={reduceMotion ? false : { opacity: 0.4, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={screenTransition}
+                >
+                  {movePct}%
+                </motion.div>
                 <div className="move-sidebar__meter-sub">
                   {meterSub ?? `${moveDone} of ${moveTotal} steps done`}
                 </div>
@@ -123,7 +131,18 @@ export function MoveAppShell({
                     {appLabel}
                   </button>
                   <ChevronRight className="move-breadcrumb__sep" aria-hidden size={14} />
-                  <span className="move-breadcrumb__current">{crumbLabel}</span>
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.span
+                      key={crumbLabel}
+                      className="move-breadcrumb__current"
+                      initial={reduceMotion ? false : { opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={reduceMotion ? undefined : { opacity: 0, y: -4 }}
+                      transition={{ duration: 0.18 }}
+                    >
+                      {crumbLabel}
+                    </motion.span>
+                  </AnimatePresence>
                 </nav>
                 <AppAccountMenu role={appRole} compact />
               </div>
@@ -137,7 +156,14 @@ export function MoveAppShell({
                       className={`move-pill-nav__tab${active ? " move-pill-nav__tab--active" : ""}`}
                       onClick={() => onNavigate(t.go)}
                     >
-                      {t.shortLabel ?? t.label}
+                      {active && !reduceMotion && (
+                        <motion.span
+                          layoutId={`pill-active-${appRole}`}
+                          className="move-pill-nav__ink"
+                          transition={softSpring}
+                        />
+                      )}
+                      <span className="move-pill-nav__text">{t.shortLabel ?? t.label}</span>
                     </button>
                   );
                 })}
@@ -146,7 +172,19 @@ export function MoveAppShell({
           )}
 
           <div className={`move-scroll${isFlowScreen ? " move-scroll--flow" : " move-scroll--app"}`}>
-            {children}
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={screen}
+                className="move-screen-motion"
+                variants={reduceMotion ? undefined : screenVariants}
+                initial={reduceMotion ? false : "initial"}
+                animate="animate"
+                exit={reduceMotion ? undefined : "exit"}
+                transition={screenTransition}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </div>

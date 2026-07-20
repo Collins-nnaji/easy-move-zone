@@ -198,6 +198,7 @@
 }
 
 .move-pill-nav__tab {
+  position: relative;
   flex: 0 0 auto;
   border: 1px solid #e4dfd5;
   background: #fff;
@@ -210,14 +211,32 @@
   line-height: 1;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: color 0.15s, border-color 0.15s;
+  z-index: 0;
 }
 
 .move-pill-nav__tab--active {
-  background: var(--move-ink);
   border-color: var(--move-ink);
   color: #fff;
   font-weight: 700;
+  background: var(--move-ink);
+}
+
+.move-pill-nav__ink {
+  position: absolute;
+  inset: -1px;
+  border-radius: 999px;
+  background: var(--move-ink);
+  z-index: 0;
+}
+
+.move-pill-nav__text {
+  position: relative;
+  z-index: 1;
+}
+
+.move-screen-motion {
+  min-height: 100%;
 }
 
 /* Legacy bottom nav removed — keep class inert if referenced */

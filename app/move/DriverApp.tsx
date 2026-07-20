@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { SiteLogo } from "@/components/brand/SiteLogo";
 import { MoveAppShell } from "./MoveAppShell";
+import { AnimatedSheet } from "@/components/move/AnimatedSheet";
+import { StaggerItem, StaggerList } from "@/components/move/StaggerList";
 import {
   CARGO_OPTIONS,
   CARGO_TAGS,
@@ -821,15 +823,17 @@ export function DriverApp() {
             ))}
           </div>
 
-          <div className="move-card-grid" style={{ marginTop: 22 }}>
-            {list.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "40px 20px", borderRadius: 18, border: "1px dashed #d8d2c6", color: MUTE, fontSize: 14 }}>No open shifts in this zone. Try another or check back soon.</div>
-            ) : (
-              list.map((shift) => (
-                <ShiftCard key={shift.id} shift={shift} onClaim={() => void handleClaim(shift)} claimed={claimedIds.has(shift.id)} />
-              ))
-            )}
-          </div>
+          {list.length === 0 ? (
+            <div style={{ marginTop: 22, textAlign: "center", padding: "40px 20px", borderRadius: 18, border: "1px dashed #d8d2c6", color: MUTE, fontSize: 14 }}>No open shifts in this zone. Try another or check back soon.</div>
+          ) : (
+            <StaggerList className="move-card-grid" style={{ marginTop: 22 }}>
+              {list.map((shift) => (
+                <StaggerItem key={shift.id}>
+                  <ShiftCard shift={shift} onClaim={() => void handleClaim(shift)} claimed={claimedIds.has(shift.id)} />
+                </StaggerItem>
+              ))}
+            </StaggerList>
+          )}
         </div>
       </div>
     );
@@ -1131,100 +1135,105 @@ export function DriverApp() {
     }
   }
 
-  const rateModal = rateTarget ? (
-    <div className="move-overlay move-overlay--sheet" onClick={() => setRateTarget(null)}>
-      <div className="move-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="move-sheet-handle" />
-        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Rate fleet</div>
-        <h3 style={{ fontSize: 20, fontWeight: 800, margin: "8px 0 0" }}>How was {rateTarget.counterpartyName}?</h3>
-        <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>
-          {rateTarget.title} · ${rateTarget.payout} — your rating helps other drivers.
-        </p>
-        <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 18 }}>
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button
-              key={n}
-              type="button"
-              onClick={() => setRateStars(n)}
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                border: "none",
-                background: rateStars >= n ? PRIMARY : "#f0ede4",
-                color: rateStars >= n ? "#fff" : "#9aa097",
-                fontFamily: HANKEN,
-                fontSize: 16,
-                fontWeight: 800,
-                cursor: "pointer",
-              }}
-            >
-              {n}
-            </button>
-          ))}
-        </div>
-        <textarea
-          value={rateComment}
-          onChange={(e) => setRateComment(e.target.value)}
-          placeholder="Optional comment"
-          rows={3}
-          style={{ width: "100%", marginTop: 16, padding: "12px 14px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 14, resize: "vertical" }}
-        />
-        <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-          <button
-            type="button"
-            onClick={() => {
-              const rest = pendingRatings.filter((r) => r.shiftId !== rateTarget.shiftId);
-              setRateTarget(rest[0] ?? null);
-              setRateStars(5);
-              setRateComment("");
-            }}
-            style={{ flex: 1, padding: 14, borderRadius: 14, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
-          >
-            Skip
-          </button>
-          <button
-            type="button"
-            onClick={() => void handleRateSubmit()}
-            style={{ flex: 1, padding: 14, borderRadius: 14, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
-          >
-            Submit rating
-          </button>
-        </div>
-      </div>
-    </div>
-  ) : null;
-
-  const cashoutModal = cashoutOpen ? (
-    <div className="move-overlay move-overlay--sheet" onClick={() => setCashoutOpen(false)}>
-      <div className="move-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="move-sheet-handle" />
-        {cashoutDone ? (
-          <div style={{ textAlign: "center", padding: "8px 0 4px" }}>
-            <div style={{ width: 56, height: 56, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 26, margin: "0 auto", boxShadow: "0 8px 22px rgba(224,81,31,.34)" }}>✓</div>
-            <h3 style={{ fontSize: 20, fontWeight: 800, margin: "16px 0 0" }}>Cashout started</h3>
-            <p style={{ fontSize: 14, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.55 }}>{cashoutMessage ?? "Arrives in your bank within minutes."}</p>
-            <button onClick={() => { setCashoutOpen(false); setCashoutDone(false); setCashoutMessage(null); }} style={{ width: "100%", marginTop: 20, padding: 15, border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>Done</button>
+  const rateModal = (
+    <AnimatedSheet open={Boolean(rateTarget)} onClose={() => setRateTarget(null)}>
+      {rateTarget ? (
+        <>
+          <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Rate fleet</div>
+          <h3 style={{ fontSize: 20, fontWeight: 800, margin: "8px 0 0" }}>How was {rateTarget.counterpartyName}?</h3>
+          <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>
+            {rateTarget.title} · ${rateTarget.payout} — your rating helps other drivers.
+          </p>
+          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 18 }}>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setRateStars(n)}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  border: "none",
+                  background: rateStars >= n ? PRIMARY : "#f0ede4",
+                  color: rateStars >= n ? "#fff" : "#9aa097",
+                  fontFamily: HANKEN,
+                  fontSize: 16,
+                  fontWeight: 800,
+                  cursor: "pointer",
+                  transition: "transform .15s ease, background .15s ease",
+                  transform: rateStars >= n ? "scale(1.06)" : "scale(1)",
+                }}
+              >
+                {n}
+              </button>
+            ))}
           </div>
-        ) : (
-          <>
-            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Instant cashout</div>
-            <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-.01em", margin: "8px 0 0" }}>Transfer ${wallet.available} to your card</h3>
-            <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>Micro-fee of ${wallet.cashoutFee} — arrives in minutes.</p>
-            <div style={{ marginTop: 18, padding: 16, borderRadius: 16, background: "#fbeae0", border: "1px solid #f3d6c4", display: "flex", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 14, fontWeight: 600 }}>You receive</span>
-              <span style={{ fontSize: 18, fontWeight: 800, color: PRIMARY }}>${(wallet.available - wallet.cashoutFee).toFixed(2)}</span>
-            </div>
-            <button onClick={() => void handleCashout()} style={{ width: "100%", marginTop: 16, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-              <Zap size={16} /> Cash out now
+          <textarea
+            value={rateComment}
+            onChange={(e) => setRateComment(e.target.value)}
+            placeholder="Optional comment"
+            rows={3}
+            style={{ width: "100%", marginTop: 16, padding: "12px 14px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 14, resize: "vertical" }}
+          />
+          <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+            <button
+              type="button"
+              onClick={() => {
+                const rest = pendingRatings.filter((r) => r.shiftId !== rateTarget.shiftId);
+                setRateTarget(rest[0] ?? null);
+                setRateStars(5);
+                setRateComment("");
+              }}
+              style={{ flex: 1, padding: 14, borderRadius: 14, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+            >
+              Skip
             </button>
-          </>
-        )}
-      </div>
-    </div>
-  ) : null;
+            <button
+              type="button"
+              onClick={() => void handleRateSubmit()}
+              style={{ flex: 1, padding: 14, borderRadius: 14, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+            >
+              Submit rating
+            </button>
+          </div>
+        </>
+      ) : null}
+    </AnimatedSheet>
+  );
 
-  const modals = rateModal ?? cashoutModal;
+  const cashoutModal = (
+    <AnimatedSheet open={cashoutOpen} onClose={() => setCashoutOpen(false)}>
+      {cashoutDone ? (
+        <div style={{ textAlign: "center", padding: "8px 0 4px" }}>
+          <div style={{ width: 56, height: 56, borderRadius: 999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 26, margin: "0 auto", boxShadow: "0 8px 22px rgba(224,81,31,.34)" }}>✓</div>
+          <h3 style={{ fontSize: 20, fontWeight: 800, margin: "16px 0 0" }}>Cashout started</h3>
+          <p style={{ fontSize: 14, color: "#6e746b", margin: "8px 0 0", lineHeight: 1.55 }}>{cashoutMessage ?? "Arrives in your bank within minutes."}</p>
+          <button onClick={() => { setCashoutOpen(false); setCashoutDone(false); setCashoutMessage(null); }} style={{ width: "100%", marginTop: 20, padding: 15, border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>Done</button>
+        </div>
+      ) : (
+        <>
+          <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Instant cashout</div>
+          <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-.01em", margin: "8px 0 0" }}>Transfer ${wallet.available} to your card</h3>
+          <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>Micro-fee of ${wallet.cashoutFee} — arrives in minutes.</p>
+          <div style={{ marginTop: 18, padding: 16, borderRadius: 16, background: "#fbeae0", border: "1px solid #f3d6c4", display: "flex", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 14, fontWeight: 600 }}>You receive</span>
+            <span style={{ fontSize: 18, fontWeight: 800, color: PRIMARY }}>${(wallet.available - wallet.cashoutFee).toFixed(2)}</span>
+          </div>
+          <button onClick={() => void handleCashout()} style={{ width: "100%", marginTop: 16, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <Zap size={16} /> Cash out now
+          </button>
+        </>
+      )}
+    </AnimatedSheet>
+  );
+
+  const modals = (
+    <>
+      {rateModal}
+      {cashoutModal}
+    </>
+  );
 
   if (!ready) {
     return <div className="move-root" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}><div className="move-shimmer" style={{ width: 200, height: 24, borderRadius: 8 }} /></div>;

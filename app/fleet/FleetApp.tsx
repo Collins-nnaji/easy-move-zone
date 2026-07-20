@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { SiteLogo } from "@/components/brand/SiteLogo";
 import { MoveAppShell } from "@/app/move/MoveAppShell";
+import { AnimatedSheet } from "@/components/move/AnimatedSheet";
+import { StaggerItem, StaggerList } from "@/components/move/StaggerList";
 import {
   CARGO_OPTIONS,
   CARGO_TAGS,
@@ -649,7 +651,13 @@ export function FleetApp() {
                 No drivers match this filter yet.
               </div>
             ) : (
-              drivers.map((d) => <DriverCard key={d.id} driver={d} />)
+              <StaggerList style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {drivers.map((d) => (
+                  <StaggerItem key={d.id}>
+                    <DriverCard driver={d} />
+                  </StaggerItem>
+                ))}
+              </StaggerList>
             )}
           </div>
         </div>
@@ -697,74 +705,76 @@ export function FleetApp() {
     { label: "My Loads", shortLabel: "Loads", screens: ["loads"], go: "loads" as Screen },
   ];
 
-  const rateModal = rateTarget ? (
-    <div className="move-overlay move-overlay--sheet" onClick={() => setRateTarget(null)}>
-      <div className="move-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="move-sheet-handle" />
-        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Rate driver</div>
-        <h3 style={{ fontSize: 20, fontWeight: 800, margin: "8px 0 0" }}>How was {rateTarget.counterpartyName}?</h3>
-        <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>
-          {rateTarget.title} · ${rateTarget.payout} — ratings keep the marketplace trustworthy.
-        </p>
-        <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 18 }}>
-          {[1, 2, 3, 4, 5].map((n) => (
+  const rateModal = (
+    <AnimatedSheet open={Boolean(rateTarget)} onClose={() => setRateTarget(null)}>
+      {rateTarget ? (
+        <>
+          <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Rate driver</div>
+          <h3 style={{ fontSize: 20, fontWeight: 800, margin: "8px 0 0" }}>How was {rateTarget.counterpartyName}?</h3>
+          <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>
+            {rateTarget.title} · ${rateTarget.payout} — ratings keep the marketplace trustworthy.
+          </p>
+          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 18 }}>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setRateStars(n)}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  border: "none",
+                  background: rateStars >= n ? PRIMARY : "#f0ede4",
+                  color: rateStars >= n ? "#fff" : "#9aa097",
+                  fontFamily: HANKEN,
+                  fontSize: 16,
+                  fontWeight: 800,
+                  cursor: "pointer",
+                  transition: "transform .15s ease, background .15s ease",
+                  transform: rateStars >= n ? "scale(1.06)" : "scale(1)",
+                }}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          <textarea
+            value={rateComment}
+            onChange={(e) => setRateComment(e.target.value)}
+            placeholder="Optional comment"
+            rows={3}
+            style={{ width: "100%", marginTop: 16, padding: "12px 14px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 14, resize: "vertical" }}
+          />
+          <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
             <button
-              key={n}
               type="button"
-              onClick={() => setRateStars(n)}
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                border: "none",
-                background: rateStars >= n ? PRIMARY : "#f0ede4",
-                color: rateStars >= n ? "#fff" : "#9aa097",
-                fontFamily: HANKEN,
-                fontSize: 16,
-                fontWeight: 800,
-                cursor: "pointer",
+              onClick={() => {
+                const rest = pendingRatings.filter((r) => r.shiftId !== rateTarget.shiftId);
+                setRateTarget(rest[0] ?? null);
+                setRateStars(5);
+                setRateComment("");
               }}
+              style={{ flex: 1, padding: 14, borderRadius: 14, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
             >
-              {n}
+              Skip
             </button>
-          ))}
-        </div>
-        <textarea
-          value={rateComment}
-          onChange={(e) => setRateComment(e.target.value)}
-          placeholder="Optional comment"
-          rows={3}
-          style={{ width: "100%", marginTop: 16, padding: "12px 14px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 14, resize: "vertical" }}
-        />
-        <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-          <button
-            type="button"
-            onClick={() => {
-              const rest = pendingRatings.filter((r) => r.shiftId !== rateTarget.shiftId);
-              setRateTarget(rest[0] ?? null);
-              setRateStars(5);
-              setRateComment("");
-            }}
-            style={{ flex: 1, padding: 14, borderRadius: 14, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
-          >
-            Skip
-          </button>
-          <button
-            type="button"
-            onClick={() => void handleRateSubmit()}
-            style={{ flex: 1, padding: 14, borderRadius: 14, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
-          >
-            Submit rating
-          </button>
-        </div>
-      </div>
-    </div>
-  ) : null;
+            <button
+              type="button"
+              onClick={() => void handleRateSubmit()}
+              style={{ flex: 1, padding: 14, borderRadius: 14, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+            >
+              Submit rating
+            </button>
+          </div>
+        </>
+      ) : null}
+    </AnimatedSheet>
+  );
 
-  const bookModal = bookDriverId ? (
-    <div className="move-overlay move-overlay--sheet" onClick={() => setBookDriverId(null)}>
-      <div className="move-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="move-sheet-handle" />
+  const bookModal = (
+    <AnimatedSheet open={Boolean(bookDriverId)} onClose={() => setBookDriverId(null)}>
+      <>
         <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Book driver</div>
         <h3 style={{ fontSize: 20, fontWeight: 800, margin: "8px 0 0" }}>{bookingDriver?.displayName ?? "Driver"}</h3>
         <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0" }}>Choose one of your open loads. They get a direct offer to accept.</p>
@@ -807,11 +817,16 @@ export function FleetApp() {
             </button>
           </>
         )}
-      </div>
-    </div>
-  ) : null;
+      </>
+    </AnimatedSheet>
+  );
 
-  const modals = rateModal ?? bookModal;
+  const modals = (
+    <>
+      {rateModal}
+      {bookModal}
+    </>
+  );
 
   if (!ready) {
     return <div className="move-root" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}><div className="move-shimmer" style={{ width: 200, height: 24, borderRadius: 8 }} /></div>;

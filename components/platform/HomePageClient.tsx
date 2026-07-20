@@ -152,9 +152,13 @@ export function HomePageClient() {
                     { pay: "$320/day", vehicle: "Semi · Heavy Goods", route: "DFW → OKC linehaul", hot: true, rating: "4.8 ★" },
                     { pay: "$45/hr", vehicle: "Tanker · Hazmat", route: "Houston Port · 3 stops", hot: true, rating: "4.6 ★" },
                     { pay: "$180/day", vehicle: "Sprinter · Parcel", route: "DFW North · 12 stops", hot: false, rating: "4.9 ★" },
-                  ].map((s) => (
-                    <div
+                  ].map((s, i) => (
+                    <motion.div
                       key={s.pay}
+                      initial={reduceMotion ? false : { opacity: 0, x: 16 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.45, delay: 0.08 * i, ease: easeOut }}
                       className="rounded-2xl border border-[#ece6da] bg-[#faf8f3] px-4 py-3.5"
                     >
                       <div className="flex items-center justify-between">
@@ -170,12 +174,16 @@ export function HomePageClient() {
                         <div className="text-xs text-[#8a8f86]">{s.route}</div>
                         <div className="text-xs font-bold text-[#b9781f]">{s.rating}</div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
-                <div className="mt-5 rounded-2xl bg-[#1b231e] px-4 py-3 text-center text-sm font-bold text-white">
+                <motion.div
+                  className="mt-5 rounded-2xl bg-[#1b231e] px-4 py-3 text-center text-sm font-bold text-white"
+                  animate={reduceMotion ? undefined : { boxShadow: ["0 0 0 0 rgba(224,81,31,0)", "0 0 0 8px rgba(224,81,31,0.18)", "0 0 0 0 rgba(224,81,31,0)"] }}
+                  transition={reduceMotion ? undefined : { duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                >
                   Slide to claim →
-                </div>
+                </motion.div>
               </div>
             </motion.div>
           </div>
