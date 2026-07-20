@@ -11,6 +11,20 @@ Simplified product surface:
 | `/profile` | Signed-in users | Marketplace account |
 | `/contact` | Everyone | Support |
 
+## Phase 2 escrow (live)
+
+- Drivers can **only claim funded loads**
+- Completing a load only pays out if escrow was funded
+- Fleet post → auto-funds escrow (Stripe Checkout if keys set; ledger escrow otherwise)
+- Seeded demo loads are pre-funded
+
+**Add for real card payments:**
+```
+STRIPE_SECRET_KEY=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
+```
+
 ## Phase 1 booking (live)
 
 - Drivers: Home → **Book a load** → `/move/shifts` → slide to claim (sign in only if needed)

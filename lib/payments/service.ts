@@ -161,7 +161,6 @@ export async function cashOutWithStripe(authUserId: string) {
 }
 
 export async function createLoadFundingCheckout(authUserId: string, shiftId: string) {
-  const stripe = requireStripe();
   if (!driverSql) throw new Error("Database not configured.");
   await ensureFleetProfile(authUserId);
 
@@ -186,8 +185,27 @@ export async function createLoadFundingCheckout(authUserId: string, shiftId: str
   if (shift.funded) throw new Error("This load is already funded.");
   if (shift.status === "cancelled") throw new Error("Cannot fund a cancelled load.");
 
-  const totalCents = shift.payout_cents; // gross driver payout escrowed; commission taken on complete
+  const totalCents = shift.payout_cents;
 
+  // Without Stripe keys: ledger escrow so booking still works in staging.
+  if (!isStripeConfigured) {
+    await driverSql.query(
+      `insert into marketplace_payments (kind, shift_id, payer_user_id, amount_cents, status, metadata)
+       values ('load_fund', $1, $2, $3, 'succeeded', '{"mode":"ledger"}'::jsonb)`,
+      [shiftId, authUserId, totalCents],
+    );
+    await driverSql.query(
+      `update driver_shifts set funded = true, funded_at = now(), updated_at = now() where id = $1`,
+      [shiftId],
+    );
+    return {
+      mode: "ledger" as const,
+      funded: true,
+      message: "Load funded on ledger escrow. Add Stripe keys for real card payments.",
+    };
+  }
+
+  const stripe = requireStripe();
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     line_items: [
@@ -198,7 +216,7 @@ export async function createLoadFundingCheckout(authUserId: string, shiftId: str
           unit_amount: totalCents,
           product_data: {
             name: `Fund load: ${shift.title ?? shift.vehicle_label}`,
-            description: `Escrow driver payout ($${ (totalCents / 100).toFixed(2) }). Platform commission is deducted when the load completes.`,
+            description: `Escrow driver payout ($${(totalCents / 100).toFixed(2)}). Platform commission is deducted when the load completes.`,
           },
         },
       },
@@ -218,7 +236,24 @@ export async function createLoadFundingCheckout(authUserId: string, shiftId: str
     [shiftId, authUserId, totalCents, session.id],
   );
 
-  return { url: session.url!, sessionId: session.id };
+  return {
+    mode: "stripe" as const,
+    url: session.url!,
+    sessionId: session.id,
+  };
+}
+
+export async function assertShiftFunded(shiftId: string) {
+  if (!driverSql) throw new Error("Database not configured.");
+  const rows = (await driverSql.query(
+    `select funded, status from driver_shifts where id = $1`,
+    [shiftId],
+  )) as Array<{ funded: boolean; status: string }>;
+  const shift = rows[0];
+  if (!shift) throw new Error("Load not found.");
+  if (!shift.funded) {
+    throw new Error("This load is not funded yet. Fleet must escrow payout before booking.");
+  }
 }
 
 export async function markLoadFundedFromSession(sessionId: string, paymentIntentId?: string | null) {

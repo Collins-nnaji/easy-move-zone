@@ -181,7 +181,7 @@ export function FleetApp() {
     try {
       setActionError(null);
       const vehicle = VEHICLE_OPTIONS.find((v) => v.key === postForm.vehicleType);
-      await postFleetShift({
+      const { id } = await postFleetShift({
         title: postForm.title || `${vehicle?.label ?? "Load"} route`,
         payoutCents: Math.round(parseFloat(postForm.payout) * 100),
         payoutType: postForm.payoutType,
@@ -200,8 +200,20 @@ export function FleetApp() {
         shiftDate: postForm.shiftDate,
       });
       setPostSuccess(true);
+      // Escrow payout immediately so drivers can book
+      if (id) {
+        try {
+          const fundResult = await fundLoad(id);
+          if (fundResult.mode === "stripe" && fundResult.url) {
+            window.location.href = fundResult.url;
+            return;
+          }
+        } catch {
+          // Load is posted; fleet can fund from My Loads if auto-fund fails
+        }
+      }
       await loadWorkspace();
-      setTimeout(() => { setPostSuccess(false); goTo("loads"); }, 1200);
+      setTimeout(() => { setPostSuccess(false); goTo("loads"); }, 900);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Sign in to post loads.";
       if (/sign in|401|unauthorized/i.test(msg)) {
@@ -235,8 +247,12 @@ export function FleetApp() {
   const handleFund = async (shiftId: string) => {
     try {
       setActionError(null);
-      const { url } = await fundLoad(shiftId);
-      window.location.href = url;
+      const result = await fundLoad(shiftId);
+      if (result.mode === "stripe" && result.url) {
+        window.location.href = result.url;
+        return;
+      }
+      await loadWorkspace();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unable to fund load.";
       if (/sign in|401|unauthorized/i.test(msg)) {
@@ -284,6 +300,7 @@ export function FleetApp() {
   const pendingOffers = workspace?.pendingOffers ?? [];
   const notifications = workspace?.notifications ?? [];
   const openLoads = postedShifts.filter((s) => s.status === "open");
+  const bookableLoads = openLoads.filter((s) => s.funded);
   const bookingDriver = drivers.find((d) => d.id === bookDriverId) ?? null;
 
   function Welcome() {
@@ -398,7 +415,7 @@ export function FleetApp() {
           type="button"
           onClick={() => {
             setBookDriverId(driver.id);
-            setBookShiftId(openLoads[0]?.id ?? "");
+            setBookShiftId(bookableLoads[0]?.id ?? "");
           }}
           style={{ width: "100%", marginTop: 14, padding: 12, border: "none", borderRadius: 12, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
         >
@@ -438,7 +455,7 @@ export function FleetApp() {
         {showActions && (
           <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
             {shift.status === "open" && !shift.funded && (
-              <button type="button" onClick={() => void handleFund(shift.id)} style={{ flex: 1, minWidth: 120, padding: 12, borderRadius: 12, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Fund with Stripe</button>
+              <button type="button" onClick={() => void handleFund(shift.id)} style={{ flex: 1, minWidth: 120, padding: 12, borderRadius: 12, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Fund escrow</button>
             )}
             {shift.status === "open" && (
               <button type="button" onClick={() => void handleCancel(shift.id)} style={{ flex: 1, minWidth: 100, padding: 12, borderRadius: 12, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
@@ -509,7 +526,7 @@ export function FleetApp() {
         <div className="move-page-screen">
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Post load · {zone.label}</div>
           <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>New marketplace load</h2>
-          <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>8% commission on completion. Drivers see net pay after fees.</p>
+          <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>Drivers can claim only after you fund escrow. Stripe Checkout when keys are set; ledger escrow otherwise.</p>
 
           {postSuccess ? (
             <div style={{ marginTop: 32, textAlign: "center", padding: 32, borderRadius: 20, background: "#eef6ec", border: "1px solid #cfe6cf" }}>
@@ -554,10 +571,14 @@ export function FleetApp() {
             Tap Book, pick an open load, and the driver gets a direct offer to accept.
           </p>
 
-          {openLoads.length === 0 && (
+          {bookableLoads.length === 0 && (
             <div style={{ marginTop: 16, padding: 16, borderRadius: 16, background: "#fdf6e8", border: "1px solid #f3e0c4", fontSize: 13, color: "#9a6318" }}>
-              Post an open load first, then come back to book a driver onto it.{" "}
-              <button type="button" onClick={() => goTo("post")} style={{ color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>Post load →</button>
+              {openLoads.length === 0
+                ? "Post and fund a load first, then book a driver onto it."
+                : "Fund escrow on an open load before booking a driver."}{" "}
+              <button type="button" onClick={() => goTo(openLoads.length ? "loads" : "post")} style={{ color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>
+                {openLoads.length ? "My loads →" : "Post load →"}
+              </button>
             </div>
           )}
 
@@ -631,15 +652,17 @@ export function FleetApp() {
         <h3 style={{ fontSize: 20, fontWeight: 800, margin: "8px 0 0" }}>{bookingDriver?.displayName ?? "Driver"}</h3>
         <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0" }}>Choose one of your open loads. They get a direct offer to accept.</p>
 
-        {openLoads.length === 0 ? (
+        {bookableLoads.length === 0 ? (
           <div style={{ marginTop: 18, padding: 16, borderRadius: 14, background: "#fdf6e8", color: "#9a6318", fontSize: 13 }}>
-            No open loads yet. Post a load first.
-            <button type="button" onClick={() => { setBookDriverId(null); goTo("post"); }} style={{ display: "block", marginTop: 10, color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>Post load →</button>
+            No funded open loads. Fund escrow first, then book.
+            <button type="button" onClick={() => { setBookDriverId(null); goTo(openLoads.length ? "loads" : "post"); }} style={{ display: "block", marginTop: 10, color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>
+              {openLoads.length ? "Fund a load →" : "Post load →"}
+            </button>
           </div>
         ) : (
           <>
             <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-              {openLoads.map((s) => (
+              {bookableLoads.map((s) => (
                 <button
                   key={s.id}
                   type="button"

@@ -297,10 +297,21 @@ export async function claimShift(authUserId: string, shiftId: string) {
   if (!driverSql) throw new Error("Database not configured.");
   await ensureDriverProfile(authUserId);
 
+  const check = (await driverSql.query(
+    `select funded, status from driver_shifts where id = $1`,
+    [shiftId],
+  )) as Array<{ funded: boolean; status: string }>;
+  const current = check[0];
+  if (!current) throw new Error("Load not found.");
+  if (current.status !== "open") throw new Error("Shift is no longer available.");
+  if (!current.funded) {
+    throw new Error("This load is not funded yet. Wait for the fleet to escrow payout.");
+  }
+
   const rows = (await driverSql.query(
     `update driver_shifts
      set status = 'claimed', claimed_by = $2, claimed_at = now(), updated_at = now()
-     where id = $1 and status = 'open'
+     where id = $1 and status = 'open' and funded = true
      returning id`,
     [shiftId, authUserId],
   )) as Array<{ id: string }>;

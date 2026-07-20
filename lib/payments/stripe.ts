@@ -8,6 +8,9 @@ export const stripe = secret
 
 export const isStripeConfigured = Boolean(stripe);
 
+/** Escrow is always required for claim/complete. Stripe Checkout when keys exist; ledger demo fund otherwise. */
+export const REQUIRE_FUNDED_CLAIMS = true;
+
 export const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 
 export function appBaseUrl() {

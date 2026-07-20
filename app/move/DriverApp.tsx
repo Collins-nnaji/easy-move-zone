@@ -610,8 +610,9 @@ export function DriverApp() {
   function ShiftCard({ shift, onClaim, claimed }: { shift: Shift; onClaim?: () => void; claimed?: boolean }) {
     const tag = VEHICLE_TAGS[shift.vehicle];
     const cargoTag = CARGO_TAGS[shift.cargo];
+    const claimable = shift.funded;
     return (
-      <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 22, overflow: "hidden", boxShadow: "0 4px 18px rgba(0,0,0,.05)" }}>
+      <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 22, overflow: "hidden", boxShadow: "0 4px 18px rgba(0,0,0,.05)", opacity: claimable ? 1 : 0.85 }}>
         <div style={{ padding: "18px 20px 16px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
             <div>
@@ -629,6 +630,9 @@ export function DriverApp() {
             <span style={{ background: tag.bg, color: tag.color, borderRadius: 999, padding: "6px 11px", fontSize: 12, fontWeight: 600, fontFamily: MONO }}>{tag.label}</span>
             <span style={{ background: cargoTag.bg, color: cargoTag.color, borderRadius: 999, padding: "6px 11px", fontSize: 12, fontWeight: 600, fontFamily: MONO }}>{cargoTag.label}</span>
             <span style={{ background: "#f0ede4", borderRadius: 999, padding: "6px 11px", fontSize: 12, color: "#4a5047", fontWeight: 600, fontFamily: MONO }}>{shift.stops} stops</span>
+            <span style={{ background: claimable ? "#eef6ec" : "#fdf6e8", color: claimable ? "#2f7d4f" : "#9a6318", borderRadius: 999, padding: "6px 11px", fontSize: 12, fontWeight: 600, fontFamily: MONO }}>
+              {claimable ? "Funded" : "Awaiting escrow"}
+            </span>
           </div>
           {shift.operator && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: 13, color: "#5f655c" }}>
@@ -641,9 +645,14 @@ export function DriverApp() {
             <Clock size={14} color={MUTE} />
             <span style={{ fontSize: 13, color: "#6e746b" }}>{shift.startTime} – {shift.endTime} · {shift.dropoff}</span>
           </div>
-          {onClaim && (
+          {onClaim && claimable && (
             <div style={{ marginTop: 16 }}>
               <SlideToClaim onClaim={onClaim} claimed={claimed} />
+            </div>
+          )}
+          {onClaim && !claimable && (
+            <div style={{ marginTop: 16, padding: "12px 14px", borderRadius: 14, background: "#fdf6e8", border: "1px solid #f3e0c4", fontSize: 13, color: "#9a6318", fontWeight: 600, textAlign: "center" }}>
+              Awaiting fleet escrow — not bookable yet
             </div>
           )}
         </div>

@@ -38,7 +38,12 @@ export async function cashOutPayment(): Promise<{
   return parseJson(await fetch("/api/payments/cashout", { method: "POST" }));
 }
 
-export async function fundLoad(shiftId: string): Promise<{ url: string }> {
+export async function fundLoad(shiftId: string): Promise<{
+  mode: "stripe" | "ledger";
+  url?: string;
+  funded?: boolean;
+  message?: string;
+}> {
   return parseJson(
     await fetch("/api/payments/fund", {
       method: "POST",

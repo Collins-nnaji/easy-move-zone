@@ -94,6 +94,14 @@ export async function createDriverOffer(input: {
   if (shift.posted_by !== input.fleetUserId) throw new Error("You can only book drivers on your own loads.");
   if (shift.status !== "open") throw new Error("Load is no longer open.");
 
+  const fundedRows = (await driverSql.query(
+    `select funded from driver_shifts where id = $1`,
+    [input.shiftId],
+  )) as Array<{ funded: boolean }>;
+  if (!fundedRows[0]?.funded) {
+    throw new Error("Fund this load before booking a driver.");
+  }
+
   const drivers = (await driverSql.query(
     `select auth_user_id, display_name, contact_email from driver_profiles where auth_user_id = $1`,
     [input.driverUserId],
@@ -159,7 +167,7 @@ export async function getOffersForDriver(driverUserId: string): Promise<BookingO
      join driver_shifts sh on sh.id = o.shift_id
      left join fleet_operator_profiles fo on fo.auth_user_id = o.fleet_user_id
      left join driver_profiles dp on dp.auth_user_id = o.driver_user_id
-     where o.driver_user_id = $1 and o.status = 'pending' and sh.status = 'open'
+     where o.driver_user_id = $1 and o.status = 'pending' and sh.status = 'open' and sh.funded = true
      order by o.created_at desc`,
     [driverUserId],
   )) as Array<ShiftRow & {
@@ -231,12 +239,12 @@ export async function acceptOffer(driverUserId: string, offerId: string) {
   const claimed = (await driverSql.query(
     `update driver_shifts
      set status = 'claimed', claimed_by = $2, claimed_at = now(), updated_at = now()
-     where id = $1 and status = 'open'
+     where id = $1 and status = 'open' and funded = true
      returning id`,
     [offer.shift_id, driverUserId],
   )) as Array<{ id: string }>;
 
-  if (!claimed[0]) throw new Error("Load is no longer available.");
+  if (!claimed[0]) throw new Error("Load is no longer available or not funded.");
 
   await driverSql.query(
     `insert into driver_shift_sessions (shift_id, auth_user_id, waypoints, status)

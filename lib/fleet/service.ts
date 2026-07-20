@@ -265,7 +265,7 @@ export async function completeShift(authUserId: string, shiftId: string, role: "
   if (!driverSql) throw new Error("Database not configured.");
 
   const shiftRows = (await driverSql.query(
-    `select id, posted_by, claimed_by, payout_cents, payout_type, commission_bps, status, vehicle_label
+    `select id, posted_by, claimed_by, payout_cents, payout_type, commission_bps, status, vehicle_label, funded
      from driver_shifts where id = $1`,
     [shiftId],
   )) as Array<{
@@ -277,12 +277,14 @@ export async function completeShift(authUserId: string, shiftId: string, role: "
     commission_bps: number;
     status: string;
     vehicle_label: string;
+    funded: boolean;
   }>;
 
   const shift = shiftRows[0];
   if (!shift) throw new Error("Shift not found.");
   if (!shift.claimed_by) throw new Error("Shift has not been claimed.");
   if (shift.status === "completed") throw new Error("Shift already completed.");
+  if (!shift.funded) throw new Error("Cannot pay out an unfunded load. Fund escrow first.");
 
   if (role === "fleet" && shift.posted_by !== authUserId) {
     throw new Error("You can only complete shifts you posted.");
