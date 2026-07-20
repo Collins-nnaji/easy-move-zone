@@ -229,7 +229,7 @@ export async function getCompliance(authUserId: string) {
     id: string;
     doc_key: string;
     name: string;
-    status: "verified" | "pending" | "expiring" | "missing";
+    status: "verified" | "pending" | "expiring" | "missing" | "rejected";
     detail: string | null;
     expires_at: string | null;
     file_name: string | null;

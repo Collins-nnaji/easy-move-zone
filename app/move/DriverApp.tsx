@@ -89,7 +89,8 @@ function docStatusColor(status: ComplianceDoc["status"]) {
     case "verified": return { dot: "#2f7d4f", bg: "#eef6ec", text: "#2f7d4f" };
     case "expiring": return { dot: "#b9781f", bg: "#fdf6e8", text: "#9a6318" };
     case "pending": return { dot: "#1f6f78", bg: "#e9f5f4", text: "#1f6f78" };
-    default: return { dot: "#c0492a", bg: "#fbeae0", text: "#c0492a" };
+    case "rejected": return { dot: "#c0492a", bg: "#fbeae0", text: "#c0492a" };
+    default: return { dot: "#9aa097", bg: "#f0ede4", text: "#6e746b" };
   }
 }
 
@@ -98,6 +99,7 @@ function docStatusLabel(status: ComplianceDoc["status"]) {
     case "verified": return "Verified";
     case "expiring": return "Expiring soon";
     case "pending": return "Under review";
+    case "rejected": return "Rejected";
     default: return "Required";
   }
 }

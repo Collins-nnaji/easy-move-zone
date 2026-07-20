@@ -125,12 +125,24 @@ export async function cashOutWithStripe(authUserId: string) {
   }
 
   const stripe = requireStripe();
-  const transfer = await stripe.transfers.create({
-    amount: payoutCents,
-    currency: "usd",
-    destination: status.stripeAccountId,
-    metadata: { auth_user_id: authUserId, kind: "cashout" },
-  });
+
+  let transfer;
+  try {
+    transfer = await stripe.transfers.create({
+      amount: payoutCents,
+      currency: "usd",
+      destination: status.stripeAccountId,
+      metadata: { auth_user_id: authUserId, kind: "cashout" },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Stripe transfer failed.";
+    await driverSql.query(
+      `insert into marketplace_payments (kind, payee_user_id, amount_cents, status, metadata)
+       values ('cashout', $1, $2, 'failed', $3::jsonb)`,
+      [authUserId, payoutCents, JSON.stringify({ error: message })],
+    );
+    throw new Error(message);
+  }
 
   await driverSql.query(
     `update driver_wallets set available_cents = 0, updated_at = now() where auth_user_id = $1`,

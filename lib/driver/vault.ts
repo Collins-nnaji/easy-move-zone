@@ -42,8 +42,8 @@ export async function uploadComplianceDocument(input: {
     }
   }
 
-  // With a real file we verify immediately for Phase 3 (ops review lands in Phase 4).
-  const nextStatus = input.fileBase64 ? "verified" : "pending";
+  // Uploads enter the ops review queue; admins approve in /admin/kyc.
+  const nextStatus = "pending";
 
   const rows = (await driverSql.query(
     `update driver_compliance_docs
@@ -53,6 +53,9 @@ export async function uploadComplianceDocument(input: {
          file_mime = coalesce($5, file_mime),
          file_data = coalesce($6, file_data),
          file_url = case when $6 is not null then '/api/driver/vault/file/' || id::text else file_url end,
+         reviewed_at = case when $6 is not null then null else reviewed_at end,
+         reviewed_by = case when $6 is not null then null else reviewed_by end,
+         reviewer_notes = case when $6 is not null then null else reviewer_notes end,
          updated_at = now()
      where auth_user_id = $1 and doc_key = $2
      returning id, status, file_name`,

@@ -75,7 +75,7 @@ export interface ComplianceDoc {
   id: string;
   docKey: string;
   name: string;
-  status: "verified" | "pending" | "expiring" | "missing";
+  status: "verified" | "pending" | "expiring" | "missing" | "rejected";
   detail: string;
   expiresAt?: string;
   hasFile?: boolean;
