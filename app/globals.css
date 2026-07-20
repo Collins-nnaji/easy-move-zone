@@ -101,12 +101,20 @@
     user-select: auto;
   }
 
-  /* The Move app manages its own internal scroll (.move-scroll); pin the
-     outer page so it can't also scroll and reveal space under the fixed
-     bottom nav. */
+  /* The Move/Fleet apps manage their own internal scroll (.move-scroll).
+     Pin the outer page so it can't expand past the viewport on mobile. */
   body.move-app-active {
     height: 100dvh;
+    height: 100svh;
+    max-height: 100dvh;
+    max-height: 100svh;
     overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body.move-app-active #__next,
+  body.move-app-active > div {
+    min-height: 0;
   }
 
   /* Display headings use Bricolage Grotesque */

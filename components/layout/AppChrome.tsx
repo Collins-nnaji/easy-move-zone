@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { PlatformNav } from "@/components/platform/PlatformNav"
 import { PlatformFooter } from "@/components/platform/PlatformFooter"
@@ -17,6 +18,13 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
     pathname.startsWith("/fleet/")
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/")
 
+  useEffect(() => {
+    document.body.classList.toggle("move-app-active", isApp)
+    return () => {
+      document.body.classList.remove("move-app-active")
+    }
+  }, [isApp])
+
   if (isAuth) {
     return (
       <ClientErrorBoundary>
@@ -31,7 +39,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   return (
     <ClientErrorBoundary>
       {!isApp && <PlatformNav />}
-      <main className="flex-1 min-w-0">{children}</main>
+      <main className={`flex-1 min-w-0${isApp ? " overflow-hidden" : ""}`}>{children}</main>
       {!isApp && <PlatformFooter />}
       {!isAdmin && !isApp && <SupportWidget />}
     </ClientErrorBoundary>
