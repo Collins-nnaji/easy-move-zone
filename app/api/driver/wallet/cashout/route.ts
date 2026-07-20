@@ -1,17 +1,17 @@
 import { neonAuth } from "@neondatabase/auth/next/server";
-import { cashOut } from "@/lib/driver/service";
+import { cashOutWithStripe } from "@/lib/payments/service";
 
 export const runtime = "nodejs";
 
 export async function POST() {
   try {
-    const { session, user } = await neonAuth();
-    if (!session || !user) return Response.json({ error: "Sign in to cash out." }, { status: 401 });
+    const { user } = await neonAuth();
+    if (!user) return Response.json({ error: "Sign in required." }, { status: 401 });
 
-    const amount = await cashOut(String(user.id));
-    return Response.json({ amount });
+    const result = await cashOutWithStripe(String(user.id));
+    return Response.json({ amount: result.amount, mode: result.mode, message: result.message });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unable to process cashout.";
+    const message = err instanceof Error ? err.message : "Unable to cash out.";
     return Response.json({ error: message }, { status: 400 });
   }
 }
