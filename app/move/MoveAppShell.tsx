@@ -1,14 +1,19 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import { SiteLogo } from "@/components/brand/SiteLogo";
 
-type Tab = { label: string; go: string; screens?: string[] };
+type Tab = { label: string; shortLabel?: string; go: string; screens?: string[] };
 
 type MoveAppShellProps = {
   showNav: boolean;
   tabs: Tab[];
   screen: string;
   onNavigate: (screen: string) => void;
+  /** Breadcrumb root — e.g. "Driver" or "Fleet" */
+  appLabel?: string;
+  /** Logo / breadcrumb home href */
+  appHomeHref?: string;
   destCity?: string;
   destCountry?: string;
   stayLabel?: string;
@@ -28,6 +33,8 @@ export function MoveAppShell({
   tabs,
   screen,
   onNavigate,
+  appLabel = "App",
+  appHomeHref = "/move",
   destCity,
   destCountry,
   stayLabel,
@@ -41,13 +48,16 @@ export function MoveAppShell({
   children,
   modals,
 }: MoveAppShellProps) {
+  const activeTab = tabs.find((t) => (t.screens ? t.screens.includes(screen) : screen === t.go));
+  const crumbLabel = activeTab?.shortLabel ?? activeTab?.label ?? appLabel;
+
   return (
     <div className="move-root">
       <div className="move-shell">
         {showNav && (
           <aside className="move-sidebar">
             <div className="move-sidebar__brand">
-              <SiteLogo href="/move/shifts" height={28} />
+              <SiteLogo href={appHomeHref} height={28} />
             </div>
 
             {destCity && (
@@ -91,28 +101,43 @@ export function MoveAppShell({
         )}
 
         <div className="move-main">
+          {showNav && (
+            <header className="move-mobile-top">
+              <div className="move-mobile-top__row">
+                <SiteLogo href={appHomeHref} height={24} />
+                <nav className="move-breadcrumb" aria-label="Breadcrumb">
+                  <button
+                    type="button"
+                    className="move-breadcrumb__link"
+                    onClick={() => onNavigate(tabs[0]?.go ?? screen)}
+                  >
+                    {appLabel}
+                  </button>
+                  <ChevronRight className="move-breadcrumb__sep" aria-hidden size={14} />
+                  <span className="move-breadcrumb__current">{crumbLabel}</span>
+                </nav>
+              </div>
+              <nav className="move-pill-nav" aria-label={`${appLabel} sections`}>
+                {tabs.map((t) => {
+                  const active = t.screens ? t.screens.includes(screen) : screen === t.go;
+                  return (
+                    <button
+                      key={t.label}
+                      type="button"
+                      className={`move-pill-nav__tab${active ? " move-pill-nav__tab--active" : ""}`}
+                      onClick={() => onNavigate(t.go)}
+                    >
+                      {t.shortLabel ?? t.label}
+                    </button>
+                  );
+                })}
+              </nav>
+            </header>
+          )}
+
           <div className={`move-scroll${isFlowScreen ? " move-scroll--flow" : " move-scroll--app"}`}>
             {children}
           </div>
-
-          {showNav && (
-            <nav className="move-bottom-nav" aria-label="Move app">
-              {tabs.map((t) => {
-                const active = t.screens ? t.screens.includes(screen) : screen === t.go;
-                return (
-                  <button
-                    key={t.label}
-                    type="button"
-                    className={`move-bottom-nav__tab${active ? " move-bottom-nav__tab--active" : ""}`}
-                    onClick={() => onNavigate(t.go)}
-                  >
-                    <span className="move-bottom-nav__dot" aria-hidden />
-                    <span className="move-bottom-nav__label">{t.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
-          )}
         </div>
       </div>
 

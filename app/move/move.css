@@ -11,11 +11,17 @@
   --move-mute: #9aa097;
   --move-surface: #efece4;
   --move-border: #e4dfd5;
-  height: calc(100dvh - 56px);
-  height: calc(100svh - 56px);
+  /* Full viewport — /move and /fleet have no PlatformNav chrome */
+  height: 100dvh;
+  height: 100svh;
+  max-height: 100dvh;
+  max-height: 100svh;
   background: var(--move-surface);
   color: var(--move-ink);
   font-family: var(--font-hanken), system-ui, sans-serif;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100vw;
 }
 
 .move-shell {
@@ -23,13 +29,17 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .move-main {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .move-scroll {
@@ -38,62 +48,105 @@
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
-  /* Momentum scroll that doesn't chain to the (locked) page behind it. */
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
 
-/* ── Mobile bottom nav ── */
-.move-bottom-nav {
-  display: flex;
-  gap: 2px;
-  border-top: 1px solid #e0dacd;
-  background: rgba(247, 245, 239, 0.92);
-  backdrop-filter: blur(12px);
-  padding: 11px 8px max(11px, env(safe-area-inset-bottom));
-}
-
-.move-bottom-nav__tab {
-  flex: 1;
-  min-width: 0;
+/* ── Mobile top breadcrumb + pill tabs (replaces bottom nav) ── */
+.move-mobile-top {
   display: flex;
   flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: max(10px, env(safe-area-inset-top)) 14px 10px;
+  border-bottom: 1px solid #e0dacd;
+  background: rgba(247, 245, 239, 0.96);
+  backdrop-filter: blur(12px);
+  z-index: 20;
+}
+
+.move-mobile-top__row {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  cursor: pointer;
+  gap: 10px;
+  min-width: 0;
+}
+
+.move-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.move-breadcrumb__link {
   border: none;
   background: none;
   padding: 0;
   font-family: inherit;
-}
-
-.move-bottom-nav__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--move-primary);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.move-bottom-nav__tab--active .move-bottom-nav__dot {
-  opacity: 1;
-}
-
-.move-bottom-nav__label {
-  display: block;
-  text-align: center;
-  line-height: 1.1;
-  font-size: 10.5px;
-  font-weight: 500;
-  color: #a3a89f;
-  transition: color 0.2s;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--move-mute);
+  cursor: pointer;
   white-space: nowrap;
 }
 
-.move-bottom-nav__tab--active .move-bottom-nav__label {
-  font-weight: 700;
+.move-breadcrumb__sep {
+  color: #c5c0b4;
+  flex-shrink: 0;
+}
+
+.move-breadcrumb__current {
+  font-size: 12px;
+  font-weight: 800;
   color: var(--move-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.move-pill-nav {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 1px;
+}
+
+.move-pill-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.move-pill-nav__tab {
+  flex: 0 0 auto;
+  border: 1px solid #e4dfd5;
+  background: #fff;
+  color: #6e746b;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.move-pill-nav__tab--active {
+  background: var(--move-ink);
+  border-color: var(--move-ink);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Legacy bottom nav removed — keep class inert if referenced */
+.move-bottom-nav {
+  display: none;
 }
 
 /* ── Desktop sidebar ── */
@@ -112,22 +165,28 @@
 
 .move-flow-screen {
   height: 100%;
-  min-height: 760px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
 .move-flow-screen--welcome {
-  padding: 92px 28px 40px;
+  padding: 28px 22px 32px;
 }
 
 .move-flow-screen--step {
-  padding: 70px 28px 36px;
+  padding: 24px 22px 28px;
 }
 
 .move-page-screen {
   min-height: 100%;
-  padding: 70px 22px 28px;
+  /* Compact top — mobile chrome already provides branding/nav */
+  padding: 18px 16px 28px;
+}
+
+.move-page-inner {
+  width: 100%;
+  min-width: 0;
 }
 
 .move-card-grid {
@@ -283,12 +342,17 @@
 /* ── Desktop (lg+) ── */
 @media (min-width: 1024px) {
   .move-root {
-    height: calc(100vh - 56px);
+    height: 100vh;
+    max-height: none;
     min-height: 640px;
   }
 
   .move-shell {
     flex-direction: row;
+  }
+
+  .move-mobile-top {
+    display: none;
   }
 
   .move-sidebar {
@@ -459,6 +523,14 @@
     border: 1px solid var(--move-border);
     border-radius: 28px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    padding: 48px 40px !important;
+  }
+
+  .move-flow-screen--welcome {
+    padding: 48px 40px !important;
+  }
+
+  .move-flow-screen--step {
     padding: 48px 40px !important;
   }
 

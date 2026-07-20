@@ -536,10 +536,10 @@ export function DriverApp() {
   const showNav = !isFlowScreen;
 
   const tabs = [
-    { label: "Shifts", screens: ["shifts"], go: "shifts" as Screen },
-    { label: "Schedule", screens: ["schedule"], go: "schedule" as Screen },
-    { label: "Wallet", screens: ["wallet"], go: "wallet" as Screen },
-    { label: "Vault", screens: ["vault"], go: "vault" as Screen },
+    { label: "Shifts", shortLabel: "Shifts", screens: ["shifts"], go: "shifts" as Screen },
+    { label: "Schedule", shortLabel: "Schedule", screens: ["schedule"], go: "schedule" as Screen },
+    { label: "Wallet", shortLabel: "Wallet", screens: ["wallet"], go: "wallet" as Screen },
+    { label: "Vault", shortLabel: "Vault", screens: ["vault"], go: "vault" as Screen },
   ];
 
   function Welcome() {
@@ -1236,6 +1236,8 @@ export function DriverApp() {
       tabs={tabs}
       screen={screen}
       onNavigate={(s) => goTo(s as Screen)}
+      appLabel="Driver"
+      appHomeHref="/move/shifts"
       destCity={showNav ? (filterZone ?? zone.label) : undefined}
       destCountry={showNav ? vehicle.label : undefined}
       stayLabel={showNav ? "Commercial" : undefined}
@@ -1250,7 +1252,7 @@ export function DriverApp() {
     >
       {screenBody()}
       {(actionError || loadError) && !isFlowScreen && (
-        <div style={{ position: "fixed", bottom: 88, left: 16, right: 16, zIndex: 40, padding: "12px 16px", borderRadius: 14, background: "#fbeae0", border: "1px solid #f3d6c4", color: "#9c3f15", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,.12)" }}>
+        <div style={{ position: "fixed", bottom: 24, left: 16, right: 16, zIndex: 40, padding: "12px 16px", borderRadius: 14, background: "#fbeae0", border: "1px solid #f3d6c4", color: "#9c3f15", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,.12)" }}>
           {actionError ?? loadError}
         </div>
       )}

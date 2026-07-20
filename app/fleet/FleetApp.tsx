@@ -682,10 +682,10 @@ export function FleetApp() {
   const showNav = !isFlowScreen;
 
   const tabs = [
-    { label: "Dashboard", screens: ["dashboard"], go: "dashboard" as Screen },
-    { label: "Post Load", screens: ["post"], go: "post" as Screen },
-    { label: "Book Drivers", screens: ["drivers"], go: "drivers" as Screen },
-    { label: "My Loads", screens: ["loads"], go: "loads" as Screen },
+    { label: "Dashboard", shortLabel: "Home", screens: ["dashboard"], go: "dashboard" as Screen },
+    { label: "Post Load", shortLabel: "Post", screens: ["post"], go: "post" as Screen },
+    { label: "Book Drivers", shortLabel: "Drivers", screens: ["drivers"], go: "drivers" as Screen },
+    { label: "My Loads", shortLabel: "Loads", screens: ["loads"], go: "loads" as Screen },
   ];
 
   const rateModal = rateTarget ? (
@@ -814,6 +814,8 @@ export function FleetApp() {
       tabs={tabs}
       screen={screen}
       onNavigate={(s) => goTo(s as Screen)}
+      appLabel="Fleet"
+      appHomeHref="/fleet/dashboard"
       destCity={showNav ? companyName : undefined}
       destCountry={showNav ? zone.label : undefined}
       stayLabel={showNav ? "Fleet" : undefined}
@@ -828,7 +830,7 @@ export function FleetApp() {
     >
       {screenBody()}
       {(actionError || loadError) && !isFlowScreen && (
-        <div style={{ position: "fixed", bottom: 88, left: 16, right: 16, zIndex: 40, padding: "12px 16px", borderRadius: 14, background: "#fbeae0", border: "1px solid #f3d6c4", color: "#9c3f15", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, textAlign: "center" }}>
+        <div style={{ position: "fixed", bottom: 24, left: 16, right: 16, zIndex: 40, padding: "12px 16px", borderRadius: 14, background: "#fbeae0", border: "1px solid #f3d6c4", color: "#9c3f15", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, textAlign: "center" }}>
           {actionError ?? loadError}
         </div>
       )}
