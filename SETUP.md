@@ -11,6 +11,27 @@ Simplified product surface:
 | `/profile` | Signed-in users | Marketplace account |
 | `/contact` | Everyone | Support |
 
+## Phase 5 platform ops (live)
+
+- **SMS + push:** Claim / book / complete fan out to in-app + Resend email + Twilio SMS + Web Push (each channel skips if not configured)
+- **GPS / maps:** Clock-in captures geolocation; live OSM map on Schedule; Navigate opens Google Maps; Arrived marks waypoints
+- **1099 export:** Wallet → tax summary + CSV download at `/api/driver/tax/1099?year=YYYY&format=csv`
+- **Monitoring:** Optional Sentry DSN (`SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`) + client error boundary; `/api/health/integrations` reports config flags
+
+```bash
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_FROM_PHONE=
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=mailto:ops@easymovezone.com
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=
+SENTRY_DSN=
+NEXT_PUBLIC_SENTRY_DSN=
+```
+
+Generate VAPID keys with: `npx web-push generate-vapid-keys`
+
 ## Phase 4 marketplace ops (live)
 
 - **KYC queue** — `/admin/kyc` — approve/reject driver vault uploads (uploads stay `pending` until approved)
@@ -102,9 +123,20 @@ Without Stripe keys, cashouts stay ledger-only (safe for demos) and funding retu
 # Support chat (Crisp)
 NEXT_PUBLIC_CRISP_WEBSITE_ID=
 
-# Email delivery for contact form (if you wire Resend later)
+# Email / SMS / push (see Phase 5)
 RESEND_API_KEY=
 RESEND_FROM_EMAIL=
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_FROM_PHONE=
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=mailto:ops@easymovezone.com
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=
+
+# Monitoring
+SENTRY_DSN=
+NEXT_PUBLIC_SENTRY_DSN=
 ```
 
 ## 4. What you still need to add (product checklist)
@@ -119,10 +151,10 @@ RESEND_FROM_EMAIL=
 | Bilateral ratings | Live | — |
 | Marketplace ops admin | Live (`/admin`) | Formal dispute workflow |
 | Terms / Privacy / IC notice | Live | Legal counsel review before production |
-| Live GPS / maps | Placeholder waypoints | Google Maps or Mapbox API key + geolocation |
-| SMS / push notifications | Not built | Twilio or OneSignal |
-| Marketplace admin ops | Live at `/admin` | Formal disputes, KYC automation |
-| Tax 1099 | Mentioned in UI only | Stripe Tax / year-end export |
+| Live GPS / maps | Live (OSM + geolocation) | Mapbox tiles optional later |
+| SMS / push notifications | Live (Twilio + Web Push) | Set Twilio + VAPID keys |
+| Tax 1099 | Live CSV estimate | CPA review / Stripe Tax year-end |
+| Monitoring | Live (optional Sentry DSN) | Set `SENTRY_DSN` |
 
 ## 5. Clean flows (after this update)
 
@@ -133,6 +165,7 @@ Home
  │    claim / cashout require sign-in
  │    complete load credits wallet (minus 8% commission)
  │    rate fleet → upload vault docs for Verified badge
+ │    GPS clock-in + map · 1099 CSV · push opt-in
  │
  └─ Fleet console (/fleet)
       setup → dashboard → post load → find drivers → my loads

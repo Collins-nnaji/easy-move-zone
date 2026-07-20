@@ -378,6 +378,35 @@ export async function completeShift(authUserId: string, shiftId: string, role: "
       [shiftId, shift.posted_by, shift.claimed_by, gross, fee, net],
     );
   }
+
+  try {
+    const { notifyUser } = await import("@/lib/notify/dispatch");
+    const { appBaseUrl } = await import("@/lib/payments/stripe");
+    const payoutLabel = `$${(net / 100).toFixed(2)}`;
+    await Promise.allSettled([
+      notifyUser({
+        userId: shift.claimed_by,
+        kind: "complete",
+        title: "Load complete — payout credited",
+        body: `${shift.vehicle_label}: ${payoutLabel} is in your wallet (after platform fee).`,
+        link: "/move/wallet",
+        meta: { shiftId },
+        emailText: `Your load is complete. ${payoutLabel} was credited to your EasyMoveZone wallet.\n\nOpen wallet: ${appBaseUrl()}/move/wallet\n\n— EasyMoveZone`,
+      }),
+      shift.posted_by
+        ? notifyUser({
+            userId: shift.posted_by,
+            kind: "complete",
+            title: "Load marked complete",
+            body: `${shift.vehicle_label} finished. Rate your driver when ready.`,
+            link: "/fleet/loads",
+            meta: { shiftId },
+          })
+        : Promise.resolve(),
+    ]);
+  } catch {
+    /* notifications are best-effort */
+  }
 }
 
 export async function submitRating(authUserId: string, input: RateInput, role: "driver" | "fleet") {

@@ -32,7 +32,9 @@ import {
   completeDriverShift,
   declineOfferApi,
   fetchDriverWorkspace,
+  fetchTax1099,
   rateOperator,
+  updateActiveSession,
   updateDriverProfile,
   uploadComplianceDoc,
 } from "@/lib/driver/client";
@@ -43,6 +45,8 @@ import {
 } from "@/lib/payments/client";
 import type { BookingOfferSummary, ComplianceDoc, PendingRating, Shift, ShiftSession, WalletEntry } from "@/lib/driver/types";
 import { loadDriverFlowState, saveDriverFlowState } from "./storage";
+import { RouteMap, mapsNavigateUrl } from "@/components/driver/RouteMap";
+import { PushOptInButton } from "@/components/driver/PushOptInButton";
 import "./move.css";
 
 const PRIMARY = "#e0511f";
@@ -260,6 +264,12 @@ export function DriverApp() {
   const [payoutsEnabled, setPayoutsEnabled] = useState(false);
   const [stripeConfigured, setStripeConfigured] = useState(false);
   const [cashoutMessage, setCashoutMessage] = useState<string | null>(null);
+  const [taxYear] = useState(() => new Date().getFullYear());
+  const [taxSummary, setTaxSummary] = useState<{
+    form1099NecEstimateCents: number;
+    platformFeesCents: number;
+    loadCount: number;
+  } | null>(null);
 
   const zone = ZONE_OPTIONS[zoneIdx];
   const vehicle = VEHICLE_OPTIONS[vehicleIdx];
@@ -335,6 +345,13 @@ export function DriverApp() {
   }, [ready, screen, filterZone, filterCargo, loadWorkspace]);
 
   useEffect(() => {
+    if (!ready || screen !== "wallet") return;
+    void fetchTax1099(taxYear)
+      .then((data) => setTaxSummary(data.summary))
+      .catch(() => setTaxSummary(null));
+  }, [ready, screen, taxYear]);
+
+  useEffect(() => {
     setScreen(screenFromPath(pathname));
   }, [pathname]);
 
@@ -401,10 +418,31 @@ export function DriverApp() {
     if (!activeSession) return;
     try {
       setActionError(null);
-      await clockInSession(activeSession.id);
+                    let location: { lat: number; lng: number } | undefined;
+      if (navigator.geolocation) {
+        location = await new Promise<{ lat: number; lng: number } | undefined>((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+            () => resolve(undefined),
+            { enableHighAccuracy: true, timeout: 8000 },
+          );
+        });
+      }
+      await clockInSession(activeSession.id, location);
       await loadWorkspace();
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Unable to clock in.");
+    }
+  };
+
+  const handleWaypointDone = async (waypointId: string) => {
+    if (!activeSession) return;
+    try {
+      setActionError(null);
+      await updateActiveSession(activeSession.id, { waypointId });
+      await loadWorkspace();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Unable to update waypoint.");
     }
   };
 
@@ -817,10 +855,20 @@ export function DriverApp() {
 
             {!clockedIn ? (
               <button onClick={() => void handleClockIn()} style={{ width: "100%", marginTop: 16, padding: 17, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                <MapPin size={16} /> Clock in at warehouse
+                <MapPin size={16} /> Clock in with GPS
               </button>
             ) : (
               <>
+                <div style={{ marginTop: 16 }}>
+                  <RouteMap
+                    waypoints={waypoints}
+                    clockIn={
+                      typeof activeSession?.clockInLat === "number" && typeof activeSession?.clockInLng === "number"
+                        ? { lat: activeSession.clockInLat, lng: activeSession.clockInLng }
+                        : null
+                    }
+                  />
+                </div>
                 <div style={{ marginTop: 20 }}>
                   <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: MUTE, marginBottom: 12 }}>Route waypoints</div>
                   {waypoints.map((wp, i) => (
@@ -833,9 +881,23 @@ export function DriverApp() {
                         <div style={{ fontSize: 14, fontWeight: 600, color: wp.done ? MUTE : INK, textDecoration: wp.done ? "line-through" : "none" }}>{wp.label}</div>
                         <div style={{ fontSize: 12, color: MUTE }}>{wp.address}</div>
                         {!wp.done && i === waypoints.findIndex((w) => !w.done) && (
-                          <button type="button" style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 8, border: "1px solid #e4dfd5", background: "#fff", fontSize: 12, fontWeight: 600, color: PRIMARY, cursor: "pointer" }}>
-                            <Navigation size={12} /> Navigate
-                          </button>
+                          <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+                            <a
+                              href={mapsNavigateUrl(wp.address, wp.lat, wp.lng)}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 8, border: "1px solid #e4dfd5", background: "#fff", fontSize: 12, fontWeight: 600, color: PRIMARY, textDecoration: "none" }}
+                            >
+                              <Navigation size={12} /> Navigate
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => void handleWaypointDone(wp.id)}
+                              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 8, border: "none", background: "#eef6ec", fontSize: 12, fontWeight: 700, color: "#2f7d4f", cursor: "pointer" }}
+                            >
+                              <Check size={12} /> Arrived
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -932,9 +994,40 @@ export function DriverApp() {
             ))}
           </div>
 
-          <div style={{ marginTop: 18, background: "#f6e9df", border: "1px solid #f3d6c4", borderRadius: 18, padding: "16px 18px", display: "flex", gap: 12, alignItems: "flex-start" }}>
-            <Shield size={16} style={{ color: "#bf6a3c", flexShrink: 0, marginTop: 2 }} />
-            <p style={{ fontSize: 13.5, lineHeight: 1.5, color: "#5a4636", margin: 0 }}>Tax documents and 1099 summaries generate automatically. Platform fees show transparently on every payout.</p>
+          <div style={{ marginTop: 18, background: "#f6e9df", border: "1px solid #f3d6c4", borderRadius: 18, padding: "16px 18px" }}>
+            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <Shield size={16} style={{ color: "#bf6a3c", flexShrink: 0, marginTop: 2 }} />
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 13.5, lineHeight: 1.5, color: "#5a4636", margin: 0, fontWeight: 700 }}>
+                  {taxYear} tax summary (1099-NEC estimate)
+                </p>
+                <p style={{ fontSize: 13, lineHeight: 1.5, color: "#5a4636", margin: "6px 0 0" }}>
+                  {taxSummary
+                    ? `$${(taxSummary.form1099NecEstimateCents / 100).toFixed(2)} net load pay · $${(taxSummary.platformFeesCents / 100).toFixed(2)} platform fees · ${taxSummary.loadCount} loads`
+                    : "Open this tab while signed in to load your year-to-date earnings export."}
+                </p>
+                <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void fetchTax1099(taxYear)
+                        .then((data) => setTaxSummary(data.summary))
+                        .catch(() => setTaxSummary(null));
+                    }}
+                    style={{ padding: "8px 12px", borderRadius: 10, border: "1px solid #e4c4b0", background: "#fff", fontSize: 12, fontWeight: 700, color: "#9c3f15", cursor: "pointer" }}
+                  >
+                    Refresh summary
+                  </button>
+                  <a
+                    href={`/api/driver/tax/1099?year=${taxYear}&format=csv`}
+                    style={{ padding: "8px 12px", borderRadius: 10, border: "none", background: PRIMARY, fontSize: 12, fontWeight: 700, color: "#fff", textDecoration: "none" }}
+                  >
+                    Download CSV
+                  </a>
+                </div>
+              </div>
+            </div>
+            <PushOptInButton />
           </div>
         </div>
       </div>

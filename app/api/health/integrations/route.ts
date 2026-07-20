@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server"
 import { chatJson, getAiProvider, getAzureOpenAiConfig } from "@/lib/ai/openai"
+import { isStripeConfigured } from "@/lib/payments/stripe"
+import { isTwilioConfigured } from "@/lib/notify/sms"
+import { isWebPushConfigured } from "@/lib/notify/push"
+import { isSentryConfigured } from "@/lib/monitoring/sentry"
 
 /**
  * GET — reports which integrations are configured (no secrets).
@@ -33,6 +37,15 @@ export async function GET(req: Request) {
           }
         : null,
       openaiConfigured: !!process.env.OPENAI_API_KEY?.trim(),
+    },
+    stripe: { configured: isStripeConfigured },
+    email: { configured: Boolean(process.env.RESEND_API_KEY?.trim()) },
+    sms: { configured: isTwilioConfigured() },
+    push: { configured: isWebPushConfigured() },
+    sentry: { configured: isSentryConfigured() },
+    maps: {
+      mode: "openstreetmap",
+      note: "GPS clock-in + OSM embed; optional MAPBOX_TOKEN reserved for future tiles",
     },
     ...(aiTest ? { aiTest } : {}),
   })

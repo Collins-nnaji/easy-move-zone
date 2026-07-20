@@ -135,6 +135,7 @@ export async function getActiveSession(authUserId: string): Promise<ShiftSession
   if (!driverSql) return null;
   const rows = (await driverSql.query(
     `select s.id as session_id, s.shift_id, s.status as session_status, s.clocked_in_at, s.waypoints,
+            s.clock_in_lat, s.clock_in_lng, s.last_lat, s.last_lng,
             ${SHIFT_SELECT}
      join driver_shift_sessions s on s.shift_id = sh.id
      where s.auth_user_id = $1 and s.status in ('scheduled', 'active')
@@ -148,6 +149,10 @@ export async function getActiveSession(authUserId: string): Promise<ShiftSession
       session_status: "scheduled" | "active" | "completed";
       clocked_in_at: string | null;
       waypoints: unknown;
+      clock_in_lat: number | null;
+      clock_in_lng: number | null;
+      last_lat: number | null;
+      last_lng: number | null;
     }
   >;
 
@@ -161,6 +166,10 @@ export async function getActiveSession(authUserId: string): Promise<ShiftSession
     shiftId: row.shift_id,
     status: row.session_status,
     clockedInAt: row.clocked_in_at,
+    clockInLat: row.clock_in_lat,
+    clockInLng: row.clock_in_lng,
+    lastLat: row.last_lat,
+    lastLng: row.last_lng,
     waypoints: parseWaypoints(row.waypoints).length ? parseWaypoints(row.waypoints) : DEFAULT_WAYPOINTS,
     shift,
   };
@@ -361,15 +370,29 @@ export async function claimShift(authUserId: string, shiftId: string) {
   );
 }
 
-export async function clockInSession(authUserId: string, sessionId: string) {
+export async function clockInSession(
+  authUserId: string,
+  sessionId: string,
+  location?: { lat?: number; lng?: number },
+) {
   if (!driverSql) throw new Error("Database not configured.");
+
+  const lat = typeof location?.lat === "number" ? location.lat : null;
+  const lng = typeof location?.lng === "number" ? location.lng : null;
 
   const rows = (await driverSql.query(
     `update driver_shift_sessions
-     set status = 'active', clocked_in_at = now(), updated_at = now()
+     set status = 'active',
+         clocked_in_at = now(),
+         clock_in_lat = coalesce($3, clock_in_lat),
+         clock_in_lng = coalesce($4, clock_in_lng),
+         last_lat = coalesce($3, last_lat),
+         last_lng = coalesce($4, last_lng),
+         last_location_at = case when $3 is not null then now() else last_location_at end,
+         updated_at = now()
      where id = $1 and auth_user_id = $2 and status = 'scheduled'
      returning shift_id`,
-    [sessionId, authUserId],
+    [sessionId, authUserId, lat, lng],
   )) as Array<{ shift_id: string }>;
 
   if (!rows[0]) throw new Error("Session not found or already started.");
@@ -378,6 +401,47 @@ export async function clockInSession(authUserId: string, sessionId: string) {
     `update driver_shifts set status = 'active', updated_at = now() where id = $1`,
     [rows[0].shift_id],
   );
+}
+
+export async function updateSessionLocation(
+  authUserId: string,
+  sessionId: string,
+  location: { lat: number; lng: number },
+) {
+  if (!driverSql) throw new Error("Database not configured.");
+  const rows = (await driverSql.query(
+    `update driver_shift_sessions
+     set last_lat = $3, last_lng = $4, last_location_at = now(), updated_at = now()
+     where id = $1 and auth_user_id = $2 and status = 'active'
+     returning id`,
+    [sessionId, authUserId, location.lat, location.lng],
+  )) as Array<{ id: string }>;
+  if (!rows[0]) throw new Error("Active session not found.");
+}
+
+export async function markWaypointDone(
+  authUserId: string,
+  sessionId: string,
+  waypointId: string,
+) {
+  if (!driverSql) throw new Error("Database not configured.");
+  const rows = (await driverSql.query(
+    `select waypoints from driver_shift_sessions
+     where id = $1 and auth_user_id = $2 and status = 'active'`,
+    [sessionId, authUserId],
+  )) as Array<{ waypoints: unknown }>;
+  if (!rows[0]) throw new Error("Active session not found.");
+
+  const waypoints = parseWaypoints(rows[0].waypoints).length
+    ? parseWaypoints(rows[0].waypoints)
+    : [...DEFAULT_WAYPOINTS];
+  const next = waypoints.map((w) => (w.id === waypointId ? { ...w, done: true } : w));
+
+  await driverSql.query(
+    `update driver_shift_sessions set waypoints = $2::jsonb, updated_at = now() where id = $1`,
+    [sessionId, JSON.stringify(next)],
+  );
+  return next;
 }
 
 export async function completeDriverShift(authUserId: string, shiftId: string) {

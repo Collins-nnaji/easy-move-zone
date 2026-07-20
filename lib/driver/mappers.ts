@@ -132,11 +132,20 @@ export function mapComplianceRow(row: {
 
 export function parseWaypoints(value: unknown): Waypoint[] {
   if (!Array.isArray(value)) return [];
-  return value.filter(
-    (w): w is Waypoint =>
-      !!w &&
-      typeof w === "object" &&
-      typeof (w as Waypoint).id === "string" &&
-      typeof (w as Waypoint).label === "string",
-  );
+  return value
+    .filter(
+      (w): w is Record<string, unknown> =>
+        !!w &&
+        typeof w === "object" &&
+        typeof (w as Waypoint).id === "string" &&
+        typeof (w as Waypoint).label === "string",
+    )
+    .map((w) => ({
+      id: String(w.id),
+      label: String(w.label),
+      address: typeof w.address === "string" ? w.address : "",
+      done: Boolean(w.done),
+      lat: typeof w.lat === "number" ? w.lat : undefined,
+      lng: typeof w.lng === "number" ? w.lng : undefined,
+    }));
 }

@@ -1,6 +1,6 @@
 import { mapShiftRow, SHIFT_COLUMNS, type ShiftRow } from "@/lib/driver/mappers";
 import { ensureFleetProfile } from "@/lib/fleet/service";
-import { sendMarketplaceEmail } from "@/lib/notify/email";
+import { notifyUser } from "@/lib/notify/dispatch";
 import { appBaseUrl } from "@/lib/payments/stripe";
 import type { Shift } from "@/lib/driver/types";
 import { DEFAULT_WAYPOINTS, driverSql } from "@/lib/driver/db";
@@ -36,19 +36,11 @@ async function createNotification(input: {
   link?: string;
   meta?: Record<string, unknown>;
 }) {
-  if (!driverSql) return;
-  await driverSql.query(
-    `insert into marketplace_notifications (user_id, kind, title, body, link, meta)
-     values ($1, $2, $3, $4, $5, $6::jsonb)`,
-    [
-      input.userId,
-      input.kind,
-      input.title,
-      input.body,
-      input.link ?? null,
-      JSON.stringify(input.meta ?? {}),
-    ],
-  );
+  await notifyUser({
+    ...input,
+    emailText: `${input.body}${input.link ? `\n\nOpen: ${appBaseUrl()}${input.link}` : ""}\n\n— EasyMoveZone`,
+    smsText: `${input.title}. ${input.body}`.slice(0, 320),
+  });
 }
 
 function mapOfferRow(row: ShiftRow & {
@@ -103,9 +95,14 @@ export async function createDriverOffer(input: {
   }
 
   const drivers = (await driverSql.query(
-    `select auth_user_id, display_name, contact_email from driver_profiles where auth_user_id = $1`,
+    `select auth_user_id, display_name, contact_email, contact_phone from driver_profiles where auth_user_id = $1`,
     [input.driverUserId],
-  )) as Array<{ auth_user_id: string; display_name: string | null; contact_email: string | null }>;
+  )) as Array<{
+    auth_user_id: string;
+    display_name: string | null;
+    contact_email: string | null;
+    contact_phone: string | null;
+  }>;
 
   if (!drivers[0]) throw new Error("Driver not found.");
 
@@ -141,14 +138,6 @@ export async function createDriverOffer(input: {
     link: "/move/shifts",
     meta: { offerId, shiftId: input.shiftId },
   });
-
-  if (drivers[0].contact_email) {
-    await sendMarketplaceEmail({
-      to: drivers[0].contact_email,
-      subject: title,
-      text: `${body}\n\nAccept here: ${appBaseUrl()}/move/shifts\n\n— EasyMoveZone`,
-    });
-  }
 
   const offers = await getOffersForDriver(input.driverUserId);
   const created = offers.find((o) => o.id === offerId);
@@ -290,7 +279,7 @@ export async function notifyFleetOfClaim(input: {
   if (!driverSql) return;
 
   const shifts = (await driverSql.query(
-    `select sh.id, sh.title, sh.vehicle_label, sh.posted_by, fo.company_name, fo.contact_email
+    `select sh.id, sh.title, sh.vehicle_label, sh.posted_by, fo.company_name
      from driver_shifts sh
      left join fleet_operator_profiles fo on fo.auth_user_id = sh.posted_by
      where sh.id = $1`,
@@ -301,7 +290,6 @@ export async function notifyFleetOfClaim(input: {
     vehicle_label: string;
     posted_by: string | null;
     company_name: string | null;
-    contact_email: string | null;
   }>;
 
   const shift = shifts[0];
@@ -320,14 +308,6 @@ export async function notifyFleetOfClaim(input: {
     link: "/fleet/loads",
     meta: { shiftId: input.shiftId, driverUserId: input.driverUserId },
   });
-
-  if (shift.contact_email) {
-    await sendMarketplaceEmail({
-      to: shift.contact_email,
-      subject: title,
-      text: `${body}\n\nView load: ${appBaseUrl()}/fleet/loads\n\n— EasyMoveZone`,
-    });
-  }
 }
 
 export async function getNotifications(userId: string, limit = 20): Promise<AppNotification[]> {

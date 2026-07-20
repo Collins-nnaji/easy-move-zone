@@ -38,10 +38,43 @@ export async function claimShift(shiftId: string): Promise<void> {
   );
 }
 
-export async function clockInSession(sessionId: string): Promise<void> {
+export async function clockInSession(
+  sessionId: string,
+  location?: { lat: number; lng: number },
+): Promise<void> {
   await parseJson(
-    await fetch(`/api/driver/sessions/${sessionId}/clock-in`, { method: "POST" }),
+    await fetch(`/api/driver/sessions/${sessionId}/clock-in`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(location ?? {}),
+    }),
   );
+}
+
+export async function updateActiveSession(
+  sessionId: string,
+  body: { lat?: number; lng?: number; waypointId?: string },
+): Promise<{ waypoints?: import("./types").Waypoint[] }> {
+  return parseJson(
+    await fetch(`/api/driver/sessions/${sessionId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  );
+}
+
+export async function fetchTax1099(year: number): Promise<{
+  summary: {
+    year: number;
+    grossCreditsCents: number;
+    platformFeesCents: number;
+    cashoutsCents: number;
+    form1099NecEstimateCents: number;
+    loadCount: number;
+  };
+}> {
+  return parseJson(await fetch(`/api/driver/tax/1099?year=${year}`, { cache: "no-store" }));
 }
 
 export async function cashOutWallet(): Promise<{ amount: number }> {

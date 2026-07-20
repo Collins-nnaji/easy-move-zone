@@ -24,6 +24,7 @@ const steps = [
   "db/migrations/20260721_escrow_seed_funded.sql",
   "db/migrations/20260721_trust_vault.sql",
   "db/migrations/20260722_ops_admin.sql",
+  "db/migrations/20260723_phase5_platform.sql",
   "db/migrations/20260720_drop_relocation_product.sql",
   "db/seeds/20260720_driver_shifts_seed.sql",
   "db/seeds/20260721_marketplace_seed.sql",

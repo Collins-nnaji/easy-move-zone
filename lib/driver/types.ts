@@ -44,6 +44,8 @@ export interface Waypoint {
   label: string;
   address: string;
   done: boolean;
+  lat?: number;
+  lng?: number;
 }
 
 export interface ShiftSession {
@@ -51,6 +53,10 @@ export interface ShiftSession {
   shiftId: string;
   status: "scheduled" | "active" | "completed";
   clockedInAt: string | null;
+  clockInLat?: number | null;
+  clockInLng?: number | null;
+  lastLat?: number | null;
+  lastLng?: number | null;
   waypoints: Waypoint[];
   shift: Shift;
 }
