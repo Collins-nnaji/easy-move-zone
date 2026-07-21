@@ -950,7 +950,13 @@ export function DriverApp() {
           </div>
           ) : (
             <div style={{ marginTop: 22, padding: "24px 20px", borderRadius: 18, border: "1px dashed #d8d2c6", textAlign: "center", color: MUTE, fontSize: 14 }}>
-              No active run. Claim a job from the Jobs tab.
+              <div style={{ marginTop: 28, textAlign: "center", padding: "36px 20px", borderRadius: 18, border: "1px solid #e4dfd5", background: "#fff" }}>
+                <div style={{ fontSize: 16, fontWeight: 800 }}>No active run</div>
+                <p style={{ fontSize: 14, color: MUTE, margin: "8px 0 0" }}>Claim a funded job to start tracking here.</p>
+                <button type="button" onClick={() => goTo("shifts")} style={{ marginTop: 16, minHeight: 44, padding: "12px 18px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+                  Browse jobs
+                </button>
+              </div>
             </div>
           )}
 
