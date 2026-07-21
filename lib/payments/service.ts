@@ -2,6 +2,7 @@ import { driverSql } from "@/lib/driver/db";
 import { ensureDriverProfile } from "@/lib/driver/service";
 import { ensureFleetProfile } from "@/lib/fleet/service";
 import { CASHOUT_FEE_CENTS } from "@/lib/driver/db";
+import { formatMoneyFromCents } from "@/lib/money";
 import { appBaseUrl, isStripeConfigured, requireStripe } from "./stripe";
 
 export type PaymentStatus = {
@@ -130,7 +131,7 @@ export async function cashOutWithStripe(authUserId: string) {
   try {
     transfer = await stripe.transfers.create({
       amount: payoutCents,
-      currency: "usd",
+      currency: "ngn",
       destination: status.stripeAccountId,
       metadata: { auth_user_id: authUserId, kind: "cashout" },
     });
@@ -224,11 +225,11 @@ export async function createLoadFundingCheckout(authUserId: string, shiftId: str
       {
         quantity: 1,
         price_data: {
-          currency: "usd",
+          currency: "ngn",
           unit_amount: totalCents,
           product_data: {
             name: `Fund load: ${shift.title ?? shift.vehicle_label}`,
-            description: `Escrow driver payout ($${(totalCents / 100).toFixed(2)}). Platform commission is deducted when the load completes.`,
+            description: `Escrow driver payout (${formatMoneyFromCents(totalCents)}). Platform commission is deducted when the job completes.`,
           },
         },
       },

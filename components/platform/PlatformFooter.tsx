@@ -4,15 +4,16 @@ import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 import { SiteLogo } from "@/components/brand/SiteLogo"
 
 const services = [
-  { href: "/move/shifts", label: "Browse loads", badge: "Live" },
-  { href: "/fleet", label: "Fleet console", badge: null },
-  { href: "/move/wallet", label: "Instant wallet", badge: null },
-  { href: "/move/vault", label: "Compliance vault", badge: null },
+  { href: "/move/shifts", label: "Find work", badge: "Live" },
+  { href: "/fleet", label: "Company console", badge: null },
+  { href: "/move/wallet", label: "Driver pay", badge: null },
+  { href: "/move/vault", label: "Documents", badge: null },
 ]
 
 const explore = [
-  { href: "/move", label: "Driver / owner-operator" },
-  { href: "/fleet", label: "Fleet operators" },
+  { href: "/move", label: "Driver profile" },
+  { href: "/fleet", label: "Company profile" },
+  { href: "/profile", label: "Account hub" },
 ]
 
 const company = [
@@ -36,8 +37,8 @@ export function PlatformFooter() {
           <div className="sm:col-span-2 lg:col-span-1">
             <SiteLogo href="/" height={36} invert />
             <p className="mt-3 text-[13px] leading-relaxed text-slate-400 max-w-xs">
-              Commission-based logistics marketplace. Drivers and truck owners claim loads;
-              fleet operators post routes and manage workload.
+              Nigeria logistics marketplace. Drivers find funded jobs; companies post work,
+              escrow pay in naira, and track runs — one login, two clear profiles.
             </p>
             <a
               href={`mailto:${PUBLIC_CONTACT_EMAIL}`}

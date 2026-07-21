@@ -1,6 +1,7 @@
 import { driverSql } from "@/lib/driver/db";
 import { COMMISSION_BPS, commissionCents, netPayoutCents } from "@/lib/marketplace/taxonomy";
-import { mapShiftRow, SHIFT_SELECT, type ShiftRow } from "@/lib/driver/mappers";
+import { formatMoneyFromCents } from "@/lib/money";
+import { mapShiftRow, SHIFT_COLUMNS, SHIFT_SELECT, type ShiftRow } from "@/lib/driver/mappers";
 import { getNotifications, getOffersForFleet } from "@/lib/booking/offers";
 import type {
   BookingOfferSummary,
@@ -123,12 +124,47 @@ export async function getPostedShifts(authUserId: string) {
 export async function getActiveWorkload(authUserId: string) {
   if (!driverSql) return [];
   const rows = (await driverSql.query(
-    `select ${SHIFT_SELECT}
+    `select ${SHIFT_COLUMNS},
+            sess.last_lat as track_lat,
+            sess.last_lng as track_lng,
+            sess.clock_in_lat as track_clock_lat,
+            sess.clock_in_lng as track_clock_lng,
+            sess.last_location_at as track_updated_at
+     from driver_shifts sh
+     left join fleet_operator_profiles fo on fo.auth_user_id = sh.posted_by
+     left join driver_profiles dp on dp.auth_user_id = sh.claimed_by
+     left join lateral (
+       select last_lat, last_lng, clock_in_lat, clock_in_lng, last_location_at
+       from driver_shift_sessions
+       where shift_id = sh.id and status in ('active', 'scheduled', 'completed')
+       order by case when status = 'active' then 0 else 1 end, updated_at desc
+       limit 1
+     ) sess on true
      where sh.posted_by = $1 and sh.status in ('claimed', 'active')
      order by sh.claimed_at desc nulls last`,
     [authUserId],
-  )) as ShiftRow[];
-  return rows.map(mapShiftRow);
+  )) as Array<
+    ShiftRow & {
+      track_lat?: number | null;
+      track_lng?: number | null;
+      track_clock_lat?: number | null;
+      track_clock_lng?: number | null;
+      track_updated_at?: string | null;
+    }
+  >;
+  return rows.map((row) => {
+    const shift = mapShiftRow(row);
+    if (row.track_lat != null || row.track_lng != null || row.track_clock_lat != null) {
+      shift.tracking = {
+        lat: row.track_lat ?? null,
+        lng: row.track_lng ?? null,
+        clockInLat: row.track_clock_lat ?? null,
+        clockInLng: row.track_clock_lng ?? null,
+        updatedAt: row.track_updated_at ?? null,
+      };
+    }
+    return shift;
+  });
 }
 
 export async function searchDrivers(zone?: string | null, vehicleType?: string | null): Promise<MarketplaceDriver[]> {
@@ -382,7 +418,7 @@ export async function completeShift(authUserId: string, shiftId: string, role: "
   try {
     const { notifyUser } = await import("@/lib/notify/dispatch");
     const { appBaseUrl } = await import("@/lib/payments/stripe");
-    const payoutLabel = `$${(net / 100).toFixed(2)}`;
+    const payoutLabel = formatMoneyFromCents(net);
     await Promise.allSettled([
       notifyUser({
         userId: shift.claimed_by,

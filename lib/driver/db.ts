@@ -6,7 +6,7 @@ export const driverSql = DATABASE_URL ? neon(DATABASE_URL) : null;
 
 export const isDriverDatabaseConfigured = Boolean(driverSql);
 
-export const CASHOUT_FEE_CENTS = 199;
+export const CASHOUT_FEE_CENTS = 50000; // ₦500
 
 export const DEFAULT_WAYPOINTS = [
   { id: "w1", label: "Warehouse check-in", address: "Apapa Port Gate 2, Lagos", lat: 6.4474, lng: 3.359, done: false },

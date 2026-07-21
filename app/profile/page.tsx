@@ -2,12 +2,11 @@ import { redirect } from "next/navigation"
 import type { Metadata } from "next"
 import { authServer } from "@/lib/auth/server"
 import { PublicShell } from "@/components/platform/PublicShell"
-import { ProfileWorkspace } from "@/components/profile/ProfileWorkspace"
+import { ProfileHub } from "@/components/profile/ProfileHub"
 
 export const metadata: Metadata = {
-  title: "Profile — EasyMoveZone",
-  description:
-    "Manage your driver and fleet marketplace profiles, open either app, and sign out.",
+  title: "Account — EasyMoveZone",
+  description: "Manage your separate driver and company profiles on EasyMoveZone.",
 }
 
 export default async function ProfilePage({
@@ -22,11 +21,12 @@ export default async function ProfilePage({
   const authEmail = user.email ?? ""
   const q = await searchParams
   const from = typeof q.from === "string" ? q.from : ""
-  const initialRole = from === "fleet" ? "fleet" : "driver"
+  if (from === "fleet") redirect("/profile/company")
+  if (from === "move" || from === "driver") redirect("/profile/driver")
 
   return (
     <PublicShell>
-      <ProfileWorkspace authName={authName} authEmail={authEmail} initialRole={initialRole} />
+      <ProfileHub authName={authName} authEmail={authEmail} />
     </PublicShell>
   )
 }

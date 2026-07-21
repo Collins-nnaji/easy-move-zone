@@ -19,7 +19,7 @@ import { SiteLogo } from "@/components/brand/SiteLogo"
 
 const guideLinks = [
   { href: "/move", label: "Driver app", icon: Truck },
-  { href: "/fleet", label: "Fleet console", icon: Briefcase },
+  { href: "/fleet", label: "Company console", icon: Briefcase },
   { href: "/contact", label: "Contact", icon: Mail },
 ] as const
 
@@ -104,18 +104,18 @@ export function PlatformNav() {
           {!onApp && (
             <>
               <Link
-                href="/fleet/drivers"
+                href="/fleet/post"
                 className="hidden items-center gap-1.5 rounded-full border border-[#d8d2c6] bg-white px-4 py-2 text-[13px] font-semibold text-[#4a5047] transition hover:border-[#e0511f]/40 sm:inline-flex"
               >
                 <Briefcase className="h-3.5 w-3.5" />
-                Book a driver
+                Hire drivers
               </Link>
               <Link
                 href="/move/shifts"
                 className="hidden items-center gap-1.5 rounded-full bg-[#e0511f] px-4 py-2 text-[13px] font-bold text-white shadow-sm transition hover:opacity-90 sm:inline-flex"
               >
                 <Truck className="h-3.5 w-3.5" />
-                {resumable ? "Continue driving" : "Book a load"}
+                {resumable ? "Continue driving" : "Find work"}
               </Link>
             </>
           )}

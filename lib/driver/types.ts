@@ -37,6 +37,14 @@ export interface Shift {
   claimedBy: string | null;
   claimedDriverName: string | null;
   funded: boolean;
+  /** Live GPS from the active driver session (fleet tracking). */
+  tracking?: {
+    lat: number | null;
+    lng: number | null;
+    clockInLat?: number | null;
+    clockInLng?: number | null;
+    updatedAt?: string | null;
+  } | null;
 }
 
 export interface Waypoint {

@@ -33,8 +33,8 @@ const pages = [
   {
     icon: Wallet,
     label: "03",
-    title: "Instant Pay",
-    body: "Drivers cash out shift earnings instantly. Fleet operators pay an 8% commission only when a load completes — no upfront fees.",
+    title: "Pay in naira",
+    body: "Drivers cash out job earnings instantly. Companies pay an 8% platform fee only when a job completes — no upfront listing fees.",
   },
   {
     icon: Shield,
@@ -98,15 +98,15 @@ export function HomePageClient() {
                 className="mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl lg:text-[4.4rem]"
                 style={{ textWrap: "balance" } as React.CSSProperties}
               >
-                Find drivers.
+                Move goods.
                 <span className="block" style={{ color: PRIMARY }}>
-                  Fill every load.
+                  Pay drivers fairly.
                 </span>
               </motion.h1>
 
               <motion.p {...fadeUp(0.12, 18)} className="mt-6 max-w-xl text-lg leading-relaxed text-[#5f655c]">
-                EasyMoveZone is a commission-based marketplace for independent truck drivers,
-                owner-operators, and fleet operators across Nigeria — from small goods to tankers and heavy freight.
+                EasyMoveZone connects drivers and companies across Nigeria — publish jobs,
+                claim funded work, track GPS on the road, and settle in naira.
               </motion.p>
 
               <motion.div {...fadeUp(0.18, 18)} className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -116,13 +116,13 @@ export function HomePageClient() {
                   style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
                 >
                   <Zap className="h-4.5 w-4.5" />
-                  Book a load
+                  Find work
                 </Link>
                 <Link
                   href="/fleet/dashboard"
                   className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white/70 px-7 py-4 text-base font-semibold text-[#4a5047] backdrop-blur transition hover:bg-white"
                 >
-                  Book a driver
+                  Hire drivers
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </motion.div>
@@ -149,9 +149,9 @@ export function HomePageClient() {
                 </div>
                 <div className="mt-5 space-y-3">
                   {[
-                    { pay: "$320/day", vehicle: "Semi · Heavy Goods", route: "Lagos → Abuja linehaul", hot: true, rating: "4.8 ★" },
-                    { pay: "$45/hr", vehicle: "Tanker · Hazmat", route: "Port Harcourt · 3 stops", hot: true, rating: "4.6 ★" },
-                    { pay: "$180/day", vehicle: "Sprinter · Parcel", route: "Ikeja / Airport · 12 stops", hot: false, rating: "4.9 ★" },
+                    { pay: "₦85,000/day", vehicle: "Semi · Heavy Goods", route: "Lagos → Abuja linehaul", hot: true, rating: "4.8 ★" },
+                    { pay: "₦12,000/hr", vehicle: "Tanker · Hazmat", route: "Port Harcourt · 3 stops", hot: true, rating: "4.6 ★" },
+                    { pay: "₦45,000/day", vehicle: "Sprinter · Parcel", route: "Ikeja / Airport · 12 stops", hot: false, rating: "4.9 ★" },
                   ].map((s, i) => (
                     <motion.div
                       key={s.pay}
@@ -253,14 +253,14 @@ export function HomePageClient() {
                   style={{ background: PRIMARY, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}
                 >
                   <Truck className="h-4 w-4" />
-                  Book a load
+                  Find work
                 </Link>
                 <Link
                   href="/fleet/drivers"
                   className="inline-flex items-center gap-2 rounded-2xl border border-white/20 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10"
                 >
                   <Briefcase className="h-4 w-4" />
-                  Book a driver
+                  Hire drivers
                 </Link>
               </div>
             </motion.div>
@@ -312,14 +312,14 @@ export function HomePageClient() {
               className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
               style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
             >
-              Book a driver
+              Hire drivers
               <ArrowUpRight className="h-4.5 w-4.5" />
             </Link>
             <Link
               href="/move/shifts"
               className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white px-7 py-4 text-base font-semibold text-[#4a5047] transition hover:border-[#e0511f]/30"
             >
-              Book a load
+              Find work
             </Link>
           </div>
         </motion.div>

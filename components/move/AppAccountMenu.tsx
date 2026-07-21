@@ -19,10 +19,11 @@ export function AppAccountMenu({ role, compact = false }: AppAccountMenuProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
 
-  const profileHref = role === "driver" ? "/profile?from=move" : "/profile?from=fleet";
-  const switchHref = role === "driver" ? "/fleet/dashboard" : "/move/shifts";
-  const switchLabel = role === "driver" ? "Switch to Fleet" : "Switch to Driver";
-  const SwitchIcon = role === "driver" ? Briefcase : Truck;
+  const otherHref = role === "driver" ? "/fleet/dashboard" : "/move/shifts";
+  const otherLabel = role === "driver" ? "Open company console" : "Open driver app";
+  const OtherIcon = role === "driver" ? Briefcase : Truck;
+  const profileHref = role === "driver" ? "/profile/driver" : "/profile/company";
+  const profileLabel = role === "driver" ? "Driver profile" : "Company profile";
 
   useEffect(() => {
     if (!open) return;
@@ -82,16 +83,25 @@ export function AppAccountMenu({ role, compact = false }: AppAccountMenuProps) {
               onClick={() => setOpen(false)}
             >
               <UserRound size={15} />
-              Profile
+              {profileLabel}
             </Link>
             <Link
-              href={switchHref}
+              href="/profile"
               role="menuitem"
               className="move-account__item"
               onClick={() => setOpen(false)}
             >
-              <SwitchIcon size={15} />
-              {switchLabel}
+              <UserRound size={15} />
+              All profiles
+            </Link>
+            <Link
+              href={otherHref}
+              role="menuitem"
+              className="move-account__item"
+              onClick={() => setOpen(false)}
+            >
+              <OtherIcon size={15} />
+              {otherLabel}
             </Link>
             <button
               type="button"

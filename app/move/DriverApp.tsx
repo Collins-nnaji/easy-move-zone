@@ -48,6 +48,7 @@ import type { BookingOfferSummary, ComplianceDoc, PendingRating, Shift, ShiftSes
 import { loadDriverFlowState, saveDriverFlowState } from "./storage";
 import { RouteMap, mapsNavigateUrl } from "@/components/driver/RouteMap";
 import { PushOptInButton } from "@/components/driver/PushOptInButton";
+import { formatMoney, formatMoneyFromCents, formatPayoutRate } from "@/lib/money";
 import "./move.css";
 
 const PRIMARY = "#e0511f";
@@ -86,7 +87,7 @@ function screenFromPath(pathname: string): Screen {
 }
 
 function formatPayout(shift: Shift) {
-  return shift.payoutType === "day" ? `$${shift.payout}/day` : `$${shift.payout}/hr`;
+  return formatPayoutRate(shift.payout, shift.payoutType);
 }
 
 function docStatusColor(status: ComplianceDoc["status"]) {
@@ -246,7 +247,7 @@ export function DriverApp() {
   const [claimedIds, setClaimedIds] = useState<Set<string>>(new Set());
   const [myShifts, setMyShifts] = useState<Shift[]>([]);
   const [activeSession, setActiveSession] = useState<ShiftSession | null>(null);
-  const [wallet, setWallet] = useState({ available: 0, pending: 0, lifetime: 0, cashoutFee: 1.99, weekEarnings: 0 });
+  const [wallet, setWallet] = useState({ available: 0, pending: 0, lifetime: 0, cashoutFee: 500, weekEarnings: 0 });
   const [ledger, setLedger] = useState<WalletEntry[]>([]);
   const [compliance, setCompliance] = useState<ComplianceDoc[]>([]);
   const [offers, setOffers] = useState<BookingOfferSummary[]>([]);
@@ -280,6 +281,15 @@ export function DriverApp() {
   const clockedIn = activeSession?.status === "active";
   const todayShift = activeSession?.shift ?? myShifts[0] ?? null;
   const waypoints = activeSession?.waypoints ?? WAYPOINTS;
+  const lastGpsPing = useRef(0);
+
+  const reportLiveLocation = useCallback((coords: { lat: number; lng: number }) => {
+    if (!activeSession || activeSession.status !== "active") return;
+    const now = Date.now();
+    if (now - lastGpsPing.current < 20000) return;
+    lastGpsPing.current = now;
+    void updateActiveSession(activeSession.id, coords).catch(() => undefined);
+  }, [activeSession]);
 
   const loadWorkspace = useCallback(async () => {
     try {
@@ -540,10 +550,10 @@ export function DriverApp() {
   const showNav = !isFlowScreen;
 
   const tabs = [
-    { label: "Shifts", shortLabel: "Shifts", screens: ["shifts"], go: "shifts" as Screen },
-    { label: "Schedule", shortLabel: "Schedule", screens: ["schedule"], go: "schedule" as Screen },
-    { label: "Wallet", shortLabel: "Wallet", screens: ["wallet"], go: "wallet" as Screen },
-    { label: "Vault", shortLabel: "Vault", screens: ["vault"], go: "vault" as Screen },
+    { label: "Jobs", shortLabel: "Jobs", screens: ["shifts"], go: "shifts" as Screen },
+    { label: "My runs", shortLabel: "Runs", screens: ["schedule"], go: "schedule" as Screen },
+    { label: "Pay", shortLabel: "Pay", screens: ["wallet"], go: "wallet" as Screen },
+    { label: "Docs", shortLabel: "Docs", screens: ["vault"], go: "vault" as Screen },
   ];
 
   function Welcome() {
@@ -555,11 +565,11 @@ export function DriverApp() {
           </div>
           <div style={{ marginTop: 48 }}>
             <h1 style={{ fontSize: 36, lineHeight: 1.04, fontWeight: 800, letterSpacing: "-.02em", margin: 0, textWrap: "balance" } as CSSProperties}>
-              Logistics marketplace.<br />
-              <span style={{ color: PRIMARY }}>Pick your side.</span>
+              Drive for work.<br />
+              <span style={{ color: PRIMARY }}>Get paid in naira.</span>
             </h1>
             <p style={{ fontSize: 16, lineHeight: 1.5, color: "#5f655c", margin: "18px 0 0", maxWidth: 340 }}>
-              Drivers and truck owners claim loads. Fleet operators post routes and find rated partners. Commission only on completion.
+              Claim funded jobs from companies across Lagos, Abuja, Port Harcourt, and more. Run the route, then cash out — platform fee only when the job completes.
             </p>
           </div>
           <div style={{ marginTop: 36, display: "flex", flexDirection: "column", gap: 12 }}>
@@ -570,19 +580,19 @@ export function DriverApp() {
               }}
               style={{ width: "100%", padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 26px rgba(224,81,31,.34)", textAlign: "left" }}
             >
-              Book a load now →
+              Find jobs near me →
             </button>
             <button
               onClick={() => goTo("setup")}
               style={{ width: "100%", padding: 16, border: "1px solid #e4dfd5", borderRadius: 18, background: "#fff", color: INK, fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}
             >
-              Set my zone &amp; vehicle first
+              Set my corridor &amp; vehicle first
             </button>
             <a
               href="/fleet/drivers"
               style={{ width: "100%", padding: 16, border: "none", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, textDecoration: "none", display: "block", textAlign: "center" }}
             >
-              I need to book a driver instead →
+              I hire drivers — open company console →
             </a>
           </div>
           <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "14px 0 0" }}>
@@ -590,12 +600,12 @@ export function DriverApp() {
           </p>
         </div>
         <FlowAside
-          title="One marketplace. Two apps."
-          text="Drivers earn on loads. Fleet operators fill routes with rated independent drivers and owner-operators."
+          title="Your driver workspace"
+          text="Separate from any company profile on the same login. Find work, run jobs, and cash out under your driver name."
           steps={[
-            { n: 1, text: "Browse loads by cargo — parcel to tankers" },
-            { n: 2, text: "Claim, run, complete — ratings both ways" },
-            { n: 3, text: "Cash out via Stripe Connect to your bank" },
+            { n: 1, text: "Browse funded jobs by corridor and cargo" },
+            { n: 2, text: "Clock in with GPS, hit stops, complete" },
+            { n: 3, text: "Cash out earnings to your bank" },
           ]}
         />
       </div>
@@ -773,12 +783,12 @@ export function DriverApp() {
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Shifts · {activeFilter}</div>
-          <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Book a load near you</h2>
+          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Jobs · {activeFilter}</div>
+          <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Jobs near you</h2>
 
           {offers.length > 0 && (
             <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Direct bookings for you</div>
+              <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Direct offers for you</div>
               {offers.map((offer) => (
                 <div key={offer.id} style={{ background: "#fff", border: `2px solid ${PRIMARY}`, borderRadius: 20, padding: "16px 18px", boxShadow: "0 4px 18px rgba(224,81,31,.12)" }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{offer.companyName ?? "Fleet"} booked you</div>
@@ -801,7 +811,7 @@ export function DriverApp() {
             </div>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", background: INK, borderRadius: 999, boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
               <span style={{ fontFamily: MONO, fontSize: 11, color: "#f3aa79", letterSpacing: ".08em" }}>Earned this week</span>
-              <span style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>${weekEarnings}</span>
+              <span style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>{formatMoney(weekEarnings)}</span>
             </div>
           </div>
 
@@ -836,7 +846,7 @@ export function DriverApp() {
             </div>
             <div style={{ marginTop: 6, fontFamily: MONO, fontSize: 11, letterSpacing: ".06em", color: MUTE }}>
               {list.length} load{list.length === 1 ? "" : "s"}
-              {activeFilter !== "All zones" || filterCargo !== "all" ? " · filtered" : " · all Nigeria corridors"}
+              {activeFilter !== "All zones" || filterCargo !== "all" ? " · filtered" : " · all corridors"}
             </div>
           </div>
 
@@ -860,8 +870,8 @@ export function DriverApp() {
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Schedule · live workspace</div>
-          <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Your committed shifts</h2>
+          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>My runs · live tracking</div>
+          <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Jobs you accepted</h2>
 
           {todayShift ? (
           <div style={{ marginTop: 22, background: clockedIn ? "#eef6ec" : "#fff", border: `2px solid ${clockedIn ? "#2f7d4f" : PRIMARY}`, borderRadius: 22, padding: 20, boxShadow: clockedIn ? "0 0 0 4px rgba(47,125,79,.1)" : "0 4px 18px rgba(224,81,31,.1)" }}>
@@ -888,6 +898,7 @@ export function DriverApp() {
                         ? { lat: activeSession.clockInLat, lng: activeSession.clockInLng }
                         : null
                     }
+                    onLocation={reportLiveLocation}
                   />
                 </div>
                 <div style={{ marginTop: 20 }}>
@@ -939,7 +950,7 @@ export function DriverApp() {
           </div>
           ) : (
             <div style={{ marginTop: 22, padding: "24px 20px", borderRadius: 18, border: "1px dashed #d8d2c6", textAlign: "center", color: MUTE, fontSize: 14 }}>
-              No active shift. Claim one from the Shifts tab.
+              No active run. Claim a job from the Jobs tab.
             </div>
           )}
 
@@ -964,7 +975,7 @@ export function DriverApp() {
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Wallet · instant pay</div>
+          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Pay · instant cashout</div>
           <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Your earnings</h2>
 
           <div className="move-metric-grid" style={{ marginTop: 22 }}>
@@ -975,13 +986,13 @@ export function DriverApp() {
             ].map((b) => (
               <div key={b.label} style={{ padding: "18px 18px", borderRadius: 18, background: b.dark ? INK : "#fff", border: b.dark ? "none" : "1px solid #e4dfd5", color: b.dark ? "#fff" : INK, boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
                 <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: b.dark ? "#f3aa79" : MUTE }}>{b.label}</div>
-                <div style={{ fontSize: 28, fontWeight: 800, marginTop: 4, letterSpacing: "-.02em" }}>${b.value.toLocaleString()}</div>
+                <div style={{ fontSize: 28, fontWeight: 800, marginTop: 4, letterSpacing: "-.02em" }}>{formatMoney(b.value)}</div>
               </div>
             ))}
           </div>
 
           <button onClick={() => setCashoutOpen(true)} style={{ width: "100%", marginTop: 20, padding: 18, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-            <Zap size={16} /> Instant cashout — ${wallet.available} available
+            <Zap size={16} /> Instant cashout — {formatMoney(wallet.available)} available
           </button>
 
           {stripeConfigured && !payoutsEnabled && (
@@ -1009,7 +1020,7 @@ export function DriverApp() {
                   <div style={{ fontSize: 12, color: MUTE, marginTop: 2 }}>{entry.date}</div>
                 </div>
                 <span style={{ fontSize: 15, fontWeight: 700, color: entry.amount > 0 ? "#2f7d4f" : INK }}>
-                  {entry.amount > 0 ? "+" : ""}${Math.abs(entry.amount).toFixed(entry.amount % 1 ? 2 : 0)}
+                  {entry.amount > 0 ? "+" : ""}{formatMoney(Math.abs(entry.amount), { exact: Math.abs(entry.amount % 1) > 0 })}
                 </span>
               </div>
             ))}
@@ -1020,11 +1031,11 @@ export function DriverApp() {
               <Shield size={16} style={{ color: "#bf6a3c", flexShrink: 0, marginTop: 2 }} />
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 13.5, lineHeight: 1.5, color: "#5a4636", margin: 0, fontWeight: 700 }}>
-                  {taxYear} tax summary (1099-NEC estimate)
+                  {taxYear} earnings summary
                 </p>
                 <p style={{ fontSize: 13, lineHeight: 1.5, color: "#5a4636", margin: "6px 0 0" }}>
                   {taxSummary
-                    ? `$${(taxSummary.form1099NecEstimateCents / 100).toFixed(2)} net load pay · $${(taxSummary.platformFeesCents / 100).toFixed(2)} platform fees · ${taxSummary.loadCount} loads`
+                    ? `${formatMoneyFromCents(taxSummary.form1099NecEstimateCents, { exact: true })} net job pay · ${formatMoneyFromCents(taxSummary.platformFeesCents, { exact: true })} platform fees · ${taxSummary.loadCount} jobs`
                     : "Open this tab while signed in to load your year-to-date earnings export."}
                 </p>
                 <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
@@ -1059,8 +1070,8 @@ export function DriverApp() {
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Vault · compliance</div>
-          <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Your credentials</h2>
+          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Docs · compliance</div>
+          <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Your documents</h2>
           <p style={{ fontSize: 15, color: "#5f655c", margin: "10px 0 0", lineHeight: 1.5 }}>
             Upload your driver's licence, background check, medical certificate, and insurance to earn your Verified badge.
           </p>
@@ -1159,7 +1170,7 @@ export function DriverApp() {
           <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Rate fleet</div>
           <h3 style={{ fontSize: 20, fontWeight: 800, margin: "8px 0 0" }}>How was {rateTarget.counterpartyName}?</h3>
           <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>
-            {rateTarget.title} · ${rateTarget.payout} — your rating helps other drivers.
+            {rateTarget.title} · {formatMoney(rateTarget.payout)} — your rating helps other drivers.
           </p>
           <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 18 }}>
             {[1, 2, 3, 4, 5].map((n) => (
@@ -1231,11 +1242,11 @@ export function DriverApp() {
       ) : (
         <>
           <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Instant cashout</div>
-          <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-.01em", margin: "8px 0 0" }}>Transfer ${wallet.available} to your card</h3>
-          <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>Micro-fee of ${wallet.cashoutFee} — arrives in minutes.</p>
+          <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-.01em", margin: "8px 0 0" }}>Transfer {formatMoney(wallet.available)} to your bank</h3>
+          <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>Service fee of {formatMoney(wallet.cashoutFee, { exact: true })} — arrives in minutes.</p>
           <div style={{ marginTop: 18, padding: 16, borderRadius: 16, background: "#fbeae0", border: "1px solid #f3d6c4", display: "flex", justifyContent: "space-between" }}>
             <span style={{ fontSize: 14, fontWeight: 600 }}>You receive</span>
-            <span style={{ fontSize: 18, fontWeight: 800, color: PRIMARY }}>${(wallet.available - wallet.cashoutFee).toFixed(2)}</span>
+            <span style={{ fontSize: 18, fontWeight: 800, color: PRIMARY }}>{formatMoney(wallet.available - wallet.cashoutFee, { exact: true })}</span>
           </div>
           <button onClick={() => void handleCashout()} style={{ width: "100%", marginTop: 16, padding: 16, border: "none", borderRadius: 16, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
             <Zap size={16} /> Cash out now
@@ -1267,8 +1278,8 @@ export function DriverApp() {
       appHomeHref="/move/shifts"
       destCity={showNav ? (filterZone === "All zones" ? "Nigeria" : filterZone) : undefined}
       destCountry={showNav ? vehicle.label : undefined}
-      stayLabel={showNav ? "Commercial" : undefined}
-      modeName={showNav ? "Driver" : undefined}
+      stayLabel={showNav ? "Nigeria" : undefined}
+      modeName={showNav ? "Driver profile" : undefined}
       movePct={compliancePct}
       moveDone={verifiedDocs}
       moveTotal={compliance.length || 6}

@@ -21,15 +21,15 @@ insert into driver_profiles (
   auth_user_id, zone, vehicle_type, onboarding_completed, display_name,
   owner_type, rate_hint_cents, rating_avg, rating_count, bio
 ) values
-  ('driver-demo-001', 'Lagos Mainland', 'semi', true, 'Tunde Adebayo', 'owner', 32000, 4.9, 87,
+  ('driver-demo-001', 'Lagos Mainland', 'semi', true, 'Tunde Adebayo', 'owner', 8500000, 4.9, 87,
    'Owner-operator. 12 years Lagos–Abuja linehaul. Reefer and dry van.'),
-  ('driver-demo-002', 'Port Harcourt', 'tanker', true, 'Ngozi Emeka', 'owner', 45000, 4.7, 63,
+  ('driver-demo-002', 'Port Harcourt', 'tanker', true, 'Ngozi Emeka', 'owner', 12000000, 4.7, 63,
    'Tanker endorsement. Fuel and chemical hauls across the Niger Delta.'),
-  ('driver-demo-003', 'Ikeja / Airport', 'sprinter', true, 'Ibrahim Musa', 'driver', 18000, 4.8, 142,
+  ('driver-demo-003', 'Ikeja / Airport', 'sprinter', true, 'Ibrahim Musa', 'driver', 4500000, 4.8, 142,
    'Last-mile specialist. Konga, GIG, and DHL airport routes.'),
-  ('driver-demo-004', 'Lagos Island', 'box-truck', true, 'Kemi Adeyemi', 'owner', 22000, 4.5, 38,
+  ('driver-demo-004', 'Lagos Island', 'box-truck', true, 'Kemi Adeyemi', 'owner', 6500000, 4.5, 38,
    '26'' box truck owner. Market and grocery distribution on the Island.'),
-  ('driver-demo-005', 'Abuja', 'flatbed', true, 'Yusuf Mohammed', 'owner', 28000, 4.6, 51,
+  ('driver-demo-005', 'Abuja', 'flatbed', true, 'Yusuf Mohammed', 'owner', 7200000, 4.6, 51,
    'Flatbed. Construction materials and Apapa–Abuja corridor freight.')
 on conflict (auth_user_id) do update set
   zone = excluded.zone,
@@ -51,7 +51,7 @@ insert into driver_shifts (
   (
     'b2000000-0000-4000-8000-000000000001',
     'fleet-demo-001', 'Lagos–Abuja Linehaul — Dry Van',
-    32000, 'day', 'semi', 'Semi Tractor',
+    8500000, 'day', 'semi', 'Semi Tractor',
     'heavy-goods', 'Lagos Corridor Hub, Apapa', 'Abuja Central Depot',
     '5:00 AM', '3:00 PM', 10.0, 'Lagos Mainland',
     470, 2, 'high', 'Today', 'open', 800
@@ -59,7 +59,7 @@ insert into driver_shifts (
   (
     'b2000000-0000-4000-8000-000000000002',
     'fleet-demo-002', 'Port Tanker Run — Fuel',
-    45000, 'day', 'tanker', 'Tanker (Hazmat)',
+    12000000, 'day', 'tanker', 'Tanker (Hazmat)',
     'tanker', 'Onne Port Terminal', '3 fuel stations · Rivers',
     '4:00 AM', '2:00 PM', 10.0, 'Port Harcourt',
     55, 3, 'high', 'Today', 'open', 800
@@ -67,7 +67,7 @@ insert into driver_shifts (
   (
     'b2000000-0000-4000-8000-000000000003',
     'fleet-demo-001', 'Cold Chain — Grocery',
-    27500, 'day', 'refrigerated', 'Reefer Trailer',
+    7200000, 'day', 'refrigerated', 'Reefer Trailer',
     'refrigerated', 'Cold Hub Ikeja', '12 grocery drops · Mainland',
     '3:00 AM', '12:00 PM', 9.0, 'Ikeja / Airport',
     38, 12, 'normal', 'Tomorrow', 'open', 800
@@ -75,7 +75,7 @@ insert into driver_shifts (
   (
     'b2000000-0000-4000-8000-000000000004',
     'fleet-demo-003', 'Construction Aggregate',
-    24000, 'day', 'dump-truck', 'Dump Truck',
+    6500000, 'day', 'dump-truck', 'Dump Truck',
     'construction', 'Dangote Quarry spur, Abuja', '4 job sites · Gwarinpa',
     '6:00 AM', '2:00 PM', 8.0, 'Abuja',
     32, 4, 'normal', 'Tomorrow', 'open', 750
@@ -83,7 +83,7 @@ insert into driver_shifts (
   (
     'b2000000-0000-4000-8000-000000000005',
     'fleet-demo-002', 'Hazmat Chemical Transfer',
-    52000, 'day', 'tanker', 'Tanker (Dangerous Goods)',
+    15000000, 'day', 'tanker', 'Tanker (Dangerous Goods)',
     'hazmat', 'Eleme Petrochemicals', '2 distribution terminals',
     '5:30 AM', '4:00 PM', 10.5, 'Port Harcourt',
     40, 2, 'high', 'Mon, Jul 21', 'open', 800

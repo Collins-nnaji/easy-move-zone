@@ -10,6 +10,7 @@ import {
   Star,
   Truck,
   Users,
+  MapPin,
 } from "lucide-react";
 import { SiteLogo } from "@/components/brand/SiteLogo";
 import { MoveAppShell } from "@/app/move/MoveAppShell";
@@ -35,6 +36,9 @@ import {
 import { fundLoad } from "@/lib/payments/client";
 import type { BookingOfferSummary, FleetWorkspace, MarketplaceDriver, PendingRating, Shift } from "@/lib/driver/types";
 import type { CargoCategory, VehicleType } from "@/lib/marketplace/taxonomy";
+import { formatMoney, formatPayoutRate, parseMoneyInput } from "@/lib/money";
+import { MoneyInput } from "@/components/ui/MoneyInput";
+import { RouteMap, mapsSearchUrl } from "@/components/driver/RouteMap";
 import "@/app/move/move.css";
 
 const PRIMARY = "#e0511f";
@@ -73,7 +77,7 @@ function screenFromPath(pathname: string): Screen {
 }
 
 function formatPayout(shift: Shift) {
-  return shift.payoutType === "day" ? `$${shift.payout}/day` : `$${shift.payout}/hr`;
+  return formatPayoutRate(shift.payout, shift.payoutType);
 }
 
 function FlowAside({ title, text, steps }: { title: string; text: string; steps: { n: number; text: string }[] }) {
@@ -116,7 +120,7 @@ export function FleetApp() {
 
   const [postForm, setPostForm] = useState({
     title: "",
-    payout: "250",
+    payout: "45000",
     payoutType: "day" as "day" | "hour",
     vehicleType: "box-truck" as VehicleType,
     cargo: "general-freight" as CargoCategory,
@@ -125,11 +129,12 @@ export function FleetApp() {
     startTime: "6:00 AM",
     endTime: "2:00 PM",
     hours: "8",
-    distanceMi: "60",
-    stops: "5",
+    distanceMi: "35",
+    stops: "4",
     demand: "normal" as "high" | "normal",
     shiftDate: "Today",
   });
+  const [postStep, setPostStep] = useState(0);
 
   const zone = ZONE_OPTIONS[zoneIdx];
 
@@ -199,7 +204,7 @@ export function FleetApp() {
       const vehicle = VEHICLE_OPTIONS.find((v) => v.key === postForm.vehicleType);
       const { id } = await postFleetShift({
         title: postForm.title || `${vehicle?.label ?? "Load"} route`,
-        payoutCents: Math.round(parseFloat(postForm.payout) * 100),
+        payoutCents: Math.round(parseMoneyInput(postForm.payout) * 100),
         payoutType: postForm.payoutType,
         vehicleType: postForm.vehicleType,
         vehicleLabel: vehicle?.label ?? postForm.vehicleType,
@@ -216,6 +221,7 @@ export function FleetApp() {
         shiftDate: postForm.shiftDate,
       });
       setPostSuccess(true);
+      setPostStep(0);
       // Escrow payout immediately so drivers can book
       if (id) {
         try {
@@ -345,16 +351,16 @@ export function FleetApp() {
           <SiteLogo href="/" height={36} />
           <div style={{ marginTop: 56 }}>
             <h1 style={{ fontSize: 40, lineHeight: 1.04, fontWeight: 800, letterSpacing: "-.02em", margin: 0, textWrap: "balance" } as CSSProperties}>
-              Fill routes.<br />
-              <span style={{ color: PRIMARY }}>Find great drivers.</span>
+              Hire drivers.<br />
+              <span style={{ color: PRIMARY }}>Move goods across Nigeria.</span>
             </h1>
             <p style={{ fontSize: 16.5, lineHeight: 1.5, color: "#5f655c", margin: "22px 0 0", maxWidth: 340 }}>
-              Post loads from parcel to tankers, discover rated independent drivers and truck owners, and manage your workload — commission-based, transparent pricing.
+              Publish jobs for parcel, heavy goods, tankers, and more. Escrow pay in naira, track drivers live, and only pay the platform fee when a job finishes.
             </p>
           </div>
           <div style={{ flex: 1 }} />
           <button onClick={() => goTo("setup")} style={{ width: "100%", padding: 19, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 17, fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}>
-            Set up fleet console
+            Set up company profile
           </button>
           <button onClick={() => goTo("dashboard")} style={{ width: "100%", padding: 15, marginTop: 10, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
             Skip — open console →
@@ -363,19 +369,19 @@ export function FleetApp() {
             href="/move/shifts"
             style={{ width: "100%", padding: 16, marginTop: 4, border: "none", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, textDecoration: "none", display: "block", textAlign: "center" }}
           >
-            I&apos;m a driver — claim loads →
+            I drive for work — find jobs →
           </a>
           <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "10px 0 0" }}>
-            Posting and funding require an account · <a href="/auth?redirect=/fleet/dashboard" style={{ color: PRIMARY, fontWeight: 600 }}>Sign in</a>
+            Publishing and escrow need an account · <a href="/auth?redirect=/fleet/dashboard" style={{ color: PRIMARY, fontWeight: 600 }}>Sign in</a>
           </p>
         </div>
         <FlowAside
-          title="Marketplace for logistics"
-          text="Post heavy goods, refrigerated, tanker, and last-mile loads. Drivers and owner-operators claim with one slide."
+          title="Company workspace"
+          text="Separate from your driver profile. Post jobs, fund escrow, and manage partners under your company name."
           steps={[
-            { n: 1, text: "Post loads with cargo type, vehicle, and pay" },
-            { n: 2, text: "Find rated drivers and truck owners in your zone" },
-            { n: 3, text: "Track active workload and pay 8% commission on completion" },
+            { n: 1, text: "Describe the route, goods, and naira pay" },
+            { n: 2, text: "Fund escrow so drivers can claim" },
+            { n: 3, text: "Track GPS on active jobs and rate partners" },
           ]}
         />
       </div>
@@ -455,7 +461,7 @@ export function FleetApp() {
           <span style={{ background: tag.bg, color: tag.color, borderRadius: 999, padding: "5px 10px", fontSize: 11, fontWeight: 600, fontFamily: MONO }}>{tag.label}</span>
           {driver.rateHint && (
             <span style={{ background: "#f0ede4", borderRadius: 999, padding: "5px 10px", fontSize: 11, fontWeight: 600, fontFamily: MONO, color: "#4a5047" }}>
-              from ${driver.rateHint}/day
+              from {formatMoney(driver.rateHint)}/day
             </span>
           )}
         </div>
@@ -468,7 +474,7 @@ export function FleetApp() {
           }}
           style={{ width: "100%", marginTop: 14, padding: 12, border: "none", borderRadius: 12, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
         >
-          Book this driver
+          Offer this driver a job
         </button>
       </div>
     );
@@ -498,8 +504,29 @@ export function FleetApp() {
           )}
         </div>
         <p style={{ fontSize: 13.5, color: "#5f655c", margin: "10px 0 0" }}>{shift.pickup} → {shift.dropoff}</p>
+        <p style={{ fontSize: 12.5, color: MUTE, margin: "6px 0 0" }}>{shift.stops} stops · {shift.distanceMi} km · {shift.startTime}–{shift.endTime}</p>
         {shift.claimedDriverName && (
-          <p style={{ fontSize: 13, color: INK, margin: "8px 0 0", fontWeight: 600 }}>Claimed by {shift.claimedDriverName}</p>
+          <p style={{ fontSize: 13, color: INK, margin: "8px 0 0", fontWeight: 600 }}>Assigned to {shift.claimedDriverName}</p>
+        )}
+        {(shift.status === "active" || shift.status === "claimed") && (
+          <div style={{ marginTop: 14 }}>
+            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase", color: MUTE, marginBottom: 8 }}>Live tracking</div>
+            <RouteMap
+              watchDevice={false}
+              clockIn={
+                typeof shift.tracking?.clockInLat === "number" && typeof shift.tracking?.clockInLng === "number"
+                  ? { lat: shift.tracking.clockInLat, lng: shift.tracking.clockInLng }
+                  : null
+              }
+              live={
+                typeof shift.tracking?.lat === "number" && typeof shift.tracking?.lng === "number"
+                  ? { lat: shift.tracking.lat, lng: shift.tracking.lng }
+                  : null
+              }
+              emptyLabel={shift.status === "active" ? "Waiting for driver GPS…" : "Tracking starts when the driver clocks in"}
+              height={180}
+            />
+          </div>
         )}
         {showActions && (
           <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
@@ -522,8 +549,8 @@ export function FleetApp() {
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Fleet console · {companyName}</div>
-          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Workload overview</h2>
+          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Company console · {companyName}</div>
+          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Today&apos;s operations</h2>
 
           {notifications[0] && (
             <div style={{ marginTop: 16, padding: "14px 16px", borderRadius: 16, background: "#eef6ec", border: "1px solid #cfe6cf" }}>
@@ -546,10 +573,10 @@ export function FleetApp() {
 
           <div className="move-metric-grid" style={{ marginTop: 22 }}>
             {[
-              { label: "Open loads", value: stats.openLoads },
-              { label: "Active", value: stats.activeLoads, accent: true },
+              { label: "Open jobs", value: stats.openLoads },
+              { label: "On the road", value: stats.activeLoads, accent: true },
               { label: "Completed", value: stats.completedLoads },
-              { label: "Commission", value: `$${stats.commissionEarned}`, accent: true },
+              { label: "Fees paid", value: formatMoney(stats.commissionEarned), accent: true },
             ].map((m) => (
               <div key={m.label} style={{ padding: 18, borderRadius: 18, background: m.accent ? INK : "#fff", border: m.accent ? "none" : "1px solid #e4dfd5", color: m.accent ? "#fff" : INK }}>
                 <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase", color: m.accent ? "#f3aa79" : MUTE }}>{m.label}</div>
@@ -560,7 +587,7 @@ export function FleetApp() {
 
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, margin: "28px 0 12px" }}>Active workload</div>
           {activeWorkload.length === 0 ? (
-            <div style={{ padding: 24, borderRadius: 18, border: "1px dashed #d8d2c6", textAlign: "center", color: MUTE, fontSize: 14 }}>No active loads. Post a load to get started.</div>
+            <div style={{ padding: 24, borderRadius: 18, border: "1px dashed #d8d2c6", textAlign: "center", color: MUTE, fontSize: 14 }}>No jobs in progress. Publish work to get drivers moving.</div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {activeWorkload.map((s) => <LoadCard key={s.id} shift={s} showActions />)}
@@ -568,7 +595,7 @@ export function FleetApp() {
           )}
 
           <button type="button" onClick={() => goTo("post")} style={{ width: "100%", marginTop: 24, padding: 17, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-            Post new load
+            Post a new job
           </button>
         </div>
       </div>
@@ -576,39 +603,201 @@ export function FleetApp() {
   }
 
   function PostLoad() {
+    const field: CSSProperties = { padding: "14px 16px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 15, width: "100%", background: "#fff" };
+    const labelStyle: CSSProperties = { display: "block", fontFamily: MONO, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: MUTE, marginBottom: 8 };
+    const payoutPreview = formatPayoutRate(parseMoneyInput(postForm.payout) || 0, postForm.payoutType);
+    const steps = ["Route", "Cargo", "Pay"];
+    const canContinue =
+      postStep === 0 ? Boolean(postForm.pickup.trim() && postForm.dropoff.trim()) :
+      postStep === 1 ? Boolean(postForm.cargo && postForm.vehicleType) :
+      parseMoneyInput(postForm.payout) > 0;
+
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Post load · {zone.label}</div>
-          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>New marketplace load</h2>
-          <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>Drivers can claim only after you fund escrow. Stripe Checkout when keys are set; ledger escrow otherwise.</p>
+          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Post a job · {zone.label}</div>
+          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Publish work for drivers</h2>
+          <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>
+            Spell out the route, goods, and pay in naira. Drivers only see funded jobs.
+          </p>
+
+          <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
+            {steps.map((s, i) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setPostStep(i)}
+                style={{
+                  flex: 1, padding: "10px 8px", borderRadius: 12, border: `1px solid ${postStep === i ? PRIMARY : "#e4dfd5"}`,
+                  background: postStep === i ? "#fbeae0" : "#fff", color: postStep === i ? "#9c3f15" : MUTE,
+                  fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", cursor: "pointer",
+                }}
+              >
+                {i + 1}. {s}
+              </button>
+            ))}
+          </div>
 
           {postSuccess ? (
             <div style={{ marginTop: 32, textAlign: "center", padding: 32, borderRadius: 20, background: "#eef6ec", border: "1px solid #cfe6cf" }}>
               <Check size={32} color="#2f7d4f" style={{ margin: "0 auto" }} />
-              <div style={{ fontSize: 18, fontWeight: 800, marginTop: 12, color: "#2f7d4f" }}>Load posted!</div>
+              <div style={{ fontSize: 18, fontWeight: 800, marginTop: 12, color: "#2f7d4f" }}>Job published</div>
+              <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>Funding escrow so drivers can claim…</p>
             </div>
           ) : (
-            <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 14 }}>
-              <input placeholder="Load title" value={postForm.title} onChange={(e) => setPostForm((f) => ({ ...f, title: e.target.value }))} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 15 }} />
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <input placeholder="Payout ($)" value={postForm.payout} onChange={(e) => setPostForm((f) => ({ ...f, payout: e.target.value }))} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 15 }} />
-                <select value={postForm.payoutType} onChange={(e) => setPostForm((f) => ({ ...f, payoutType: e.target.value as "day" | "hour" }))} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 15 }}>
-                  <option value="day">Per day</option>
-                  <option value="hour">Per hour</option>
-                </select>
+            <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 16 }}>
+              {postStep === 0 && (
+                <>
+                  <label>
+                    <span style={labelStyle}>Job title</span>
+                    <input placeholder="e.g. Apapa → Ikeja dry goods" value={postForm.title} onChange={(e) => setPostForm((f) => ({ ...f, title: e.target.value }))} style={field} />
+                  </label>
+                  <label>
+                    <span style={labelStyle}>Pickup</span>
+                    <input placeholder="Warehouse, port gate, or address" value={postForm.pickup} onChange={(e) => setPostForm((f) => ({ ...f, pickup: e.target.value }))} style={field} />
+                  </label>
+                  <label>
+                    <span style={labelStyle}>Drop-off / route notes</span>
+                    <input placeholder="Destination or stop summary" value={postForm.dropoff} onChange={(e) => setPostForm((f) => ({ ...f, dropoff: e.target.value }))} style={field} />
+                  </label>
+                  {(postForm.pickup || postForm.dropoff) && (
+                    <a
+                      href={mapsSearchUrl([postForm.pickup, postForm.dropoff].filter(Boolean).join(" to "))}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ display: "inline-flex", alignItems: "center", gap: 8, color: PRIMARY, fontWeight: 700, fontSize: 13, textDecoration: "none" }}
+                    >
+                      <MapPin size={14} /> Preview route on Maps
+                    </a>
+                  )}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <label>
+                      <span style={labelStyle}>Start</span>
+                      <input value={postForm.startTime} onChange={(e) => setPostForm((f) => ({ ...f, startTime: e.target.value }))} style={field} />
+                    </label>
+                    <label>
+                      <span style={labelStyle}>End</span>
+                      <input value={postForm.endTime} onChange={(e) => setPostForm((f) => ({ ...f, endTime: e.target.value }))} style={field} />
+                    </label>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                    <label>
+                      <span style={labelStyle}>Hours</span>
+                      <input inputMode="decimal" value={postForm.hours} onChange={(e) => setPostForm((f) => ({ ...f, hours: e.target.value }))} style={field} />
+                    </label>
+                    <label>
+                      <span style={labelStyle}>Distance (km)</span>
+                      <input inputMode="numeric" value={postForm.distanceMi} onChange={(e) => setPostForm((f) => ({ ...f, distanceMi: e.target.value }))} style={field} />
+                    </label>
+                    <label>
+                      <span style={labelStyle}>Stops</span>
+                      <input inputMode="numeric" value={postForm.stops} onChange={(e) => setPostForm((f) => ({ ...f, stops: e.target.value }))} style={field} />
+                    </label>
+                  </div>
+                  <label>
+                    <span style={labelStyle}>When</span>
+                    <select value={postForm.shiftDate} onChange={(e) => setPostForm((f) => ({ ...f, shiftDate: e.target.value }))} style={field}>
+                      <option value="Today">Today</option>
+                      <option value="Tomorrow">Tomorrow</option>
+                      <option value="This week">This week</option>
+                    </select>
+                  </label>
+                </>
+              )}
+
+              {postStep === 1 && (
+                <>
+                  <div>
+                    <span style={labelStyle}>Goods to carry</span>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {CARGO_OPTIONS.map((c) => {
+                        const active = postForm.cargo === c.key;
+                        const tag = CARGO_TAGS[c.key];
+                        return (
+                          <button
+                            key={c.key}
+                            type="button"
+                            onClick={() => setPostForm((f) => ({ ...f, cargo: c.key }))}
+                            style={{
+                              padding: "10px 14px", borderRadius: 14, cursor: "pointer", textAlign: "left",
+                              border: `1px solid ${active ? PRIMARY : "#e4dfd5"}`,
+                              background: active ? tag.bg : "#fff", color: active ? tag.color : INK,
+                            }}
+                          >
+                            <div style={{ fontSize: 13, fontWeight: 700 }}>{c.label}</div>
+                            <div style={{ fontSize: 11, opacity: 0.75, marginTop: 2 }}>{c.sub}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <label>
+                    <span style={labelStyle}>Vehicle needed</span>
+                    <select value={postForm.vehicleType} onChange={(e) => setPostForm((f) => ({ ...f, vehicleType: e.target.value as VehicleType }))} style={field}>
+                      {VEHICLE_OPTIONS.map((v) => <option key={v.key} value={v.key}>{v.label} — {v.sub}</option>)}
+                    </select>
+                  </label>
+                  <label>
+                    <span style={labelStyle}>Demand</span>
+                    <select value={postForm.demand} onChange={(e) => setPostForm((f) => ({ ...f, demand: e.target.value as "high" | "normal" }))} style={field}>
+                      <option value="normal">Normal</option>
+                      <option value="high">Urgent / high demand</option>
+                    </select>
+                  </label>
+                </>
+              )}
+
+              {postStep === 2 && (
+                <>
+                  <MoneyInput
+                    label="Driver pay"
+                    value={postForm.payout}
+                    onChange={(v) => setPostForm((f) => ({ ...f, payout: v }))}
+                    placeholder="45000"
+                    hint={`Drivers will see ${payoutPreview} before your 8% platform fee.`}
+                  />
+                  <label>
+                    <span style={labelStyle}>Pay type</span>
+                    <select value={postForm.payoutType} onChange={(e) => setPostForm((f) => ({ ...f, payoutType: e.target.value as "day" | "hour" }))} style={field}>
+                      <option value="day">Per day</option>
+                      <option value="hour">Per hour</option>
+                    </select>
+                  </label>
+                  <div style={{ padding: 16, borderRadius: 16, background: "#faf8f3", border: "1px solid #e4dfd5", fontSize: 13.5, color: "#5f655c", lineHeight: 1.5 }}>
+                    <strong style={{ color: INK }}>{postForm.title || "Untitled job"}</strong>
+                    <div style={{ marginTop: 6 }}>{postForm.pickup || "Pickup TBD"} → {postForm.dropoff || "Drop-off TBD"}</div>
+                    <div style={{ marginTop: 6 }}>{CARGO_TAGS[postForm.cargo].label} · {VEHICLE_TAGS[postForm.vehicleType].label} · {postForm.stops} stops · {postForm.distanceMi} km</div>
+                    <div style={{ marginTop: 8, fontWeight: 800, color: PRIMARY, fontSize: 18 }}>{payoutPreview}</div>
+                  </div>
+                </>
+              )}
+
+              <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+                {postStep > 0 && (
+                  <button type="button" onClick={() => setPostStep((s) => s - 1)} style={{ flex: 1, padding: 16, borderRadius: 16, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
+                    Back
+                  </button>
+                )}
+                {postStep < 2 ? (
+                  <button
+                    type="button"
+                    disabled={!canContinue}
+                    onClick={() => setPostStep((s) => s + 1)}
+                    style={{ flex: 2, padding: 16, border: "none", borderRadius: 16, background: canContinue ? PRIMARY : "#d8d2c6", color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: canContinue ? "pointer" : "default" }}
+                  >
+                    Continue
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={!canContinue}
+                    onClick={() => void handlePostLoad()}
+                    style={{ flex: 2, padding: 16, border: "none", borderRadius: 16, background: canContinue ? PRIMARY : "#d8d2c6", color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: canContinue ? "pointer" : "default" }}
+                  >
+                    Publish &amp; fund escrow
+                  </button>
+                )}
               </div>
-              <select value={postForm.vehicleType} onChange={(e) => setPostForm((f) => ({ ...f, vehicleType: e.target.value as VehicleType }))} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 15 }}>
-                {VEHICLE_OPTIONS.map((v) => <option key={v.key} value={v.key}>{v.label}</option>)}
-              </select>
-              <select value={postForm.cargo} onChange={(e) => setPostForm((f) => ({ ...f, cargo: e.target.value as CargoCategory }))} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 15 }}>
-                {CARGO_OPTIONS.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
-              </select>
-              <input placeholder="Pickup location" value={postForm.pickup} onChange={(e) => setPostForm((f) => ({ ...f, pickup: e.target.value }))} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 15 }} />
-              <input placeholder="Dropoff / route summary" value={postForm.dropoff} onChange={(e) => setPostForm((f) => ({ ...f, dropoff: e.target.value }))} style={{ padding: "14px 16px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 15 }} />
-              <button type="button" onClick={() => void handlePostLoad()} style={{ marginTop: 8, padding: 17, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                Post to marketplace
-              </button>
             </div>
           )}
         </div>
@@ -620,10 +809,10 @@ export function FleetApp() {
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Book drivers · {zone.label}</div>
-          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Find &amp; book rated partners</h2>
+          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Hire drivers · {zone.label}</div>
+          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Find rated partners</h2>
           <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>
-            Tap Book, pick an open load, and the driver gets a direct offer to accept.
+            Send a direct job offer. The driver accepts into your funded job.
           </p>
 
           {bookableLoads.length === 0 && (
@@ -699,10 +888,10 @@ export function FleetApp() {
   const showNav = !isFlowScreen;
 
   const tabs = [
-    { label: "Dashboard", shortLabel: "Home", screens: ["dashboard"], go: "dashboard" as Screen },
-    { label: "Post Load", shortLabel: "Post", screens: ["post"], go: "post" as Screen },
-    { label: "Book Drivers", shortLabel: "Drivers", screens: ["drivers"], go: "drivers" as Screen },
-    { label: "My Loads", shortLabel: "Loads", screens: ["loads"], go: "loads" as Screen },
+    { label: "Home", shortLabel: "Home", screens: ["dashboard"], go: "dashboard" as Screen },
+    { label: "Post job", shortLabel: "Post", screens: ["post"], go: "post" as Screen },
+    { label: "Drivers", shortLabel: "Drivers", screens: ["drivers"], go: "drivers" as Screen },
+    { label: "Jobs", shortLabel: "Jobs", screens: ["loads"], go: "loads" as Screen },
   ];
 
   const rateModal = (
@@ -839,17 +1028,17 @@ export function FleetApp() {
       screen={screen}
       onNavigate={(s) => goTo(s as Screen)}
       appRole="fleet"
-      appLabel="Fleet"
+      appLabel="Company"
       appHomeHref="/fleet/dashboard"
       destCity={showNav ? companyName : undefined}
       destCountry={showNav ? zone.label : undefined}
-      stayLabel={showNav ? "Fleet" : undefined}
-      modeName={showNav ? "Operator" : undefined}
+      stayLabel={showNav ? "Company" : undefined}
+      modeName={showNav ? "Company profile" : undefined}
       movePct={stats.completedLoads > 0 ? Math.min(100, Math.round((stats.completedLoads / Math.max(stats.totalPosted, 1)) * 100)) : 0}
       moveDone={stats.completedLoads}
       moveTotal={Math.max(stats.totalPosted, 1)}
-      meterLabel="Fill rate"
-      meterSub={`${stats.completedLoads} of ${stats.totalPosted} loads completed`}
+      meterLabel="Jobs done"
+      meterSub={`${stats.completedLoads} of ${stats.totalPosted} jobs completed`}
       isFlowScreen={isFlowScreen}
       modals={modals}
     >
