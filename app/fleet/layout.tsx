@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Hanken_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import { FleetApp } from "./FleetApp";
 import { BRAND } from "@/lib/brand";
@@ -26,7 +27,9 @@ export const metadata: Metadata = {
 export default function FleetLayout() {
   return (
     <div style={{ display: "contents" }} className={`${hanken.variable} ${plexMono.variable}`}>
-      <FleetApp />
+      <Suspense fallback={<div className="move-root" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "40vh" }} />}>
+        <FleetApp />
+      </Suspense>
     </div>
   );
 }

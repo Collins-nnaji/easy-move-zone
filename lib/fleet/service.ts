@@ -435,7 +435,7 @@ export async function completeShift(authUserId: string, shiftId: string, role: "
             kind: "complete",
             title: "Load marked complete",
             body: `${shift.vehicle_label} finished. Rate your driver when ready.`,
-            link: "/fleet/loads",
+            link: "/fleet/jobs",
             meta: { shiftId },
           })
         : Promise.resolve(),

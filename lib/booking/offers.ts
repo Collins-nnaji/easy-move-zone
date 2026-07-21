@@ -305,7 +305,7 @@ export async function notifyFleetOfClaim(input: {
     kind: "claim",
     title,
     body,
-    link: "/fleet/loads",
+    link: "/fleet/jobs",
     meta: { shiftId: input.shiftId, driverUserId: input.driverUserId },
   });
 }

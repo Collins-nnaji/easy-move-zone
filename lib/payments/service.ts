@@ -239,8 +239,8 @@ export async function createLoadFundingCheckout(authUserId: string, shiftId: str
       shift_id: shiftId,
       fleet_user_id: authUserId,
     },
-    success_url: `${appBaseUrl()}/fleet/loads?funded=1`,
-    cancel_url: `${appBaseUrl()}/fleet/loads?funded=0`,
+    success_url: `${appBaseUrl()}/fleet/jobs?funded=1`,
+    cancel_url: `${appBaseUrl()}/fleet/jobs?funded=0`,
   });
 
   await driverSql.query(

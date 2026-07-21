@@ -104,7 +104,7 @@ export function PlatformNav() {
           {!onApp && (
             <>
               <Link
-                href="/fleet/post"
+                href="/fleet/jobs?post=1"
                 className="hidden items-center gap-1.5 rounded-full border border-[#d8d2c6] bg-white px-4 py-2 text-[13px] font-semibold text-[#4a5047] transition hover:border-[#e0511f]/40 sm:inline-flex"
               >
                 <Briefcase className="h-3.5 w-3.5" />

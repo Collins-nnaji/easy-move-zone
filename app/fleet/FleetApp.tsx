@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Briefcase,
   Check,
@@ -47,11 +47,13 @@ const MUTE = "#9aa097";
 const HANKEN = "var(--font-hanken), system-ui, sans-serif";
 const MONO = "var(--font-plex-mono), ui-monospace, monospace";
 
-type Screen = "welcome" | "setup" | "dashboard" | "post" | "drivers" | "loads";
+type Screen = "welcome" | "setup" | "dashboard" | "jobs" | "history" | "drivers";
 
 const FLOW_SCREENS: Screen[] = ["welcome", "setup"];
 const VALID_PATHS = new Set([
-  "/fleet", "/fleet/setup", "/fleet/dashboard", "/fleet/post", "/fleet/drivers", "/fleet/loads",
+  "/fleet", "/fleet/setup", "/fleet/dashboard", "/fleet/jobs", "/fleet/history", "/fleet/drivers",
+  // Legacy aliases → jobs
+  "/fleet/post", "/fleet/loads",
 ]);
 
 function buildPath(screen: Screen): string {
@@ -59,9 +61,9 @@ function buildPath(screen: Screen): string {
     case "welcome": return "/fleet";
     case "setup": return "/fleet/setup";
     case "dashboard": return "/fleet/dashboard";
-    case "post": return "/fleet/post";
+    case "jobs": return "/fleet/jobs";
+    case "history": return "/fleet/history";
     case "drivers": return "/fleet/drivers";
-    case "loads": return "/fleet/loads";
   }
 }
 
@@ -70,9 +72,9 @@ function screenFromPath(pathname: string): Screen {
   if (rest === "") return "welcome";
   if (rest === "setup") return "setup";
   if (rest === "dashboard") return "dashboard";
-  if (rest === "post") return "post";
+  if (rest === "jobs" || rest === "post" || rest === "loads") return "jobs";
+  if (rest === "history") return "history";
   if (rest === "drivers") return "drivers";
-  if (rest === "loads") return "loads";
   return "welcome";
 }
 
@@ -100,6 +102,7 @@ function FlowAside({ title, text, steps }: { title: string; text: string; steps:
 export function FleetApp() {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [screen, setScreen] = useState<Screen>(() => screenFromPath(pathname));
   const [ready, setReady] = useState(false);
   const [workspace, setWorkspace] = useState<FleetWorkspace | null>(null);
@@ -110,6 +113,7 @@ export function FleetApp() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [postSuccess, setPostSuccess] = useState(false);
+  const [posting, setPosting] = useState(false);
   const [bookDriverId, setBookDriverId] = useState<string | null>(null);
   const [bookShiftId, setBookShiftId] = useState<string>("");
   const [bookMessage, setBookMessage] = useState("");
@@ -171,6 +175,13 @@ export function FleetApp() {
       router.replace("/fleet");
       return;
     }
+    // Legacy /fleet/post opens the in-page post flow on Jobs
+    if (pathname === "/fleet/post") {
+      setPosting(true);
+      router.replace("/fleet/jobs");
+    } else if (pathname === "/fleet/loads") {
+      router.replace("/fleet/jobs");
+    }
     setReady(true);
   }, [ready, pathname, router]);
 
@@ -180,12 +191,41 @@ export function FleetApp() {
   }, [ready, loadWorkspace]);
 
   useEffect(() => {
-    setScreen(screenFromPath(pathname));
+    const next = screenFromPath(pathname);
+    setScreen(next);
+    if (next !== "jobs") {
+      setPosting(false);
+      setPostStep(0);
+      setPostSuccess(false);
+    }
   }, [pathname]);
 
+  useEffect(() => {
+    if (!ready) return;
+    if (pathname === "/fleet/jobs" && searchParams.get("post") === "1") {
+      setPostSuccess(false);
+      setPostStep(0);
+      setPosting(true);
+      router.replace("/fleet/jobs");
+    }
+  }, [ready, pathname, searchParams, router]);
+
   const goTo = useCallback((next: Screen) => {
+    if (next !== "jobs") {
+      setPosting(false);
+      setPostStep(0);
+      setPostSuccess(false);
+    }
     setScreen(next);
     router.push(buildPath(next));
+  }, [router]);
+
+  const openPostFlow = useCallback(() => {
+    setPostSuccess(false);
+    setPostStep(0);
+    setPosting(true);
+    setScreen("jobs");
+    router.push("/fleet/jobs");
   }, [router]);
 
   const completeSetup = () => {
@@ -235,11 +275,11 @@ export function FleetApp() {
         }
       }
       await loadWorkspace();
-      setTimeout(() => { setPostSuccess(false); goTo("loads"); }, 900);
+      setTimeout(() => { setPostSuccess(false); setPosting(false); setPostStep(0); goTo("jobs"); }, 900);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Sign in to post loads.";
       if (/sign in|401|unauthorized/i.test(msg)) {
-        window.location.href = `/auth?redirect=${encodeURIComponent("/fleet/post")}`;
+        window.location.href = `/auth?redirect=${encodeURIComponent("/fleet/jobs?post=1")}`;
         return;
       }
       setActionError(msg);
@@ -296,7 +336,7 @@ export function FleetApp() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unable to fund load.";
       if (/sign in|401|unauthorized/i.test(msg)) {
-        window.location.href = `/auth?redirect=${encodeURIComponent("/fleet/loads")}`;
+        window.location.href = `/auth?redirect=${encodeURIComponent("/fleet/jobs")}`;
         return;
       }
       setActionError(msg);
@@ -320,7 +360,7 @@ export function FleetApp() {
       setBookShiftId("");
       setBookMessage("");
       await loadWorkspace();
-      goTo("loads");
+      goTo("jobs");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unable to book driver.";
       if (/sign in|401|unauthorized/i.test(msg)) {
@@ -590,7 +630,7 @@ export function FleetApp() {
             <div style={{ padding: 28, borderRadius: 18, border: "1px solid #e4dfd5", background: "#fff", textAlign: "center" }}>
               <div style={{ fontSize: 16, fontWeight: 800, color: INK }}>No jobs in progress</div>
               <p style={{ fontSize: 14, color: MUTE, margin: "8px 0 0" }}>Publish work so drivers can claim and you can track them live.</p>
-              <button type="button" onClick={() => goTo("post")} style={{ marginTop: 16, minHeight: 44, padding: "12px 18px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+              <button type="button" onClick={() => openPostFlow()} style={{ marginTop: 16, minHeight: 44, padding: "12px 18px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
                 Post a job
               </button>
             </div>
@@ -600,7 +640,7 @@ export function FleetApp() {
             </div>
           )}
 
-          <button type="button" onClick={() => goTo("post")} style={{ width: "100%", marginTop: 24, padding: 17, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
+          <button type="button" onClick={() => openPostFlow()} style={{ width: "100%", marginTop: 24, padding: 17, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
             Post a new job
           </button>
         </div>
@@ -825,7 +865,7 @@ export function FleetApp() {
               {openLoads.length === 0
                 ? "Post and fund a load first, then book a driver onto it."
                 : "Fund escrow on an open load before booking a driver."}{" "}
-              <button type="button" onClick={() => goTo(openLoads.length ? "loads" : "post")} style={{ color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>
+              <button type="button" onClick={() => openLoads.length ? goTo("jobs") : openPostFlow()} style={{ color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>
                 {openLoads.length ? "My loads →" : "Post load →"}
               </button>
             </div>
@@ -859,18 +899,156 @@ export function FleetApp() {
     );
   }
 
-  function LoadsScreen() {
+  function JobsScreen() {
+    const openJobs = postedShifts.filter((s) => s.status === "open" || s.status === "claimed" || s.status === "active");
+
+    if (posting) {
+      return (
+        <div className="move-page-inner">
+          <div className="move-page-screen" style={{ paddingTop: 12 }}>
+            <button
+              type="button"
+              onClick={() => {
+                setPosting(false);
+                setPostStep(0);
+                setPostSuccess(false);
+              }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                border: "none",
+                background: "none",
+                color: PRIMARY,
+                fontFamily: MONO,
+                fontSize: 11,
+                letterSpacing: ".1em",
+                textTransform: "uppercase",
+                fontWeight: 700,
+                cursor: "pointer",
+                padding: 0,
+                marginBottom: 8,
+              }}
+            >
+              ← Open jobs
+            </button>
+            <PostLoad />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>My loads · {stats.totalPosted} posted</div>
-          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Posted loads</h2>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+            <div>
+              <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>
+                Open jobs · {openJobs.length}
+              </div>
+              <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Your open jobs</h2>
+              <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>
+                Active and unclaimed work. Post a new job here when you need drivers.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => openPostFlow()}
+            style={{
+              width: "100%",
+              marginTop: 18,
+              minHeight: 48,
+              padding: 16,
+              border: "none",
+              borderRadius: 16,
+              background: PRIMARY,
+              color: "#fff",
+              fontFamily: HANKEN,
+              fontSize: 15,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            Post a job
+          </button>
 
           <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 12 }}>
-            {postedShifts.length === 0 ? (
-              <div style={{ padding: 24, borderRadius: 18, border: "1px dashed #d8d2c6", textAlign: "center", color: MUTE, fontSize: 14 }}>No loads posted yet. <button type="button" onClick={() => goTo("post")} style={{ color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>Post your first load</button></div>
+            {openJobs.length === 0 ? (
+              <div style={{ padding: 28, borderRadius: 18, border: "1px solid #e4dfd5", background: "#fff", textAlign: "center" }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: INK }}>No open jobs</div>
+                <p style={{ fontSize: 14, color: MUTE, margin: "8px 0 0" }}>Publish a job so drivers can claim it.</p>
+                <button
+                  type="button"
+                  onClick={() => openPostFlow()}
+                  style={{
+                    marginTop: 16,
+                    minHeight: 44,
+                    padding: "12px 18px",
+                    border: "none",
+                    borderRadius: 14,
+                    background: PRIMARY,
+                    color: "#fff",
+                    fontFamily: HANKEN,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  Post your first job
+                </button>
+              </div>
             ) : (
-              postedShifts.map((s) => <LoadCard key={s.id} shift={s} showActions />)
+              openJobs.map((s) => <LoadCard key={s.id} shift={s} showActions />)
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function HistoryScreen() {
+    const historyJobs = postedShifts.filter((s) => s.status === "completed" || s.status === "cancelled");
+
+    return (
+      <div className="move-page-inner">
+        <div className="move-page-screen">
+          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>
+            History · {historyJobs.length}
+          </div>
+          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Past jobs</h2>
+          <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>
+            Completed and cancelled jobs for your company.
+          </p>
+
+          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+            {historyJobs.length === 0 ? (
+              <div style={{ padding: 28, borderRadius: 18, border: "1px solid #e4dfd5", background: "#fff", textAlign: "center" }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: INK }}>No history yet</div>
+                <p style={{ fontSize: 14, color: MUTE, margin: "8px 0 0" }}>Finished jobs will show up here.</p>
+                <button
+                  type="button"
+                  onClick={() => goTo("jobs")}
+                  style={{
+                    marginTop: 16,
+                    minHeight: 44,
+                    padding: "12px 18px",
+                    border: "none",
+                    borderRadius: 14,
+                    background: PRIMARY,
+                    color: "#fff",
+                    fontFamily: HANKEN,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  View open jobs
+                </button>
+              </div>
+            ) : (
+              historyJobs.map((s) => <LoadCard key={s.id} shift={s} showActions={false} />)
             )}
           </div>
         </div>
@@ -883,9 +1061,9 @@ export function FleetApp() {
       case "welcome": return Welcome();
       case "setup": return Setup();
       case "dashboard": return Dashboard();
-      case "post": return PostLoad();
+      case "jobs": return JobsScreen();
+      case "history": return HistoryScreen();
       case "drivers": return DriversScreen();
-      case "loads": return LoadsScreen();
     }
   }
 
@@ -894,9 +1072,9 @@ export function FleetApp() {
 
   const tabs = [
     { label: "Home", shortLabel: "Home", screens: ["dashboard"], go: "dashboard" as Screen },
-    { label: "Post job", shortLabel: "Post", screens: ["post"], go: "post" as Screen },
+    { label: "Jobs", shortLabel: "Jobs", screens: ["jobs"], go: "jobs" as Screen },
+    { label: "History", shortLabel: "History", screens: ["history"], go: "history" as Screen },
     { label: "Drivers", shortLabel: "Drivers", screens: ["drivers"], go: "drivers" as Screen },
-    { label: "Jobs", shortLabel: "Jobs", screens: ["loads"], go: "loads" as Screen },
   ];
 
   const rateModal = (
@@ -976,7 +1154,7 @@ export function FleetApp() {
         {bookableLoads.length === 0 ? (
           <div style={{ marginTop: 18, padding: 16, borderRadius: 14, background: "#fdf6e8", color: "#9a6318", fontSize: 13 }}>
             No funded open loads. Fund escrow first, then book.
-            <button type="button" onClick={() => { setBookDriverId(null); goTo(openLoads.length ? "loads" : "post"); }} style={{ display: "block", marginTop: 10, color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>
+            <button type="button" onClick={() => { setBookDriverId(null); openLoads.length ? goTo("jobs") : openPostFlow(); }} style={{ display: "block", marginTop: 10, color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>
               {openLoads.length ? "Fund a load →" : "Post load →"}
             </button>
           </div>
