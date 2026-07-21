@@ -35,7 +35,7 @@ export default function TermsPage() {
           <h2 className="text-lg font-bold text-[#1b231e]">3. Accounts & compliance</h2>
           <p>
             You must provide accurate profile and licensing information. Drivers are responsible for
-            maintaining valid CDL, insurance, medical certification, and any endorsements required for
+            maintaining a valid driver’s licence, insurance, medical fitness certification, and any endorsements required for
             the cargo they accept.
           </p>
           <h2 className="text-lg font-bold text-[#1b231e]">4. Payments</h2>

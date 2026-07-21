@@ -172,7 +172,7 @@ export function FleetApp() {
   useEffect(() => {
     if (!ready || FLOW_SCREENS.includes(screen)) return;
     void loadWorkspace();
-  }, [ready, screen, loadWorkspace]);
+  }, [ready, loadWorkspace]);
 
   useEffect(() => {
     setScreen(screenFromPath(pathname));

@@ -10,14 +10,14 @@ export const softSpring: Transition = {
 };
 
 export const screenTransition: Transition = {
-  duration: 0.28,
+  duration: 0.18,
   ease: easeOutExpo,
 };
 
 export const screenVariants: Variants = {
-  initial: { opacity: 0, y: 10 },
+  initial: { opacity: 0, y: 6 },
   animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -6 },
+  exit: { opacity: 0, y: -4 },
 };
 
 export const staggerContainer: Variants = {

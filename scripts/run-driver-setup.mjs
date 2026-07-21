@@ -28,6 +28,7 @@ const steps = [
   "db/migrations/20260720_drop_relocation_product.sql",
   "db/seeds/20260720_driver_shifts_seed.sql",
   "db/seeds/20260721_marketplace_seed.sql",
+  "db/seeds/20260721_nigeria_zones.sql",
   "db/cleanup-unneeded-tables.sql",
 ];
 

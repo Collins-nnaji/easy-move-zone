@@ -52,7 +52,7 @@ export async function ensureFleetProfile(authUserId: string): Promise<FleetProfi
   return {
     companyName: row?.company_name ?? "My Fleet",
     contactName: row?.contact_name ?? null,
-    zone: row?.zone ?? "DFW North",
+    zone: row?.zone ?? "Lagos Mainland",
     ratingAvg: Number(row?.rating_avg ?? 0),
     ratingCount: row?.rating_count ?? 0,
     commissionBps: row?.commission_bps ?? COMMISSION_BPS,
@@ -188,7 +188,7 @@ export async function buildFleetWorkspace(
   const defaultProfile: FleetProfile = {
     companyName: "My Fleet",
     contactName: null,
-    zone: filters?.zone ?? "DFW North",
+    zone: filters?.zone ?? "Lagos Mainland",
     ratingAvg: 0,
     ratingCount: 0,
     commissionBps: COMMISSION_BPS,

@@ -290,6 +290,80 @@
   gap: 18px;
 }
 
+/* Sticky filter chips — wrap on wide screens, snap-scroll on narrow */
+.move-filter-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin-top: 14px;
+  padding: 10px 0 6px;
+  background: linear-gradient(180deg, rgba(246, 243, 236, 0.97) 70%, rgba(246, 243, 236, 0));
+}
+
+.move-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 4px;
+}
+
+.move-filter-row + .move-filter-row {
+  margin-top: 8px;
+}
+
+.move-filter-chip {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  border: 1px solid #e4dfd5;
+  background: #fff;
+  color: #4a5047;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.move-filter-chip:active {
+  transform: scale(0.97);
+}
+
+.move-filter-chip--ink {
+  background: #1b231e;
+  color: #fff;
+  border-color: #1b231e;
+}
+
+.move-filter-chip--primary {
+  background: #e0511f;
+  color: #fff;
+  border-color: #e0511f;
+}
+
+@media (max-width: 520px) {
+  .move-filter-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin-inline: -4px;
+    padding-inline: 4px;
+  }
+
+  .move-filter-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .move-filter-chip {
+    scroll-snap-align: start;
+  }
+}
+
 @media (min-width: 768px) {
   .move-card-grid {
     display: grid;

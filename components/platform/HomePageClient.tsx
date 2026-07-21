@@ -40,7 +40,7 @@ const pages = [
     icon: Shield,
     label: "04",
     title: "Compliance Vault",
-    body: "CDL, hazmat, medical certs, and insurance verified in one place. Stay compliant to unlock premium tanker and heavy-goods routes.",
+    body: "Driver's licence, dangerous-goods certs, medical fitness, and insurance verified in one place. Stay compliant to unlock premium tanker and heavy-goods routes.",
   },
 ] as const
 
@@ -51,7 +51,7 @@ const steps = [
 ] as const
 
 const heroPoints = [
-  "Marketplace — parcel to tankers, heavy goods to last-mile, all cargo types",
+  "Built for Nigeria — Lagos, Abuja, Port Harcourt, Ibadan corridors",
   "Rated network — drivers, truck owners, and fleet operators with transparent reviews",
   "Commission-based — 8% platform fee on completed loads, instant driver payouts",
 ] as const
@@ -90,7 +90,7 @@ export function HomePageClient() {
                 className="inline-flex items-center gap-2 rounded-full border border-[#e0511f]/20 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#bf5223] backdrop-blur"
               >
                 <Truck className="h-3.5 w-3.5" />
-                Logistics marketplace
+                Nigeria logistics marketplace
               </motion.div>
 
               <motion.h1
@@ -106,7 +106,7 @@ export function HomePageClient() {
 
               <motion.p {...fadeUp(0.12, 18)} className="mt-6 max-w-xl text-lg leading-relaxed text-[#5f655c]">
                 EasyMoveZone is a commission-based marketplace for independent truck drivers,
-                owner-operators, and fleet operators — from small goods to tankers and heavy freight.
+                owner-operators, and fleet operators across Nigeria — from small goods to tankers and heavy freight.
               </motion.p>
 
               <motion.div {...fadeUp(0.18, 18)} className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -149,9 +149,9 @@ export function HomePageClient() {
                 </div>
                 <div className="mt-5 space-y-3">
                   {[
-                    { pay: "$320/day", vehicle: "Semi · Heavy Goods", route: "DFW → OKC linehaul", hot: true, rating: "4.8 ★" },
-                    { pay: "$45/hr", vehicle: "Tanker · Hazmat", route: "Houston Port · 3 stops", hot: true, rating: "4.6 ★" },
-                    { pay: "$180/day", vehicle: "Sprinter · Parcel", route: "DFW North · 12 stops", hot: false, rating: "4.9 ★" },
+                    { pay: "$320/day", vehicle: "Semi · Heavy Goods", route: "Lagos → Abuja linehaul", hot: true, rating: "4.8 ★" },
+                    { pay: "$45/hr", vehicle: "Tanker · Hazmat", route: "Port Harcourt · 3 stops", hot: true, rating: "4.6 ★" },
+                    { pay: "$180/day", vehicle: "Sprinter · Parcel", route: "Ikeja / Airport · 12 stops", hot: false, rating: "4.9 ★" },
                   ].map((s, i) => (
                     <motion.div
                       key={s.pay}

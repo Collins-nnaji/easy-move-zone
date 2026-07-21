@@ -29,7 +29,7 @@ create table if not exists fleet_operator_profiles (
   auth_user_id text primary key,
   company_name text not null default 'My Fleet',
   contact_name text,
-  zone text not null default 'DFW North',
+  zone text not null default 'Lagos Mainland',
   onboarding_completed boolean not null default false,
   rating_avg numeric(3, 2) not null default 0,
   rating_count integer not null default 0,

@@ -25,7 +25,7 @@ export function ProfileWorkspace({
   const [errorMsg, setErrorMsg] = useState("")
   const [role, setRole] = useState<"driver" | "fleet">(initialRole)
   const [displayName, setDisplayName] = useState(authName)
-  const [zone, setZone] = useState("DFW North")
+  const [zone, setZone] = useState("Lagos Mainland")
   const [companyName, setCompanyName] = useState("")
   const [driver, setDriver] = useState<DriverProfile | null>(null)
   const [fleet, setFleet] = useState<FleetProfile | null>(null)

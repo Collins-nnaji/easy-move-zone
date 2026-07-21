@@ -27,7 +27,7 @@ export default function IndependentContractorPage() {
             <li>You choose which loads to accept.</li>
             <li>You provide your own equipment unless the load specifies client fleet.</li>
             <li>You are responsible for taxes, insurance, and licensing required for your work.</li>
-            <li>Platform fees and payouts may generate 1099 / tax reporting where required by law.</li>
+            <li>Platform fees and payouts may generate tax reporting where required by Nigerian law.</li>
           </ul>
           <p>
             Fleet operators are responsible for confirming insurance, authority, and cargo requirements

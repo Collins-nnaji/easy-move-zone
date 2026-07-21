@@ -1,9 +1,9 @@
 export const BRAND = {
   name: "EasyMoveZone",
   shortName: "EasyMoveZone",
-  tagline: "Logistics marketplace for drivers and fleet operators",
+  tagline: "Nigeria logistics marketplace for drivers and fleet operators",
   description:
-    "Commission-based marketplace connecting independent truck drivers, owner-operators, and fleet operators — from parcel to tankers. Post loads, find rated drivers, claim shifts, and get paid instantly.",
+    "Commission-based marketplace connecting independent truck drivers, owner-operators, and fleet operators across Lagos, Abuja, Port Harcourt, and beyond — from parcel to tankers. Post loads, find rated drivers, claim shifts, and get paid instantly.",
   logo: "/emz.png",
   logoAlt: "EasyMoveZone",
   themeColor: "#e0511f",

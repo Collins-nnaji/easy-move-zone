@@ -59,7 +59,7 @@ export async function ensureDriverProfile(authUserId: string): Promise<DriverPro
 
   const row = rows[0];
   return {
-    zone: row?.zone ?? "DFW North",
+    zone: row?.zone ?? "Lagos Mainland",
     vehicleType: row?.vehicle_type ?? "sprinter",
     ownerType: row?.owner_type ?? "driver",
     displayName: row?.display_name ?? null,
@@ -278,7 +278,7 @@ export async function buildWorkspace(
   filters?: { zone?: string | null; cargo?: string | null; vehicle?: string | null },
 ): Promise<DriverWorkspace> {
   const defaultProfile: DriverProfile = {
-    zone: filters?.zone ?? "DFW North",
+    zone: filters?.zone ?? "Lagos Mainland",
     vehicleType: "sprinter",
     ownerType: "driver",
     displayName: null,

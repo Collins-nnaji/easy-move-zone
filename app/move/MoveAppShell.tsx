@@ -172,7 +172,7 @@ export function MoveAppShell({
           )}
 
           <div className={`move-scroll${isFlowScreen ? " move-scroll--flow" : " move-scroll--app"}`}>
-            <AnimatePresence mode="wait" initial={false}>
+            <AnimatePresence mode="popLayout" initial={false}>
               <motion.div
                 key={screen}
                 className="move-screen-motion"

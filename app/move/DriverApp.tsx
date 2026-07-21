@@ -17,7 +17,6 @@ import {
 import { SiteLogo } from "@/components/brand/SiteLogo";
 import { MoveAppShell } from "./MoveAppShell";
 import { AnimatedSheet } from "@/components/move/AnimatedSheet";
-import { StaggerItem, StaggerList } from "@/components/move/StaggerList";
 import {
   CARGO_OPTIONS,
   CARGO_TAGS,
@@ -259,7 +258,7 @@ export function DriverApp() {
   const [vaultBusyKey, setVaultBusyKey] = useState<string | null>(null);
   const [cashoutOpen, setCashoutOpen] = useState(false);
   const [cashoutDone, setCashoutDone] = useState(false);
-  const [filterZone, setFilterZone] = useState<string | null>(null);
+  const [filterZone, setFilterZone] = useState("All zones");
   const [filterCargo, setFilterCargo] = useState("all");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -282,12 +281,13 @@ export function DriverApp() {
   const todayShift = activeSession?.shift ?? myShifts[0] ?? null;
   const waypoints = activeSession?.waypoints ?? WAYPOINTS;
 
-  const loadWorkspace = useCallback(async (zoneFilter?: string | null) => {
+  const loadWorkspace = useCallback(async () => {
     try {
       setLoadError(null);
+      // Always load the full open board; zone/cargo chips filter client-side for snappy UX.
       const data = await fetchDriverWorkspace({
-        zone: zoneFilter ?? filterZone ?? zone.label,
-        cargo: filterCargo,
+        zone: "All zones",
+        cargo: "all",
       });
       setOpenShifts(data.openShifts);
       setMyShifts(data.myShifts);
@@ -298,27 +298,30 @@ export function DriverApp() {
       setOffers(data.offers ?? []);
       setPendingRatings(data.pendingRatings ?? []);
       setProfileVerified(Boolean(data.profile.verified));
-      if (!rateTarget && (data.pendingRatings?.length ?? 0) > 0) {
-        setRateTarget(data.pendingRatings![0]);
-        setRateStars(5);
-        setRateComment("");
+      const pending = data.pendingRatings ?? [];
+      if (pending.length > 0) {
+        setRateTarget((current) => {
+          if (current) return current;
+          setRateStars(5);
+          setRateComment("");
+          return pending[0];
+        });
       }
       const zIdx = ZONE_OPTIONS.findIndex((z) => z.label === data.profile.zone);
       const vIdx = VEHICLE_OPTIONS.findIndex((v) => v.key === data.profile.vehicleType);
       if (zIdx >= 0) setZoneIdx(zIdx);
       if (vIdx >= 0) setVehicleIdx(vIdx);
-      if (!filterZone) setFilterZone(data.profile.zone);
       if (data.profile.onboardingCompleted) {
         saveDriverFlowState({
           zone: data.profile.zone,
-          vehicle: VEHICLE_OPTIONS[vIdx >= 0 ? vIdx : 0]?.label ?? vehicle.label,
+          vehicle: VEHICLE_OPTIONS[vIdx >= 0 ? vIdx : 0]?.label ?? "Sprinter Van",
           completed: true,
         });
       }
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Unable to load shifts.");
     }
-  }, [filterZone, filterCargo, zone.label]);
+  }, []);
 
   useEffect(() => {
     if (ready) return;
@@ -328,7 +331,6 @@ export function DriverApp() {
       const vIdx = VEHICLE_OPTIONS.findIndex((v) => v.label === saved.vehicle);
       if (zIdx >= 0) setZoneIdx(zIdx);
       if (vIdx >= 0) setVehicleIdx(vIdx);
-      setFilterZone(saved.zone);
       if (saved.completed && (pathname === "/move" || pathname === "/move/setup" || pathname === "/move/vehicle")) {
         router.replace("/move/shifts");
         return;
@@ -344,7 +346,7 @@ export function DriverApp() {
   useEffect(() => {
     if (!ready) return;
     void loadWorkspace();
-  }, [ready, screen, filterZone, filterCargo, loadWorkspace]);
+  }, [ready, loadWorkspace]);
 
   useEffect(() => {
     if (!ready || screen !== "wallet") return;
@@ -364,7 +366,7 @@ export function DriverApp() {
 
   const completeOnboarding = () => {
     saveDriverFlowState({ zone: zone.label, vehicle: vehicle.label, completed: true });
-    setFilterZone(zone.label);
+    setFilterZone("All zones");
     void updateDriverProfile({
       zone: zone.label,
       vehicleType: vehicle.key,
@@ -647,11 +649,11 @@ export function DriverApp() {
         </div>
         <FlowAside
           title="Your driving zone"
-          text="Everything downstream — your shift feed, schedule, and payouts — adapts to where you work."
+          text="Everything downstream — your shift feed, schedule, and payouts — adapts to where you work in Nigeria."
           steps={[
-            { n: 1, text: "DFW — north, central, and east corridors" },
-            { n: 2, text: "Houston — inner city and port routes" },
-            { n: 3, text: "San Antonio — grocery and restaurant drops" },
+            { n: 1, text: "Lagos — Island, Mainland, and Ikeja corridors" },
+            { n: 2, text: "Abuja — capital city and satellite routes" },
+            { n: 3, text: "Port Harcourt & Ibadan — port and inland freight" },
           ]}
         />
       </div>
@@ -715,7 +717,7 @@ export function DriverApp() {
             <div>
               <div style={{ fontSize: 15, fontWeight: 700, color: INK, marginBottom: 4 }}>{shift.title}</div>
               <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-.02em", color: INK }}>{formatPayout(shift)}</div>
-              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".1em", color: MUTE, marginTop: 4 }}>{shift.date} · {shift.hours}h · {shift.distanceMi} mi</div>
+              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".1em", color: MUTE, marginTop: 4 }}>{shift.date} · {shift.hours}h · {shift.distanceMi} km</div>
             </div>
             {shift.demand === "high" && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 11px", borderRadius: 999, background: "#fbeae0", color: "#9c3f15", fontFamily: MONO, fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", fontWeight: 600 }}>
@@ -761,8 +763,12 @@ export function DriverApp() {
   }
 
   function ShiftsFeed() {
-    const activeFilter = filterZone ?? zone.label;
-    const list = activeFilter === "All zones" ? openShifts : openShifts.filter((s) => s.zone === activeFilter);
+    const activeFilter = filterZone || "All zones";
+    const list = openShifts.filter((s) => {
+      const zoneOk = activeFilter === "All zones" || s.zone === activeFilter;
+      const cargoOk = filterCargo === "all" || s.cargo === filterCargo;
+      return zoneOk && cargoOk;
+    });
 
     return (
       <div className="move-page-inner">
@@ -799,40 +805,51 @@ export function DriverApp() {
             </div>
           </div>
 
-          <div style={{ marginTop: 16, display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
-            {["all", ...CARGO_OPTIONS.map((c) => c.key)].map((c) => (
-              <div
-                key={c}
-                onClick={() => setFilterCargo(c)}
-                style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, cursor: "pointer", background: filterCargo === c ? INK : "#fff", color: filterCargo === c ? "#fff" : "#4a5047", border: `1px solid ${filterCargo === c ? INK : "#e4dfd5"}`, fontSize: 13, fontWeight: 600, transition: "all .15s" }}
-              >
-                {c === "all" ? "All cargo" : CARGO_TAGS[c as keyof typeof CARGO_TAGS].label}
-              </div>
-            ))}
-          </div>
-
-          <div style={{ marginTop: 12, display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
-            {["All zones", ...ZONE_OPTIONS.map((z) => z.label)].map((z) => (
-              <div
-                key={z}
-                onClick={() => setFilterZone(z)}
-                style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, cursor: "pointer", background: activeFilter === z ? PRIMARY : "#fff", color: activeFilter === z ? "#fff" : "#4a5047", border: `1px solid ${activeFilter === z ? PRIMARY : "#e4dfd5"}`, fontSize: 13, fontWeight: 600, transition: "all .15s" }}
-              >
-                {z}
-              </div>
-            ))}
+          <div className="move-filter-bar">
+            <div className="move-filter-row" role="tablist" aria-label="Cargo filters">
+              {["all", ...CARGO_OPTIONS.map((c) => c.key)].map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  role="tab"
+                  aria-selected={filterCargo === c}
+                  className={`move-filter-chip${filterCargo === c ? " move-filter-chip--ink" : ""}`}
+                  onClick={() => setFilterCargo(c)}
+                >
+                  {c === "all" ? "All cargo" : CARGO_TAGS[c as keyof typeof CARGO_TAGS].label}
+                </button>
+              ))}
+            </div>
+            <div className="move-filter-row" role="tablist" aria-label="Zone filters">
+              {["All zones", ...ZONE_OPTIONS.map((z) => z.label)].map((z) => (
+                <button
+                  key={z}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeFilter === z}
+                  className={`move-filter-chip${activeFilter === z ? " move-filter-chip--primary" : ""}`}
+                  onClick={() => setFilterZone(z)}
+                >
+                  {z}
+                </button>
+              ))}
+            </div>
+            <div style={{ marginTop: 6, fontFamily: MONO, fontSize: 11, letterSpacing: ".06em", color: MUTE }}>
+              {list.length} load{list.length === 1 ? "" : "s"}
+              {activeFilter !== "All zones" || filterCargo !== "all" ? " · filtered" : " · all Nigeria corridors"}
+            </div>
           </div>
 
           {list.length === 0 ? (
-            <div style={{ marginTop: 22, textAlign: "center", padding: "40px 20px", borderRadius: 18, border: "1px dashed #d8d2c6", color: MUTE, fontSize: 14 }}>No open shifts in this zone. Try another or check back soon.</div>
+            <div style={{ marginTop: 22, textAlign: "center", padding: "40px 20px", borderRadius: 18, border: "1px dashed #d8d2c6", color: MUTE, fontSize: 14 }}>
+              No open shifts for this filter. Tap <button type="button" onClick={() => { setFilterZone("All zones"); setFilterCargo("all"); }} style={{ border: "none", background: "none", color: PRIMARY, fontWeight: 700, cursor: "pointer", padding: 0, font: "inherit" }}>All zones</button> or check back soon.
+            </div>
           ) : (
-            <StaggerList className="move-card-grid" style={{ marginTop: 22 }}>
+            <div className="move-card-grid" style={{ marginTop: 18 }}>
               {list.map((shift) => (
-                <StaggerItem key={shift.id}>
-                  <ShiftCard shift={shift} onClaim={() => void handleClaim(shift)} claimed={claimedIds.has(shift.id)} />
-                </StaggerItem>
+                <ShiftCard key={shift.id} shift={shift} onClaim={() => void handleClaim(shift)} claimed={claimedIds.has(shift.id)} />
               ))}
-            </StaggerList>
+            </div>
           )}
         </div>
       </div>
@@ -1045,7 +1062,7 @@ export function DriverApp() {
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Vault · compliance</div>
           <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Your credentials</h2>
           <p style={{ fontSize: 15, color: "#5f655c", margin: "10px 0 0", lineHeight: 1.5 }}>
-            Upload CDL, background check, medical card, and insurance to earn your Verified badge.
+            Upload your driver's licence, background check, medical certificate, and insurance to earn your Verified badge.
           </p>
 
           {profileVerified ? (
@@ -1248,7 +1265,7 @@ export function DriverApp() {
       appRole="driver"
       appLabel="Driver"
       appHomeHref="/move/shifts"
-      destCity={showNav ? (filterZone ?? zone.label) : undefined}
+      destCity={showNav ? (filterZone === "All zones" ? "Nigeria" : filterZone) : undefined}
       destCountry={showNav ? vehicle.label : undefined}
       stayLabel={showNav ? "Commercial" : undefined}
       modeName={showNav ? "Driver" : undefined}

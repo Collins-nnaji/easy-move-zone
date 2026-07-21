@@ -4,7 +4,7 @@ create extension if not exists pgcrypto;
 -- Driver preferences and onboarding state
 create table if not exists driver_profiles (
   auth_user_id text primary key,
-  zone text not null default 'DFW North',
+  zone text not null default 'Lagos Mainland',
   vehicle_type text not null default 'sprinter'
     check (vehicle_type in ('sprinter', 'box-truck', 'client-fleet', 'flatbed')),
   onboarding_completed boolean not null default false,

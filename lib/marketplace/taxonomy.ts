@@ -52,12 +52,12 @@ export const CARGO_TAGS: Record<CargoCategory, { label: string; color: string; b
 };
 
 export const VEHICLE_OPTIONS = [
-  { key: "sprinter" as const, label: "Sprinter Van", sub: "Last-mile · 12–20 stops", blurb: "High-volume residential and small-business drops. Most shifts pay per day." },
+  { key: "sprinter" as const, label: "Sprinter Van", sub: "Last-mile · 12–20 stops", blurb: "High-volume residential and small-business drops across Lagos and Abuja. Most shifts pay per day." },
   { key: "cargo-van" as const, label: "Cargo Van", sub: "Small goods · Local", blurb: "Light parcel and small-goods runs. Flexible hourly or daily rates." },
-  { key: "box-truck" as const, label: "Box Truck", sub: "26' · Restaurant & retail", blurb: "Heavier loads, fewer stops. Hourly pay with overtime on long routes." },
-  { key: "flatbed" as const, label: "Flatbed CDL-B", sub: "Construction · Port", blurb: "CDL-B required. Fewer stops, higher skill premium on every shift." },
-  { key: "semi" as const, label: "Semi / Tractor", sub: "Long-haul · CDL-A", blurb: "Linehaul and interstate freight. Premium daily rates for experienced operators." },
-  { key: "tanker" as const, label: "Tanker", sub: "Liquid · Hazmat", blurb: "Tanker endorsement required. Fuel, chemical, and food-grade liquid hauls." },
+  { key: "box-truck" as const, label: "Box Truck", sub: "26' · Market & retail", blurb: "Heavier loads, fewer stops. Hourly pay with overtime on long routes." },
+  { key: "flatbed" as const, label: "Flatbed", sub: "Construction · Port", blurb: "Commercial licence preferred. Fewer stops, higher skill premium on every shift." },
+  { key: "semi" as const, label: "Semi / Tractor", sub: "Intercity · Highway", blurb: "Lagos–Abuja and corridor freight. Premium daily rates for experienced operators." },
+  { key: "tanker" as const, label: "Tanker", sub: "Liquid · Hazmat", blurb: "Dangerous-goods endorsement required. Fuel, chemical, and food-grade liquid hauls." },
   { key: "refrigerated" as const, label: "Reefer", sub: "Cold chain", blurb: "Temperature-controlled freight. Grocery, pharma, and perishable goods." },
   { key: "dump-truck" as const, label: "Dump Truck", sub: "Aggregate · Debris", blurb: "Construction sites, quarries, and demolition hauls." },
   { key: "client-fleet" as const, label: "Client Fleet", sub: "No vehicle needed", blurb: "Drive the client's branded fleet. Linehaul and hub returns — daily rate." },
@@ -74,12 +74,12 @@ export const CARGO_OPTIONS = [
 ] as const;
 
 export const ZONE_OPTIONS = [
-  { key: "dfw-north", label: "DFW North", sub: "Haslet · Irving · Plano" },
-  { key: "dfw-central", label: "DFW Central", sub: "Dallas · Garland · Mesquite" },
-  { key: "dfw-east", label: "DFW East", sub: "Mesquite · Rockwall · Terrell" },
-  { key: "houston-inner", label: "Houston Inner", sub: "Downtown · Midtown · Heights" },
-  { key: "houston-port", label: "Houston Port", sub: "Port · Baytown · Pasadena" },
-  { key: "san-antonio", label: "San Antonio", sub: "Downtown · North · South" },
+  { key: "lagos-island", label: "Lagos Island", sub: "VI · Ikoyi · Lekki" },
+  { key: "lagos-mainland", label: "Lagos Mainland", sub: "Yaba · Surulere · Apapa" },
+  { key: "ikeja", label: "Ikeja / Airport", sub: "Ikeja · MMIA · Maryland" },
+  { key: "abuja", label: "Abuja", sub: "Central · Wuse · Gwarinpa" },
+  { key: "port-harcourt", label: "Port Harcourt", sub: "PH · Refinery · Onne" },
+  { key: "ibadan", label: "Ibadan", sub: "Ring Road · Iwo Road · Bodija" },
 ] as const;
 
 export function formatRating(avg: number, count: number): string {
