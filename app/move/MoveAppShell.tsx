@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
 import { SiteLogo } from "@/components/brand/SiteLogo";
 import { AppAccountMenu } from "@/components/move/AppAccountMenu";
 import { softSpring, screenTransition, screenVariants } from "@/lib/motion/presets";
@@ -52,8 +51,6 @@ export function MoveAppShell({
   modals,
 }: MoveAppShellProps) {
   const reduceMotion = useReducedMotion();
-  const activeTab = tabs.find((t) => (t.screens ? t.screens.includes(screen) : screen === t.go));
-  const crumbLabel = activeTab?.shortLabel ?? activeTab?.label ?? appLabel;
   const contextLabel = appRole === "fleet" ? "Your operation" : "Your zone";
 
   return (
@@ -76,7 +73,7 @@ export function MoveAppShell({
               </div>
             )}
 
-            <nav className="move-sidebar__nav" aria-label="Move app">
+            <nav className="move-sidebar__nav" aria-label={appLabel}>
               {tabs.map((t) => {
                 const active = t.screens ? t.screens.includes(screen) : screen === t.go;
                 return (
@@ -122,28 +119,7 @@ export function MoveAppShell({
             <header className="move-mobile-top">
               <div className="move-mobile-top__row">
                 <SiteLogo href={appHomeHref} height={24} />
-                <nav className="move-breadcrumb" aria-label="Breadcrumb">
-                  <button
-                    type="button"
-                    className="move-breadcrumb__link"
-                    onClick={() => onNavigate(tabs[0]?.go ?? screen)}
-                  >
-                    {appLabel}
-                  </button>
-                  <ChevronRight className="move-breadcrumb__sep" aria-hidden size={14} />
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.span
-                      key={crumbLabel}
-                      className="move-breadcrumb__current"
-                      initial={reduceMotion ? false : { opacity: 0, y: 4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={reduceMotion ? undefined : { opacity: 0, y: -4 }}
-                      transition={{ duration: 0.18 }}
-                    >
-                      {crumbLabel}
-                    </motion.span>
-                  </AnimatePresence>
-                </nav>
+                <div className="move-mobile-top__title">{appLabel}</div>
                 <AppAccountMenu role={appRole} compact />
               </div>
               <nav className="move-pill-nav" aria-label={`${appLabel} sections`}>
@@ -172,14 +148,13 @@ export function MoveAppShell({
           )}
 
           <div className={`move-scroll${isFlowScreen ? " move-scroll--flow" : " move-scroll--app"}`}>
-            <AnimatePresence mode="popLayout" initial={false}>
+            <AnimatePresence initial={false}>
               <motion.div
                 key={screen}
                 className="move-screen-motion"
                 variants={reduceMotion ? undefined : screenVariants}
                 initial={reduceMotion ? false : "initial"}
                 animate="animate"
-                exit={reduceMotion ? undefined : "exit"}
                 transition={screenTransition}
               >
                 {children}

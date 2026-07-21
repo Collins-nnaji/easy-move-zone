@@ -72,6 +72,15 @@
   min-width: 0;
 }
 
+.move-mobile-top__title {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--move-ink);
+}
+
 /* Account menu (mobile + desktop sidebar) */
 .move-account {
   position: relative;
@@ -95,10 +104,10 @@
 }
 
 .move-account--compact .move-account__trigger {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   padding: 0;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .move-account__menu {
@@ -204,9 +213,10 @@
   background: #fff;
   color: #6e746b;
   border-radius: 999px;
-  padding: 7px 12px;
+  padding: 12px 16px;
+  min-height: 44px;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
@@ -313,7 +323,8 @@
 
 .move-filter-chip {
   flex-shrink: 0;
-  padding: 8px 14px;
+  padding: 11px 14px;
+  min-height: 44px;
   border-radius: 999px;
   cursor: pointer;
   font-size: 13px;

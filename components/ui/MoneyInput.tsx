@@ -61,11 +61,18 @@ export function MoneyInput({ value, onChange, placeholder = "0", label, hint, id
             minWidth: 0,
             padding: "14px 16px 14px 8px",
             border: "none",
-            outline: "none",
+            outline: "2px solid transparent",
+            outlineOffset: -2,
             fontFamily: "var(--font-hanken), system-ui, sans-serif",
             fontSize: 15,
             fontWeight: 600,
             background: "transparent",
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.outlineColor = "#e0511f";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.outlineColor = "transparent";
           }}
         />
         <span

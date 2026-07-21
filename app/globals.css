@@ -8,14 +8,14 @@
   --font-sans:    var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-bricolage), var(--font-jakarta), ui-sans-serif, sans-serif;
 
-  /* Brand palette */
+  /* Brand palette — aligned with Move/Fleet cream shell */
   --color-emz-blue:    #e0511f;
   --color-emz-mid:     #bf6a3c;
   --color-emz-cyan:    #f3aa79;
-  --color-emz-dark:    #020617;
-  --color-emz-ink:     #0f172a;
-  --color-emz-muted:   #64748b;
-  --color-emz-surface: #f6f8fb;
+  --color-emz-dark:    #1b231e;
+  --color-emz-ink:     #1b231e;
+  --color-emz-muted:   #6e746b;
+  --color-emz-surface: #efece4;
 
   /* Motion */
   --ease-out-expo:     cubic-bezier(0.16, 1, 0.3, 1);
@@ -35,17 +35,17 @@
 ───────────────────────────────────────────── */
 @layer base {
   :root {
-    --background: #f6f8fb;
-    --foreground: #0f172a;
+    --background: #efece4;
+    --foreground: #1b231e;
     --card: #ffffff;
-    --card-foreground: #0f172a;
-    --border: #dbe4f0;
-    --input: #dbe4f0;
+    --card-foreground: #1b231e;
+    --border: #e4dfd5;
+    --input: #e4dfd5;
     --primary: #e0511f;
     --primary-foreground: #ffffff;
     --secondary: #bf6a3c;
-    --muted: #e9eff7;
-    --muted-foreground: #64748b;
+    --muted: #f0ede4;
+    --muted-foreground: #6e746b;
     --accent: #f3aa79;
     --ring: #e0511f;
     --radius: 0.875rem;
@@ -72,10 +72,10 @@
     font-size: 16px;
     line-height: 1.6;
     color: #0f172a;
-    background-color: #f6f8fb;
+    background-color: #efece4;
     background-image:
       radial-gradient(ellipse 70% 40% at 0% 0%,   rgba(224, 81, 31, 0.07) 0%, transparent 55%),
-      radial-gradient(ellipse 55% 35% at 100% 0%,  rgba(0, 114, 206, 0.05) 0%, transparent 50%);
+      radial-gradient(ellipse 55% 35% at 100% 0%,  rgba(243, 170, 121, 0.08) 0%, transparent 50%);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overscroll-behavior: none;

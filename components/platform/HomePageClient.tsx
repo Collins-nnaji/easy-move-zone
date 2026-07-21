@@ -6,7 +6,6 @@ import {
   ArrowRight,
   ArrowUpRight,
   Briefcase,
-  Check,
   Shield,
   Star,
   Truck,
@@ -45,15 +44,9 @@ const pages = [
 ] as const
 
 const steps = [
-  { step: "01", label: "Post or claim a load", sub: "Fleet operators post routes. Drivers and owner-operators slide to claim." },
-  { step: "02", label: "Run the route", sub: "GPS clock-in, waypoints, and digital sign-off on every run." },
-  { step: "03", label: "Rate & get paid", sub: "Complete the load, rate each other, and cash out the same day." },
-] as const
-
-const heroPoints = [
-  "Built for Nigeria — Lagos, Abuja, Port Harcourt, Ibadan corridors",
-  "Rated network — drivers, truck owners, and fleet operators with transparent reviews",
-  "Commission-based — 8% platform fee on completed loads, instant driver payouts",
+  { step: "01", label: "Post or claim a job", sub: "Companies post routes. Drivers claim funded work." },
+  { step: "02", label: "Run the route", sub: "GPS clock-in, waypoints, and sign-off on every run." },
+  { step: "03", label: "Rate & get paid", sub: "Complete the job, rate each other, cash out in naira." },
 ] as const
 
 const easeOut = [0.16, 1, 0.3, 1] as const
@@ -73,7 +66,7 @@ export function HomePageClient() {
 
   return (
     <div style={{ background: "#efece4", color: INK }} className="overflow-hidden">
-      <section className="relative">
+      <section className="relative min-h-[min(88vh,820px)] flex items-center">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
@@ -82,110 +75,77 @@ export function HomePageClient() {
               "radial-gradient(60% 50% at 12% 0%, rgba(224,81,31,0.16) 0%, transparent 60%), radial-gradient(55% 45% at 100% 10%, rgba(243,170,121,0.22) 0%, transparent 55%)",
           }}
         />
-        <div className="relative mx-auto max-w-7xl px-4 pt-20 pb-16 sm:px-6 lg:px-8 lg:pt-28 lg:pb-24">
-          <div className="grid items-center gap-14 lg:grid-cols-12">
-            <div className="lg:col-span-7">
-              <motion.div
-                {...fadeUp(0, 12)}
-                className="inline-flex items-center gap-2 rounded-full border border-[#e0511f]/20 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#bf5223] backdrop-blur"
+        <div className="relative mx-auto w-full max-w-7xl px-4 pt-20 pb-16 sm:px-6 lg:px-8 lg:pt-24 lg:pb-20">
+          <div className="max-w-3xl">
+            <motion.p
+              {...fadeUp(0, 12)}
+              className="text-sm font-extrabold tracking-tight sm:text-base"
+              style={{ color: PRIMARY }}
+            >
+              EasyMoveZone
+            </motion.p>
+
+            <motion.h1
+              {...fadeUp(0.06, 22)}
+              className="mt-4 text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl lg:text-[4.4rem]"
+              style={{ textWrap: "balance" } as React.CSSProperties}
+            >
+              Move goods.
+              <span className="block" style={{ color: PRIMARY }}>
+                Pay drivers fairly.
+              </span>
+            </motion.h1>
+
+            <motion.p {...fadeUp(0.12, 18)} className="mt-6 max-w-xl text-lg leading-relaxed text-[#5f655c]">
+              EasyMoveZone connects drivers and companies across Nigeria — publish jobs,
+              claim funded work, track GPS on the road, and settle in naira.
+            </motion.p>
+
+            <motion.div {...fadeUp(0.18, 18)} className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/move/shifts"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
+                style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
               >
-                <Truck className="h-3.5 w-3.5" />
-                Nigeria logistics marketplace
-              </motion.div>
-
-              <motion.h1
-                {...fadeUp(0.06, 22)}
-                className="mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl lg:text-[4.4rem]"
-                style={{ textWrap: "balance" } as React.CSSProperties}
+                <Zap className="h-4.5 w-4.5" />
+                Find work
+              </Link>
+              <Link
+                href="/fleet/dashboard"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white/70 px-7 py-4 text-base font-semibold text-[#4a5047] backdrop-blur transition hover:bg-white"
               >
-                Move goods.
-                <span className="block" style={{ color: PRIMARY }}>
-                  Pay drivers fairly.
-                </span>
-              </motion.h1>
-
-              <motion.p {...fadeUp(0.12, 18)} className="mt-6 max-w-xl text-lg leading-relaxed text-[#5f655c]">
-                EasyMoveZone connects drivers and companies across Nigeria — publish jobs,
-                claim funded work, track GPS on the road, and settle in naira.
-              </motion.p>
-
-              <motion.div {...fadeUp(0.18, 18)} className="mt-9 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/move/shifts"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
-                  style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
-                >
-                  <Zap className="h-4.5 w-4.5" />
-                  Find work
-                </Link>
-                <Link
-                  href="/fleet/dashboard"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white/70 px-7 py-4 text-base font-semibold text-[#4a5047] backdrop-blur transition hover:bg-white"
-                >
-                  Hire drivers
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </motion.div>
-
-              <motion.ul {...fadeUp(0.24, 16)} className="mt-9 flex flex-col gap-2.5">
-                {heroPoints.map((p) => (
-                  <li key={p} className="flex items-center gap-3 text-[15px] font-medium text-[#4a5047]">
-                    <span
-                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-white"
-                      style={{ background: PRIMARY }}
-                    >
-                      <Check className="h-3 w-3" strokeWidth={3} />
-                    </span>
-                    {p}
-                  </li>
-                ))}
-              </motion.ul>
-            </div>
-
-            <motion.div {...fadeUp(0.2, 24)} className="lg:col-span-5">
-              <div className="rounded-3xl border border-[#e4dfd5] bg-white/80 p-7 shadow-xl shadow-black/[0.06] backdrop-blur">
-                <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: PRIMARY }}>
-                  Live marketplace preview
-                </div>
-                <div className="mt-5 space-y-3">
-                  {[
-                    { pay: "₦85,000/day", vehicle: "Semi · Heavy Goods", route: "Lagos → Abuja linehaul", hot: true, rating: "4.8 ★" },
-                    { pay: "₦12,000/hr", vehicle: "Tanker · Hazmat", route: "Port Harcourt · 3 stops", hot: true, rating: "4.6 ★" },
-                    { pay: "₦45,000/day", vehicle: "Sprinter · Parcel", route: "Ikeja / Airport · 12 stops", hot: false, rating: "4.9 ★" },
-                  ].map((s, i) => (
-                    <motion.div
-                      key={s.pay}
-                      initial={reduceMotion ? false : { opacity: 0, x: 16 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.45, delay: 0.08 * i, ease: easeOut }}
-                      className="rounded-2xl border border-[#ece6da] bg-[#faf8f3] px-4 py-3.5"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="text-lg font-extrabold">{s.pay}</div>
-                        {s.hot && (
-                          <span className="rounded-full bg-[#fbeae0] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#9c3f15]">
-                            Hot
-                          </span>
-                        )}
-                      </div>
-                      <div className="mt-1 text-xs font-semibold text-[#5f655c]">{s.vehicle}</div>
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs text-[#8a8f86]">{s.route}</div>
-                        <div className="text-xs font-bold text-[#b9781f]">{s.rating}</div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-                <motion.div
-                  className="mt-5 rounded-2xl bg-[#1b231e] px-4 py-3 text-center text-sm font-bold text-white"
-                  animate={reduceMotion ? undefined : { boxShadow: ["0 0 0 0 rgba(224,81,31,0)", "0 0 0 8px rgba(224,81,31,0.18)", "0 0 0 0 rgba(224,81,31,0)"] }}
-                  transition={reduceMotion ? undefined : { duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  Slide to claim →
-                </motion.div>
-              </div>
+                Hire drivers
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative border-t border-[#e4dfd5] bg-[#f6f3ec] py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <motion.div {...fadeUp()} className="mb-8 max-w-xl">
+            <span className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: PRIMARY }}>
+              Live corridors
+            </span>
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">Open jobs right now</h2>
+          </motion.div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              { pay: "₦85,000/day", vehicle: "Semi · Heavy Goods", route: "Lagos → Abuja linehaul" },
+              { pay: "₦12,000/hr", vehicle: "Tanker · Hazmat", route: "Port Harcourt · 3 stops" },
+              { pay: "₦45,000/day", vehicle: "Sprinter · Parcel", route: "Ikeja / Airport · 12 stops" },
+            ].map((s, i) => (
+              <motion.div
+                key={s.route}
+                {...fadeUp(0.05 * i)}
+                className="rounded-2xl border border-[#e4dfd5] bg-white px-5 py-4"
+              >
+                <div className="text-xl font-extrabold">{s.pay}</div>
+                <div className="mt-1 text-sm font-semibold text-[#5f655c]">{s.vehicle}</div>
+                <div className="mt-1 text-sm text-[#8a8f86]">{s.route}</div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -200,8 +160,8 @@ export function HomePageClient() {
               Everything logistics needs. Nothing it doesn&apos;t.
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-[#5f655c]">
-              Drivers claim loads and get paid instantly. Fleet operators post routes, find rated
-              drivers and truck owners, and manage workload from a dedicated console.
+              Drivers claim jobs and get paid instantly. Companies post routes, find rated
+              drivers, and manage work from a dedicated console.
             </p>
           </motion.div>
 
@@ -218,13 +178,11 @@ export function HomePageClient() {
                     className="flex h-12 w-12 items-center justify-center rounded-2xl text-white"
                     style={{ background: PRIMARY }}
                   >
-                    <Icon className="h-6 w-6" />
+                    <Icon className="h-5 w-5" />
                   </div>
-                  <span className="mt-5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#bf6a3c]">
-                    {p.label}
-                  </span>
-                  <h3 className="mt-1.5 text-xl font-bold tracking-tight">{p.title}</h3>
-                  <p className="mt-3 text-[14.5px] leading-relaxed text-[#5f655c]">{p.body}</p>
+                  <div className="mt-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#9aa097]">{p.label}</div>
+                  <h3 className="mt-2 text-lg font-extrabold tracking-tight">{p.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[#5f655c]">{p.body}</p>
                 </motion.div>
               )
             })}

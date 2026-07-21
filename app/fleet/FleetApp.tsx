@@ -587,7 +587,13 @@ export function FleetApp() {
 
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, margin: "28px 0 12px" }}>Active workload</div>
           {activeWorkload.length === 0 ? (
-            <div style={{ padding: 24, borderRadius: 18, border: "1px dashed #d8d2c6", textAlign: "center", color: MUTE, fontSize: 14 }}>No jobs in progress. Publish work to get drivers moving.</div>
+            <div style={{ padding: 28, borderRadius: 18, border: "1px solid #e4dfd5", background: "#fff", textAlign: "center" }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: INK }}>No jobs in progress</div>
+              <p style={{ fontSize: 14, color: MUTE, margin: "8px 0 0" }}>Publish work so drivers can claim and you can track them live.</p>
+              <button type="button" onClick={() => goTo("post")} style={{ marginTop: 16, minHeight: 44, padding: "12px 18px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+                Post a job
+              </button>
+            </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {activeWorkload.map((s) => <LoadCard key={s.id} shift={s} showActions />)}
@@ -606,11 +612,11 @@ export function FleetApp() {
     const field: CSSProperties = { padding: "14px 16px", borderRadius: 14, border: "1px solid #e4dfd5", fontFamily: HANKEN, fontSize: 15, width: "100%", background: "#fff" };
     const labelStyle: CSSProperties = { display: "block", fontFamily: MONO, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: MUTE, marginBottom: 8 };
     const payoutPreview = formatPayoutRate(parseMoneyInput(postForm.payout) || 0, postForm.payoutType);
-    const steps = ["Route", "Cargo", "Pay"];
+    const steps = ["Route", "Pay", "Details"];
     const canContinue =
       postStep === 0 ? Boolean(postForm.pickup.trim() && postForm.dropoff.trim()) :
-      postStep === 1 ? Boolean(postForm.cargo && postForm.vehicleType) :
-      parseMoneyInput(postForm.payout) > 0;
+      postStep === 1 ? parseMoneyInput(postForm.payout) > 0 :
+      Boolean(postForm.cargo && postForm.vehicleType);
 
     return (
       <div className="move-page-inner">
@@ -618,7 +624,7 @@ export function FleetApp() {
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Post a job · {zone.label}</div>
           <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Publish work for drivers</h2>
           <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>
-            Spell out the route, goods, and pay in naira. Drivers only see funded jobs.
+            Route and pay first. Drivers only see funded jobs.
           </p>
 
           <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
@@ -626,9 +632,9 @@ export function FleetApp() {
               <button
                 key={s}
                 type="button"
-                onClick={() => setPostStep(i)}
+                onClick={() => { if (i < postStep || (i === 1 && canContinue) || i === 0) setPostStep(i); }}
                 style={{
-                  flex: 1, padding: "10px 8px", borderRadius: 12, border: `1px solid ${postStep === i ? PRIMARY : "#e4dfd5"}`,
+                  flex: 1, minHeight: 44, padding: "10px 8px", borderRadius: 12, border: `1px solid ${postStep === i ? PRIMARY : "#e4dfd5"}`,
                   background: postStep === i ? "#fbeae0" : "#fff", color: postStep === i ? "#9c3f15" : MUTE,
                   fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", cursor: "pointer",
                 }}
@@ -670,84 +676,10 @@ export function FleetApp() {
                       <MapPin size={14} /> Preview route on Maps
                     </a>
                   )}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                    <label>
-                      <span style={labelStyle}>Start</span>
-                      <input value={postForm.startTime} onChange={(e) => setPostForm((f) => ({ ...f, startTime: e.target.value }))} style={field} />
-                    </label>
-                    <label>
-                      <span style={labelStyle}>End</span>
-                      <input value={postForm.endTime} onChange={(e) => setPostForm((f) => ({ ...f, endTime: e.target.value }))} style={field} />
-                    </label>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-                    <label>
-                      <span style={labelStyle}>Hours</span>
-                      <input inputMode="decimal" value={postForm.hours} onChange={(e) => setPostForm((f) => ({ ...f, hours: e.target.value }))} style={field} />
-                    </label>
-                    <label>
-                      <span style={labelStyle}>Distance (km)</span>
-                      <input inputMode="numeric" value={postForm.distanceMi} onChange={(e) => setPostForm((f) => ({ ...f, distanceMi: e.target.value }))} style={field} />
-                    </label>
-                    <label>
-                      <span style={labelStyle}>Stops</span>
-                      <input inputMode="numeric" value={postForm.stops} onChange={(e) => setPostForm((f) => ({ ...f, stops: e.target.value }))} style={field} />
-                    </label>
-                  </div>
-                  <label>
-                    <span style={labelStyle}>When</span>
-                    <select value={postForm.shiftDate} onChange={(e) => setPostForm((f) => ({ ...f, shiftDate: e.target.value }))} style={field}>
-                      <option value="Today">Today</option>
-                      <option value="Tomorrow">Tomorrow</option>
-                      <option value="This week">This week</option>
-                    </select>
-                  </label>
                 </>
               )}
 
               {postStep === 1 && (
-                <>
-                  <div>
-                    <span style={labelStyle}>Goods to carry</span>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                      {CARGO_OPTIONS.map((c) => {
-                        const active = postForm.cargo === c.key;
-                        const tag = CARGO_TAGS[c.key];
-                        return (
-                          <button
-                            key={c.key}
-                            type="button"
-                            onClick={() => setPostForm((f) => ({ ...f, cargo: c.key }))}
-                            style={{
-                              padding: "10px 14px", borderRadius: 14, cursor: "pointer", textAlign: "left",
-                              border: `1px solid ${active ? PRIMARY : "#e4dfd5"}`,
-                              background: active ? tag.bg : "#fff", color: active ? tag.color : INK,
-                            }}
-                          >
-                            <div style={{ fontSize: 13, fontWeight: 700 }}>{c.label}</div>
-                            <div style={{ fontSize: 11, opacity: 0.75, marginTop: 2 }}>{c.sub}</div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  <label>
-                    <span style={labelStyle}>Vehicle needed</span>
-                    <select value={postForm.vehicleType} onChange={(e) => setPostForm((f) => ({ ...f, vehicleType: e.target.value as VehicleType }))} style={field}>
-                      {VEHICLE_OPTIONS.map((v) => <option key={v.key} value={v.key}>{v.label} — {v.sub}</option>)}
-                    </select>
-                  </label>
-                  <label>
-                    <span style={labelStyle}>Demand</span>
-                    <select value={postForm.demand} onChange={(e) => setPostForm((f) => ({ ...f, demand: e.target.value as "high" | "normal" }))} style={field}>
-                      <option value="normal">Normal</option>
-                      <option value="high">Urgent / high demand</option>
-                    </select>
-                  </label>
-                </>
-              )}
-
-              {postStep === 2 && (
                 <>
                   <MoneyInput
                     label="Driver pay"
@@ -766,15 +698,88 @@ export function FleetApp() {
                   <div style={{ padding: 16, borderRadius: 16, background: "#faf8f3", border: "1px solid #e4dfd5", fontSize: 13.5, color: "#5f655c", lineHeight: 1.5 }}>
                     <strong style={{ color: INK }}>{postForm.title || "Untitled job"}</strong>
                     <div style={{ marginTop: 6 }}>{postForm.pickup || "Pickup TBD"} → {postForm.dropoff || "Drop-off TBD"}</div>
-                    <div style={{ marginTop: 6 }}>{CARGO_TAGS[postForm.cargo].label} · {VEHICLE_TAGS[postForm.vehicleType].label} · {postForm.stops} stops · {postForm.distanceMi} km</div>
                     <div style={{ marginTop: 8, fontWeight: 800, color: PRIMARY, fontSize: 18 }}>{payoutPreview}</div>
                   </div>
                 </>
               )}
 
+              {postStep === 2 && (
+                <>
+                  <div>
+                    <span style={labelStyle}>Goods to carry</span>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {CARGO_OPTIONS.map((c) => {
+                        const active = postForm.cargo === c.key;
+                        const tag = CARGO_TAGS[c.key];
+                        return (
+                          <button
+                            key={c.key}
+                            type="button"
+                            onClick={() => setPostForm((f) => ({ ...f, cargo: c.key }))}
+                            style={{
+                              padding: "10px 14px", borderRadius: 14, cursor: "pointer", textAlign: "left", minHeight: 44,
+                              border: `1px solid ${active ? PRIMARY : "#e4dfd5"}`,
+                              background: active ? tag.bg : "#fff", color: active ? tag.color : INK,
+                            }}
+                          >
+                            <div style={{ fontSize: 13, fontWeight: 700 }}>{c.label}</div>
+                            <div style={{ fontSize: 11, opacity: 0.75, marginTop: 2 }}>{c.sub}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <label>
+                    <span style={labelStyle}>Vehicle needed</span>
+                    <select value={postForm.vehicleType} onChange={(e) => setPostForm((f) => ({ ...f, vehicleType: e.target.value as VehicleType }))} style={field}>
+                      {VEHICLE_OPTIONS.map((v) => <option key={v.key} value={v.key}>{v.label} — {v.sub}</option>)}
+                    </select>
+                  </label>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <label>
+                      <span style={labelStyle}>Start</span>
+                      <input value={postForm.startTime} onChange={(e) => setPostForm((f) => ({ ...f, startTime: e.target.value }))} style={field} />
+                    </label>
+                    <label>
+                      <span style={labelStyle}>End</span>
+                      <input value={postForm.endTime} onChange={(e) => setPostForm((f) => ({ ...f, endTime: e.target.value }))} style={field} />
+                    </label>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                    <label>
+                      <span style={labelStyle}>Hours</span>
+                      <input inputMode="decimal" value={postForm.hours} onChange={(e) => setPostForm((f) => ({ ...f, hours: e.target.value }))} style={field} />
+                    </label>
+                    <label>
+                      <span style={labelStyle}>Km</span>
+                      <input inputMode="numeric" value={postForm.distanceMi} onChange={(e) => setPostForm((f) => ({ ...f, distanceMi: e.target.value }))} style={field} />
+                    </label>
+                    <label>
+                      <span style={labelStyle}>Stops</span>
+                      <input inputMode="numeric" value={postForm.stops} onChange={(e) => setPostForm((f) => ({ ...f, stops: e.target.value }))} style={field} />
+                    </label>
+                  </div>
+                  <label>
+                    <span style={labelStyle}>When</span>
+                    <select value={postForm.shiftDate} onChange={(e) => setPostForm((f) => ({ ...f, shiftDate: e.target.value }))} style={field}>
+                      <option value="Today">Today</option>
+                      <option value="Tomorrow">Tomorrow</option>
+                      <option value="This week">This week</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span style={labelStyle}>Demand</span>
+                    <select value={postForm.demand} onChange={(e) => setPostForm((f) => ({ ...f, demand: e.target.value as "high" | "normal" }))} style={field}>
+                      <option value="normal">Normal</option>
+                      <option value="high">Urgent / high demand</option>
+                    </select>
+                  </label>
+                </>
+              )}
+
               <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
                 {postStep > 0 && (
-                  <button type="button" onClick={() => setPostStep((s) => s - 1)} style={{ flex: 1, padding: 16, borderRadius: 16, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
+                  <button type="button" onClick={() => setPostStep((s) => s - 1)} style={{ flex: 1, minHeight: 48, padding: 16, borderRadius: 16, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
                     Back
                   </button>
                 )}
@@ -783,7 +788,7 @@ export function FleetApp() {
                     type="button"
                     disabled={!canContinue}
                     onClick={() => setPostStep((s) => s + 1)}
-                    style={{ flex: 2, padding: 16, border: "none", borderRadius: 16, background: canContinue ? PRIMARY : "#d8d2c6", color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: canContinue ? "pointer" : "default" }}
+                    style={{ flex: 2, minHeight: 48, padding: 16, border: "none", borderRadius: 16, background: canContinue ? PRIMARY : "#d8d2c6", color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: canContinue ? "pointer" : "default" }}
                   >
                     Continue
                   </button>
@@ -792,7 +797,7 @@ export function FleetApp() {
                     type="button"
                     disabled={!canContinue}
                     onClick={() => void handlePostLoad()}
-                    style={{ flex: 2, padding: 16, border: "none", borderRadius: 16, background: canContinue ? PRIMARY : "#d8d2c6", color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: canContinue ? "pointer" : "default" }}
+                    style={{ flex: 2, minHeight: 48, padding: 16, border: "none", borderRadius: 16, background: canContinue ? PRIMARY : "#d8d2c6", color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: canContinue ? "pointer" : "default" }}
                   >
                     Publish &amp; fund escrow
                   </button>
@@ -901,7 +906,7 @@ export function FleetApp() {
           <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Rate driver</div>
           <h3 style={{ fontSize: 20, fontWeight: 800, margin: "8px 0 0" }}>How was {rateTarget.counterpartyName}?</h3>
           <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0", lineHeight: 1.5 }}>
-            {rateTarget.title} · ${rateTarget.payout} — ratings keep the marketplace trustworthy.
+            {rateTarget.title} · {formatMoney(rateTarget.payout)} — ratings keep the marketplace trustworthy.
           </p>
           <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 18 }}>
             {[1, 2, 3, 4, 5].map((n) => (

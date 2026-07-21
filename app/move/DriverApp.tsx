@@ -6,8 +6,6 @@ import {
   Camera,
   Check,
   ChevronRight,
-  Clock,
-  Flame,
   MapPin,
   Navigation,
   PenLine,
@@ -21,10 +19,8 @@ import {
   CARGO_OPTIONS,
   CARGO_TAGS,
   VEHICLE_OPTIONS,
-  VEHICLE_TAGS,
   WAYPOINTS,
   ZONE_OPTIONS,
-  formatRating,
 } from "./driver-data";
 import {
   acceptOfferApi,
@@ -131,7 +127,25 @@ function SlideToClaim({ onClaim, claimed }: { onClaim: () => void; claimed?: boo
   const trackRef = useRef<HTMLDivElement>(null);
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
-  const maxDrag = 200;
+  const [maxDrag, setMaxDrag] = useState(200);
+  const claimedRef = useRef(false);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const measure = () => setMaxDrag(Math.max(120, el.clientWidth - 52));
+    measure();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    ro?.observe(el);
+    return () => ro?.disconnect();
+  }, [claimed]);
+
+  const finishClaim = () => {
+    if (claimedRef.current) return;
+    claimedRef.current = true;
+    setDragX(maxDrag);
+    onClaim();
+  };
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (claimed) return;
@@ -146,46 +160,59 @@ function SlideToClaim({ onClaim, claimed }: { onClaim: () => void; claimed?: boo
     setDragX(x);
     if (x >= maxDrag - 8) {
       setDragging(false);
-      setDragX(maxDrag);
-      onClaim();
+      finishClaim();
     }
   };
 
   const handlePointerUp = () => {
-    if (!claimed) setDragX(0);
+    if (!claimed && !claimedRef.current) setDragX(0);
     setDragging(false);
   };
 
   if (claimed) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 48, borderRadius: 16, background: "#eef6ec", border: "1px solid #cfe6cf", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, color: "#2f7d4f" }}>
-        <Check size={16} /> Shift claimed
+        <Check size={16} /> Job claimed
       </div>
     );
   }
 
   return (
-    <div
-      ref={trackRef}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerUp}
-      style={{ position: "relative", height: 48, borderRadius: 16, overflow: "hidden", background: "linear-gradient(90deg, #fbeae0 0%, #fdf1e6 100%)", border: "1px solid #f3d6c4", cursor: "grab", userSelect: "none" }}
-    >
-      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, color: "#bf5223", opacity: dragX > 40 ? 0.3 : 1 }}>
-        Slide to claim shift →
-      </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       <div
-        onPointerDown={handlePointerDown}
-        style={{
-          position: "absolute", left: dragX + 4, top: 4, width: 40, height: 40, borderRadius: 12,
-          background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff",
-          boxShadow: "0 4px 12px rgba(224,81,31,.4)", transition: dragging ? "none" : "left 0.25s cubic-bezier(0.16,1,0.3,1)",
-          touchAction: "none",
-        }}
+        ref={trackRef}
+        role="slider"
+        aria-valuemin={0}
+        aria-valuemax={maxDrag}
+        aria-valuenow={dragX}
+        aria-label="Slide to claim job"
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
+        style={{ position: "relative", height: 48, borderRadius: 16, overflow: "hidden", background: "linear-gradient(90deg, #fbeae0 0%, #fdf1e6 100%)", border: "1px solid #f3d6c4", cursor: "grab", userSelect: "none" }}
       >
-        <ChevronRight size={20} />
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, color: "#bf5223", opacity: dragX > 40 ? 0.3 : 1 }}>
+          Slide to claim →
+        </div>
+        <div
+          onPointerDown={handlePointerDown}
+          style={{
+            position: "absolute", left: dragX + 4, top: 4, width: 40, height: 40, borderRadius: 12,
+            background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff",
+            boxShadow: "0 4px 12px rgba(224,81,31,.4)", transition: dragging ? "none" : "left 0.25s cubic-bezier(0.16,1,0.3,1)",
+            touchAction: "none",
+          }}
+        >
+          <ChevronRight size={20} />
+        </div>
       </div>
+      <button
+        type="button"
+        onClick={finishClaim}
+        style={{ width: "100%", minHeight: 44, padding: 12, borderRadius: 14, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, color: INK, cursor: "pointer" }}
+      >
+        Or tap to claim
+      </button>
     </div>
   );
 }
@@ -275,7 +302,6 @@ export function DriverApp() {
 
   const zone = ZONE_OPTIONS[zoneIdx];
   const vehicle = VEHICLE_OPTIONS[vehicleIdx];
-  const weekEarnings = wallet.weekEarnings;
   const verifiedDocs = compliance.filter((d) => d.status === "verified").length;
   const compliancePct = compliance.length ? Math.round((verifiedDocs / compliance.length) * 100) : 0;
   const clockedIn = activeSession?.status === "active";
@@ -717,45 +743,28 @@ export function DriverApp() {
   }
 
   function ShiftCard({ shift, onClaim, claimed }: { shift: Shift; onClaim?: () => void; claimed?: boolean }) {
-    const tag = VEHICLE_TAGS[shift.vehicle];
     const cargoTag = CARGO_TAGS[shift.cargo];
     const claimable = shift.funded;
     return (
-      <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 22, overflow: "hidden", boxShadow: "0 4px 18px rgba(0,0,0,.05)", opacity: claimable ? 1 : 0.85 }}>
-        <div style={{ padding: "18px 20px 16px" }}>
+      <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, overflow: "hidden", boxShadow: "0 2px 10px rgba(0,0,0,.04)", opacity: claimable ? 1 : 0.9 }}>
+        <div style={{ padding: "18px 18px 16px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: INK, marginBottom: 4 }}>{shift.title}</div>
-              <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-.02em", color: INK }}>{formatPayout(shift)}</div>
-              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".1em", color: MUTE, marginTop: 4 }}>{shift.date} · {shift.hours}h · {shift.distanceMi} km</div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-.02em", color: INK }}>{formatPayout(shift)}</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#5f655c", marginTop: 6, lineHeight: 1.35 }}>
+                {shift.pickup} → {shift.dropoff}
+              </div>
             </div>
-            {shift.demand === "high" && (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 11px", borderRadius: 999, background: "#fbeae0", color: "#9c3f15", fontFamily: MONO, fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", fontWeight: 600 }}>
-                <Flame size={11} /> Hot
-              </span>
-            )}
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
-            <span style={{ background: tag.bg, color: tag.color, borderRadius: 999, padding: "6px 11px", fontSize: 12, fontWeight: 600, fontFamily: MONO }}>{tag.label}</span>
-            <span style={{ background: cargoTag.bg, color: cargoTag.color, borderRadius: 999, padding: "6px 11px", fontSize: 12, fontWeight: 600, fontFamily: MONO }}>{cargoTag.label}</span>
-            <span style={{ background: "#f0ede4", borderRadius: 999, padding: "6px 11px", fontSize: 12, color: "#4a5047", fontWeight: 600, fontFamily: MONO }}>{shift.stops} stops</span>
-            <span style={{ background: claimable ? "#eef6ec" : "#fdf6e8", color: claimable ? "#2f7d4f" : "#9a6318", borderRadius: 999, padding: "6px 11px", fontSize: 12, fontWeight: 600, fontFamily: MONO }}>
-              {claimable ? "Funded" : "Awaiting escrow"}
+            <span style={{
+              flexShrink: 0, padding: "6px 10px", borderRadius: 999, fontFamily: MONO, fontSize: 11, fontWeight: 700,
+              background: claimable ? "#eef6ec" : "#fdf6e8", color: claimable ? "#2f7d4f" : "#9a6318",
+            }}>
+              {shift.demand === "high" ? "Hot · " : ""}{claimable ? "Funded" : "Unfunded"}
             </span>
           </div>
-          {shift.operator && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: 13, color: "#5f655c", flexWrap: "wrap" }}>
-              <span style={{ fontWeight: 600, color: INK }}>{shift.operator.name}</span>
-              <span style={{ color: "#b9781f", fontWeight: 700 }}>{formatRating(shift.operator.ratingAvg, shift.operator.ratingCount)}</span>
-              {shift.operator.verified && (
-                <span style={{ background: "#eef6ec", color: "#2f7d4f", borderRadius: 999, padding: "3px 8px", fontSize: 11, fontWeight: 700, fontFamily: MONO }}>Verified</span>
-              )}
-            </div>
-          )}
-          <p style={{ fontSize: 14, lineHeight: 1.5, color: "#5f655c", margin: "13px 0 0" }}>{shift.pickup}</p>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
-            <Clock size={14} color={MUTE} />
-            <span style={{ fontSize: 13, color: "#6e746b" }}>{shift.startTime} – {shift.endTime} · {shift.dropoff}</span>
+          <div style={{ marginTop: 12, fontSize: 13, color: MUTE }}>
+            {cargoTag.label} · {shift.startTime}–{shift.endTime} · {shift.zone}
+            {shift.operator ? ` · ${shift.operator.name}` : ""}
           </div>
           {onClaim && claimable && (
             <div style={{ marginTop: 16 }}>
@@ -763,8 +772,8 @@ export function DriverApp() {
             </div>
           )}
           {onClaim && !claimable && (
-            <div style={{ marginTop: 16, padding: "12px 14px", borderRadius: 14, background: "#fdf6e8", border: "1px solid #f3e0c4", fontSize: 13, color: "#9a6318", fontWeight: 600, textAlign: "center" }}>
-              Awaiting fleet escrow — not bookable yet
+            <div style={{ marginTop: 14, padding: "12px 14px", borderRadius: 14, background: "#fdf6e8", border: "1px solid #f3e0c4", fontSize: 13, color: "#9a6318", fontWeight: 600, textAlign: "center" }}>
+              Waiting for company escrow
             </div>
           )}
         </div>
@@ -783,53 +792,27 @@ export function DriverApp() {
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Jobs · {activeFilter}</div>
-          <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Jobs near you</h2>
+          <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: 0 }}>Jobs near you</h2>
+          <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>{list.length} open {list.length === 1 ? "job" : "jobs"} · {activeFilter}</p>
 
           {offers.length > 0 && (
             <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Direct offers for you</div>
+              <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Direct offers</div>
               {offers.map((offer) => (
-                <div key={offer.id} style={{ background: "#fff", border: `2px solid ${PRIMARY}`, borderRadius: 20, padding: "16px 18px", boxShadow: "0 4px 18px rgba(224,81,31,.12)" }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{offer.companyName ?? "Fleet"} booked you</div>
+                <div key={offer.id} style={{ background: "#fff", border: `2px solid ${PRIMARY}`, borderRadius: 20, padding: "16px 18px" }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{offer.companyName ?? "Company"} offered you work</div>
                   <div style={{ fontSize: 20, fontWeight: 800, marginTop: 4 }}>{formatPayout(offer.shift)}</div>
                   <p style={{ fontSize: 13.5, color: "#5f655c", margin: "8px 0 0" }}>{offer.shift.pickup} → {offer.shift.dropoff}</p>
-                  {offer.message && <p style={{ fontSize: 13, color: MUTE, margin: "6px 0 0" }}>{offer.message}</p>}
                   <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-                    <button type="button" onClick={() => void handleAcceptOffer(offer.id)} style={{ flex: 1, padding: 12, border: "none", borderRadius: 12, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Accept booking</button>
-                    <button type="button" onClick={() => void handleDeclineOffer(offer.id)} style={{ flex: 1, padding: 12, borderRadius: 12, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Decline</button>
+                    <button type="button" onClick={() => void handleAcceptOffer(offer.id)} style={{ flex: 1, minHeight: 44, padding: 12, border: "none", borderRadius: 12, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Accept</button>
+                    <button type="button" onClick={() => void handleDeclineOffer(offer.id)} style={{ flex: 1, minHeight: 44, padding: 12, borderRadius: 12, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Decline</button>
                   </div>
                 </div>
               ))}
             </div>
           )}
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 16 }}>
-            <div onClick={() => goTo("setup")} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "#fff", border: "1px solid #e4dfd5", borderRadius: 999, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
-              <span style={{ fontFamily: MONO, fontSize: 11, color: PRIMARY, letterSpacing: ".08em" }}>{activeFilter} · {vehicle.label}</span>
-              <span style={{ fontSize: 12, color: MUTE }}>change ↻</span>
-            </div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", background: INK, borderRadius: 999, boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
-              <span style={{ fontFamily: MONO, fontSize: 11, color: "#f3aa79", letterSpacing: ".08em" }}>Earned this week</span>
-              <span style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>{formatMoney(weekEarnings)}</span>
-            </div>
-          </div>
-
           <div className="move-filter-bar">
-            <div className="move-filter-row" role="tablist" aria-label="Cargo filters">
-              {["all", ...CARGO_OPTIONS.map((c) => c.key)].map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  role="tab"
-                  aria-selected={filterCargo === c}
-                  className={`move-filter-chip${filterCargo === c ? " move-filter-chip--ink" : ""}`}
-                  onClick={() => setFilterCargo(c)}
-                >
-                  {c === "all" ? "All cargo" : CARGO_TAGS[c as keyof typeof CARGO_TAGS].label}
-                </button>
-              ))}
-            </div>
             <div className="move-filter-row" role="tablist" aria-label="Zone filters">
               {["All zones", ...ZONE_OPTIONS.map((z) => z.label)].map((z) => (
                 <button
@@ -844,15 +827,32 @@ export function DriverApp() {
                 </button>
               ))}
             </div>
-            <div style={{ marginTop: 6, fontFamily: MONO, fontSize: 11, letterSpacing: ".06em", color: MUTE }}>
-              {list.length} load{list.length === 1 ? "" : "s"}
-              {activeFilter !== "All zones" || filterCargo !== "all" ? " · filtered" : " · all corridors"}
-            </div>
+            <label style={{ display: "block", marginTop: 10 }}>
+              <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: MUTE }}>Goods</span>
+              <select
+                value={filterCargo}
+                onChange={(e) => setFilterCargo(e.target.value)}
+                style={{ width: "100%", marginTop: 8, minHeight: 44, padding: "12px 14px", borderRadius: 14, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 600 }}
+              >
+                <option value="all">All cargo types</option>
+                {CARGO_OPTIONS.map((c) => (
+                  <option key={c.key} value={c.key}>{c.label}</option>
+                ))}
+              </select>
+            </label>
           </div>
 
           {list.length === 0 ? (
-            <div style={{ marginTop: 22, textAlign: "center", padding: "40px 20px", borderRadius: 18, border: "1px dashed #d8d2c6", color: MUTE, fontSize: 14 }}>
-              No open shifts for this filter. Tap <button type="button" onClick={() => { setFilterZone("All zones"); setFilterCargo("all"); }} style={{ border: "none", background: "none", color: PRIMARY, fontWeight: 700, cursor: "pointer", padding: 0, font: "inherit" }}>All zones</button> or check back soon.
+            <div style={{ marginTop: 22, textAlign: "center", padding: "36px 20px", borderRadius: 18, border: "1px solid #e4dfd5", background: "#fff" }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: INK }}>No jobs for this filter</div>
+              <p style={{ fontSize: 14, color: MUTE, margin: "8px 0 0" }}>Widen the corridor or cargo type to see more work.</p>
+              <button
+                type="button"
+                onClick={() => { setFilterZone("All zones"); setFilterCargo("all"); }}
+                style={{ marginTop: 16, minHeight: 44, padding: "12px 18px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+              >
+                Show all jobs
+              </button>
             </div>
           ) : (
             <div className="move-card-grid" style={{ marginTop: 18 }}>
@@ -1002,7 +1002,7 @@ export function DriverApp() {
           )}
           {!stripeConfigured && (
             <div style={{ marginTop: 12, padding: "12px 14px", borderRadius: 14, background: "#fdf6e8", border: "1px solid #f3e0c4", fontSize: 13, color: "#9a6318", lineHeight: 1.45 }}>
-              Stripe is not configured yet — cashouts stay on the ledger until you add Stripe keys (see SETUP.md).
+              Stripe payouts are not connected yet — cashouts stay on your in-app balance until bank payouts are enabled.
             </div>
           )}
           {payoutsEnabled && (
