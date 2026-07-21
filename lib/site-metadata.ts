@@ -60,9 +60,12 @@ export const siteMetadata: Metadata = {
     statusBarStyle: "default",
   },
   icons: {
-    icon: [{ url: BRAND.logo, type: "image/png", sizes: "512x512" }],
-    shortcut: [BRAND.logo],
-    apple: [{ url: BRAND.logo, type: "image/png", sizes: "180x180" }],
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: ["/icon.png"],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
   },
   other: {
     "mobile-web-app-capable": "yes",
