@@ -26,6 +26,21 @@ export async function GET(req: Request) {
     aiTest = { ok: ping.pong === true, message: ping.pong ? "Completion OK" : "Unexpected model output" }
   }
 
+  const has = (name: string) => Boolean(process.env[name]?.trim())
+
+  // Launch-readiness integrations (see docs/launch-readiness-ui-integrations.md).
+  const paystackConfigured = has("PAYSTACK_SECRET_KEY")
+  const flutterwaveConfigured = has("FLUTTERWAVE_SECRET_KEY")
+  const paymentsProvider = (process.env.PAYMENTS_PROVIDER?.trim() || "stripe").toLowerCase()
+  const localPayoutsReady = paystackConfigured || flutterwaveConfigured
+  const mapboxConfigured = has("MAPBOX_TOKEN") || has("NEXT_PUBLIC_MAPBOX_TOKEN")
+  const realtimeConfigured = has("PUSHER_KEY") || has("ABLY_API_KEY")
+  const kycConfigured = has("DOJAH_API_KEY") || has("SMILE_API_KEY")
+  const objectStorageConfigured =
+    (has("R2_ACCESS_KEY_ID") && has("R2_BUCKET")) || has("BLOB_READ_WRITE_TOKEN") || has("S3_BUCKET")
+  const localSmsConfigured = has("TERMII_API_KEY") || has("AT_API_KEY")
+  const analyticsConfigured = has("NEXT_PUBLIC_POSTHOG_KEY")
+
   return NextResponse.json({
     ai: {
       provider: aiProvider,
@@ -38,14 +53,34 @@ export async function GET(req: Request) {
         : null,
       openaiConfigured: !!process.env.OPENAI_API_KEY?.trim(),
     },
+    payments: {
+      provider: paymentsProvider,
+      stripe: { configured: isStripeConfigured },
+      paystack: { configured: paystackConfigured },
+      flutterwave: { configured: flutterwaveConfigured },
+      // Stripe cannot pay out to Nigerian banks — a local rail is needed for real cash-out.
+      localPayoutsReady,
+      note: localPayoutsReady
+        ? undefined
+        : "No Nigerian payout rail configured — cash-outs stay on the in-app ledger.",
+    },
+    // Kept for backwards compatibility with existing callers.
     stripe: { configured: isStripeConfigured },
     email: { configured: Boolean(process.env.RESEND_API_KEY?.trim()) },
     sms: { configured: isTwilioConfigured() },
+    localSms: { configured: localSmsConfigured },
     push: { configured: isWebPushConfigured() },
     sentry: { configured: isSentryConfigured() },
+    analytics: { configured: analyticsConfigured },
+    kyc: { configured: kycConfigured },
+    objectStorage: { configured: objectStorageConfigured },
+    realtime: { configured: realtimeConfigured },
     maps: {
-      mode: "openstreetmap",
-      note: "GPS clock-in + OSM embed; optional MAPBOX_TOKEN reserved for future tiles",
+      mode: mapboxConfigured ? "mapbox" : "openstreetmap",
+      mapboxConfigured,
+      note: mapboxConfigured
+        ? "Mapbox token present — interactive tiles, routing, and geocoding available."
+        : "GPS clock-in + OSM embed; set MAPBOX_TOKEN for routes, ETA, and live tracking.",
     },
     ...(aiTest ? { aiTest } : {}),
   })
