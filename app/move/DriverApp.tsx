@@ -44,6 +44,9 @@ import type { BookingOfferSummary, ComplianceDoc, PendingRating, Shift, ShiftSes
 import { loadDriverFlowState, saveDriverFlowState } from "./storage";
 import { RouteMap, mapsNavigateUrl } from "@/components/driver/RouteMap";
 import { PushOptInButton } from "@/components/driver/PushOptInButton";
+import { ClaimSuccess } from "@/components/move/ClaimSuccess";
+import { CountUp } from "@/components/ui/CountUp";
+import { useToast } from "@/components/ui/Toast";
 import { formatMoney, formatMoneyFromCents, formatPayoutRate } from "@/lib/money";
 import "./move.css";
 
@@ -144,14 +147,19 @@ function SlideToClaim({ onClaim, claimed }: { onClaim: () => void; claimed?: boo
     if (claimedRef.current) return;
     claimedRef.current = true;
     setDragX(maxDrag);
+    if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([12, 18, 26]);
     onClaim();
   };
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (claimed) return;
     setDragging(true);
+    if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(8);
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   };
+
+  const progress = maxDrag > 0 ? dragX / maxDrag : 0;
+  const past = progress > 0.68;
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!dragging || !trackRef.current || claimed) return;
@@ -189,21 +197,23 @@ function SlideToClaim({ onClaim, claimed }: { onClaim: () => void; claimed?: boo
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
-        style={{ position: "relative", height: 48, borderRadius: 16, overflow: "hidden", background: "linear-gradient(90deg, #fbeae0 0%, #fdf1e6 100%)", border: "1px solid #f3d6c4", cursor: "grab", userSelect: "none" }}
+        style={{ position: "relative", height: 48, borderRadius: 16, overflow: "hidden", background: past ? "linear-gradient(90deg, #d9efdc 0%, #eaf6ea 100%)" : "linear-gradient(90deg, #fbeae0 0%, #fdf1e6 100%)", border: `1px solid ${past ? "#bfe0c2" : "#f3d6c4"}`, cursor: "grab", userSelect: "none", transition: "background .2s ease, border-color .2s ease" }}
       >
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, color: "#bf5223", opacity: dragX > 40 ? 0.3 : 1 }}>
-          Slide to claim →
+        {/* Progress fill trailing the thumb */}
+        <div aria-hidden style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: dragX + 24, background: past ? "rgba(47,125,79,.14)" : "rgba(224,81,31,.10)", transition: dragging ? "none" : "width .25s cubic-bezier(0.16,1,0.3,1)" }} />
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, color: past ? "#2f7d4f" : "#bf5223", opacity: dragX > 40 ? 0.3 : 1, transition: "color .2s ease" }}>
+          {past ? "Release to claim" : "Slide to claim →"}
         </div>
         <div
           onPointerDown={handlePointerDown}
           style={{
             position: "absolute", left: dragX + 4, top: 4, width: 40, height: 40, borderRadius: 12,
-            background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff",
-            boxShadow: "0 4px 12px rgba(224,81,31,.4)", transition: dragging ? "none" : "left 0.25s cubic-bezier(0.16,1,0.3,1)",
+            background: past ? "#2f7d4f" : PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff",
+            boxShadow: past ? "0 4px 12px rgba(47,125,79,.42)" : "0 4px 12px rgba(224,81,31,.4)", transition: dragging ? "background .15s ease" : "left 0.25s cubic-bezier(0.16,1,0.3,1), background .15s ease",
             touchAction: "none",
           }}
         >
-          <ChevronRight size={20} />
+          {past ? <Check size={20} /> : <ChevronRight size={20} />}
         </div>
       </div>
       <button
@@ -290,6 +300,8 @@ export function DriverApp() {
   const [filterCargo, setFilterCargo] = useState("all");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [claimCelebration, setClaimCelebration] = useState(false);
+  const toast = useToast();
   const [payoutsEnabled, setPayoutsEnabled] = useState(false);
   const [stripeConfigured, setStripeConfigured] = useState(false);
   const [cashoutMessage, setCashoutMessage] = useState<string | null>(null);
@@ -395,6 +407,13 @@ export function DriverApp() {
     setScreen(screenFromPath(pathname));
   }, [pathname]);
 
+  // Surface transient action errors as toasts (with retry) rather than a persistent banner.
+  useEffect(() => {
+    if (!actionError) return;
+    toast.error(actionError, { action: { label: "Retry", onClick: () => void loadWorkspace() } });
+    setActionError(null);
+  }, [actionError, toast, loadWorkspace]);
+
   const goTo = useCallback((next: Screen) => {
     setScreen(next);
     router.push(buildPath(next));
@@ -416,8 +435,11 @@ export function DriverApp() {
       setActionError(null);
       await claimShift(shift.id);
       setClaimedIds((prev) => new Set(prev).add(shift.id));
+      setClaimCelebration(true);
+      window.setTimeout(() => setClaimCelebration(false), 1100);
+      toast.success(`Claimed ${formatPayout(shift)} — it's on your schedule`);
       await loadWorkspace();
-      setTimeout(() => goTo("schedule"), 600);
+      setTimeout(() => goTo("schedule"), 900);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Sign in to claim loads.";
       if (/sign in|401|unauthorized/i.test(msg)) {
@@ -492,6 +514,7 @@ export function DriverApp() {
       setActionError(null);
       await completeDriverShift(activeSession.shiftId);
       await loadWorkspace();
+      toast.success("Load completed — earnings added to your wallet");
       goTo("wallet");
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Unable to complete load.");
@@ -508,6 +531,7 @@ export function DriverApp() {
       setRateStars(5);
       setRateComment("");
       await loadWorkspace();
+      toast.success("Thanks — your rating was submitted");
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Unable to submit rating.");
     }
@@ -532,6 +556,7 @@ export function DriverApp() {
         });
       }
       await loadWorkspace();
+      toast.success(file ? "Document uploaded — under review" : "Marked as provided");
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Unable to upload document.");
     } finally {
@@ -992,7 +1017,7 @@ export function DriverApp() {
             ].map((b) => (
               <div key={b.label} style={{ padding: "18px 18px", borderRadius: 18, background: b.dark ? INK : "#fff", border: b.dark ? "none" : "1px solid #e4dfd5", color: b.dark ? "#fff" : INK, boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
                 <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: b.dark ? "#f3aa79" : MUTE }}>{b.label}</div>
-                <div style={{ fontSize: 28, fontWeight: 800, marginTop: 4, letterSpacing: "-.02em" }}>{formatMoney(b.value)}</div>
+                <CountUp value={b.value} format={(n) => formatMoney(n)} style={{ display: "block", fontSize: 28, fontWeight: 800, marginTop: 4, letterSpacing: "-.02em" }} />
               </div>
             ))}
           </div>
@@ -1079,7 +1104,7 @@ export function DriverApp() {
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Docs · compliance</div>
           <h2 style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-.015em", margin: "10px 0 0" }}>Your documents</h2>
           <p style={{ fontSize: 15, color: "#5f655c", margin: "10px 0 0", lineHeight: 1.5 }}>
-            Upload your driver's licence, background check, medical certificate, and insurance to earn your Verified badge.
+            Upload your driver&apos;s licence, background check, medical certificate, and insurance to earn your Verified badge.
           </p>
 
           {profileVerified ? (
@@ -1295,11 +1320,12 @@ export function DriverApp() {
       modals={modals}
     >
       {screenBody()}
-      {(actionError || loadError) && !isFlowScreen && (
+      {loadError && !isFlowScreen && (
         <div style={{ position: "fixed", bottom: 24, left: 16, right: 16, zIndex: 40, padding: "12px 16px", borderRadius: 14, background: "#fbeae0", border: "1px solid #f3d6c4", color: "#9c3f15", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,.12)" }}>
-          {actionError ?? loadError}
+          {loadError}
         </div>
       )}
+      <ClaimSuccess open={claimCelebration} />
     </MoveAppShell>
   );
 }

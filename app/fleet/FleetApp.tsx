@@ -39,6 +39,8 @@ import type { CargoCategory, VehicleType } from "@/lib/marketplace/taxonomy";
 import { formatMoney, formatPayoutRate, parseMoneyInput } from "@/lib/money";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { RouteMap, mapsSearchUrl } from "@/components/driver/RouteMap";
+import { CountUp } from "@/components/ui/CountUp";
+import { useToast } from "@/components/ui/Toast";
 import "@/app/move/move.css";
 
 const PRIMARY = "#e0511f";
@@ -112,6 +114,7 @@ export function FleetApp() {
   const [driverVehicleFilter, setDriverVehicleFilter] = useState("all");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const toast = useToast();
   const [postSuccess, setPostSuccess] = useState(false);
   const [posting, setPosting] = useState(false);
   const [bookDriverId, setBookDriverId] = useState<string | null>(null);
@@ -199,6 +202,13 @@ export function FleetApp() {
       setPostSuccess(false);
     }
   }, [pathname]);
+
+  // Route transient action errors to toasts (with retry) instead of a persistent banner.
+  useEffect(() => {
+    if (!actionError) return;
+    toast.error(actionError, { action: { label: "Retry", onClick: () => void loadWorkspace() } });
+    setActionError(null);
+  }, [actionError, toast, loadWorkspace]);
 
   useEffect(() => {
     if (!ready) return;
@@ -291,6 +301,7 @@ export function FleetApp() {
       setActionError(null);
       await completeFleetShift(shiftId);
       await loadWorkspace();
+      toast.success("Load marked complete — please rate your driver");
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Unable to complete load.");
     }
@@ -309,6 +320,7 @@ export function FleetApp() {
       setRateStars(5);
       setRateComment("");
       await loadWorkspace();
+      toast.success("Rating submitted — thanks");
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Unable to submit rating.");
     }
@@ -319,6 +331,7 @@ export function FleetApp() {
       setActionError(null);
       await cancelFleetShift(shiftId);
       await loadWorkspace();
+      toast.info("Load cancelled");
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Unable to cancel load.");
     }
@@ -333,6 +346,7 @@ export function FleetApp() {
         return;
       }
       await loadWorkspace();
+      toast.success("Load funded and escrowed — drivers can now claim it");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unable to fund load.";
       if (/sign in|401|unauthorized/i.test(msg)) {
@@ -360,6 +374,7 @@ export function FleetApp() {
       setBookShiftId("");
       setBookMessage("");
       await loadWorkspace();
+      toast.success("Driver booked — they've been notified");
       goTo("jobs");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unable to book driver.";
@@ -613,14 +628,14 @@ export function FleetApp() {
 
           <div className="move-metric-grid" style={{ marginTop: 22 }}>
             {[
-              { label: "Open jobs", value: stats.openLoads },
-              { label: "On the road", value: stats.activeLoads, accent: true },
-              { label: "Completed", value: stats.completedLoads },
-              { label: "Fees paid", value: formatMoney(stats.commissionEarned), accent: true },
+              { label: "Open jobs", value: stats.openLoads, format: (n: number) => String(Math.round(n)) },
+              { label: "On the road", value: stats.activeLoads, accent: true, format: (n: number) => String(Math.round(n)) },
+              { label: "Completed", value: stats.completedLoads, format: (n: number) => String(Math.round(n)) },
+              { label: "Fees paid", value: stats.commissionEarned, accent: true, format: (n: number) => formatMoney(n) },
             ].map((m) => (
               <div key={m.label} style={{ padding: 18, borderRadius: 18, background: m.accent ? INK : "#fff", border: m.accent ? "none" : "1px solid #e4dfd5", color: m.accent ? "#fff" : INK }}>
                 <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase", color: m.accent ? "#f3aa79" : MUTE }}>{m.label}</div>
-                <div style={{ fontSize: 28, fontWeight: 800, marginTop: 4 }}>{m.value}</div>
+                <CountUp value={m.value} format={m.format} style={{ display: "block", fontSize: 28, fontWeight: 800, marginTop: 4 }} />
               </div>
             ))}
           </div>
@@ -1226,9 +1241,9 @@ export function FleetApp() {
       modals={modals}
     >
       {screenBody()}
-      {(actionError || loadError) && !isFlowScreen && (
+      {loadError && !isFlowScreen && (
         <div style={{ position: "fixed", bottom: 24, left: 16, right: 16, zIndex: 40, padding: "12px 16px", borderRadius: 14, background: "#fbeae0", border: "1px solid #f3d6c4", color: "#9c3f15", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, textAlign: "center" }}>
-          {actionError ?? loadError}
+          {loadError}
         </div>
       )}
     </MoveAppShell>
