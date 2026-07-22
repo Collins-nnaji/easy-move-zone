@@ -276,7 +276,8 @@ export function FleetApp() {
       if (id) {
         try {
           const fundResult = await fundLoad(id);
-          if (fundResult.mode === "stripe" && fundResult.url) {
+          // Stripe Checkout or Paystack both return a hosted payment URL to redirect to.
+          if (fundResult.url) {
             window.location.href = fundResult.url;
             return;
           }
@@ -341,7 +342,8 @@ export function FleetApp() {
     try {
       setActionError(null);
       const result = await fundLoad(shiftId);
-      if (result.mode === "stripe" && result.url) {
+      // Stripe Checkout or Paystack both return a hosted payment URL to redirect to.
+      if (result.url) {
         window.location.href = result.url;
         return;
       }
@@ -1238,6 +1240,7 @@ export function FleetApp() {
       meterLabel="Jobs done"
       meterSub={`${stats.completedLoads} of ${stats.totalPosted} jobs completed`}
       isFlowScreen={isFlowScreen}
+      screenOrder={["welcome", "setup", "dashboard", "jobs", "history", "drivers"]}
       modals={modals}
     >
       {screenBody()}

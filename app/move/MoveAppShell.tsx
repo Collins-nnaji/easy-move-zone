@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { SiteLogo } from "@/components/brand/SiteLogo";
 import { AppAccountMenu } from "@/components/move/AppAccountMenu";
-import { softSpring, screenTransition, screenVariants } from "@/lib/motion/presets";
+import { directionalScreen, softSpring, screenTransition, screenVariants } from "@/lib/motion/presets";
 
 type Tab = { label: string; shortLabel?: string; go: string; screens?: string[] };
 
@@ -25,6 +26,8 @@ type MoveAppShellProps = {
   meterLabel?: string;
   meterSub?: string;
   isFlowScreen?: boolean;
+  /** Ordered screen keys; enables directional slide transitions (forward/back). */
+  screenOrder?: string[];
   children: React.ReactNode;
   modals: React.ReactNode;
 };
@@ -47,11 +50,24 @@ export function MoveAppShell({
   meterLabel = "Move Meter",
   meterSub,
   isFlowScreen = false,
+  screenOrder,
   children,
   modals,
 }: MoveAppShellProps) {
   const reduceMotion = useReducedMotion();
   const contextLabel = appRole === "fleet" ? "Your operation" : "Your zone";
+
+  // Determine navigation direction so screens slide forward/back with spatial meaning.
+  const prevScreenRef = useRef(screen);
+  const prevIdx = screenOrder ? screenOrder.indexOf(prevScreenRef.current) : -1;
+  const curIdx = screenOrder ? screenOrder.indexOf(screen) : -1;
+  const direction: 1 | -1 = curIdx >= prevIdx ? 1 : -1;
+  useEffect(() => {
+    prevScreenRef.current = screen;
+  }, [screen]);
+
+  const activeVariants =
+    screenOrder && prevIdx >= 0 && curIdx >= 0 ? directionalScreen(direction) : screenVariants;
 
   return (
     <div className="move-root">
@@ -152,7 +168,7 @@ export function MoveAppShell({
               <motion.div
                 key={screen}
                 className="move-screen-motion"
-                variants={reduceMotion ? undefined : screenVariants}
+                variants={reduceMotion ? undefined : activeVariants}
                 initial={reduceMotion ? false : "initial"}
                 animate="animate"
                 transition={screenTransition}

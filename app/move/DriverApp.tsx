@@ -301,6 +301,7 @@ export function DriverApp() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [claimCelebration, setClaimCelebration] = useState(false);
+  const [workspaceLoaded, setWorkspaceLoaded] = useState(false);
   const toast = useToast();
   const [payoutsEnabled, setPayoutsEnabled] = useState(false);
   const [stripeConfigured, setStripeConfigured] = useState(false);
@@ -368,6 +369,8 @@ export function DriverApp() {
       }
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Unable to load shifts.");
+    } finally {
+      setWorkspaceLoaded(true);
     }
   }, []);
 
@@ -767,6 +770,27 @@ export function DriverApp() {
     );
   }
 
+  function ShiftCardSkeleton() {
+    const bar = (w: number | string, h: number, mt = 0) => (
+      <div className="move-shimmer" style={{ width: w, height: h, borderRadius: 8, marginTop: mt }} />
+    );
+    return (
+      <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, overflow: "hidden", boxShadow: "0 2px 10px rgba(0,0,0,.04)" }}>
+        <div style={{ padding: "18px 18px 16px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {bar(120, 24)}
+              {bar("80%", 14, 12)}
+            </div>
+            {bar(64, 22)}
+          </div>
+          {bar("60%", 12, 16)}
+          {bar("100%", 48, 16)}
+        </div>
+      </div>
+    );
+  }
+
   function ShiftCard({ shift, onClaim, claimed }: { shift: Shift; onClaim?: () => void; claimed?: boolean }) {
     const cargoTag = CARGO_TAGS[shift.cargo];
     const claimable = shift.funded;
@@ -867,7 +891,13 @@ export function DriverApp() {
             </label>
           </div>
 
-          {list.length === 0 ? (
+          {!workspaceLoaded ? (
+            <div className="move-card-grid" style={{ marginTop: 18 }}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <ShiftCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : list.length === 0 ? (
             <div style={{ marginTop: 22, textAlign: "center", padding: "36px 20px", borderRadius: 18, border: "1px solid #e4dfd5", background: "#fff" }}>
               <div style={{ fontSize: 16, fontWeight: 800, color: INK }}>No jobs for this filter</div>
               <p style={{ fontSize: 14, color: MUTE, margin: "8px 0 0" }}>Widen the corridor or cargo type to see more work.</p>
@@ -1317,6 +1347,7 @@ export function DriverApp() {
       meterLabel="Vault status"
       meterSub={`${verifiedDocs} of ${compliance.length || 6} docs verified`}
       isFlowScreen={isFlowScreen}
+      screenOrder={["welcome", "setup", "vehicle", "shifts", "schedule", "wallet", "vault"]}
       modals={modals}
     >
       {screenBody()}
