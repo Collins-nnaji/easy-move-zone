@@ -364,6 +364,34 @@ export async function completeShift(authUserId: string, shiftId: string, role: "
     throw new Error("You can only complete shifts you claimed.");
   }
 
+  // Loads funded under milestone escrow are paid out per-milestone. Completing
+  // them here would double-pay, so route the caller to the milestone flow and
+  // only settle whatever remains held once delivery is confirmed.
+  const milestoneRows = (await driverSql.query(
+    `select count(*)::int as n,
+            count(*) filter (where kind = 'delivery' and confirmed_at is not null)::int as delivered
+     from shift_milestones where shift_id = $1`,
+    [shiftId],
+  )) as Array<{ n: number; delivered: number }>;
+
+  if ((milestoneRows[0]?.n ?? 0) > 0) {
+    if ((milestoneRows[0]?.delivered ?? 0) === 0) {
+      throw new Error(
+        "This load pays out by milestone. The driver must confirm pickup and delivery before it completes.",
+      );
+    }
+    await driverSql.query(
+      `update driver_shifts set status = 'completed', updated_at = now() where id = $1`,
+      [shiftId],
+    );
+    await driverSql.query(
+      `update driver_shift_sessions set status = 'completed', clocked_out_at = now(), updated_at = now()
+       where shift_id = $1 and auth_user_id = $2`,
+      [shiftId, shift.claimed_by],
+    );
+    return;
+  }
+
   const gross = shift.payout_cents;
   const fee = commissionCents(gross, shift.commission_bps);
   const net = netPayoutCents(gross, shift.commission_bps);

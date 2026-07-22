@@ -246,6 +246,8 @@ export async function createLoadFundingCheckout(
       `update driver_shifts set funded = true, funded_at = now(), updated_at = now() where id = $1`,
       [shiftId],
     );
+    const { ensureMilestones } = await import("@/lib/escrow/service");
+    await ensureMilestones(shiftId);
     return {
       mode: "ledger" as const,
       funded: true,
@@ -323,4 +325,8 @@ export async function markLoadFundedFromSession(sessionId: string, paymentIntent
     `update driver_shifts set funded = true, funded_at = now(), updated_at = now() where id = $1`,
     [shiftId],
   );
+
+  // Build the milestone escrow schedule now that the money is in.
+  const { ensureMilestones } = await import("@/lib/escrow/service");
+  await ensureMilestones(shiftId);
 }
