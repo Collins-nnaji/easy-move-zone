@@ -4,6 +4,11 @@ import { ensureFleetProfile } from "@/lib/fleet/service";
 import { CASHOUT_FEE_CENTS } from "@/lib/driver/db";
 import { formatMoneyFromCents } from "@/lib/money";
 import { appBaseUrl, isStripeConfigured, requireStripe } from "./stripe";
+import {
+  initializePaystackFunding,
+  makePaymentReference,
+  isPaystackActive,
+} from "./paystack";
 
 export type PaymentStatus = {
   configured: boolean;
@@ -173,7 +178,11 @@ export async function cashOutWithStripe(authUserId: string) {
   };
 }
 
-export async function createLoadFundingCheckout(authUserId: string, shiftId: string) {
+export async function createLoadFundingCheckout(
+  authUserId: string,
+  shiftId: string,
+  opts?: { email?: string | null },
+) {
   if (!driverSql) throw new Error("Database not configured.");
   await ensureFleetProfile(authUserId);
 
@@ -199,6 +208,32 @@ export async function createLoadFundingCheckout(authUserId: string, shiftId: str
   if (shift.status === "cancelled") throw new Error("Cannot fund a cancelled load.");
 
   const totalCents = shift.payout_cents;
+
+  // Paystack rail (Nigeria): initialize a hosted checkout and escrow on webhook.
+  if (isPaystackActive()) {
+    const reference = makePaymentReference("emz_fund", shiftId);
+    const init = await initializePaystackFunding({
+      email: opts?.email || `fleet+${authUserId}@easymovezone.com`,
+      amountKobo: totalCents,
+      reference,
+      callbackUrl: `${appBaseUrl()}/fleet/jobs?funded=1`,
+      metadata: { kind: "load_fund", shift_id: shiftId, fleet_user_id: authUserId },
+    });
+
+    // Reuse stripe_session_id to hold the provider reference so the shared
+    // webhook handler (markLoadFundedFromSession) can match it on success.
+    await driverSql.query(
+      `insert into marketplace_payments (kind, shift_id, payer_user_id, amount_cents, stripe_session_id, status, metadata)
+       values ('load_fund', $1, $2, $3, $4, 'pending', '{"provider":"paystack"}'::jsonb)`,
+      [shiftId, authUserId, totalCents, reference],
+    );
+
+    return {
+      mode: "paystack" as const,
+      url: init.authorization_url,
+      reference,
+    };
+  }
 
   // Without Stripe keys: ledger escrow so booking still works in staging.
   if (!isStripeConfigured) {

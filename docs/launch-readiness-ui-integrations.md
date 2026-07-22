@@ -15,6 +15,32 @@ Sentry-compatible monitoring, OpenAI/Azure for AI, OpenStreetMap embeds for maps
 
 ---
 
+## Implementation status (updated)
+
+Shipped on this branch:
+
+- **UI/animation layer** — global toast system (with retry actions), animated
+  count-ups on wallet + fleet stats, a claim-success confetti celebration,
+  haptic + threshold feedback on slide-to-claim, success toasts across claim /
+  complete / rate / upload / fund / book / cancel, **directional page
+  transitions**, and **shift-feed skeletons**.
+- **Payments provider abstraction** — `lib/payments/paystack.ts`: a typed
+  Paystack client (funding init/verify, account resolve, transfer recipient +
+  payout, HMAC-SHA512 webhook verification) with unit tests. Load **funding**
+  and the **webhook** now switch to Paystack when `PAYMENTS_PROVIDER=paystack`
+  and `PAYSTACK_SECRET_KEY` are set; Stripe/ledger remain the default so nothing
+  changes until you flip the flag.
+- **Config + health** — new provider env vars in `.env.example`, and
+  `/api/health/integrations` reports what's wired.
+
+Still requires live credentials + a test environment to finish and verify:
+
+- **Paystack driver payouts (cash-out)** — the transfer helpers exist and are
+  tested, but wiring them into cash-out needs a driver **bank-details capture
+  flow** (account number + bank code → resolve name → recipient code), which is
+  a schema + UI addition. Funding is wired; payouts are the remaining half.
+- **Maps/routing, KYC, local SMS, realtime** — provider accounts + keys needed.
+
 ## Part 1 — Where the app is today (honest baseline)
 
 | Area | State | Notes |

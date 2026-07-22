@@ -39,10 +39,11 @@ export async function cashOutPayment(): Promise<{
 }
 
 export async function fundLoad(shiftId: string): Promise<{
-  mode: "stripe" | "ledger";
+  mode: "stripe" | "ledger" | "paystack";
   url?: string;
   funded?: boolean;
   message?: string;
+  reference?: string;
 }> {
   return parseJson(
     await fetch("/api/payments/fund", {
