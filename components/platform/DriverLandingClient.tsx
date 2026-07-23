@@ -3,17 +3,24 @@
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Zap } from "lucide-react";
-import { BoxGlyph, HeroFreightArt, NairaGlyph, RouteGlyph, ShieldGlyph } from "./FreightArt";
+import { HeroFreightArt } from "./FreightArt";
+import {
+  LicenseGlyph,
+  RouteStopsGlyph,
+  ShieldNairaGlyph,
+  SteeringWheelGlyph,
+  WalletGlyph,
+} from "./DriverIcons";
 
 const PRIMARY = "#e0511f";
 const INK = "#1b231e";
 
-// Driver-only value props — no company-side messaging.
+// Driver-only value props — driver-themed SVG icons, no company-side messaging.
 const valueProps = [
-  { glyph: BoxGlyph, title: "Funded jobs only", body: "Every job is escrow-funded before it's posted. You never run a route hoping to get paid." },
-  { glyph: RouteGlyph, title: "Paid as you go", body: "20% on pickup, 70% on delivery, the rest once the job clears. GPS and photos confirm each step." },
-  { glyph: NairaGlyph, title: "Cash out in naira", body: "Earnings land in your wallet and cash out to your bank. No waiting on invoices." },
-  { glyph: ShieldGlyph, title: "One compliance vault", body: "Keep your licence, hazmat cert, and insurance verified once — then claim any job you qualify for." },
+  { glyph: ShieldNairaGlyph, title: "Funded jobs only", body: "Every job is escrow-funded before it's posted. You never run a route hoping to get paid." },
+  { glyph: RouteStopsGlyph, title: "Paid as you go", body: "20% on pickup, 70% on delivery, the rest once the job clears. GPS and photos confirm each step." },
+  { glyph: WalletGlyph, title: "Cash out in naira", body: "Earnings land in your wallet and cash out to your bank. No waiting on invoices." },
+  { glyph: LicenseGlyph, title: "One compliance vault", body: "Keep your licence, hazmat cert, and insurance verified once — then claim any job you qualify for." },
 ] as const;
 
 const steps = [
@@ -53,7 +60,8 @@ export function DriverLandingClient() {
         <div className="relative mx-auto w-full max-w-7xl px-4 pt-16 pb-14 sm:px-6 lg:px-8 lg:pt-20 lg:pb-16">
           <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
             <div>
-              <motion.p {...fadeUp(0, 12)} className="text-sm font-extrabold tracking-tight" style={{ color: PRIMARY }}>
+              <motion.p {...fadeUp(0, 12)} className="inline-flex items-center gap-2 text-sm font-extrabold tracking-tight" style={{ color: PRIMARY }}>
+                <SteeringWheelGlyph className="h-5 w-5" />
                 For drivers &amp; owner-operators
               </motion.p>
               <motion.h1 {...fadeUp(0.06, 22)} className="mt-4 text-[2.75rem] font-extrabold leading-[1.03] tracking-tight sm:text-6xl lg:text-[4.1rem]" style={{ textWrap: "balance" } as React.CSSProperties}>

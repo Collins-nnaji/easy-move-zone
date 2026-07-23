@@ -464,13 +464,7 @@ export function FleetApp() {
           <button onClick={() => goTo("dashboard")} style={{ width: "100%", padding: 15, marginTop: 10, border: "1px solid #d8d2c6", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
             Skip — open console →
           </button>
-          <a
-            href="/move/shifts"
-            style={{ width: "100%", padding: 16, marginTop: 4, border: "none", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, textDecoration: "none", display: "block", textAlign: "center" }}
-          >
-            I drive for work — find jobs →
-          </a>
-          <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "10px 0 0" }}>
+          <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "14px 0 0" }}>
             Publishing and escrow need an account · <a href="/auth?role=company&redirect=/fleet/dashboard" style={{ color: PRIMARY, fontWeight: 600 }}>Sign in</a>
           </p>
         </div>

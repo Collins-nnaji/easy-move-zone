@@ -642,12 +642,6 @@ export function DriverApp() {
             >
               Set my corridor &amp; vehicle first
             </button>
-            <a
-              href="/fleet/drivers"
-              style={{ width: "100%", padding: 16, border: "none", borderRadius: 16, background: "transparent", color: "#4a5047", fontFamily: HANKEN, fontSize: 14, fontWeight: 600, textDecoration: "none", display: "block", textAlign: "center" }}
-            >
-              I hire drivers — open company console →
-            </a>
           </div>
           <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "14px 0 0" }}>
             Claiming, cashout, and posting require an account · <a href="/auth?role=driver&redirect=/move/shifts" style={{ color: PRIMARY, fontWeight: 600 }}>Sign in</a>
@@ -1200,12 +1194,6 @@ export function DriverApp() {
                 </div>
               );
             })}
-          </div>
-
-          <div style={{ marginTop: 22, background: INK, borderRadius: 20, padding: 22, color: "#fff" }}>
-            <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "#f3aa79" }}>Fleet operators</div>
-            <p style={{ fontSize: 14.5, color: "rgba(255,255,255,.7)", margin: "10px 0 0", lineHeight: 1.5 }}>Post loads, find rated drivers, and manage workload from the fleet console.</p>
-            <a href="/fleet" style={{ display: "inline-block", marginTop: 14, padding: "10px 16px", borderRadius: 12, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>Open fleet console →</a>
           </div>
         </div>
       </div>
