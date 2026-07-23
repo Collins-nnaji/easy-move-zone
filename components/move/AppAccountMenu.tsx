@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { menuPanel, softSpring } from "@/lib/motion/presets";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Briefcase, LogOut, MoreHorizontal, Truck, UserRound } from "lucide-react";
+import { Briefcase, LogOut, MoreHorizontal, ShieldCheck, Truck, UserRound } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 
 type AppRole = "driver" | "fleet";
@@ -16,8 +16,23 @@ type AppAccountMenuProps = {
 
 export function AppAccountMenu({ role, compact = false }: AppAccountMenuProps) {
   const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
+
+  // Reveal the Admin console entry only for users on the admin allowlist.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/admin/me")
+      .then((res) => (res.ok ? res.json() : { admin: false }))
+      .then((data: { admin?: boolean }) => {
+        if (!cancelled) setIsAdmin(Boolean(data.admin));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const otherHref = role === "driver" ? "/fleet/dashboard" : "/move/shifts";
   const otherLabel = role === "driver" ? "Open company console" : "Open driver app";
@@ -110,6 +125,17 @@ export function AppAccountMenu({ role, compact = false }: AppAccountMenuProps) {
               <OtherIcon size={15} />
               {otherLabel}
             </Link>
+            {isAdmin && (
+              <Link
+                href="/admin/kyc"
+                role="menuitem"
+                className="move-account__item"
+                onClick={() => setOpen(false)}
+              >
+                <ShieldCheck size={15} />
+                Admin · KYC review
+              </Link>
+            )}
             <button
               type="button"
               role="menuitem"
