@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Bricolage_Grotesque } from "next/font/google";
 import { AppChrome } from "@/components/layout/AppChrome";
 import { NativeBridge } from "@/components/native/NativeBridge";
+import { AuthSessionCleanup } from "@/components/platform/AuthSessionCleanup";
 import { ToastProvider } from "@/components/ui/Toast";
 import { BRAND } from "@/lib/brand";
 import { siteMetadata } from "@/lib/site-metadata";
@@ -51,6 +52,7 @@ export default function RootLayout({
       >
         <ToastProvider>
           <NativeBridge />
+          <AuthSessionCleanup />
           <AppChrome>{children}</AppChrome>
         </ToastProvider>
       </body>

@@ -43,8 +43,15 @@ export function AppAccountMenu({ role, compact = false }: AppAccountMenuProps) {
 
   async function signOut() {
     setOpen(false);
-    await authClient.signOut();
-    window.location.href = "/";
+    try {
+      await authClient.signOut();
+    } catch {
+      // Even if the request errors, fall through to a hard navigation so the
+      // user is never left stuck on a signed-in-looking screen.
+    }
+    // Hard navigation (not router.push) guarantees the in-memory session cache
+    // is dropped and every server component re-reads the cleared cookie.
+    window.location.href = "/start";
   }
 
   return (

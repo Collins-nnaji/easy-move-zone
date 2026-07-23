@@ -70,7 +70,7 @@ export function PlatformNav() {
     // component re-reads the now-cleared session cookie, instead of relying
     // on client-side cache invalidation that can leave stale account state
     // visible in the nav until a manual refresh.
-    window.location.href = "/"
+    window.location.href = "/start"
   }
 
   function getInitials(name?: string | null, email?: string | null) {
