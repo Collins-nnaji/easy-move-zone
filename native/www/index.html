@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>EasyMoveZone</title>
+    <style>
+      :root { color-scheme: light; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: #f6f3ec;
+        color: #1b231e;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+      .wrap {
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        padding: 32px;
+        text-align: center;
+        box-sizing: border-box;
+      }
+      .badge {
+        width: 84px; height: 84px; border-radius: 22px;
+        background: #e0511f; color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 34px; font-weight: 800; letter-spacing: -1px;
+        box-shadow: 0 12px 30px rgba(224,81,31,0.28);
+      }
+      h1 { font-size: 20px; margin: 4px 0 0; }
+      p { color: #6e746b; max-width: 300px; line-height: 1.5; margin: 0; }
+      button {
+        margin-top: 8px; padding: 13px 22px; border: 0; border-radius: 12px;
+        background: #e0511f; color: #fff; font-size: 15px; font-weight: 700;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Offline / connectivity fallback shell.
+
+      In normal operation the native app loads the live server-rendered site
+      (see `server.url` in capacitor.config.ts) and this file is never shown.
+      It only appears if the WebView cannot reach the network on first launch.
+    -->
+    <div class="wrap">
+      <div class="badge">EM</div>
+      <h1>EasyMoveZone</h1>
+      <p>You're offline. Reconnect to the internet to load shifts, claims, and payouts.</p>
+      <button onclick="window.location.reload()">Retry</button>
+    </div>
+  </body>
+</html>

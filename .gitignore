@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# capacitor native projects (generated locally per platform; scaffolded with
+# `npx cap add ios|android`). The config, bridge code, and generators are
+# committed — the heavy native build folders are not.
+/ios
+/android
+/native/www/**/*.map

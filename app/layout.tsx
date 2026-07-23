@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Bricolage_Grotesque } from "next/font/google";
 import { AppChrome } from "@/components/layout/AppChrome";
+import { NativeBridge } from "@/components/native/NativeBridge";
 import { ToastProvider } from "@/components/ui/Toast";
 import { BRAND } from "@/lib/brand";
 import { siteMetadata } from "@/lib/site-metadata";
@@ -49,6 +50,7 @@ export default function RootLayout({
         className={`${jakarta.variable} ${bricolage.variable} min-h-screen min-w-0 flex flex-col overflow-x-hidden antialiased`}
       >
         <ToastProvider>
+          <NativeBridge />
           <AppChrome>{children}</AppChrome>
         </ToastProvider>
       </body>

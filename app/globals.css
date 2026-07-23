@@ -615,3 +615,35 @@
     50%       { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Native app shell (Capacitor iOS/Android). These rules only apply when the
+ * app runs inside the native wrapper — the <html> element gets `.native-app`
+ * (plus `.native-ios` / `.native-android`) from components/native/NativeBridge.
+ * The web experience is completely unaffected.
+ * ------------------------------------------------------------------------- */
+html.native-app body {
+  /* Extend brand chrome into the safe areas so fixed bars sit flush under the
+   * notch and above the home indicator. */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Disable the iOS long-press callout / text selection on chrome, keeping the
+ * app feeling native. Inputs and content areas re-enable selection below. */
+html.native-app,
+html.native-app body {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior-y: none;
+}
+html.native-app input,
+html.native-app textarea,
+html.native-app [contenteditable="true"],
+html.native-app [data-selectable] {
+  -webkit-user-select: text;
+  user-select: text;
+}

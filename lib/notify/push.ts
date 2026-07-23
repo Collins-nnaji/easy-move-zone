@@ -1,4 +1,5 @@
 import { driverSql } from "@/lib/driver/db";
+import { sendNativePush } from "@/lib/notify/native-push";
 
 export type PushSubscriptionInput = {
   endpoint: string;
@@ -49,9 +50,17 @@ export async function sendMarketplacePush(input: {
   body: string;
   link?: string;
 }): Promise<{ ok: boolean; skipped?: boolean; sent?: number; error?: string }> {
+  // Native (APNs/FCM) delivery for the iOS/Android apps — best effort and
+  // independent of web-push config, so it runs even when VAPID keys are absent.
+  const native = await sendNativePush(input).catch((err) => {
+    console.error("[notify:native:failed]", err);
+    return { ok: false as const, sent: 0 };
+  });
+  const nativeSent = native.sent ?? 0;
+
   if (!isWebPushConfigured()) {
-    console.info("[notify:push:skipped]", input.title, "→", input.userId);
-    return { ok: true, skipped: true };
+    if (nativeSent === 0) console.info("[notify:push:skipped]", input.title, "→", input.userId);
+    return { ok: true, skipped: nativeSent === 0, sent: nativeSent };
   }
   if (!driverSql) return { ok: false, error: "Database not configured." };
 
@@ -60,7 +69,7 @@ export async function sendMarketplacePush(input: {
     [input.userId],
   )) as Array<{ id: string; endpoint: string; p256dh: string; auth: string }>;
 
-  if (rows.length === 0) return { ok: true, skipped: true, sent: 0 };
+  if (rows.length === 0) return { ok: true, skipped: nativeSent === 0, sent: nativeSent };
 
   let webpush: typeof import("web-push");
   try {
@@ -103,5 +112,5 @@ export async function sendMarketplacePush(input: {
     }
   }
 
-  return { ok: true, sent };
+  return { ok: true, sent: sent + nativeSent };
 }
