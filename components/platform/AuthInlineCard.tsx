@@ -14,7 +14,11 @@ export function AuthInlineCard({
 }: { redirectIfAuthenticated?: boolean; hideWhenAuthenticated?: boolean }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTarget = searchParams.get("redirect") ?? "/move"
+  // Sign-up is linked to the path you came from: an explicit ?redirect wins,
+  // otherwise ?role picks the right app so you land back where you started.
+  const role = searchParams.get("role")
+  const roleRedirect = role === "company" ? "/fleet/dashboard" : role === "driver" ? "/move/shifts" : "/move"
+  const redirectTarget = searchParams.get("redirect") ?? roleRedirect
   const urlMode = searchParams.get("mode")
   const [mode, setMode] = useState<Mode>(urlMode === "signup" ? "sign-up" : "sign-in")
   const [name, setName] = useState("")

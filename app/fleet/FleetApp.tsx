@@ -471,7 +471,7 @@ export function FleetApp() {
             I drive for work — find jobs →
           </a>
           <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "10px 0 0" }}>
-            Publishing and escrow need an account · <a href="/auth?redirect=/fleet/dashboard" style={{ color: PRIMARY, fontWeight: 600 }}>Sign in</a>
+            Publishing and escrow need an account · <a href="/auth?role=company&redirect=/fleet/dashboard" style={{ color: PRIMARY, fontWeight: 600 }}>Sign in</a>
           </p>
         </div>
         <FlowAside
@@ -1230,6 +1230,7 @@ export function FleetApp() {
       meterSub={`${stats.completedLoads} of ${stats.totalPosted} jobs completed`}
       isFlowScreen={isFlowScreen}
       screenOrder={["welcome", "setup", "dashboard", "jobs", "history", "drivers"]}
+      switchApp={{ label: "Switch to Driver app", href: "/move/shifts" }}
       modals={modals}
     >
       {screenBody()}

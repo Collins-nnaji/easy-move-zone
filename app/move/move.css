@@ -917,3 +917,49 @@
     padding: 56px 64px;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * App-switch footer — a persistent link to the *other* app (Company ⇄ Driver),
+ * so each side feels like its own app but is one tap from the other.
+ * Mobile: slim footer pinned below the scroll. Desktop: lives in the sidebar.
+ * ------------------------------------------------------------------------- */
+.move-switch-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 11px 16px calc(11px + env(safe-area-inset-bottom));
+  border-top: 1px solid #e0dacd;
+  background: rgba(247, 245, 239, 0.94);
+  backdrop-filter: blur(8px);
+}
+
+.move-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid #e0dacd;
+  background: #fff;
+  color: #1b231e;
+  font-family: var(--font-hanken), system-ui, sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, transform 0.12s;
+}
+.move-switch-btn:active { transform: scale(0.98); }
+
+.move-switch-sidebar {
+  margin-top: auto;
+  padding-top: 14px;
+}
+.move-switch-sidebar .move-switch-btn { width: 100%; justify-content: center; }
+
+/* On desktop the switch lives in the sidebar, so hide the mobile footer. */
+@media (min-width: 1024px) {
+  .move-switch-footer { display: none; }
+}

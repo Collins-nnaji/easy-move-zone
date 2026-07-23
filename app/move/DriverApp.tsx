@@ -650,7 +650,7 @@ export function DriverApp() {
             </a>
           </div>
           <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "14px 0 0" }}>
-            Claiming, cashout, and posting require an account · <a href="/auth?redirect=/move/shifts" style={{ color: PRIMARY, fontWeight: 600 }}>Sign in</a>
+            Claiming, cashout, and posting require an account · <a href="/auth?role=driver&redirect=/move/shifts" style={{ color: PRIMARY, fontWeight: 600 }}>Sign in</a>
           </p>
         </div>
         <FlowAside
@@ -1348,6 +1348,7 @@ export function DriverApp() {
       meterSub={`${verifiedDocs} of ${compliance.length || 6} docs verified`}
       isFlowScreen={isFlowScreen}
       screenOrder={["welcome", "setup", "vehicle", "shifts", "schedule", "wallet", "vault"]}
+      switchApp={{ label: "Switch to Company app", href: "/fleet/dashboard" }}
       modals={modals}
     >
       {screenBody()}

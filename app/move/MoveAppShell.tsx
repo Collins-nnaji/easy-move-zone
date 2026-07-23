@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowRightLeft } from "lucide-react";
 import { SiteLogo } from "@/components/brand/SiteLogo";
 import { AppAccountMenu } from "@/components/move/AppAccountMenu";
 import { directionalScreen, softSpring, screenTransition, screenVariants } from "@/lib/motion/presets";
@@ -28,6 +30,8 @@ type MoveAppShellProps = {
   isFlowScreen?: boolean;
   /** Ordered screen keys; enables directional slide transitions (forward/back). */
   screenOrder?: string[];
+  /** Persistent link to the other app (Company ⇄ Driver), shown in the footer. */
+  switchApp?: { label: string; href: string };
   children: React.ReactNode;
   modals: React.ReactNode;
 };
@@ -51,6 +55,7 @@ export function MoveAppShell({
   meterSub,
   isFlowScreen = false,
   screenOrder,
+  switchApp,
   children,
   modals,
 }: MoveAppShellProps) {
@@ -127,6 +132,15 @@ export function MoveAppShell({
                 </div>
               </div>
             )}
+
+            {switchApp && (
+              <div className="move-switch-sidebar">
+                <Link href={switchApp.href} className="move-switch-btn">
+                  <ArrowRightLeft size={15} />
+                  {switchApp.label}
+                </Link>
+              </div>
+            )}
           </aside>
         )}
 
@@ -177,6 +191,15 @@ export function MoveAppShell({
               </motion.div>
             </AnimatePresence>
           </div>
+
+          {showNav && switchApp && (
+            <footer className="move-switch-footer">
+              <Link href={switchApp.href} className="move-switch-btn">
+                <ArrowRightLeft size={15} />
+                {switchApp.label}
+              </Link>
+            </footer>
+          )}
         </div>
       </div>
 

@@ -14,10 +14,15 @@ import type { CapacitorConfig } from "@capacitor/cli";
  * app URL, then the marketing domain) so staging/prod can be swapped without
  * code changes.
  */
-const serverUrl =
+const origin = (
   process.env.CAP_SERVER_URL?.trim() ||
   process.env.NEXT_PUBLIC_APP_URL?.trim() ||
-  "https://easymovezone.com";
+  "https://easymovezone.com"
+).replace(/\/+$/, "");
+// Open the app on the role chooser (Company / Driver). Override the landing
+// path with CAP_ENTRY_PATH if needed.
+const entryPath = process.env.CAP_ENTRY_PATH?.trim() || "/start";
+const serverUrl = `${origin}${entryPath}`;
 
 const config: CapacitorConfig = {
   appId: "com.easymovezone.app",

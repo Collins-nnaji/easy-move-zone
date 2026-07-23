@@ -11,6 +11,9 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   const isAuth = pathname === "/auth" || pathname.startsWith("/auth/")
+  // The role chooser is the app entry point — render it full-bleed with no
+  // marketing nav/footer so it feels like a native app splash.
+  const isStart = pathname === "/start"
   const isApp =
     pathname === "/move" ||
     pathname.startsWith("/move/") ||
@@ -24,6 +27,14 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
       document.body.classList.remove("move-app-active")
     }
   }, [isApp])
+
+  if (isStart) {
+    return (
+      <ClientErrorBoundary>
+        <main className="flex-1 min-w-0">{children}</main>
+      </ClientErrorBoundary>
+    )
+  }
 
   if (isAuth) {
     return (
