@@ -2,16 +2,7 @@
 
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import {
-  Briefcase,
-  Check,
-  ChevronRight,
-  Search,
-  Star,
-  Truck,
-  Users,
-  MapPin,
-} from "lucide-react";
+import { Check, ChevronRight, Search, Star, MapPin } from "lucide-react";
 import { SiteLogo } from "@/components/brand/SiteLogo";
 import { MoveAppShell } from "@/app/move/MoveAppShell";
 import { AnimatedSheet } from "@/components/move/AnimatedSheet";
@@ -46,8 +37,59 @@ import "@/app/move/move.css";
 const PRIMARY = "#e0511f";
 const INK = "#1b231e";
 const MUTE = "#9aa097";
+const LINE = "#e9e3d8";
 const HANKEN = "var(--font-hanken), system-ui, sans-serif";
 const MONO = "var(--font-plex-mono), ui-monospace, monospace";
+
+// Section heading (mono eyebrow) reused across screens — keeps a flat, list-led
+// hierarchy instead of wrapping every group in a card.
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE }}>
+      {children}
+    </div>
+  );
+}
+
+// A slim, single-line notice with an accent left rule — replaces filled banner
+// cards for offers / ratings / hints.
+function Notice({ tone, children }: { tone: "info" | "warn" | "ok"; children: React.ReactNode }) {
+  const c =
+    tone === "warn"
+      ? { bar: "#e0851f", fg: "#8a5312" }
+      : tone === "ok"
+        ? { bar: "#2f7d4f", fg: "#2f7d4f" }
+        : { bar: PRIMARY, fg: "#9c3f15" };
+  return (
+    <div style={{ display: "flex", gap: 10, alignItems: "baseline", padding: "10px 0 10px 12px", borderLeft: `2px solid ${c.bar}`, fontSize: 13.5, color: c.fg, fontWeight: 600, lineHeight: 1.45 }}>
+      {children}
+    </div>
+  );
+}
+
+// Lightweight empty state — centered text + one action, no boxed border.
+function EmptyState({ title, text, cta, onClick }: { title: string; text: string; cta: string; onClick: () => void }) {
+  return (
+    <div style={{ padding: "40px 20px", textAlign: "center" }}>
+      <div style={{ fontSize: 16, fontWeight: 800, color: INK }}>{title}</div>
+      <p style={{ fontSize: 14, color: MUTE, margin: "8px auto 0", maxWidth: 300, lineHeight: 1.5 }}>{text}</p>
+      <button type="button" onClick={onClick} style={{ marginTop: 18, minHeight: 44, padding: "11px 20px", border: "none", borderRadius: 12, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+        {cta}
+      </button>
+    </div>
+  );
+}
+
+function statusMeta(status: string): { label: string; fg: string; dot: string } {
+  switch (status) {
+    case "open": return { label: "Open", fg: "#2f7d4f", dot: "#2f7d4f" };
+    case "claimed": return { label: "Claimed", fg: "#9a6318", dot: "#e0851f" };
+    case "active": return { label: "On the road", fg: "#9c3f15", dot: PRIMARY };
+    case "completed": return { label: "Completed", fg: MUTE, dot: "#c4beb2" };
+    case "cancelled": return { label: "Cancelled", fg: MUTE, dot: "#c4beb2" };
+    default: return { label: status, fg: MUTE, dot: "#c4beb2" };
+  }
+}
 
 type Screen = "welcome" | "setup" | "dashboard" | "jobs" | "history" | "drivers";
 
@@ -253,7 +295,7 @@ export function FleetApp() {
       setActionError(null);
       const vehicle = VEHICLE_OPTIONS.find((v) => v.key === postForm.vehicleType);
       const { id } = await postFleetShift({
-        title: postForm.title || `${vehicle?.label ?? "Load"} route`,
+        title: postForm.title || `${vehicle?.label ?? "Job"} route`,
         payoutCents: Math.round(parseMoneyInput(postForm.payout) * 100),
         payoutType: postForm.payoutType,
         vehicleType: postForm.vehicleType,
@@ -282,13 +324,13 @@ export function FleetApp() {
             return;
           }
         } catch {
-          // Load is posted; fleet can fund from My Loads if auto-fund fails
+          // Job is posted; company can fund it from Jobs if auto-fund fails
         }
       }
       await loadWorkspace();
       setTimeout(() => { setPostSuccess(false); setPosting(false); setPostStep(0); goTo("jobs"); }, 900);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Sign in to post loads.";
+      const msg = err instanceof Error ? err.message : "Sign in to post jobs.";
       if (/sign in|401|unauthorized/i.test(msg)) {
         window.location.href = `/auth?redirect=${encodeURIComponent("/fleet/jobs?post=1")}`;
         return;
@@ -302,9 +344,9 @@ export function FleetApp() {
       setActionError(null);
       await completeFleetShift(shiftId);
       await loadWorkspace();
-      toast.success("Load marked complete — please rate your driver");
+      toast.success("Job marked complete — please rate your driver");
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Unable to complete load.");
+      setActionError(err instanceof Error ? err.message : "Unable to complete job.");
     }
   };
 
@@ -332,9 +374,9 @@ export function FleetApp() {
       setActionError(null);
       await cancelFleetShift(shiftId);
       await loadWorkspace();
-      toast.info("Load cancelled");
+      toast.info("Job cancelled");
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Unable to cancel load.");
+      setActionError(err instanceof Error ? err.message : "Unable to cancel job.");
     }
   };
 
@@ -348,9 +390,9 @@ export function FleetApp() {
         return;
       }
       await loadWorkspace();
-      toast.success("Load funded and escrowed — drivers can now claim it");
+      toast.success("Job funded and escrowed — drivers can now claim it");
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Unable to fund load.";
+      const msg = err instanceof Error ? err.message : "Unable to fund job.";
       if (/sign in|401|unauthorized/i.test(msg)) {
         window.location.href = `/auth?redirect=${encodeURIComponent("/fleet/jobs")}`;
         return;
@@ -361,7 +403,7 @@ export function FleetApp() {
 
   const handleBookDriver = async () => {
     if (!bookDriverId || !bookShiftId) {
-      setActionError("Pick an open load to book this driver.");
+      setActionError("Pick an open job to book this driver.");
       return;
     }
     try {
@@ -451,7 +493,7 @@ export function FleetApp() {
         <div className="move-flow-screen move-flow-screen--step">
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Fleet setup</div>
           <h2 style={{ fontSize: 27, lineHeight: 1.15, fontWeight: 800, margin: "14px 0 0" }}>Your operation</h2>
-          <p style={{ fontSize: 15, color: "#5f655c", margin: "12px 0 0" }}>Company details help drivers trust your loads on the marketplace.</p>
+          <p style={{ fontSize: 15, color: "#5f655c", margin: "12px 0 0" }}>Company details help drivers trust your jobs on the marketplace.</p>
 
           <div style={{ marginTop: 28, display: "flex", flexDirection: "column", gap: 14 }}>
             <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -482,10 +524,10 @@ export function FleetApp() {
         </div>
         <FlowAside
           title="Commission-based marketplace"
-          text="You only pay when a load completes. 8% platform fee — drivers see net pay upfront."
+          text="You only pay when a job completes. 8% platform fee — drivers see net pay upfront."
           steps={[
             { n: 1, text: "Heavy goods, tankers, reefers, parcel — all cargo types" },
-            { n: 2, text: "Bilateral ratings after every completed load" },
+            { n: 2, text: "Bilateral ratings after every completed job" },
             { n: 3, text: "Independent drivers and truck owners compete on rates" },
           ]}
         />
@@ -493,81 +535,76 @@ export function FleetApp() {
     );
   }
 
+  // Driver rendered as a clean list row (no boxed card). Rows sit inside a
+  // divided list so the screen reads as a directory, not a wall of cards.
   function DriverCard({ driver }: { driver: MarketplaceDriver }) {
     const tag = VEHICLE_TAGS[driver.vehicleType];
     return (
-      <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: "18px 20px", boxShadow: "0 2px 12px rgba(0,0,0,.04)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <div style={{ fontSize: 17, fontWeight: 800 }}>{driver.displayName}</div>
-              {driver.verified && (
-                <span style={{ background: "#eef6ec", color: "#2f7d4f", borderRadius: 999, padding: "3px 8px", fontSize: 11, fontWeight: 700, fontFamily: MONO }}>Verified</span>
-              )}
-            </div>
-            <div style={{ fontSize: 13, color: MUTE, marginTop: 2 }}>
-              {driver.ownerType === "owner" ? "Truck owner" : "Driver"} · {driver.zone}
-            </div>
+      <div style={{ display: "flex", gap: 14, padding: "16px 0", borderTop: `1px solid ${LINE}` }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ fontSize: 16, fontWeight: 800 }}>{driver.displayName}</div>
+            {driver.verified && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 3, color: "#2f7d4f", fontSize: 11.5, fontWeight: 700 }}>
+                <Check size={12} strokeWidth={3} /> Verified
+              </span>
+            )}
           </div>
+          <div style={{ fontSize: 12.5, color: MUTE, marginTop: 3 }}>
+            {driver.ownerType === "owner" ? "Truck owner" : "Driver"} · {tag.label} · {driver.zone}
+            {driver.rateHint ? ` · from ${formatMoney(driver.rateHint)}/day` : ""}
+          </div>
+          {driver.bio && <p style={{ fontSize: 13, color: "#5f655c", margin: "8px 0 0", lineHeight: 1.45 }}>{driver.bio}</p>}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10, flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "#b9781f" }}>
-            <Star size={14} fill="#b9781f" color="#b9781f" />
+            <Star size={13} fill="#b9781f" color="#b9781f" />
             {formatRating(driver.ratingAvg, driver.ratingCount)}
           </div>
+          <button
+            type="button"
+            onClick={() => {
+              setBookDriverId(driver.id);
+              setBookShiftId(bookableLoads[0]?.id ?? "");
+            }}
+            style={{ padding: "9px 14px", border: `1px solid ${PRIMARY}`, borderRadius: 999, background: "#fff", color: PRIMARY, fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
+          >
+            Offer job
+          </button>
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
-          <span style={{ background: tag.bg, color: tag.color, borderRadius: 999, padding: "5px 10px", fontSize: 11, fontWeight: 600, fontFamily: MONO }}>{tag.label}</span>
-          {driver.rateHint && (
-            <span style={{ background: "#f0ede4", borderRadius: 999, padding: "5px 10px", fontSize: 11, fontWeight: 600, fontFamily: MONO, color: "#4a5047" }}>
-              from {formatMoney(driver.rateHint)}/day
-            </span>
-          )}
-        </div>
-        {driver.bio && <p style={{ fontSize: 13.5, color: "#5f655c", margin: "12px 0 0", lineHeight: 1.45 }}>{driver.bio}</p>}
-        <button
-          type="button"
-          onClick={() => {
-            setBookDriverId(driver.id);
-            setBookShiftId(bookableLoads[0]?.id ?? "");
-          }}
-          style={{ width: "100%", marginTop: 14, padding: 12, border: "none", borderRadius: 12, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
-        >
-          Offer this driver a job
-        </button>
       </div>
     );
   }
 
+  // Job rendered as a list row: title + pay on one line, a single muted meta
+  // line, then only the extras that matter (assignee, live map, actions).
   function LoadCard({ shift, showActions }: { shift: Shift; showActions?: boolean }) {
     const vTag = VEHICLE_TAGS[shift.vehicle];
     const cTag = CARGO_TAGS[shift.cargo];
+    const st = statusMeta(shift.status);
+    const tracking = shift.status === "active" || shift.status === "claimed";
     return (
-      <div style={{ background: "#fff", border: "1px solid #e4dfd5", borderRadius: 20, padding: "18px 20px", boxShadow: "0 2px 12px rgba(0,0,0,.04)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-          <div>
-            <div style={{ fontSize: 18, fontWeight: 800 }}>{shift.title}</div>
-            <div style={{ fontSize: 24, fontWeight: 800, marginTop: 4, color: PRIMARY }}>{formatPayout(shift)}</div>
-          </div>
-          <span style={{ padding: "6px 11px", borderRadius: 999, background: shift.status === "open" ? "#eef6ec" : shift.status === "completed" ? "#f0ede4" : "#fbeae0", color: shift.status === "open" ? "#2f7d4f" : shift.status === "completed" ? MUTE : "#9c3f15", fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: "uppercase", height: "fit-content" }}>
-            {shift.status}
+      <div style={{ padding: "16px 0", borderTop: `1px solid ${LINE}` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}>
+          <div style={{ fontSize: 16.5, fontWeight: 800, minWidth: 0 }}>{shift.title}</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: PRIMARY, whiteSpace: "nowrap" }}>{formatPayout(shift)}</div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 6, fontSize: 12.5, color: MUTE }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: st.fg, fontWeight: 700 }}>
+            <span style={{ width: 6, height: 6, borderRadius: 999, background: st.dot }} /> {st.label}
           </span>
+          <span>·</span><span>{vTag.label}</span>
+          <span>·</span><span>{cTag.label}</span>
+          <span>·</span>
+          <span style={{ color: shift.funded ? "#2f7d4f" : "#9a6318", fontWeight: 600 }}>{shift.funded ? "Funded" : "Unfunded"}</span>
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
-          <span style={{ background: vTag.bg, color: vTag.color, borderRadius: 999, padding: "5px 10px", fontSize: 11, fontWeight: 600, fontFamily: MONO }}>{vTag.label}</span>
-          <span style={{ background: cTag.bg, color: cTag.color, borderRadius: 999, padding: "5px 10px", fontSize: 11, fontWeight: 600, fontFamily: MONO }}>{cTag.label}</span>
-          {shift.funded ? (
-            <span style={{ background: "#eef6ec", color: "#2f7d4f", borderRadius: 999, padding: "5px 10px", fontSize: 11, fontWeight: 600, fontFamily: MONO }}>Funded</span>
-          ) : (
-            <span style={{ background: "#fdf6e8", color: "#9a6318", borderRadius: 999, padding: "5px 10px", fontSize: 11, fontWeight: 600, fontFamily: MONO }}>Unfunded</span>
-          )}
-        </div>
-        <p style={{ fontSize: 13.5, color: "#5f655c", margin: "10px 0 0" }}>{shift.pickup} → {shift.dropoff}</p>
-        <p style={{ fontSize: 12.5, color: MUTE, margin: "6px 0 0" }}>{shift.stops} stops · {shift.distanceMi} km · {shift.startTime}–{shift.endTime}</p>
+        <p style={{ fontSize: 13.5, color: "#42463f", margin: "8px 0 0", fontWeight: 500 }}>{shift.pickup} → {shift.dropoff}</p>
+        <p style={{ fontSize: 12.5, color: MUTE, margin: "3px 0 0" }}>{shift.stops} stops · {shift.distanceMi} km · {shift.startTime}–{shift.endTime}</p>
         {shift.claimedDriverName && (
-          <p style={{ fontSize: 13, color: INK, margin: "8px 0 0", fontWeight: 600 }}>Assigned to {shift.claimedDriverName}</p>
+          <p style={{ fontSize: 13, color: INK, margin: "6px 0 0", fontWeight: 600 }}>Assigned to {shift.claimedDriverName}</p>
         )}
-        {(shift.status === "active" || shift.status === "claimed") && (
-          <div style={{ marginTop: 14 }}>
-            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase", color: MUTE, marginBottom: 8 }}>Live tracking</div>
+        {tracking && (
+          <div style={{ marginTop: 12, borderRadius: 14, overflow: "hidden", border: `1px solid ${LINE}` }}>
             <RouteMap
               watchDevice={false}
               clockIn={
@@ -581,20 +618,20 @@ export function FleetApp() {
                   : null
               }
               emptyLabel={shift.status === "active" ? "Waiting for driver GPS…" : "Tracking starts when the driver clocks in"}
-              height={180}
+              height={170}
             />
           </div>
         )}
         {showActions && (
-          <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
             {shift.status === "open" && !shift.funded && (
-              <button type="button" onClick={() => void handleFund(shift.id)} style={{ flex: 1, minWidth: 120, padding: 12, borderRadius: 12, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Fund escrow</button>
-            )}
-            {shift.status === "open" && (
-              <button type="button" onClick={() => void handleCancel(shift.id)} style={{ flex: 1, minWidth: 100, padding: 12, borderRadius: 12, border: "1px solid #e4dfd5", background: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
+              <button type="button" onClick={() => void handleFund(shift.id)} style={{ padding: "9px 16px", borderRadius: 999, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Fund escrow</button>
             )}
             {(shift.status === "claimed" || shift.status === "active") && (
-              <button type="button" onClick={() => void handleComplete(shift.id)} style={{ flex: 1, minWidth: 120, padding: 12, borderRadius: 12, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Mark complete</button>
+              <button type="button" onClick={() => void handleComplete(shift.id)} style={{ padding: "9px 16px", borderRadius: 999, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Mark complete</button>
+            )}
+            {shift.status === "open" && (
+              <button type="button" onClick={() => void handleCancel(shift.id)} style={{ padding: "9px 16px", borderRadius: 999, border: `1px solid ${LINE}`, background: "#fff", color: "#6e746b", fontFamily: HANKEN, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
             )}
           </div>
         )}
@@ -603,61 +640,64 @@ export function FleetApp() {
   }
 
   function Dashboard() {
+    const metrics = [
+      { label: "Open", value: stats.openLoads, format: (n: number) => String(Math.round(n)) },
+      { label: "On road", value: stats.activeLoads, format: (n: number) => String(Math.round(n)) },
+      { label: "Done", value: stats.completedLoads, format: (n: number) => String(Math.round(n)) },
+      { label: "Fees paid", value: stats.commissionEarned, format: (n: number) => formatMoney(n) },
+    ];
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Company console · {companyName}</div>
-          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Today&apos;s operations</h2>
+          <Eyebrow>{companyName} · {zone.label}</Eyebrow>
+          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 18px" }}>Today&apos;s operations</h2>
 
-          {notifications[0] && (
-            <div style={{ marginTop: 16, padding: "14px 16px", borderRadius: 16, background: "#eef6ec", border: "1px solid #cfe6cf" }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#2f7d4f" }}>{notifications[0].title}</div>
-              <div style={{ fontSize: 13, color: "#5f655c", marginTop: 4 }}>{notifications[0].body}</div>
-            </div>
-          )}
-
-          {pendingOffers.length > 0 && (
-            <div style={{ marginTop: 14, padding: "12px 14px", borderRadius: 14, background: "#fbeae0", border: "1px solid #f3d6c4", fontSize: 13, color: "#9c3f15", fontWeight: 600 }}>
-              {pendingOffers.length} booking offer{pendingOffers.length === 1 ? "" : "s"} waiting for driver accept
-            </div>
-          )}
-
-          {pendingRatings.length > 0 && (
-            <div style={{ marginTop: 14, padding: "12px 14px", borderRadius: 14, background: "#eef6ec", border: "1px solid #cfe6cf", fontSize: 13, color: "#2f7d4f", fontWeight: 600 }}>
-              {pendingRatings.length} completed load{pendingRatings.length === 1 ? "" : "s"} waiting for your rating
-            </div>
-          )}
-
-          <div className="move-metric-grid" style={{ marginTop: 22 }}>
-            {[
-              { label: "Open jobs", value: stats.openLoads, format: (n: number) => String(Math.round(n)) },
-              { label: "On the road", value: stats.activeLoads, accent: true, format: (n: number) => String(Math.round(n)) },
-              { label: "Completed", value: stats.completedLoads, format: (n: number) => String(Math.round(n)) },
-              { label: "Fees paid", value: stats.commissionEarned, accent: true, format: (n: number) => formatMoney(n) },
-            ].map((m) => (
-              <div key={m.label} style={{ padding: 18, borderRadius: 18, background: m.accent ? INK : "#fff", border: m.accent ? "none" : "1px solid #e4dfd5", color: m.accent ? "#fff" : INK }}>
-                <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase", color: m.accent ? "#f3aa79" : MUTE }}>{m.label}</div>
-                <CountUp value={m.value} format={m.format} style={{ display: "block", fontSize: 28, fontWeight: 800, marginTop: 4 }} />
+          {/* Flat stat strip — one hairline-framed row, no per-stat boxes */}
+          <div style={{ display: "flex", borderTop: `1px solid ${LINE}`, borderBottom: `1px solid ${LINE}` }}>
+            {metrics.map((m, i) => (
+              <div key={m.label} style={{ flex: 1, minWidth: 0, padding: "14px 6px 14px 0", borderLeft: i === 0 ? "none" : `1px solid ${LINE}`, paddingLeft: i === 0 ? 0 : 12 }}>
+                <div style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: ".08em", textTransform: "uppercase", color: MUTE, whiteSpace: "nowrap" }}>{m.label}</div>
+                <CountUp value={m.value} format={m.format} style={{ display: "block", fontSize: 18, fontWeight: 800, marginTop: 4, color: INK, letterSpacing: "-.01em" }} />
               </div>
             ))}
           </div>
 
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: MUTE, margin: "28px 0 12px" }}>Active workload</div>
-          {activeWorkload.length === 0 ? (
-            <div style={{ padding: 28, borderRadius: 18, border: "1px solid #e4dfd5", background: "#fff", textAlign: "center" }}>
-              <div style={{ fontSize: 16, fontWeight: 800, color: INK }}>No jobs in progress</div>
-              <p style={{ fontSize: 14, color: MUTE, margin: "8px 0 0" }}>Publish work so drivers can claim and you can track them live.</p>
-              <button type="button" onClick={() => openPostFlow()} style={{ marginTop: 16, minHeight: 44, padding: "12px 18px", border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
-                Post a job
-              </button>
+          {(notifications[0] || pendingOffers.length > 0 || pendingRatings.length > 0) && (
+            <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 4 }}>
+              {notifications[0] && (
+                <Notice tone="ok"><span><strong style={{ fontWeight: 800 }}>{notifications[0].title}</strong> — {notifications[0].body}</span></Notice>
+              )}
+              {pendingOffers.length > 0 && (
+                <Notice tone="info">{pendingOffers.length} booking offer{pendingOffers.length === 1 ? "" : "s"} waiting for driver accept</Notice>
+              )}
+              {pendingRatings.length > 0 && (
+                <Notice tone="warn">{pendingRatings.length} completed job{pendingRatings.length === 1 ? "" : "s"} waiting for your rating</Notice>
+              )}
             </div>
+          )}
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "28px 0 0" }}>
+            <Eyebrow>Active workload</Eyebrow>
+            {activeWorkload.length > 0 && (
+              <button type="button" onClick={() => goTo("jobs")} style={{ display: "inline-flex", alignItems: "center", gap: 2, border: "none", background: "none", color: PRIMARY, fontSize: 13, fontWeight: 700, cursor: "pointer", padding: 0 }}>
+                All jobs <ChevronRight size={14} />
+              </button>
+            )}
+          </div>
+          {activeWorkload.length === 0 ? (
+            <EmptyState
+              title="No jobs in progress"
+              text="Publish work so drivers can claim it and you can track them live."
+              cta="Post a job"
+              onClick={() => openPostFlow()}
+            />
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ marginTop: 8 }}>
               {activeWorkload.map((s) => <LoadCard key={s.id} shift={s} showActions />)}
             </div>
           )}
 
-          <button type="button" onClick={() => openPostFlow()} style={{ width: "100%", marginTop: 24, padding: 17, border: "none", borderRadius: 18, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
+          <button type="button" onClick={() => openPostFlow()} style={{ width: "100%", marginTop: 28, padding: 16, border: "none", borderRadius: 14, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 22px rgba(224,81,31,.28)" }}>
             Post a new job
           </button>
         </div>
@@ -871,38 +911,42 @@ export function FleetApp() {
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>Hire drivers · {zone.label}</div>
+          <Eyebrow>Hire drivers · {zone.label}</Eyebrow>
           <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Find rated partners</h2>
           <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>
             Send a direct job offer. The driver accepts into your funded job.
           </p>
 
           {bookableLoads.length === 0 && (
-            <div style={{ marginTop: 16, padding: 16, borderRadius: 16, background: "#fdf6e8", border: "1px solid #f3e0c4", fontSize: 13, color: "#9a6318" }}>
-              {openLoads.length === 0
-                ? "Post and fund a load first, then book a driver onto it."
-                : "Fund escrow on an open load before booking a driver."}{" "}
-              <button type="button" onClick={() => openLoads.length ? goTo("jobs") : openPostFlow()} style={{ color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>
-                {openLoads.length ? "My loads →" : "Post load →"}
-              </button>
+            <div style={{ marginTop: 14 }}>
+              <Notice tone="warn">
+                <span>
+                  {openLoads.length === 0
+                    ? "Post and fund a job first, then book a driver onto it. "
+                    : "Fund escrow on an open job before booking a driver. "}
+                  <button type="button" onClick={() => openLoads.length ? goTo("jobs") : openPostFlow()} style={{ color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                    {openLoads.length ? "My jobs →" : "Post a job →"}
+                  </button>
+                </span>
+              </Notice>
             </div>
           )}
 
           <div style={{ display: "flex", gap: 8, marginTop: 16, overflowX: "auto", paddingBottom: 4 }}>
-            <button type="button" onClick={() => setDriverVehicleFilter("all")} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, border: `1px solid ${driverVehicleFilter === "all" ? PRIMARY : "#e4dfd5"}`, background: driverVehicleFilter === "all" ? PRIMARY : "#fff", color: driverVehicleFilter === "all" ? "#fff" : INK, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>All vehicles</button>
+            <button type="button" onClick={() => setDriverVehicleFilter("all")} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, border: `1px solid ${driverVehicleFilter === "all" ? PRIMARY : LINE}`, background: driverVehicleFilter === "all" ? PRIMARY : "#fff", color: driverVehicleFilter === "all" ? "#fff" : INK, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>All vehicles</button>
             {VEHICLE_OPTIONS.map((v) => (
-              <button key={v.key} type="button" onClick={() => setDriverVehicleFilter(v.key)} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, border: `1px solid ${driverVehicleFilter === v.key ? PRIMARY : "#e4dfd5"}`, background: driverVehicleFilter === v.key ? PRIMARY : "#fff", color: driverVehicleFilter === v.key ? "#fff" : INK, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{v.label}</button>
+              <button key={v.key} type="button" onClick={() => setDriverVehicleFilter(v.key)} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, border: `1px solid ${driverVehicleFilter === v.key ? PRIMARY : LINE}`, background: driverVehicleFilter === v.key ? PRIMARY : "#fff", color: driverVehicleFilter === v.key ? "#fff" : INK, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{v.label}</button>
             ))}
           </div>
 
-          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ marginTop: 12 }}>
             {drivers.length === 0 ? (
-              <div style={{ padding: 24, borderRadius: 18, border: "1px dashed #d8d2c6", textAlign: "center", color: MUTE, fontSize: 14 }}>
+              <div style={{ padding: "40px 20px", textAlign: "center", color: MUTE, fontSize: 14 }}>
                 <Search size={20} style={{ margin: "0 auto 8px", opacity: 0.5 }} />
                 No drivers match this filter yet.
               </div>
             ) : (
-              <StaggerList style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <StaggerList>
                 {drivers.map((d) => (
                   <StaggerItem key={d.id}>
                     <DriverCard driver={d} />
@@ -958,64 +1002,28 @@ export function FleetApp() {
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
             <div>
-              <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>
-                Open jobs · {openJobs.length}
-              </div>
+              <Eyebrow>Open jobs · {openJobs.length}</Eyebrow>
               <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Your open jobs</h2>
-              <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>
-                Active and unclaimed work. Post a new job here when you need drivers.
-              </p>
             </div>
+            <button
+              type="button"
+              onClick={() => openPostFlow()}
+              style={{ flexShrink: 0, minHeight: 44, padding: "11px 18px", border: "none", borderRadius: 12, background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 14, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 20px rgba(224,81,31,.26)" }}
+            >
+              + Post job
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={() => openPostFlow()}
-            style={{
-              width: "100%",
-              marginTop: 18,
-              minHeight: 48,
-              padding: 16,
-              border: "none",
-              borderRadius: 16,
-              background: PRIMARY,
-              color: "#fff",
-              fontFamily: HANKEN,
-              fontSize: 15,
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            Post a job
-          </button>
-
-          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ marginTop: 16 }}>
             {openJobs.length === 0 ? (
-              <div style={{ padding: 28, borderRadius: 18, border: "1px solid #e4dfd5", background: "#fff", textAlign: "center" }}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: INK }}>No open jobs</div>
-                <p style={{ fontSize: 14, color: MUTE, margin: "8px 0 0" }}>Publish a job so drivers can claim it.</p>
-                <button
-                  type="button"
-                  onClick={() => openPostFlow()}
-                  style={{
-                    marginTop: 16,
-                    minHeight: 44,
-                    padding: "12px 18px",
-                    border: "none",
-                    borderRadius: 14,
-                    background: PRIMARY,
-                    color: "#fff",
-                    fontFamily: HANKEN,
-                    fontSize: 14,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  Post your first job
-                </button>
-              </div>
+              <EmptyState
+                title="No open jobs"
+                text="Publish a job so drivers can claim it and start moving your goods."
+                cta="Post your first job"
+                onClick={() => openPostFlow()}
+              />
             ) : (
               openJobs.map((s) => <LoadCard key={s.id} shift={s} showActions />)
             )}
@@ -1031,39 +1039,20 @@ export function FleetApp() {
     return (
       <div className="move-page-inner">
         <div className="move-page-screen">
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: MUTE }}>
-            History · {historyJobs.length}
-          </div>
+          <Eyebrow>History · {historyJobs.length}</Eyebrow>
           <h2 style={{ fontSize: 26, fontWeight: 800, margin: "10px 0 0" }}>Past jobs</h2>
           <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>
             Completed and cancelled jobs for your company.
           </p>
 
-          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ marginTop: 16 }}>
             {historyJobs.length === 0 ? (
-              <div style={{ padding: 28, borderRadius: 18, border: "1px solid #e4dfd5", background: "#fff", textAlign: "center" }}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: INK }}>No history yet</div>
-                <p style={{ fontSize: 14, color: MUTE, margin: "8px 0 0" }}>Finished jobs will show up here.</p>
-                <button
-                  type="button"
-                  onClick={() => goTo("jobs")}
-                  style={{
-                    marginTop: 16,
-                    minHeight: 44,
-                    padding: "12px 18px",
-                    border: "none",
-                    borderRadius: 14,
-                    background: PRIMARY,
-                    color: "#fff",
-                    fontFamily: HANKEN,
-                    fontSize: 14,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  View open jobs
-                </button>
-              </div>
+              <EmptyState
+                title="No history yet"
+                text="Finished and cancelled jobs will show up here."
+                cta="View open jobs"
+                onClick={() => goTo("jobs")}
+              />
             ) : (
               historyJobs.map((s) => <LoadCard key={s.id} shift={s} showActions={false} />)
             )}
@@ -1166,13 +1155,13 @@ export function FleetApp() {
       <>
         <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: PRIMARY }}>Book driver</div>
         <h3 style={{ fontSize: 20, fontWeight: 800, margin: "8px 0 0" }}>{bookingDriver?.displayName ?? "Driver"}</h3>
-        <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0" }}>Choose one of your open loads. They get a direct offer to accept.</p>
+        <p style={{ fontSize: 13.5, color: "#6e746b", margin: "6px 0 0" }}>Choose one of your open jobs. They get a direct offer to accept.</p>
 
         {bookableLoads.length === 0 ? (
           <div style={{ marginTop: 18, padding: 16, borderRadius: 14, background: "#fdf6e8", color: "#9a6318", fontSize: 13 }}>
-            No funded open loads. Fund escrow first, then book.
+            No funded open jobs. Fund escrow first, then book.
             <button type="button" onClick={() => { setBookDriverId(null); openLoads.length ? goTo("jobs") : openPostFlow(); }} style={{ display: "block", marginTop: 10, color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>
-              {openLoads.length ? "Fund a load →" : "Post load →"}
+              {openLoads.length ? "Fund a job →" : "Post a job →"}
             </button>
           </div>
         ) : (
