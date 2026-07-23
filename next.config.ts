@@ -36,6 +36,9 @@ const nextConfig: NextConfig = {
     ])
 
     return [
+      // Front door → role chooser. Each audience then gets its own landing
+      // (/driver, /company), so no single page mixes the two experiences.
+      { source: "/", destination: "/start", permanent: false },
       ...moveRedirects,
       { source: "/relocate/hub", destination: "/move", permanent: false },
       { source: "/relocate/hub/:path*", destination: "/move", permanent: false },

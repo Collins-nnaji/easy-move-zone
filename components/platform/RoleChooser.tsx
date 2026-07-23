@@ -26,7 +26,7 @@ const ROLES: Array<{
     title: "Company",
     tagline: "Post jobs & hire drivers",
     points: ["Post funded jobs", "Hire rated drivers", "Track deliveries live"],
-    href: "/fleet",
+    href: "/company",
     Icon: Briefcase,
   },
   {
@@ -34,7 +34,7 @@ const ROLES: Array<{
     title: "Driver",
     tagline: "Find jobs & get paid",
     points: ["Claim funded jobs", "Run routes with GPS", "Cash out in naira"],
-    href: "/move",
+    href: "/driver",
     Icon: Truck,
   },
 ];
