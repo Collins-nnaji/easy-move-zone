@@ -18,7 +18,7 @@ const valueProps = [
   {
     glyph: BoxGlyph,
     title: "Funded jobs only",
-    body: "Companies pay into escrow before a job goes live. You never run a route hoping to get paid.",
+    body: "Companies fund a job before it goes live. You never run a route hoping to get paid.",
   },
   {
     glyph: RouteGlyph,
@@ -105,7 +105,7 @@ export function HomePageClient() {
                 {...fadeUp(0.12, 18)}
                 className="mt-5 max-w-lg text-lg leading-relaxed text-[#5f655c]"
               >
-                Nigeria&apos;s delivery marketplace. Companies pay into escrow before a job goes
+                Nigeria&apos;s delivery marketplace. Companies fund a job before it goes
                 live — drivers claim funded work and get paid at every step.
               </motion.p>
 
@@ -133,7 +133,7 @@ export function HomePageClient() {
                 className="mt-9 grid max-w-lg grid-cols-3 gap-4 border-t border-[#ded7cb] pt-6 text-sm"
               >
                 {[
-                  ["Escrow", "funded upfront"],
+                  ["Funded", "before you drive"],
                   ["8%", "only on completion"],
                   ["Rated", "both sides"],
                 ].map(([stat, label]) => (

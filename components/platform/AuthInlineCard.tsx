@@ -17,7 +17,10 @@ export function AuthInlineCard({
   // Sign-up is linked to the path you came from: an explicit ?redirect wins,
   // otherwise ?role picks the right app so you land back where you started.
   const role = searchParams.get("role")
-  const roleRedirect = role === "company" ? "/fleet/dashboard" : role === "driver" ? "/move/shifts" : "/move"
+  // Only "driver"/"company" are real roles; anything else falls back to the
+  // chooser at /start rather than guessing an app the account may not hold.
+  const signupRole = role === "company" || role === "driver" ? role : null
+  const roleRedirect = signupRole === "company" ? "/fleet/dashboard" : signupRole === "driver" ? "/move/shifts" : "/start"
   const redirectTarget = searchParams.get("redirect") ?? roleRedirect
   const urlMode = searchParams.get("mode")
   const [mode, setMode] = useState<Mode>(urlMode === "signup" ? "sign-up" : "sign-in")
@@ -34,6 +37,27 @@ export function AuthInlineCard({
       window.location.assign(redirectTarget)
     }
   }, [sessionData?.user, redirectTarget, redirectIfAuthenticated])
+
+  /**
+   * Create the profile row for the role the user signed up under, so the
+   * layout guard lets them straight in. Without this the account exists with
+   * no role and requireRole() would bounce them to /start.
+   *
+   * Deliberately non-fatal: if provisioning fails we still continue to the
+   * redirect, where the guard sends them to the chooser to pick a role.
+   */
+  async function provisionRole() {
+    if (!signupRole) return
+    try {
+      await fetch("/api/auth/roles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: signupRole }),
+      })
+    } catch {
+      /* guard will route them to /start */
+    }
+  }
 
   if (hideWhenAuthenticated && sessionData?.user) return null
 
@@ -79,6 +103,9 @@ export function AuthInlineCard({
         setError("Sign-in did not complete. Check your email and password.")
         return
       }
+      // Must happen before navigating — the /move and /fleet layouts check for
+      // the profile row and would redirect to /start if it isn't there yet.
+      await provisionRole()
       window.location.assign(redirectTarget)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Authentication failed.")
@@ -91,7 +118,13 @@ export function AuthInlineCard({
     setLoading("google")
     setError(null)
     try {
-      const result = await authClient.signIn.social({ provider: "google", callbackURL: redirectTarget })
+      // Google navigates away to the consent screen, so the role can't be
+      // provisioned inline the way the email flow does it. Carry it on the
+      // callback URL instead and let /auth/callback create the profile.
+      const callbackURL = signupRole
+        ? `/auth/callback?role=${signupRole}&redirect=${encodeURIComponent(redirectTarget)}`
+        : redirectTarget
+      const result = await authClient.signIn.social({ provider: "google", callbackURL })
       if (result.error) {
         setError(result.error.message || "Google sign-in failed. Please try again.")
         setLoading(null)

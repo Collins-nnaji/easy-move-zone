@@ -87,7 +87,7 @@ export function CompanyProfileEditor({ authName }: CompanyProfileEditorProps) {
           </div>
         </div>
         <p className="mt-3 text-sm text-[#5f655c]">
-          This profile is for posting jobs, funding escrow, and booking drivers. It stays separate from your driver earnings.
+          This profile is for posting jobs, funding them, and booking drivers. It stays separate from your driver earnings.
         </p>
 
         <div className="mt-6 space-y-4">

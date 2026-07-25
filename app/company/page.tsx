@@ -7,7 +7,7 @@ import { PublicShell } from "@/components/platform/PublicShell";
 export const metadata: Metadata = {
   title: "Post jobs & hire drivers — for companies",
   description:
-    "Post funded delivery jobs and hire rated drivers across Nigeria. Escrow pay in naira, track every run live, and pay only 8% on completion.",
+    "Post funded delivery jobs and hire rated drivers across Nigeria. Pay in naira, track every run live, and pay only 8% on completion.",
 };
 
 export default function CompanyLandingPage() {

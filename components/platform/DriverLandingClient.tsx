@@ -17,7 +17,7 @@ const INK = "#1b231e";
 
 // Driver-only value props — driver-themed SVG icons, no company-side messaging.
 const valueProps = [
-  { glyph: ShieldNairaGlyph, title: "Funded jobs only", body: "Every job is escrow-funded before it's posted. You never run a route hoping to get paid." },
+  { glyph: ShieldNairaGlyph, title: "Funded jobs only", body: "Every job is funded before it's posted. You never run a route hoping to get paid." },
   { glyph: RouteStopsGlyph, title: "Paid as you go", body: "20% on pickup, 70% on delivery, the rest once the job clears. GPS and photos confirm each step." },
   { glyph: WalletGlyph, title: "Cash out in naira", body: "Earnings land in your wallet and cash out to your bank. No waiting on invoices." },
   { glyph: LicenseGlyph, title: "One compliance vault", body: "Keep your licence, hazmat cert, and insurance verified once — then claim any job you qualify for." },
@@ -69,7 +69,7 @@ export function DriverLandingClient() {
                 <span className="block" style={{ color: PRIMARY }}>Get paid fairly.</span>
               </motion.h1>
               <motion.p {...fadeUp(0.12, 18)} className="mt-5 max-w-lg text-lg leading-relaxed text-[#5f655c]">
-                Claim funded delivery jobs across Nigeria. Every job is paid into escrow before you
+                Claim funded delivery jobs across Nigeria. Every job is funded upfront before you
                 drive — so you get paid at pickup, delivery, and clear-out.
               </motion.p>
               <motion.div {...fadeUp(0.18, 18)} className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -83,7 +83,7 @@ export function DriverLandingClient() {
                 </a>
               </motion.div>
               <motion.div {...fadeUp(0.24, 16)} className="mt-9 grid max-w-lg grid-cols-3 gap-4 border-t border-[#ded7cb] pt-6 text-sm">
-                {[["Escrow", "funded upfront"], ["Naira", "cash out fast"], ["Rated", "both sides"]].map(([stat, label]) => (
+                {[["Funded", "before you drive"], ["Naira", "cash out fast"], ["Rated", "both sides"]].map(([stat, label]) => (
                   <div key={stat}>
                     <div className="font-extrabold" style={{ color: PRIMARY }}>{stat}</div>
                     <div className="mt-0.5 text-[#7c827a]">{label}</div>

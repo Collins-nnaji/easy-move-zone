@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { menuPanel, softSpring } from "@/lib/motion/presets";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Briefcase, LogOut, MoreHorizontal, ShieldCheck, Truck, UserRound } from "lucide-react";
+import { ArrowRightLeft, LogOut, MoreHorizontal, ShieldCheck, UserRound } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 
 type AppRole = "driver" | "fleet";
@@ -34,9 +34,6 @@ export function AppAccountMenu({ role, compact = false }: AppAccountMenuProps) {
     };
   }, []);
 
-  const otherHref = role === "driver" ? "/fleet/dashboard" : "/move/shifts";
-  const otherLabel = role === "driver" ? "Open company console" : "Open driver app";
-  const OtherIcon = role === "driver" ? Briefcase : Truck;
   const profileHref = role === "driver" ? "/profile/driver" : "/profile/company";
   const profileLabel = role === "driver" ? "Driver profile" : "Company profile";
 
@@ -107,23 +104,17 @@ export function AppAccountMenu({ role, compact = false }: AppAccountMenuProps) {
               <UserRound size={15} />
               {profileLabel}
             </Link>
+            {/* Switching between the driver app and company console happens in
+                the account section (/profile), not from a toggle inside the
+                app — the same place Uber puts it. */}
             <Link
               href="/profile"
               role="menuitem"
               className="move-account__item"
               onClick={() => setOpen(false)}
             >
-              <UserRound size={15} />
-              All profiles
-            </Link>
-            <Link
-              href={otherHref}
-              role="menuitem"
-              className="move-account__item"
-              onClick={() => setOpen(false)}
-            >
-              <OtherIcon size={15} />
-              {otherLabel}
+              <ArrowRightLeft size={15} />
+              Switch account type
             </Link>
             {isAdmin && (
               <Link

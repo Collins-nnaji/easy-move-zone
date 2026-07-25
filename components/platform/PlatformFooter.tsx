@@ -38,7 +38,7 @@ export function PlatformFooter() {
             <SiteLogo href="/" height={36} invert />
             <p className="mt-3 text-[13px] leading-relaxed text-slate-400 max-w-xs">
               Nigeria logistics marketplace. Drivers find funded jobs; companies post work,
-              escrow pay in naira, and track runs — one login, two clear profiles.
+              pay in naira, and track runs — one login, two clear profiles.
             </p>
             <a
               href={`mailto:${PUBLIC_CONTACT_EMAIL}`}

@@ -390,7 +390,7 @@ export function FleetApp() {
         return;
       }
       await loadWorkspace();
-      toast.success("Job funded and escrowed — drivers can now claim it");
+      toast.success("Job funded — drivers can now claim it");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unable to fund job.";
       if (/sign in|401|unauthorized/i.test(msg)) {
@@ -454,7 +454,7 @@ export function FleetApp() {
               <span style={{ color: PRIMARY }}>Move goods across Nigeria.</span>
             </h1>
             <p style={{ fontSize: 16.5, lineHeight: 1.5, color: "#5f655c", margin: "22px 0 0", maxWidth: 340 }}>
-              Publish jobs for parcel, heavy goods, tankers, and more. Escrow pay in naira, track drivers live, and only pay the platform fee when a job finishes.
+              Publish jobs for parcel, heavy goods, tankers, and more. Pay in naira, track drivers live, and only pay the platform fee when a job finishes.
             </p>
           </div>
           <div style={{ flex: 1 }} />
@@ -465,15 +465,15 @@ export function FleetApp() {
             Skip — open console →
           </button>
           <p style={{ textAlign: "center", fontSize: 13, color: MUTE, margin: "14px 0 0" }}>
-            Publishing and escrow need an account · <a href="/auth?role=company&redirect=/fleet/dashboard" style={{ color: PRIMARY, fontWeight: 600 }}>Sign in</a>
+            Publishing and funding need an account · <a href="/auth?role=company&redirect=/fleet/dashboard" style={{ color: PRIMARY, fontWeight: 600 }}>Sign in</a>
           </p>
         </div>
         <FlowAside
           title="Company workspace"
-          text="Separate from your driver profile. Post jobs, fund escrow, and manage partners under your company name."
+          text="Separate from your driver profile. Post jobs, fund them, and manage partners under your company name."
           steps={[
             { n: 1, text: "Describe the route, goods, and naira pay" },
-            { n: 2, text: "Fund escrow so drivers can claim" },
+            { n: 2, text: "Fund the job so drivers can claim" },
             { n: 3, text: "Track GPS on active jobs and rate partners" },
           ]}
         />
@@ -619,7 +619,7 @@ export function FleetApp() {
         {showActions && (
           <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
             {shift.status === "open" && !shift.funded && (
-              <button type="button" onClick={() => void handleFund(shift.id)} style={{ padding: "9px 16px", borderRadius: 999, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Fund escrow</button>
+              <button type="button" onClick={() => void handleFund(shift.id)} style={{ padding: "9px 16px", borderRadius: 999, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Fund job</button>
             )}
             {(shift.status === "claimed" || shift.status === "active") && (
               <button type="button" onClick={() => void handleComplete(shift.id)} style={{ padding: "9px 16px", borderRadius: 999, border: "none", background: PRIMARY, color: "#fff", fontFamily: HANKEN, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Mark complete</button>
@@ -739,7 +739,7 @@ export function FleetApp() {
             <div style={{ marginTop: 32, textAlign: "center", padding: 32, borderRadius: 20, background: "#eef6ec", border: "1px solid #cfe6cf" }}>
               <Check size={32} color="#2f7d4f" style={{ margin: "0 auto" }} />
               <div style={{ fontSize: 18, fontWeight: 800, marginTop: 12, color: "#2f7d4f" }}>Job published</div>
-              <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>Funding escrow so drivers can claim…</p>
+              <p style={{ fontSize: 14, color: "#5f655c", margin: "8px 0 0" }}>Funding job so drivers can claim…</p>
             </div>
           ) : (
             <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 16 }}>
@@ -890,7 +890,7 @@ export function FleetApp() {
                     onClick={() => void handlePostLoad()}
                     style={{ flex: 2, minHeight: 48, padding: 16, border: "none", borderRadius: 16, background: canContinue ? PRIMARY : "#d8d2c6", color: "#fff", fontFamily: HANKEN, fontSize: 15, fontWeight: 700, cursor: canContinue ? "pointer" : "default" }}
                   >
-                    Publish &amp; fund escrow
+                    Publish &amp; fund job
                   </button>
                 )}
               </div>
@@ -917,7 +917,7 @@ export function FleetApp() {
                 <span>
                   {openLoads.length === 0
                     ? "Post and fund a job first, then book a driver onto it. "
-                    : "Fund escrow on an open job before booking a driver. "}
+                    : "Fund an open job before booking a driver. "}
                   <button type="button" onClick={() => openLoads.length ? goTo("jobs") : openPostFlow()} style={{ color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
                     {openLoads.length ? "My jobs →" : "Post a job →"}
                   </button>
@@ -1153,7 +1153,7 @@ export function FleetApp() {
 
         {bookableLoads.length === 0 ? (
           <div style={{ marginTop: 18, padding: 16, borderRadius: 14, background: "#fdf6e8", color: "#9a6318", fontSize: 13 }}>
-            No funded open jobs. Fund escrow first, then book.
+            No funded open jobs. Fund a job first, then book.
             <button type="button" onClick={() => { setBookDriverId(null); openLoads.length ? goTo("jobs") : openPostFlow(); }} style={{ display: "block", marginTop: 10, color: PRIMARY, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>
               {openLoads.length ? "Fund a job →" : "Post a job →"}
             </button>
@@ -1224,7 +1224,6 @@ export function FleetApp() {
       meterSub={`${stats.completedLoads} of ${stats.totalPosted} jobs completed`}
       isFlowScreen={isFlowScreen}
       screenOrder={["welcome", "setup", "dashboard", "jobs", "history", "drivers"]}
-      switchApp={{ label: "Switch to Driver app", href: "/move/shifts" }}
       modals={modals}
     >
       {screenBody()}

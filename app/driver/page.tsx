@@ -7,7 +7,7 @@ import { PublicShell } from "@/components/platform/PublicShell";
 export const metadata: Metadata = {
   title: "Drive & earn — funded delivery jobs",
   description:
-    "Claim funded commercial driving jobs across Nigeria, track routes with GPS, and cash out in naira. Every job is escrow-funded before you drive.",
+    "Claim funded commercial driving jobs across Nigeria, track routes with GPS, and cash out in naira. Every job is funded upfront before you drive.",
 };
 
 export default function DriverLandingPage() {

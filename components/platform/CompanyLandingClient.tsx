@@ -10,16 +10,16 @@ const INK = "#1b231e";
 
 // Company-only value props — no driver-side messaging.
 const valueProps = [
-  { glyph: BoxGlyph, title: "Post funded jobs", body: "Fund a job into escrow and it goes live to rated drivers instantly. No listing fees." },
+  { glyph: BoxGlyph, title: "Post funded jobs", body: "Fund a job and it goes live to rated drivers instantly. No listing fees." },
   { glyph: RouteGlyph, title: "Track every run live", body: "Watch GPS from pickup to delivery, with photo and code confirmation at each stop." },
   { glyph: ShieldGlyph, title: "Hire verified drivers", body: "Every driver's licence, hazmat cert, and insurance is checked. Rate them after each job." },
   { glyph: NairaGlyph, title: "Pay 8% on completion", body: "No subscription, no upfront fees. The 8% platform fee only applies when a job completes." },
 ] as const;
 
 const steps = [
-  { step: "01", label: "Post & fund", sub: "Describe the route and goods, set the pay, and fund escrow in naira." },
+  { step: "01", label: "Post & fund", sub: "Describe the route and goods, set the pay, and fund it in naira." },
   { step: "02", label: "A driver runs it", sub: "A rated driver claims the job. Track pickup and delivery live with GPS and photos." },
-  { step: "03", label: "Confirm & pay", sub: "Confirm delivery and pay releases from escrow. You're charged 8% only on completion." },
+  { step: "03", label: "Confirm & pay", sub: "Confirm delivery and the pay is released. You're charged 8% only on completion." },
 ] as const;
 
 const drivers = [
@@ -61,7 +61,7 @@ export function CompanyLandingClient() {
                 <span className="block" style={{ color: PRIMARY }}>Move goods on time.</span>
               </motion.h1>
               <motion.p {...fadeUp(0.12, 18)} className="mt-5 max-w-lg text-lg leading-relaxed text-[#5f655c]">
-                Post funded delivery jobs and hire rated drivers across Nigeria. Escrow pay in naira,
+                Post funded delivery jobs and hire rated drivers across Nigeria. Pay in naira,
                 track every run live, and only pay the 8% fee when a job completes.
               </motion.p>
               <motion.div {...fadeUp(0.18, 18)} className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -75,7 +75,7 @@ export function CompanyLandingClient() {
                 </a>
               </motion.div>
               <motion.div {...fadeUp(0.24, 16)} className="mt-9 grid max-w-lg grid-cols-3 gap-4 border-t border-[#ded7cb] pt-6 text-sm">
-                {[["Escrow", "pay in naira"], ["8%", "only on completion"], ["Live", "GPS tracking"]].map(([stat, label]) => (
+                {[["Naira", "secure payouts"], ["8%", "only on completion"], ["Live", "GPS tracking"]].map(([stat, label]) => (
                   <div key={stat}>
                     <div className="font-extrabold" style={{ color: PRIMARY }}>{stat}</div>
                     <div className="mt-0.5 text-[#7c827a]">{label}</div>

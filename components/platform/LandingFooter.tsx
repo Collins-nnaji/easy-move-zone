@@ -28,8 +28,8 @@ export function LandingFooter({ audience }: { audience: "driver" | "company" }) 
   const otherHref = isDriver ? "/company" : "/driver";
   const otherLabel = isDriver ? "For companies" : "For drivers";
   const blurb = isDriver
-    ? "Find funded delivery jobs across Nigeria. Every job is escrow-funded before you drive — get paid in naira at every step."
-    : "Post funded delivery jobs and hire rated drivers across Nigeria. Escrow pay in naira, track every run, pay only on completion.";
+    ? "Find funded delivery jobs across Nigeria. Every job is funded upfront before you drive — get paid in naira at every step."
+    : "Post funded delivery jobs and hire rated drivers across Nigeria. Pay in naira, track every run, pay only on completion.";
 
   return (
     <footer id="contact" className="relative z-[45] border-t border-white/10 bg-[#0b1220] text-white">

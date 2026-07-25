@@ -816,7 +816,7 @@ export function DriverApp() {
           )}
           {onClaim && !claimable && (
             <div style={{ marginTop: 14, padding: "12px 14px", borderRadius: 14, background: "#fdf6e8", border: "1px solid #f3e0c4", fontSize: 13, color: "#9a6318", fontWeight: 600, textAlign: "center" }}>
-              Waiting for company escrow
+              Waiting for company funding
             </div>
           )}
         </div>
@@ -1336,7 +1336,6 @@ export function DriverApp() {
       meterSub={`${verifiedDocs} of ${compliance.length || 6} docs verified`}
       isFlowScreen={isFlowScreen}
       screenOrder={["welcome", "setup", "vehicle", "shifts", "schedule", "wallet", "vault"]}
-      switchApp={{ label: "Switch to Company app", href: "/fleet/dashboard" }}
       modals={modals}
     >
       {screenBody()}

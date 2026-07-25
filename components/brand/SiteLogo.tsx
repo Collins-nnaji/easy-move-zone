@@ -17,7 +17,9 @@ export function SiteLogo({
   priority = false,
   invert = false,
 }: SiteLogoProps) {
-  const width = Math.round(height * 1.625);
+  // Derive width from the logo's real aspect ratio — the previous hardcoded
+  // 1.625 was narrower than the artwork (2.8), squashing the wordmark.
+  const width = Math.round(height * BRAND.logoAspect);
 
   const image = (
     <Image
