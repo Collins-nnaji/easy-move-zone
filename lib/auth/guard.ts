@@ -1,29 +1,45 @@
 import { redirect } from "next/navigation"
-import { getSessionWithRoles, ROLE_HOME, type AccountRole, type SessionRoles } from "@/lib/auth/roles"
+import { neonAuth } from "@neondatabase/auth/next/server"
+import { getUserRoles, ROLE_HOME, type AccountRole, type SessionRoles } from "@/lib/auth/roles"
+import { ensureDriverProfile } from "@/lib/driver/service"
+import { ensureFleetProfile } from "@/lib/fleet/service"
 
 /**
  * Server-side gate for a role-scoped app section (/move, /fleet).
  *
- * Three outcomes:
- *   no session          -> /auth?role=<role>&redirect=<here>   (sign in / sign up)
- *   session, wrong role -> /start?add=<role>&redirect=<here>   (add the role)
- *   session, has role   -> returns the session
+ *   no session          -> /auth?redirect=<here>   (sign in)
+ *   session, no role    -> provision it, then continue
+ *   session, has role   -> continue
  *
- * Call this from a layout so every route beneath it is covered, rather than
- * relying on middleware alone — middleware can't read the profile tables.
+ * A signed-in user is NEVER sent back to /auth. Doing so caused a loop:
+ * /auth?role=company -> /fleet/dashboard -> guard fails -> /auth?role=company.
+ * Since arriving here with a session is an explicit request to use this app,
+ * the missing profile row is simply created rather than bounced to a chooser.
+ *
+ * Call this from a layout so every route beneath it is covered — middleware
+ * alone can't check roles, because it can't reach the database.
  */
 export async function requireRole(role: AccountRole, currentPath: string): Promise<SessionRoles> {
-  const ctx = await getSessionWithRoles()
+  const { session, user } = await neonAuth()
 
-  if (!ctx) {
-    redirect(`/auth?role=${role}&redirect=${encodeURIComponent(currentPath)}`)
+  // Genuinely signed out — the only case that may send someone to /auth.
+  if (!session || !user?.id) {
+    redirect(`/auth?redirect=${encodeURIComponent(currentPath)}`)
   }
 
-  if (!ctx.roles.includes(role)) {
-    redirect(`/start?add=${role}&redirect=${encodeURIComponent(currentPath)}`)
+  const userId = String(user.id)
+  const base = { userId, email: user.email ?? null, name: user.name ?? null }
+
+  // Let a DB failure surface as an error page instead of an infinite redirect.
+  let roles = await getUserRoles(userId)
+
+  if (!roles.includes(role)) {
+    if (role === "driver") await ensureDriverProfile(userId)
+    else await ensureFleetProfile(userId)
+    roles = [...roles, role]
   }
 
-  return ctx
+  return { ...base, roles }
 }
 
 /**

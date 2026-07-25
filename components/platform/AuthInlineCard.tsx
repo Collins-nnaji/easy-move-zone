@@ -32,11 +32,30 @@ export function AuthInlineCard({
   const [info, setInfo] = useState<string | null>(null)
   const { data: sessionData, refetch: refetchSession } = authClient.useSession()
 
+  // Already signed in when landing on /auth (e.g. /auth?role=company). Create
+  // the role's profile BEFORE navigating — redirecting straight to the app
+  // sent users into a loop when the account didn't hold that role yet.
   useEffect(() => {
-    if (redirectIfAuthenticated && sessionData?.user) {
-      window.location.assign(redirectTarget)
+    if (!redirectIfAuthenticated || !sessionData?.user) return
+    let cancelled = false
+    void (async () => {
+      if (signupRole) {
+        try {
+          await fetch("/api/auth/roles", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ role: signupRole }),
+          })
+        } catch {
+          /* the layout guard provisions as a fallback */
+        }
+      }
+      if (!cancelled) window.location.assign(redirectTarget)
+    })()
+    return () => {
+      cancelled = true
     }
-  }, [sessionData?.user, redirectTarget, redirectIfAuthenticated])
+  }, [sessionData?.user, redirectTarget, redirectIfAuthenticated, signupRole])
 
   /**
    * Create the profile row for the role the user signed up under, so the

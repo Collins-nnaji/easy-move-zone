@@ -35,7 +35,11 @@ export function parseRole(value: string | null | undefined): AccountRole | null 
  * user who has not yet picked a role, so callers can send them to /start.
  */
 export async function getUserRoles(authUserId: string): Promise<AccountRole[]> {
-  if (!driverSql) return []
+  // Throws rather than returning [] when the DB is unavailable. An empty array
+  // means "this user genuinely holds no roles"; conflating that with an
+  // infrastructure failure made every signed-in user look role-less and sent
+  // them into a redirect loop.
+  if (!driverSql) throw new Error("DATABASE_URL is not configured.")
 
   const [driverRows, fleetRows] = await Promise.all([
     driverSql.query(`select 1 from driver_profiles where auth_user_id = $1 limit 1`, [authUserId]),
