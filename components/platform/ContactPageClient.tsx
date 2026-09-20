@@ -99,7 +99,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
             transition={{ duration: 0.5, delay: 0.08, ease: easeOut }}
             className="mt-4 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base"
           >
-            Questions about freight quotes, shipments, customs, or warehousing? Send a note — we read every message.
+            Questions about loads, payouts, fleet posting, or compliance? Send a note — we read every message.
           </motion.p>
 
           <motion.div
@@ -115,17 +115,17 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               {PUBLIC_CONTACT_EMAIL}
             </a>
             <Link
-              href="/quote"
+              href="/move"
               className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 underline decoration-orange-500/35 underline-offset-4 hover:text-white"
             >
-              Get a quote
+              Open driver app
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              href="/app"
+              href="/fleet"
               className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 underline decoration-orange-500/35 underline-offset-4 hover:text-white"
             >
-              Client portal
+              Fleet console
               <ArrowRight className="h-4 w-4" />
             </Link>
           </motion.div>

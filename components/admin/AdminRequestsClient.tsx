@@ -78,8 +78,8 @@ export function AdminRequestsClient() {
 
   return (
     <div className="p-6 sm:p-8">
-      <h1 className="text-xl font-bold">Quotes / Leads</h1>
-      <p className="mt-1 text-sm text-white/50">{requests.length} total · {openCount} open · freight quotes also land in contact inbox</p>
+      <h1 className="text-xl font-bold">Concierge requests</h1>
+      <p className="mt-1 text-sm text-white/50">{requests.length} total · {openCount} open</p>
 
       <div className="mt-5 flex flex-wrap gap-2">
         {(["all", ...REQUEST_STATUSES] as const).map((s) => {

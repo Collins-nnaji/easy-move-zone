@@ -1,5 +1,5 @@
 import { driverSql } from "@/lib/driver/db";
-import { refreshDriverVerifiedBadge } from "@/lib/driver/vault";
+import { refreshDriverVerifiedBadge, resolveStoredBytes } from "@/lib/driver/vault";
 
 export interface KycQueueItem {
   id: string;
@@ -122,7 +122,7 @@ export async function reviewKycDocument(input: {
 export async function getComplianceFileForAdmin(docId: string) {
   if (!driverSql) return null;
   const rows = (await driverSql.query(
-    `select d.id, d.file_name, d.file_mime, d.file_data, d.auth_user_id,
+    `select d.id, d.file_name, d.file_mime, d.file_data, d.storage_bucket, d.storage_key, d.auth_user_id,
             coalesce(p.display_name, 'Driver') as driver_name
      from driver_compliance_docs d
      left join driver_profiles p on p.auth_user_id = d.auth_user_id
@@ -133,13 +133,17 @@ export async function getComplianceFileForAdmin(docId: string) {
     file_name: string | null;
     file_mime: string | null;
     file_data: string | null;
+    storage_bucket: string | null;
+    storage_key: string | null;
     auth_user_id: string;
     driver_name: string;
   }>;
 
   const row = rows[0];
-  if (!row?.file_data) return null;
-  return row;
+  if (!row) return null;
+  const bytes = await resolveStoredBytes(row);
+  if (!bytes) return null;
+  return { ...row, bytes };
 }
 
 export async function listCashouts(status?: "failed" | "succeeded" | "all"): Promise<CashoutRow[]> {

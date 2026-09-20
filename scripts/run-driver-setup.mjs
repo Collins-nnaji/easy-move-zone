@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Logistics platform DB setup — marketplace tables, freight quote/track,
- * drops unused legacy product tables.
+ * Driver platform DB setup — creates driver tables, seeds shifts,
+ * drops old relocation product tables, and cleans legacy pivots.
  *
  * Usage: npm run db:setup
  */
@@ -15,9 +15,7 @@ const root = path.resolve(__dirname, "..");
 const runner = path.join(root, "scripts/run-sql-file.mjs");
 
 const steps = [
-  // Core + marketplace
   "db/add-contact-submissions.sql",
-  // user_profiles already exists with a newer schema — skip 20260309_user_profiles.sql
   "db/migrations/20260310_agent_flag_and_admin.sql",
   "db/migrations/20260720_driver_platform.sql",
   "db/migrations/20260721_marketplace.sql",
@@ -29,16 +27,12 @@ const steps = [
   "db/migrations/20260723_phase5_platform.sql",
   "db/migrations/20260722_escrow_milestones_disputes.sql",
   "db/migrations/20260724_native_push_tokens.sql",
-  // Drop unused legacy product tables first
+  "db/migrations/20260920_object_storage.sql",
   "db/migrations/20260720_drop_relocation_product.sql",
-  "db/cleanup-unneeded-tables.sql",
-  // Logistics day-one tables (after cleanup so they are not dropped)
-  "db/migrations/20260716_relocation_requests.sql",
-  "db/migrations/20260920_freight_quotes_and_tracking.sql",
-  // Seeds
   "db/seeds/20260720_driver_shifts_seed.sql",
   "db/seeds/20260721_marketplace_seed.sql",
   "db/seeds/20260721_nigeria_zones.sql",
+  "db/cleanup-unneeded-tables.sql",
 ];
 
 function runFile(relativePath) {
@@ -63,7 +57,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("EasyMoveZone — Logistics platform DB setup\n");
+  console.log("EasyMoveZone — Marketplace platform DB setup\n");
 
   for (const step of steps) {
     console.log(`→ ${step}`);
@@ -72,10 +66,10 @@ async function main() {
 
   console.log("\nDone. Smoke test checklist:");
   console.log("  1. npm run dev");
-  console.log("  2. Open / — marketing site");
-  console.log("  3. Open /quote and /track");
-  console.log("  4. Open /app — unified portal");
-  console.log("  5. Add Paystack/Stripe keys (see SETUP.md) for payments");
+  console.log("  2. Open /move — driver marketplace");
+  console.log("  3. Open /fleet — fleet operator console");
+  console.log("  4. Add Stripe keys (see SETUP.md) for real payouts");
+  console.log("  5. Sign up at /auth, claim a load, complete, cash out");
 }
 
 main().catch((err) => {

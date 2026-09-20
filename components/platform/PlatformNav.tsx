@@ -6,19 +6,20 @@ import {
   Briefcase,
   LogOut,
   Menu,
+  Truck,
   Mail,
   UserRound,
   User,
-  Search,
 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { authClient } from "@/lib/auth/client"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
+import { loadDriverFlowState } from "@/app/move/storage"
 import { SiteLogo } from "@/components/brand/SiteLogo"
 
 const guideLinks = [
-  { href: "/cars", label: "Cars", icon: Search },
-  { href: "/sell", label: "Sell", icon: Briefcase },
+  { href: "/move", label: "Driver app", icon: Truck },
+  { href: "/fleet", label: "Company console", icon: Briefcase },
   { href: "/contact", label: "Contact", icon: Mail },
 ] as const
 
@@ -26,7 +27,12 @@ export function PlatformNav() {
   const pathname = usePathname()
   const { data: sessionData, isPending: sessionPending, refetch: refetchSession } = authClient.useSession()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [resumable, setResumable] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setResumable(!!loadDriverFlowState()?.completed)
+  }, [])
 
   useEffect(() => {
     const timeout = setTimeout(() => { void refetchSession() }, 120)
@@ -39,6 +45,7 @@ export function PlatformNav() {
     return () => window.removeEventListener("focus", onFocus)
   }, [refetchSession])
 
+  // Close the menu whenever the route changes.
   useEffect(() => { setMenuOpen(false) }, [pathname])
 
   useEffect(() => {
@@ -56,8 +63,13 @@ export function PlatformNav() {
     try {
       await authClient.signOut()
     } catch {
-      // fall through to hard navigation
+      // Even if the sign-out request fails, force a full reload below so the
+      // user isn't left in a stuck, ambiguous signed-in-looking state.
     }
+    // A hard navigation (not router.push/refresh) guarantees every server
+    // component re-reads the now-cleared session cookie, instead of relying
+    // on client-side cache invalidation that can leave stale account state
+    // visible in the nav until a manual refresh.
     window.location.href = "/start"
   }
 
@@ -73,15 +85,9 @@ export function PlatformNav() {
 
   const user = sessionData?.user ?? null
   const initials = getInitials(user?.name, user?.email)
-  const onApp =
-    pathname === "/app" ||
-    pathname.startsWith("/app/") ||
-    pathname === "/move" ||
-    pathname.startsWith("/move/") ||
-    pathname === "/fleet" ||
-    pathname.startsWith("/fleet/")
   const onMove = pathname === "/move" || pathname.startsWith("/move/")
   const onFleet = pathname === "/fleet" || pathname.startsWith("/fleet/")
+  const onApp = onMove || onFleet
 
   return (
     <header
@@ -89,9 +95,31 @@ export function PlatformNav() {
       data-emz-support-email={PUBLIC_CONTACT_EMAIL}
     >
       <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+
+        {/* Logo */}
         <SiteLogo href="/" height={32} priority />
 
+        {/* Right side: primary CTA + a single account/menu dropdown */}
         <div className="flex items-center gap-2">
+          {!onApp && (
+            <>
+              <Link
+                href="/fleet/jobs?post=1"
+                className="hidden items-center gap-1.5 rounded-full border border-[#d8d2c6] bg-white px-4 py-2 text-[13px] font-semibold text-[#4a5047] transition hover:border-[#e0511f]/40 sm:inline-flex"
+              >
+                <Briefcase className="h-3.5 w-3.5" />
+                Hire drivers
+              </Link>
+              <Link
+                href="/move/shifts"
+                className="hidden items-center gap-1.5 rounded-full bg-[#e0511f] px-4 py-2 text-[13px] font-bold text-white shadow-sm transition hover:opacity-90 sm:inline-flex"
+              >
+                <Truck className="h-3.5 w-3.5" />
+                {resumable ? "Continue driving" : "Find work"}
+              </Link>
+            </>
+          )}
+
           <div className="relative" ref={menuRef}>
             {sessionPending ? (
               <div className="h-9 w-9 animate-pulse rounded-full bg-black/5" />

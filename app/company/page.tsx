@@ -1,6 +1,21 @@
-import { redirect } from "next/navigation"
+import type { Metadata } from "next";
+import { LandingNav } from "@/components/platform/LandingNav";
+import { LandingFooter } from "@/components/platform/LandingFooter";
+import { CompanyLandingClient } from "@/components/platform/CompanyLandingClient";
+import { PublicShell } from "@/components/platform/PublicShell";
 
-/** Legacy company marketing URL — quote CTA lives at /quote. */
-export default function CompanyLandingRedirect() {
-  redirect("/quote")
+export const metadata: Metadata = {
+  title: "Post jobs & hire drivers — for companies",
+  description:
+    "Post funded delivery jobs and hire rated drivers across Nigeria. Pay in naira, track every run live, and pay only 8% on completion.",
+};
+
+export default function CompanyLandingPage() {
+  return (
+    <PublicShell>
+      <LandingNav audience="company" />
+      <CompanyLandingClient />
+      <LandingFooter audience="company" />
+    </PublicShell>
+  );
 }

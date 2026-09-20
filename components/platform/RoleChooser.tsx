@@ -18,39 +18,39 @@ const DISPLAY = "var(--font-bricolage), system-ui, sans-serif";
 type RoleKey = "company" | "driver";
 
 const ROLES: Array<{
-  key: RoleKey
-  title: string
-  tagline: string
-  points: string[]
+  key: RoleKey;
+  title: string;
+  tagline: string;
+  points: string[];
   /** Marketing page, for visitors who aren't signed in yet. */
-  href: string
+  href: string;
   /** App home, for a signed-in account that holds (or is adding) this role. */
-  home: string
-  Icon: typeof Briefcase
+  home: string;
+  Icon: typeof Briefcase;
   /** Slide-in direction — cards enter from opposite edges toward centre. */
-  from: -1 | 1
+  from: -1 | 1;
 }> = [
   {
     key: "company",
-    title: "Shipper",
-    tagline: "Export, import & track freight",
-    points: ["Request freight quotes", "Manage shipments", "Customs-ready docs"],
-    href: "/quote",
-    home: "/app",
+    title: "Company",
+    tagline: "Post jobs & hire drivers",
+    points: ["Post funded jobs", "Hire rated drivers", "Track deliveries live"],
+    href: "/company",
+    home: "/fleet/dashboard",
     Icon: Briefcase,
     from: -1,
   },
   {
     key: "driver",
-    title: "Carrier",
-    tagline: "Run assigned inland legs",
-    points: ["Assigned port & road legs", "Confirm with GPS", "Get paid on milestones"],
-    href: "/services",
-    home: "/app/legs",
+    title: "Driver",
+    tagline: "Find jobs & get paid",
+    points: ["Claim funded jobs", "Run routes with GPS", "Cash out in naira"],
+    href: "/driver",
+    home: "/move/shifts",
     Icon: Truck,
     from: 1,
   },
-]
+];
 
 /* --- Choreography -----------------------------------------------------------
  * Each element declares its own initial/animate pair with a staggered delay,

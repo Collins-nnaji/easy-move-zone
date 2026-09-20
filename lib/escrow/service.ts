@@ -164,11 +164,29 @@ export async function recordEvidence(params: {
 }): Promise<string> {
   const sql = requireSql();
   const payload = params.fileData ?? params.body ?? "";
+  let storageBucket: string | null = null;
+  let storageKey: string | null = null;
+  let fileData = params.fileData ?? null;
+  if (params.fileData && params.kind === "photo") {
+    const { isObjectStorageConfigured, storeAppFile, vaultBucket } = await import("@/lib/storage/s3");
+    if (isObjectStorageConfigured()) {
+      const stored = await storeAppFile({
+        prefix: `evidence/${params.shiftId}`,
+        userId: params.authUserId,
+        mime: params.fileMime,
+        base64: params.fileData,
+        bucket: vaultBucket(),
+      });
+      storageBucket = stored.bucket;
+      storageKey = stored.key;
+      fileData = null;
+    }
+  }
   const rows = (await sql.query(
     `insert into shift_evidence
        (shift_id, milestone_id, auth_user_id, role, kind,
-        file_name, file_mime, file_data, body, lat, lng, content_hash)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        file_name, file_mime, file_data, storage_bucket, storage_key, body, lat, lng, content_hash)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
      returning id`,
     [
       params.shiftId,
@@ -178,7 +196,9 @@ export async function recordEvidence(params: {
       params.kind,
       params.fileName ?? null,
       params.fileMime ?? null,
-      params.fileData ?? null,
+      fileData,
+      storageBucket,
+      storageKey,
       params.body ?? null,
       params.lat ?? null,
       params.lng ?? null,

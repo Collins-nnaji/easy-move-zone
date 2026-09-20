@@ -83,11 +83,6 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  body.emz-marketing {
-    background-color: #0b1220;
-    background-image: none;
-  }
-
   /* Chrome (nav bars, buttons, labels) shouldn't be text-selectable like a
      web page — but real content and form fields still must be. */
   button,

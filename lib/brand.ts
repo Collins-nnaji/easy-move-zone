@@ -1,9 +1,9 @@
 export const BRAND = {
   name: "EasyMoveZone",
   shortName: "EasyMoveZone",
-  tagline: "Find, finance, and buy your next car across the US, UK, and Nigeria",
+  tagline: "Nigeria logistics marketplace for drivers and fleet operators",
   description:
-    "EasyMoveZone is a car marketplace for the United States, the United Kingdom, and Nigeria. Browse local stock, follow imports in transit, and buy CFR vehicles moving between those markets.",
+    "Commission-based marketplace connecting independent truck drivers, owner-operators, and fleet operators across Lagos, Abuja, Port Harcourt, and beyond — from parcel to tankers. Post loads, find rated drivers, claim shifts, and get paid instantly.",
   logo: "/emz.svg",
   logoAlt: "EasyMoveZone",
   /** Intrinsic aspect ratio of emz.svg (1440×515) — keeps the mark undistorted. */

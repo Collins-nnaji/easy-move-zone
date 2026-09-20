@@ -229,7 +229,7 @@ export async function getCompliance(authUserId: string) {
   await ensureDriverProfile(authUserId);
   const rows = (await driverSql.query(
     `select id, doc_key, name, status, detail, expires_at, file_name,
-            (file_data is not null or file_name is not null) as has_file
+            (file_data is not null or storage_key is not null or file_name is not null) as has_file
      from driver_compliance_docs
      where auth_user_id = $1
      order by name`,

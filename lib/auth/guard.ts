@@ -5,7 +5,7 @@ import { ensureDriverProfile } from "@/lib/driver/service"
 import { ensureFleetProfile } from "@/lib/fleet/service"
 
 /**
- * Server-side gate for a role-scoped app section (/move, /fleet, /app).
+ * Server-side gate for a role-scoped app section (/move, /fleet).
  *
  *   no session          -> /auth?redirect=<here>   (sign in)
  *   session, no role    -> provision it, then continue
@@ -37,29 +37,6 @@ export async function requireRole(role: AccountRole, currentPath: string): Promi
     if (role === "driver") await ensureDriverProfile(userId)
     else await ensureFleetProfile(userId)
     roles = [...roles, role]
-  }
-
-  return { ...base, roles }
-}
-
-/**
- * Gate for the unified /app portal. Accepts either role; if the account has
- * none yet, provisions a company (shipper) profile by default.
- */
-export async function requireAnyAppRole(currentPath: string): Promise<SessionRoles> {
-  const { session, user } = await neonAuth()
-
-  if (!session || !user?.id) {
-    redirect(`/auth?redirect=${encodeURIComponent(currentPath)}`)
-  }
-
-  const userId = String(user.id)
-  const base = { userId, email: user.email ?? null, name: user.name ?? null }
-  let roles = await getUserRoles(userId)
-
-  if (roles.length === 0) {
-    await ensureFleetProfile(userId)
-    roles = ["company"]
   }
 
   return { ...base, roles }

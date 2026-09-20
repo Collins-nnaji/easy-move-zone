@@ -11,12 +11,11 @@ export async function GET(
     await assertAdminApi();
     const { id } = await params;
     const file = await getComplianceFileForAdmin(id);
-    if (!file?.file_data) {
+    if (!file?.bytes) {
       return Response.json({ error: "File not found." }, { status: 404 });
     }
 
-    const buffer = Buffer.from(file.file_data, "base64");
-    return new Response(buffer, {
+    return new Response(file.bytes, {
       headers: {
         "Content-Type": file.file_mime || "application/octet-stream",
         "Content-Disposition": `inline; filename="${file.file_name || "document"}"`,

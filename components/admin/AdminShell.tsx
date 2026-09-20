@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AlertTriangle, BadgeCheck, Car, LayoutGrid, ShieldCheck, Users, Wallet } from "lucide-react";
+import { AlertTriangle, BadgeCheck, LayoutGrid, ShieldCheck, Users, Wallet } from "lucide-react";
 import { clsx } from "clsx";
 
 const NAV = [
   { href: "/admin", label: "Overview", icon: LayoutGrid },
   { href: "/admin/kyc", label: "KYC review", icon: ShieldCheck },
-  { href: "/admin/listings", label: "Car listings", icon: Car },
   { href: "/admin/cashouts", label: "Cashouts", icon: Wallet },
   { href: "/admin/disputes", label: "Dispute flags", icon: AlertTriangle },
   { href: "/admin/users", label: "Users", icon: Users },
@@ -25,11 +24,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <BadgeCheck className="h-5 w-5 text-[#e0511f]" />
             <div>
               <p className="text-sm font-bold">EasyMoveZone Ops</p>
-              <p className="text-[11px] text-white/40">Logistics admin</p>
+              <p className="text-[11px] text-white/40">Marketplace admin</p>
             </div>
           </div>
-          <Link href="/app" className="text-xs font-semibold text-white/60 hover:text-white">
-            ← Back to portal
+          <Link href="/move" className="text-xs font-semibold text-white/60 hover:text-white">
+            ← Back to app
           </Link>
         </div>
         <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 pb-3 sm:px-6">
