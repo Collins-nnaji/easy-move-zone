@@ -15,7 +15,7 @@ export async function GET(
       return Response.json({ error: "File not found." }, { status: 404 });
     }
 
-    return new Response(file.bytes, {
+    return new Response(new Uint8Array(file.bytes), {
       headers: {
         "Content-Type": file.file_mime || "application/octet-stream",
         "Content-Disposition": `inline; filename="${file.file_name || "document"}"`,
