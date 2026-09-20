@@ -1,4 +1,13 @@
-export type RequestGoal = "work" | "study" | "visa" | "relocate" | "other"
+export type RequestGoal =
+  | "work"
+  | "study"
+  | "visa"
+  | "relocate"
+  | "export"
+  | "import"
+  | "freight"
+  | "other"
+
 export type RequestStatus = "new" | "in_review" | "contacted" | "closed"
 
 export interface RelocationRequest {
@@ -27,11 +36,14 @@ export interface NewRequestInput {
 }
 
 export const REQUEST_GOALS: { id: RequestGoal; label: string }[] = [
-  { id: "work", label: "Work / job relocation" },
-  { id: "study", label: "Study / school admission" },
-  { id: "visa", label: "Visa help only" },
-  { id: "relocate", label: "Full relocation" },
+  { id: "export", label: "Export from Nigeria" },
+  { id: "import", label: "Import into Nigeria" },
+  { id: "freight", label: "General freight / logistics" },
   { id: "other", label: "Something else" },
+  { id: "work", label: "Work / job relocation (legacy)" },
+  { id: "study", label: "Study / school admission (legacy)" },
+  { id: "visa", label: "Visa help only (legacy)" },
+  { id: "relocate", label: "Full relocation (legacy)" },
 ]
 
 export const REQUEST_STATUSES: RequestStatus[] = ["new", "in_review", "contacted", "closed"]

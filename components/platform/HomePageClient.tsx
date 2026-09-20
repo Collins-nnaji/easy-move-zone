@@ -2,51 +2,65 @@
 
 import Link from "next/link"
 import { motion, useReducedMotion } from "framer-motion"
-import { ArrowRight, Zap } from "lucide-react"
+import { ArrowRight, Plane, Ship, Truck, Warehouse, FileCheck } from "lucide-react"
 import {
   BoxGlyph,
   HeroFreightArt,
-  NairaGlyph,
   RouteGlyph,
   ShieldGlyph,
+  NairaGlyph,
 } from "./FreightArt"
+import { CORRIDORS, FREIGHT_MODE_OPTIONS, SERVICES } from "@/lib/logistics/catalog"
+import { LandingNav } from "./LandingNav"
+import { LandingFooter } from "./LandingFooter"
 
 const PRIMARY = "#e0511f"
 const INK = "#1b231e"
+const CREAM = "#efece4"
+const SURFACE = "#f6f3ec"
 
 const valueProps = [
   {
-    glyph: BoxGlyph,
-    title: "Funded jobs only",
-    body: "Companies fund a job before it goes live. You never run a route hoping to get paid.",
+    glyph: RouteGlyph,
+    title: "Nigeria ↔ world",
+    body: "Export out of Lagos and Port Harcourt, or import into Nigeria — one team for both directions.",
   },
   {
-    glyph: RouteGlyph,
-    title: "Paid as you go",
-    body: "20% on pickup, 70% on delivery, the rest once the job clears. GPS and photos confirm each step.",
+    glyph: BoxGlyph,
+    title: "Sea, air, and road",
+    body: "Book the right mode for your cargo, then connect port, airport, and inland delivery without handoff chaos.",
   },
   {
     glyph: ShieldGlyph,
-    title: "Verified both ways",
-    body: "Licences, hazmat certs, and insurance checked in one vault. Drivers and companies are rated after every job.",
+    title: "Customs-ready",
+    body: "Clearance, documentation, and compliance support so shipments do not stall at the border.",
   },
   {
     glyph: NairaGlyph,
-    title: "8% on completion",
-    body: "No listing fees, no subscription. We charge only when a job is actually completed.",
+    title: "Quote to delivery",
+    body: "Request a quote, confirm the move, and track status from booking through final delivery.",
   },
 ] as const
 
+const serviceIcons = {
+  sea: Ship,
+  air: Plane,
+  road: Truck,
+  customs: FileCheck,
+  warehouse: Warehouse,
+} as const
+
 const steps = [
-  { step: "01", label: "Post or claim", sub: "Companies post funded jobs. Drivers claim the ones that fit." },
-  { step: "02", label: "Run the route", sub: "Clock in, confirm pickup and delivery with GPS and photos." },
-  { step: "03", label: "Get paid", sub: "Your payment is released to your wallet. Cash out in naira." },
+  { step: "01", label: "Request a quote", sub: "Direction, origin, destination, mode, and cargo." },
+  { step: "02", label: "Confirm & book", sub: "Rates, transit window, and docs checklist." },
+  { step: "03", label: "Ship & track", sub: "Milestones from pickup through delivery." },
 ] as const
 
-const openJobs = [
-  { pay: "₦85,000/day", vehicle: "Semi · Heavy goods", route: "Lagos → Abuja linehaul" },
-  { pay: "₦12,000/hr", vehicle: "Tanker · Hazmat", route: "Port Harcourt · 3 stops" },
-  { pay: "₦45,000/day", vehicle: "Sprinter · Parcel", route: "Ikeja / Airport · 12 stops" },
+const gateways = [
+  { name: "Apapa / Tin Can", detail: "Lagos ocean gateways" },
+  { name: "Onne / PH", detail: "Port Harcourt corridor" },
+  { name: "MMIA / Abuja", detail: "Air freight hubs" },
+  { name: "Inland haul", detail: "Lagos · Abuja · Kano" },
 ] as const
 
 const easeOut = [0.16, 1, 0.3, 1] as const
@@ -54,211 +68,266 @@ const easeOut = [0.16, 1, 0.3, 1] as const
 export function HomePageClient() {
   const reduceMotion = useReducedMotion()
 
-  const fadeUp = (delay = 0, y = 18) =>
+  const fadeUp = (delay = 0, y = 16) =>
     reduceMotion
       ? {}
       : {
           initial: { opacity: 0, y },
           whileInView: { opacity: 1, y: 0 },
-          viewport: { once: true, margin: "-80px" },
-          transition: { duration: 0.6, delay, ease: easeOut },
+          viewport: { once: true, margin: "-40px" },
+          transition: { duration: 0.55, delay, ease: easeOut },
         }
 
   return (
-    <div style={{ background: "#efece4", color: INK }} className="overflow-hidden">
-      {/* ---------------------------------------------------------------- */}
-      {/* Hero — headline and artwork share the width so neither half is dead */}
-      {/* ---------------------------------------------------------------- */}
-      <section className="relative">
+    <div className="flex flex-col" style={{ background: CREAM, color: INK }}>
+      <LandingNav />
+
+      {/* Hero — content-sized, not forced to 92vh (that left empty cream). */}
+      <section className="relative overflow-hidden">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(60% 50% at 12% 0%, rgba(224,81,31,0.16) 0%, transparent 60%), radial-gradient(55% 45% at 100% 10%, rgba(243,170,121,0.22) 0%, transparent 55%)",
+              "radial-gradient(55% 50% at 8% 0%, rgba(224,81,31,0.18) 0%, transparent 58%), radial-gradient(50% 45% at 100% 8%, rgba(243,170,121,0.24) 0%, transparent 52%)",
           }}
         />
 
-        <div className="relative mx-auto w-full max-w-7xl px-4 pt-16 pb-14 sm:px-6 lg:px-8 lg:pt-20 lg:pb-16">
-          <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
+        <div className="relative mx-auto w-full max-w-7xl px-4 pt-10 pb-10 sm:px-6 sm:pt-12 sm:pb-12 lg:px-8 lg:pt-14 lg:pb-14">
+          <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
             <div>
               <motion.p
-                {...fadeUp(0, 12)}
-                className="text-sm font-extrabold tracking-tight"
+                {...fadeUp(0, 10)}
+                className="font-display text-xl font-extrabold tracking-tight sm:text-2xl"
                 style={{ color: PRIMARY }}
               >
                 EasyMoveZone
               </motion.p>
 
               <motion.h1
-                {...fadeUp(0.06, 22)}
-                className="mt-4 text-[2.75rem] font-extrabold leading-[1.03] tracking-tight sm:text-6xl lg:text-[4.1rem]"
+                {...fadeUp(0.05, 18)}
+                className="mt-3 text-[2.35rem] font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-[3.35rem]"
                 style={{ textWrap: "balance" } as React.CSSProperties}
               >
-                Move goods.
+                Freight from Nigeria
                 <span className="block" style={{ color: PRIMARY }}>
-                  Get paid fairly.
+                  to the world — and back.
                 </span>
               </motion.h1>
 
               <motion.p
-                {...fadeUp(0.12, 18)}
-                className="mt-5 max-w-lg text-lg leading-relaxed text-[#5f655c]"
+                {...fadeUp(0.1, 14)}
+                className="mt-4 max-w-lg text-base leading-relaxed text-[#5f655c] sm:text-lg"
               >
-                Nigeria&apos;s delivery marketplace. Companies fund a job before it goes
-                live — drivers claim funded work and get paid at every step.
+                Sea, air, road, customs, and warehousing for export out of Nigeria and import into Nigeria.
               </motion.p>
 
-              <motion.div {...fadeUp(0.18, 18)} className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <motion.div {...fadeUp(0.14, 14)} className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/move/shifts"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
-                  style={{ background: PRIMARY, boxShadow: "0 12px 30px rgba(224,81,31,.32)" }}
+                  href="/quote"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-base font-bold text-white transition hover:opacity-90"
+                  style={{ background: PRIMARY, boxShadow: "0 12px 28px rgba(224,81,31,.3)" }}
                 >
-                  <Zap className="h-[1.125rem] w-[1.125rem]" />
-                  Find work
+                  Get a quote
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
-                  href="/fleet/dashboard"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white/70 px-7 py-4 text-base font-semibold text-[#4a5047] backdrop-blur transition hover:bg-white"
+                  href="/track"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white/80 px-7 py-3.5 text-base font-semibold text-[#4a5047] transition hover:bg-white"
                 >
-                  Post a job
-                  <ArrowRight className="h-4 w-4" />
+                  Track a shipment
                 </Link>
               </motion.div>
 
-              {/* Proof line — replaces a whole section of self-description */}
               <motion.div
-                {...fadeUp(0.24, 16)}
-                className="mt-9 grid max-w-lg grid-cols-3 gap-4 border-t border-[#ded7cb] pt-6 text-sm"
+                {...fadeUp(0.18, 12)}
+                className="mt-8 grid max-w-md grid-cols-3 gap-3 border-t border-[#ded7cb] pt-5"
               >
                 {[
-                  ["Funded", "before you drive"],
-                  ["8%", "only on completion"],
-                  ["Rated", "both sides"],
+                  ["Export", "NG → world"],
+                  ["Import", "world → NG"],
+                  ["Track", "live status"],
                 ].map(([stat, label]) => (
                   <div key={stat}>
-                    <div className="font-extrabold" style={{ color: PRIMARY }}>
+                    <div className="text-sm font-extrabold" style={{ color: PRIMARY }}>
                       {stat}
                     </div>
-                    <div className="mt-0.5 text-[#7c827a]">{label}</div>
+                    <div className="mt-0.5 text-xs text-[#7c827a]">{label}</div>
                   </div>
                 ))}
               </motion.div>
             </div>
 
-            <motion.div
-              {...fadeUp(0.1, 24)}
-              className="relative order-first lg:order-none"
-            >
-              <HeroFreightArt className="mx-auto w-full max-w-[26rem] sm:max-w-[32rem] lg:max-w-none" />
+            <motion.div {...fadeUp(0.08, 20)} className="relative order-first lg:order-none">
+              <HeroFreightArt className="mx-auto w-full max-w-[22rem] sm:max-w-[28rem] lg:max-w-none" />
             </motion.div>
           </div>
         </div>
-      </section>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* Why it works + open jobs, merged into one band                    */}
-      {/* ---------------------------------------------------------------- */}
-      <section className="relative border-t border-[#e4dfd5] bg-[#f6f3ec] py-16 lg:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.h2
-            {...fadeUp()}
-            className="max-w-2xl text-3xl font-extrabold tracking-tight sm:text-4xl"
-          >
-            Built so neither side gets stiffed.
-          </motion.h2>
-
-          <div className="mt-10 grid gap-x-8 gap-y-9 sm:grid-cols-2 lg:grid-cols-4">
-            {valueProps.map((p, i) => {
-              const Glyph = p.glyph
-              return (
-                <motion.div key={p.title} {...fadeUp(0.06 * i)}>
-                  <Glyph className="h-8 w-8" style={{ color: PRIMARY }} />
-                  <h3 className="mt-4 text-lg font-extrabold tracking-tight">{p.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[#5f655c]">{p.body}</p>
-                </motion.div>
-              )
-            })}
-          </div>
-
-          {/* Open jobs sit inside the same band rather than getting their own */}
-          <motion.div
-            {...fadeUp(0.1)}
-            className="mt-14 flex flex-wrap items-end justify-between gap-3 border-t border-[#e4dfd5] pt-10"
-          >
-            <h3 className="text-xl font-extrabold tracking-tight sm:text-2xl">Open jobs right now</h3>
-            <Link
-              href="/move/shifts"
-              className="inline-flex items-center gap-1.5 text-sm font-bold transition hover:gap-2.5"
-              style={{ color: PRIMARY }}
-            >
-              See all jobs
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </motion.div>
-
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            {openJobs.map((s, i) => (
+        {/* Mode strip — fills the “empty” band under the hero */}
+        <div className="relative border-y border-[#e4dfd5]" style={{ background: SURFACE }}>
+          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px bg-[#e4dfd5] sm:grid-cols-4">
+            {FREIGHT_MODE_OPTIONS.map((m, i) => (
               <motion.div
-                key={s.route}
-                {...fadeUp(0.05 * i)}
-                className="rounded-2xl border border-[#e4dfd5] bg-white px-5 py-4 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/[0.05]"
+                key={m.key}
+                {...fadeUp(0.04 * i)}
+                className="px-4 py-4 sm:px-5 sm:py-5"
+                style={{ background: SURFACE }}
               >
-                <div className="text-xl font-extrabold">{s.pay}</div>
-                <div className="mt-1 text-sm font-semibold text-[#5f655c]">{s.vehicle}</div>
-                <div className="mt-1 text-sm text-[#8a8f86]">{s.route}</div>
+                <div className="text-sm font-extrabold tracking-tight">{m.label}</div>
+                <div className="mt-0.5 text-xs text-[#7c827a]">{m.sub}</div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* How it works — also carries the closing call to action            */}
-      {/* ---------------------------------------------------------------- */}
-      <section id="how-it-works" className="scroll-mt-20 py-16 lg:py-20" style={{ background: INK }}>
+      {/* Why */}
+      <section className="py-12 sm:py-14 lg:py-16" style={{ background: CREAM }}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+          <motion.h2 {...fadeUp()} className="max-w-2xl text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
+            Built for export and import.
+          </motion.h2>
+          <motion.p {...fadeUp(0.04)} className="mt-2 max-w-xl text-[#5f655c]">
+            One partner from warehouse to destination — Nigerian ports and airports at the centre.
+          </motion.p>
+
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+            {valueProps.map((p, i) => {
+              const Glyph = p.glyph
+              return (
+                <motion.div key={p.title} {...fadeUp(0.05 * i)}>
+                  <Glyph className="h-7 w-7" style={{ color: PRIMARY }} />
+                  <h3 className="mt-3 text-base font-extrabold tracking-tight sm:text-lg">{p.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-[#5f655c]">{p.body}</p>
+                </motion.div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Services — all five, denser */}
+      <section className="border-t border-[#e4dfd5] py-12 sm:py-14 lg:py-16" style={{ background: SURFACE }}>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <motion.h2 {...fadeUp()} className="text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
+                Services
+              </motion.h2>
+              <motion.p {...fadeUp(0.04)} className="mt-1.5 max-w-lg text-[#5f655c]">
+                End-to-end freight for commercial shippers.
+              </motion.p>
+            </div>
+            <Link
+              href="/services"
+              className="inline-flex items-center gap-1.5 text-sm font-bold transition hover:gap-2.5"
+              style={{ color: PRIMARY }}
+            >
+              All services
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="mt-8 grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+            {SERVICES.map((s, i) => {
+              const Icon = serviceIcons[s.key as keyof typeof serviceIcons] ?? Ship
+              return (
+                <motion.div key={s.key} {...fadeUp(0.04 * i)} className="flex gap-3">
+                  <Icon className="mt-0.5 h-5 w-5 shrink-0" style={{ color: PRIMARY }} strokeWidth={2.25} />
+                  <div>
+                    <h3 className="text-base font-extrabold tracking-tight">{s.title}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-[#5f655c]">{s.body}</p>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Gateways + corridors */}
+      <section className="border-t border-[#e4dfd5] py-12 sm:py-14 lg:py-16" style={{ background: CREAM }}>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <motion.h2 {...fadeUp()} className="text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
+            Gateways & corridors
+          </motion.h2>
+          <motion.p {...fadeUp(0.04)} className="mt-1.5 max-w-xl text-[#5f655c]">
+            Trade lanes centred on Nigerian ports and airports.
+          </motion.p>
+
+          <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {gateways.map((g, i) => (
+              <motion.div
+                key={g.name}
+                {...fadeUp(0.04 * i)}
+                className="rounded-2xl border border-[#e4dfd5] px-4 py-4"
+                style={{ background: SURFACE }}
+              >
+                <div className="text-sm font-extrabold tracking-tight">{g.name}</div>
+                <div className="mt-1 text-xs text-[#7c827a]">{g.detail}</div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="mt-8 divide-y divide-[#e4dfd5] border-y border-[#e4dfd5]">
+            {CORRIDORS.map((c, i) => (
+              <motion.div
+                key={c.key}
+                {...fadeUp(0.03 * i)}
+                className="flex flex-col gap-0.5 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8"
+              >
+                <div className="text-[15px] font-extrabold tracking-tight">{c.label}</div>
+                <div className="text-sm text-[#5f655c] sm:text-right">{c.hubs}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section id="how-it-works" className="scroll-mt-20 py-12 sm:py-14 lg:py-16" style={{ background: INK }}>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
             <motion.div {...fadeUp()}>
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#f3aa79]">
                 How it works
               </span>
-              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-                From open job
+              <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-white sm:text-3xl lg:text-4xl">
+                From quote
                 <br />
-                <span className="text-white/50">to money in your wallet.</span>
+                <span className="text-white/50">to cargo on the move.</span>
               </h2>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/move/shifts"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-7 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90"
-                  style={{ background: PRIMARY, boxShadow: "0 10px 26px rgba(224,81,31,.34)" }}
+                  href="/quote"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-base font-bold text-white transition hover:opacity-90"
+                  style={{ background: PRIMARY, boxShadow: "0 10px 24px rgba(224,81,31,.34)" }}
                 >
-                  Find work
+                  Get a quote
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
-                  href="/fleet/dashboard"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/20 px-7 py-4 text-base font-semibold text-white transition hover:bg-white/10"
+                  href="/contact"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/20 px-7 py-3.5 text-base font-semibold text-white transition hover:bg-white/10"
                 >
-                  Post a job
+                  Talk to us
                 </Link>
               </div>
             </motion.div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               {steps.map((s, i) => (
                 <motion.div
                   key={s.step}
-                  {...fadeUp(0.06 * i)}
-                  className="flex items-start gap-5 rounded-3xl border border-white/10 bg-white/[0.04] p-6"
+                  {...fadeUp(0.05 * i)}
+                  className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4"
                 >
                   <span className="font-mono text-sm font-bold text-[#f3aa79]">{s.step}</span>
                   <div>
-                    <p className="text-base font-bold text-white">{s.label}</p>
-                    <p className="mt-1 text-sm text-white/55">{s.sub}</p>
+                    <p className="text-sm font-bold text-white sm:text-base">{s.label}</p>
+                    <p className="mt-0.5 text-sm text-white/55">{s.sub}</p>
                   </div>
                 </motion.div>
               ))}
@@ -266,6 +335,8 @@ export function HomePageClient() {
           </div>
         </div>
       </section>
+
+      <LandingFooter />
     </div>
   )
 }

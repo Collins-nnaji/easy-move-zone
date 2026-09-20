@@ -1,10 +1,11 @@
 import type { Metadata } from "next"
 import { PublicShell } from "@/components/platform/PublicShell"
 import { ContactPageClient } from "@/components/platform/ContactPageClient"
+import { CarsShell } from "@/components/cars/CarsShell"
 
 export const metadata: Metadata = {
-  title: "Contact | EasyMoveZone",
-  description: "Reach EasyMoveZone for move planning, visa questions, bookings, and relocation support.",
+  title: "Contact",
+  description: "Reach EasyMoveZone about a car, finance, part exchange, or an import in transit.",
 }
 
 function firstString(v: string | string[] | undefined): string | undefined {
@@ -45,7 +46,9 @@ export default async function ContactPage({
 
   return (
     <PublicShell>
-      <ContactPageClient initialMessage={initialMessage} pageContext={pageContext} />
+      <CarsShell>
+        <ContactPageClient initialMessage={initialMessage} pageContext={pageContext} />
+      </CarsShell>
     </PublicShell>
   )
 }

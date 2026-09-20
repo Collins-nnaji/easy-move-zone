@@ -4,7 +4,7 @@ import { PublicShell } from "@/components/platform/PublicShell";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "Terms for using the EasyMoveZone logistics marketplace.",
+  description: "Terms for using EasyMoveZone international logistics and freight services.",
 };
 
 export default function TermsPage() {
@@ -13,40 +13,45 @@ export default function TermsPage() {
       <article className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#e0511f]">Legal</p>
         <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-[#1b231e]">Terms of Service</h1>
-        <p className="mt-3 text-sm text-[#6e746b]">Last updated: July 20, 2026</p>
+        <p className="mt-3 text-sm text-[#6e746b]">Last updated: September 20, 2026</p>
 
         <div className="prose-emz mt-8 space-y-5 text-[15px] leading-relaxed text-[#4a5047]">
           <p>
-            EasyMoveZone is a commission-based logistics marketplace connecting fleet operators with
-            independent drivers and truck owners. By creating an account or booking a load, you agree
-            to these terms.
+            EasyMoveZone provides international logistics and freight forwarding services for cargo
+            moving between Nigeria and the rest of the world, including sea, air, road, customs
+            coordination, and warehousing. By requesting a quote, booking a shipment, or creating an
+            account, you agree to these terms.
           </p>
-          <h2 className="text-lg font-bold text-[#1b231e]">1. Marketplace role</h2>
+          <h2 className="text-lg font-bold text-[#1b231e]">1. Services</h2>
           <p>
-            EasyMoveZone provides software tools to post, fund, claim, and complete loads. We are not
-            the carrier, broker of record for every load, or employer of drivers unless separately
-            agreed in writing.
+            We arrange and coordinate freight on your behalf. Actual carriage may be performed by
+            ocean carriers, airlines, trucking partners, or other subcontractors. Unless we expressly
+            agree in writing to act as carrier of record, we act as a freight forwarder / logistics
+            coordinator.
           </p>
-          <h2 className="text-lg font-bold text-[#1b231e]">2. Booking & escrow</h2>
+          <h2 className="text-lg font-bold text-[#1b231e]">2. Quotes & bookings</h2>
           <p>
-            Fleet operators must fund escrow before a load is bookable. Drivers claim or accept offers
-            only on funded loads. Platform commission is deducted when a load is marked complete.
+            Quotes are estimates based on the information you provide (cargo, weight/volume, mode,
+            Incoterms, and routing). Final charges may change if cargo details, documentation, or
+            carrier rates change before sailing or flight. Bookings are confirmed when we issue a
+            booking confirmation and any required deposit is received.
           </p>
-          <h2 className="text-lg font-bold text-[#1b231e]">3. Accounts & compliance</h2>
+          <h2 className="text-lg font-bold text-[#1b231e]">3. Shipper responsibilities</h2>
           <p>
-            You must provide accurate profile and licensing information. Drivers are responsible for
-            maintaining a valid driver’s licence, insurance, medical fitness certification, and any endorsements required for
-            the cargo they accept.
+            You must provide accurate cargo descriptions, values, HS codes where applicable, and all
+            documents required for export from or import into Nigeria. Dangerous goods must be
+            declared. Delays or penalties from inaccurate information are your responsibility.
           </p>
           <h2 className="text-lg font-bold text-[#1b231e]">4. Payments</h2>
           <p>
-            Payouts and funding may be processed by Stripe or recorded on our ledger during staging.
-            Cashouts may include a micro-fee disclosed in the wallet.
+            Invoices are due as stated on the quote or booking confirmation. Payments may be
+            processed via Paystack or other processors we designate. Unpaid balances may result in
+            cargo hold or suspension of services.
           </p>
-          <h2 className="text-lg font-bold text-[#1b231e]">5. Ratings & conduct</h2>
+          <h2 className="text-lg font-bold text-[#1b231e]">5. Limitation</h2>
           <p>
-            After completion, parties may rate each other. Fraud, harassment, or unsafe operations may
-            result in suspension.
+            Liability for loss or damage is limited to the extent permitted by applicable law and any
+            governing transport conventions or carrier terms that apply to your shipment.
           </p>
           <h2 className="text-lg font-bold text-[#1b231e]">6. Contact</h2>
           <p>

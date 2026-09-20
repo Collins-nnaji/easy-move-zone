@@ -8,15 +8,12 @@ export default neonAuthMiddleware({ loginUrl: "/auth" })
  * the edge without database access. Role checks live in the layouts
  * (lib/auth/guard.ts) and admin checks in lib/auth/admin.ts.
  *
- * Public by design: /, /start, /driver, /company, /contact, /auth, /legal/*.
- * Note /driver and /company are marketing pages — the driver *app* is /move
- * and the company *app* is /fleet.
- *
- * Bare paths are listed alongside :path* because "/move/:path*" does not
- * match "/move" itself.
+ * Public by design: /, /services, /quote, /track, /about, /contact, /auth, /legal/*.
  */
 export const config = {
   matcher: [
+    "/app",
+    "/app/:path*",
     "/move",
     "/move/:path*",
     "/fleet",

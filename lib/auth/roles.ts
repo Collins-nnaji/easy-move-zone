@@ -21,8 +21,8 @@ export const ACCOUNT_ROLES: readonly AccountRole[] = ["driver", "company"] as co
 
 /** Where each role's app lives. */
 export const ROLE_HOME: Record<AccountRole, string> = {
-  driver: "/move/shifts",
-  company: "/fleet/dashboard",
+  driver: "/app/legs",
+  company: "/app",
 }
 
 /** Narrow an untrusted string (query param, request body) to a role. */

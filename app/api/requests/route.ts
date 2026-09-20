@@ -8,7 +8,16 @@ export const runtime = "nodejs"
 const DATABASE_URL = process.env.DATABASE_URL ?? process.env.NEON_DATABASE_URL
 const sql = DATABASE_URL ? neon(DATABASE_URL) : null
 
-const GOALS = new Set<RequestGoal>(["work", "study", "visa", "relocate", "other"])
+const GOALS = new Set<RequestGoal>([
+  "work",
+  "study",
+  "visa",
+  "relocate",
+  "export",
+  "import",
+  "freight",
+  "other",
+])
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(request: Request) {
@@ -28,10 +37,15 @@ export async function POST(request: Request) {
     const name = String(body.name ?? "").trim().slice(0, 120)
     const email = String(body.email ?? "").trim().toLowerCase().slice(0, 254)
     const phone = String(body.phone ?? "").trim().slice(0, 40) || null
-    const goal = GOALS.has(body.goal as RequestGoal) ? (body.goal as RequestGoal) : "relocate"
+    const goalRaw = GOALS.has(body.goal as RequestGoal) ? (body.goal as RequestGoal) : "freight"
+    // DB check constraint still allows only legacy goals — map freight intents to "other".
+    const LEGACY_GOALS = new Set(["work", "study", "visa", "relocate", "other"])
+    const goal = LEGACY_GOALS.has(goalRaw) ? goalRaw : "other"
     const destination = String(body.destination ?? "").trim().slice(0, 120) || null
     const timeline = String(body.timeline ?? "").trim().slice(0, 80) || null
-    const message = String(body.message ?? "").trim().slice(0, 4000)
+    const messageRaw = String(body.message ?? "").trim().slice(0, 4000)
+    const message =
+      goalRaw !== goal ? `[${goalRaw}] ${messageRaw}`.trim().slice(0, 4000) : messageRaw
 
     if (name.length < 2) return Response.json({ error: "Please enter your name." }, { status: 400 })
     if (!EMAIL_RE.test(email)) return Response.json({ error: "Please enter a valid email." }, { status: 400 })

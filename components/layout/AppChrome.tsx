@@ -7,42 +7,68 @@ import { PlatformFooter } from "@/components/platform/PlatformFooter"
 import { SupportWidget } from "@/components/platform/SupportWidget"
 import { ClientErrorBoundary } from "@/components/monitoring/ClientErrorBoundary"
 
+const MARKETING_OWN_CHROME = new Set([
+  "/",
+  "/services",
+  "/quote",
+  "/track",
+  "/about",
+  "/driver",
+  "/company",
+  "/cars",
+  "/finance",
+  "/sell",
+  "/saved",
+  "/account",
+  "/enquire",
+  "/how-it-works",
+  "/contact",
+  "/parts",
+  "/garages",
+])
+
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   const isAuth = pathname === "/auth" || pathname.startsWith("/auth/")
-  // The role chooser is the app entry point — render it full-bleed with no
-  // marketing nav/footer so it feels like a native app splash.
   const isStart = pathname === "/start"
-  // Audience landings bring their own nav + footer (LandingNav/LandingFooter),
-  // so the shared marketing chrome must not be added on top.
-  const isLanding = pathname === "/driver" || pathname === "/company"
+  const isMarketingLanding =
+    MARKETING_OWN_CHROME.has(pathname) ||
+    pathname.startsWith("/cars/") ||
+    pathname.startsWith("/parts/") ||
+    pathname.startsWith("/garages/")
   const isApp =
     pathname === "/move" ||
     pathname.startsWith("/move/") ||
     pathname === "/fleet" ||
-    pathname.startsWith("/fleet/")
+    pathname.startsWith("/fleet/") ||
+    pathname === "/app" ||
+    pathname.startsWith("/app/")
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/")
 
   useEffect(() => {
     document.body.classList.toggle("move-app-active", isApp)
+    // Marketing pages end on a dark footer — match body so no cream strip peeks below.
+    document.body.classList.toggle("emz-marketing", isMarketingLanding)
     return () => {
       document.body.classList.remove("move-app-active")
+      document.body.classList.remove("emz-marketing")
     }
-  }, [isApp])
+  }, [isApp, isMarketingLanding])
 
   if (isStart) {
     return (
       <ClientErrorBoundary>
-        <main className="flex-1 min-w-0">{children}</main>
+        <main className="min-w-0">{children}</main>
       </ClientErrorBoundary>
     )
   }
 
-  if (isLanding) {
+  if (isMarketingLanding) {
+    // No flex-1 — that stretched main past the footer and left empty white space.
     return (
       <ClientErrorBoundary>
-        <main className="flex-1 min-w-0">
+        <main className="min-w-0">
           {children}
           <SupportWidget />
         </main>

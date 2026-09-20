@@ -6,7 +6,7 @@ drop table if exists community_replies cascade;
 drop table if exists community_topics cascade;
 drop table if exists service_bookings cascade;
 drop table if exists service_managers cascade;
-drop table if exists relocation_requests cascade;
+-- Keep relocation_requests — reused as freight quote / lead inbox for /admin/requests
 drop table if exists move_bookings cascade;
 drop table if exists move_jobs cascade;
 drop table if exists move_schools cascade;

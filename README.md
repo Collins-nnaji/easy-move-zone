@@ -1,37 +1,26 @@
 # EasyMoveZone
 
-EasyMoveZone is a travel intelligence and execution platform for international travelers. The product combines destination decision support, on-the-ground awareness, and preparation workflows in one experience.
+EasyMoveZone is an international logistics and export company moving freight between Nigeria and the world — sea, air, road, customs clearance, and warehousing.
 
-## Core Features
+## Day-one live surfaces
 
-The current product architecture is documented in [docs/easymovezone-core-features.md](docs/easymovezone-core-features.md).
+- **Marketing site:** `/` · `/services` · `/quote` · `/track` · `/about` · `/contact`
+- **Client portal:** `/app` (shipper + carrier workspaces)
+- **Admin:** `/admin` (quotes/leads under Requests)
 
-- Travel Intelligence Core
-  - Visa Intelligence + Legal and Compliance Navigator + Decision Intelligence Coach
-- Situational Awareness Core
-  - Smart Map Safety Layer + Country Reality Check + Live News Event Map
-- Travel Execution Core
-  - Readiness Checklist + Persona Engine + Booking Integrations
-
-## Local Development
-
-Run the development server:
+## Local development
 
 ```bash
 npm run dev
 ```
 
-Then open `http://localhost:3000`.
+Open `http://localhost:3000`.
 
-## Main App Areas
+## Product notes
 
-- Public marketing site: `app/page.tsx` and `components/platform/*`
-- Move app experience: `app/move/*`
-- Auth and user workspace: `app/auth/*`, `app/profile/*`, `app/dashboard/*`
-- APIs: `app/api/*`
-- Shared libraries: `lib/*`
-
-## Product Notes
-
-- The homepage feature section reflects the three current product cores.
-- Product copy, design direction, and feature planning should stay aligned to the architecture in `docs/easymovezone-core-features.md`.
+- Brand and design tokens live in `lib/brand.ts` and `app/globals.css` (cream / terracotta).
+- Freight catalog (modes, corridors, cargo classes): `lib/logistics/catalog.ts`
+- Quote intake: `POST /api/quote` → contact submissions (+ optional `freight_quotes` table)
+- Public tracking: `GET /api/track/[ref]` — demo refs `EMZ-NG-1001`, `EMZ-NG-1002`
+- Legacy `/move` and `/fleet` redirect into `/app`
+- Apply DB migration when ready: `db/migrations/20260920_freight_quotes_and_tracking.sql`

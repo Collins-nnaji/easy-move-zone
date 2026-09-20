@@ -1,6 +1,6 @@
 {
   "name": "easy-move-zone",
-  "description": "Commission-based logistics marketplace for drivers, truck owners, and fleet operators",
+  "description": "International logistics and export — Nigeria to the world, and back",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -19,6 +19,7 @@
     "cap:assets": "npx @capacitor/assets@3 generate --iconBackgroundColor '#f6f3ec' --splashBackgroundColor '#f6f3ec'"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1136.0",
     "@capacitor/android": "^6.2.0",
     "@capacitor/app": "^6.0.2",
     "@capacitor/core": "^6.2.0",

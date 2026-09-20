@@ -1,17 +1,20 @@
 import type { Metadata } from "next"
 import { PublicShell } from "@/components/platform/PublicShell"
-import { HomePageClient } from "@/components/platform/HomePageClient"
+import { CarsShell } from "@/components/cars/CarsShell"
+import { HomeCarsClient } from "@/components/cars/HomeCarsClient"
+import { BRAND } from "@/lib/brand"
 
 export const metadata: Metadata = {
-  title: "Commercial driving shifts for drivers",
-  description:
-    "Claim local commercial driving shifts, track routes live, cash out instantly, and keep compliance docs verified.",
+  title: BRAND.tagline,
+  description: BRAND.description,
 }
 
 export default async function HomePage() {
   return (
     <PublicShell>
-      <HomePageClient />
+      <CarsShell>
+        <HomeCarsClient />
+      </CarsShell>
     </PublicShell>
   )
 }

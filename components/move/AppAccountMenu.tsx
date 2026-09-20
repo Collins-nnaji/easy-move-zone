@@ -35,7 +35,7 @@ export function AppAccountMenu({ role, compact = false }: AppAccountMenuProps) {
   }, []);
 
   const profileHref = role === "driver" ? "/profile/driver" : "/profile/company";
-  const profileLabel = role === "driver" ? "Driver profile" : "Company profile";
+  const profileLabel = role === "driver" ? "Carrier profile" : "Shipper profile";
 
   useEffect(() => {
     if (!open) return;
