@@ -1,18 +1,19 @@
 /**
- * Azure OpenAI + fallback OpenAI client for property AI features.
+ * Azure OpenAI + fallback OpenAI client.
  *
  * Priority: Azure OpenAI (if configured) → OpenAI (fallback)
  *
  * Env vars:
- *   AZURE_OPENAI_API_KEY
- *   AZURE_OPENAI_ENDPOINT        (e.g. https://YOUR_RESOURCE.openai.azure.com — trailing slash OK)
- *   AZURE_OPENAI_DEPLOYMENT      (your Azure deployment name, e.g. gpt-4o-mini)
- *   AZURE_OPENAI_API_VERSION     (e.g. 2024-02-15-preview — must match what your resource supports)
+ *   AZURE_OPENAI_API_KEY or AZURE_OPENAI_KEY
+ *   AZURE_OPENAI_ENDPOINT        (e.g. https://YOUR_RESOURCE.openai.azure.com)
+ *   AZURE_OPENAI_DEPLOYMENT      (deployment name)
+ *   AZURE_OPENAI_API_VERSION
  *   OPENAI_API_KEY               (fallback when Azure is not set)
  */
 import OpenAI from "openai"
 
-const azureKey = process.env.AZURE_OPENAI_API_KEY?.trim()
+const azureKey =
+  process.env.AZURE_OPENAI_API_KEY?.trim() || process.env.AZURE_OPENAI_KEY?.trim()
 const azureEndpoint = (process.env.AZURE_OPENAI_ENDPOINT ?? "").replace(/\/+$/, "")
 const azureDeployment = (process.env.AZURE_OPENAI_DEPLOYMENT ?? "gpt-4o").trim()
 const azureApiVersion =
@@ -66,17 +67,22 @@ export async function chatJson<T>(
   systemPrompt: string,
   userPrompt: string,
   fallback: T,
+  options?: { maxTokens?: number; temperature?: number },
 ): Promise<T> {
   if (!client) return fallback
   try {
+    const provider = getAiProvider()
+    const maxTokens = options?.maxTokens ?? 1000
     const completion = await client.chat.completions.create({
-      model: getAiProvider() === "azure-openai" ? azureDeployment : "gpt-4o-mini",
-      temperature: 0.2,
+      model: provider === "azure-openai" ? azureDeployment : "gpt-4o-mini",
+      temperature: options?.temperature ?? 0.2,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      max_tokens: 1000,
+      ...(provider === "azure-openai"
+        ? { max_completion_tokens: maxTokens }
+        : { max_tokens: maxTokens }),
     })
     const content = completion.choices[0]?.message?.content?.trim() ?? ""
     const jsonMatch = content.match(/\{[\s\S]*\}/)
@@ -96,14 +102,17 @@ export async function chatStream(
 ): Promise<string> {
   if (!client) return "AI features are not configured."
   try {
+    const provider = getAiProvider()
     const completion = await client.chat.completions.create({
-      model: getAiProvider() === "azure-openai" ? azureDeployment : "gpt-4o-mini",
+      model: provider === "azure-openai" ? azureDeployment : "gpt-4o-mini",
       temperature: 0.3,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      max_tokens: 800,
+      ...(provider === "azure-openai"
+        ? { max_completion_tokens: 800 }
+        : { max_tokens: 800 }),
     })
     return completion.choices[0]?.message?.content?.trim() ?? ""
   } catch (e) {

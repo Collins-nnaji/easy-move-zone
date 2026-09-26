@@ -99,7 +99,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
             transition={{ duration: 0.5, delay: 0.08, ease: easeOut }}
             className="mt-4 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base"
           >
-            Questions about loads, payouts, fleet posting, or compliance? Send a note — we read every message.
+            Questions about career assessments, sponsorship jobs, or your account? Send a note — we read every message.
           </motion.p>
 
           <motion.div
@@ -115,17 +115,17 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               {PUBLIC_CONTACT_EMAIL}
             </a>
             <Link
-              href="/move"
+              href="/easymovescore"
               className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 underline decoration-orange-500/35 underline-offset-4 hover:text-white"
             >
-              Open driver app
+              EasyMove Score
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              href="/fleet"
+              href="/work-simulation"
               className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 underline decoration-orange-500/35 underline-offset-4 hover:text-white"
             >
-              Fleet console
+              Work Simulation
               <ArrowRight className="h-4 w-4" />
             </Link>
           </motion.div>
@@ -140,11 +140,11 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               <ul className="mt-6 space-y-4 text-sm text-[#475569]">
                 <li className="flex gap-3">
                   <MessageSquare className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />
-                  <span>Driver payouts, compliance vault, and load claims.</span>
+                  <span>Career assessments, badges, and skill-gap questions.</span>
                 </li>
                 <li className="flex gap-3">
                   <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />
-                  <span>Fleet posting, funding loads, and finding rated drivers.</span>
+                  <span>Visa sponsor search and sponsorship job listings.</span>
                 </li>
                 <li className="flex gap-3">
                   <Phone className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />

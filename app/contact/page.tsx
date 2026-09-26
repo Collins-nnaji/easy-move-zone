@@ -3,8 +3,8 @@ import { PublicShell } from "@/components/platform/PublicShell"
 import { ContactPageClient } from "@/components/platform/ContactPageClient"
 
 export const metadata: Metadata = {
-  title: "Contact | EasyMoveZone",
-  description: "Reach EasyMoveZone for move planning, visa questions, bookings, and relocation support.",
+  title: "Contact",
+  description: "Contact EasyMoveZone about career moves, sponsorship jobs, or specialist relocation support.",
 }
 
 function firstString(v: string | string[] | undefined): string | undefined {

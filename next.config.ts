@@ -1,20 +1,18 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'images.unsplash.com' },
-      { protocol: 'https', hostname: 'plus.unsplash.com' },
-      { protocol: 'https', hostname: 'easymovezone.s3.eu-west-3.idrivee2.com' },
-      { protocol: 'https', hostname: 's3.eu-west-3.idrivee2.com' },
-      { protocol: 'https', hostname: '*.blob.core.windows.net' },
-      { protocol: 'https', hostname: 'br-crimson-silence-ai1l8fhm.storage.c-4.us-east-1.aws.neon.tech' },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "plus.unsplash.com" },
+      { protocol: "https", hostname: "easymovezone.s3.eu-west-3.idrivee2.com" },
+      { protocol: "https", hostname: "s3.eu-west-3.idrivee2.com" },
+      { protocol: "https", hostname: "*.blob.core.windows.net" },
+      { protocol: "https", hostname: "br-crimson-silence-ai1l8fhm.storage.c-4.us-east-1.aws.neon.tech" },
     ],
   },
   async redirects() {
-    // The property marketplace has been retired. Old property/marketing URLs now
-    // funnel into the Move app; informational pages go home.
-    const toMove = [
+    const toHome = [
       "/purchase",
       "/properties",
       "/own",
@@ -30,45 +28,65 @@ const nextConfig: NextConfig = {
       "/cities",
       "/plan",
       "/onboarding",
+      "/relocate",
+      "/marketplace",
+      "/employers",
+      "/driver",
+      "/company",
+      "/start",
+      "/move",
+      "/fleet",
+      "/explore",
+      "/settle",
+      "/arrived",
+      "/passport",
+      "/fund",
+      "/community",
+      "/adviser",
+      "/paths",
+      "/destinations",
+      "/about",
+      "/pricing",
+      "/connect",
+      "/portal",
+      "/corporate",
+      "/dashboard",
+      "/index",
     ]
-    const moveRedirects = toMove.flatMap((source) => [
-      { source, destination: "/move", permanent: false },
-      { source: `${source}/:path*`, destination: "/move", permanent: false },
+
+    const homeRedirects = toHome.flatMap((source) => [
+      { source, destination: "/", permanent: true },
+      { source: `${source}/:path*`, destination: "/", permanent: true },
     ])
 
     return [
-      // Front door → role chooser. Each audience then gets its own landing
-      // (/driver, /company), so no single page mixes the two experiences.
-      { source: "/", destination: "/start", permanent: false },
-      ...moveRedirects,
-      { source: "/relocate/hub", destination: "/move", permanent: false },
-      { source: "/relocate/hub/:path*", destination: "/move", permanent: false },
-      { source: "/relocate", destination: "/move", permanent: false },
-      { source: "/settle", destination: "/move", permanent: false },
-      { source: "/settle/:path*", destination: "/move", permanent: false },
-      { source: "/index", destination: "/", permanent: false },
-      { source: "/about", destination: "/", permanent: false },
-      { source: "/pricing", destination: "/", permanent: false },
-      { source: "/app/dashboard", destination: "/fleet", permanent: false },
-      { source: "/app/:path*", destination: "/move", permanent: false },
-      { source: "/dashboard", destination: "/move", permanent: false },
-      { source: "/dashboard/:path*", destination: "/move", permanent: false },
-      { source: "/move/explore", destination: "/move", permanent: false },
-      { source: "/move/explore/:path*", destination: "/move", permanent: false },
-      { source: "/move/spectrum", destination: "/move", permanent: false },
-      { source: "/move/schools", destination: "/move", permanent: false },
-      { source: "/move/services", destination: "/move", permanent: false },
-      { source: "/move/community", destination: "/move", permanent: false },
-      { source: "/move/search", destination: "/move", permanent: false },
-      { source: "/connect", destination: "/", permanent: false },
-      { source: "/community", destination: "/", permanent: false },
-      { source: "/portal", destination: "/", permanent: false },
-      { source: "/portal/:path*", destination: "/", permanent: false },
-      { source: "/corporate", destination: "/", permanent: false },
-      { source: "/corp/:path*", destination: "/", permanent: false },
+      ...homeRedirects,
+      { source: "/profile/driver", destination: "/profile", permanent: true },
+      { source: "/profile/company", destination: "/profile", permanent: true },
+      { source: "/legal/independent-contractor", destination: "/legal/terms", permanent: true },
+      { source: "/can-i-move", destination: "/easymovescore", permanent: true },
+      { source: "/can-i-move/:path*", destination: "/easymovescore", permanent: true },
+      { source: "/career-lab", destination: "/easymovescore", permanent: true },
+      { source: "/career-lab/:path*", destination: "/easymovescore", permanent: true },
+      { source: "/assessments", destination: "/work-simulation", permanent: true },
+      { source: "/assessments/:path*", destination: "/work-simulation", permanent: true },
+      { source: "/path", destination: "/easymovescore", permanent: true },
+      { source: "/path/:path*", destination: "/easymovescore", permanent: true },
+      { source: "/practice", destination: "/work-simulation", permanent: true },
+      { source: "/practice/:path*", destination: "/work-simulation", permanent: true },
+      { source: "/app/:path*", destination: "/", permanent: true },
+      { source: "/corp/:path*", destination: "/", permanent: true },
       { source: "/signup", destination: "/auth?mode=signup", permanent: false },
+      { source: "/admin/kyc", destination: "/admin", permanent: true },
+      { source: "/admin/cashouts", destination: "/admin", permanent: true },
+      { source: "/admin/disputes", destination: "/admin", permanent: true },
+      { source: "/admin/bookings", destination: "/admin", permanent: true },
+      { source: "/admin/catalog", destination: "/admin", permanent: true },
+      { source: "/admin/guides", destination: "/admin", permanent: true },
+      { source: "/admin/services", destination: "/admin", permanent: true },
+      { source: "/admin/requests", destination: "/admin", permanent: true },
     ]
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig

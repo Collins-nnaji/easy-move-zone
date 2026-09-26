@@ -1,53 +1,22 @@
 import { redirect } from "next/navigation"
 import { neonAuth } from "@neondatabase/auth/next/server"
-import { getUserRoles, ROLE_HOME, type AccountRole, type SessionRoles } from "@/lib/auth/roles"
-import { ensureDriverProfile } from "@/lib/driver/service"
-import { ensureFleetProfile } from "@/lib/fleet/service"
+import type { SessionRoles } from "@/lib/auth/roles"
 
-/**
- * Server-side gate for a role-scoped app section (/move, /fleet).
- *
- *   no session          -> /auth?redirect=<here>   (sign in)
- *   session, no role    -> provision it, then continue
- *   session, has role   -> continue
- *
- * A signed-in user is NEVER sent back to /auth. Doing so caused a loop:
- * /auth?role=company -> /fleet/dashboard -> guard fails -> /auth?role=company.
- * Since arriving here with a session is an explicit request to use this app,
- * the missing profile row is simply created rather than bounced to a chooser.
- *
- * Call this from a layout so every route beneath it is covered — middleware
- * alone can't check roles, because it can't reach the database.
- */
-export async function requireRole(role: AccountRole, currentPath: string): Promise<SessionRoles> {
+/** Require a signed-in user for protected server pages. */
+export async function requireSignedIn(currentPath: string): Promise<SessionRoles> {
   const { session, user } = await neonAuth()
-
-  // Genuinely signed out — the only case that may send someone to /auth.
   if (!session || !user?.id) {
     redirect(`/auth?redirect=${encodeURIComponent(currentPath)}`)
   }
-
-  const userId = String(user.id)
-  const base = { userId, email: user.email ?? null, name: user.name ?? null }
-
-  // Let a DB failure surface as an error page instead of an infinite redirect.
-  let roles = await getUserRoles(userId)
-
-  if (!roles.includes(role)) {
-    if (role === "driver") await ensureDriverProfile(userId)
-    else await ensureFleetProfile(userId)
-    roles = [...roles, role]
+  return {
+    userId: String(user.id),
+    email: user.email ?? null,
+    name: user.name ?? null,
+    roles: [],
   }
-
-  return { ...base, roles }
 }
 
-/**
- * For /start and post-auth landing: where should this user go next?
- * Sends single-role users straight into their app and leaves dual-role or
- * role-less users on the chooser.
- */
-export function defaultHomeForRoles(roles: AccountRole[]): string | null {
-  if (roles.length === 1) return ROLE_HOME[roles[0]]
-  return null
+/** @deprecated Logistics apps removed — always sends users to EasyMove Score. */
+export function defaultHomeForRoles(_roles: unknown[]): string {
+  return "/easymovescore"
 }

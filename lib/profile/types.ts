@@ -1,7 +1,9 @@
-import type { WorkMode } from "@/lib/relocate/types"
+import type { CareerProfile } from "@/lib/career/profile-store"
+import type { CheckDocumentMeta } from "@/lib/check/types"
 
 export type ContactMethod = "email" | "phone" | "whatsapp"
 export type MoveStayPreference = "trip" | "nomad" | "move"
+export type WorkMode = "onsite" | "hybrid" | "remote" | "business_owner" | "student"
 
 export interface UserProfile {
   role: "buyer" | "seller"
@@ -31,6 +33,8 @@ export interface SavedSearch {
 
 export interface ProfileWorkspaceData {
   profile: UserProfile
+  career: CareerProfile
+  documents: CheckDocumentMeta[]
   savedSearches: SavedSearch[]
 }
 

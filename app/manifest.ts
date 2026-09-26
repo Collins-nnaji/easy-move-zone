@@ -6,9 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: BRAND.name,
     short_name: BRAND.shortName,
     description: BRAND.description,
-    // Open on the role chooser so the installed app lets you pick Company or
-    // Driver, then routes into that experience.
-    start_url: "/start",
+    start_url: "/",
     display: "standalone",
     background_color: BRAND.backgroundColor,
     theme_color: BRAND.themeColor,

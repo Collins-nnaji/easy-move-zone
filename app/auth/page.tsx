@@ -3,38 +3,41 @@ import { Suspense } from "react"
 import { AuthInlineCard } from "@/components/platform/AuthInlineCard"
 import { PublicShell } from "@/components/platform/PublicShell"
 import { SiteLogo } from "@/components/brand/SiteLogo"
-import { Sparkles } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description:
-    "Create an account or sign in to claim loads, post fleet routes, and cash out earnings.",
+  description: "Sign in to save your mobility profile, move fund, and passport checklist.",
 }
 
 export default function AuthPage() {
   return (
     <PublicShell>
       <section className="relative overflow-hidden px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#e0511f]/[0.06] via-transparent to-transparent" />
-        <div className="relative mx-auto w-full max-w-xl">
-          <div className="emz-hero-bento mb-8 p-8 text-center">
-            <span className="emz-section-eyebrow mx-auto">
-              <Sparkles className="h-3.5 w-3.5" />
-              Secure access
-            </span>
-            <div className="mx-auto mt-5 flex items-center justify-center">
-              <SiteLogo href={null} height={48} priority />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(60% 50% at 12% 0%, rgba(224,81,31,0.14) 0%, transparent 60%), radial-gradient(55% 45% at 100% 10%, rgba(243,170,121,0.18) 0%, transparent 55%)",
+          }}
+        />
+        <div className="relative mx-auto w-full max-w-md">
+          <div className="mb-8 text-center">
+            <div className="mx-auto flex items-center justify-center">
+              <SiteLogo href="/" height={40} priority />
             </div>
-            <h1 className="mt-5 font-[var(--font-bricolage)] text-3xl font-bold text-[#0f172a] sm:text-4xl">
+            <h1 className="page-title mt-6 max-w-xl text-2xl font-extrabold tracking-tight text-[#1b231e] sm:text-3xl">
               Welcome back
             </h1>
-            <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-[#475569]">
-              Sign in to claim loads as a driver, post routes as a fleet operator, or cash out earnings.
+            <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-[#5f655c]">
+              Sign in to keep your mobility profile, destinations, and move fund on this account.
             </p>
           </div>
           <Suspense
             fallback={
-              <div className="emz-rich-card animate-pulse p-8 text-center text-sm text-[#64748b]">Loading sign-in…</div>
+              <div className="rounded-3xl border border-[#e4dfd5] bg-white p-8 text-center text-sm text-[#7c827a]">
+                Loading sign-in…
+              </div>
             }
           >
             <AuthInlineCard redirectIfAuthenticated />

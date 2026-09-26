@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { PublicShell } from "@/components/platform/PublicShell";
+import type { Metadata } from "next"
+import Link from "next/link"
+import { PublicShell } from "@/components/platform/PublicShell"
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "Terms for using the EasyMoveZone logistics marketplace.",
-};
+  description: "Terms for using EasyMoveZone career, sponsorship, and relocation tools.",
+}
 
 export default function TermsPage() {
   return (
@@ -13,47 +13,49 @@ export default function TermsPage() {
       <article className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#e0511f]">Legal</p>
         <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-[#1b231e]">Terms of Service</h1>
-        <p className="mt-3 text-sm text-[#6e746b]">Last updated: July 20, 2026</p>
+        <p className="mt-3 text-sm text-[#6e746b]">Last updated: September 26, 2026</p>
 
-        <div className="prose-emz mt-8 space-y-5 text-[15px] leading-relaxed text-[#4a5047]">
+        <div className="mt-8 space-y-5 text-[15px] leading-relaxed text-[#4a5047]">
           <p>
-            EasyMoveZone is a commission-based logistics marketplace connecting fleet operators with
-            independent drivers and truck owners. By creating an account or booking a load, you agree
-            to these terms.
+            EasyMoveZone provides software tools to explore career moves abroad, check visa sponsorship
+            signals, practise role assessments, and request specialist support. By creating an account or
+            using the product, you agree to these terms.
           </p>
-          <h2 className="text-lg font-bold text-[#1b231e]">1. Marketplace role</h2>
+          <h2 className="text-lg font-bold text-[#1b231e]">1. Not legal or immigration advice</h2>
           <p>
-            EasyMoveZone provides software tools to post, fund, claim, and complete loads. We are not
-            the carrier, broker of record for every load, or employer of drivers unless separately
-            agreed in writing.
+            Scores, Fit Checks, sponsor lists, news, and simulations are informational. They are not
+            immigration, legal, or employment advice. Always verify requirements with official government
+            sources and qualified advisers before you apply or relocate.
           </p>
-          <h2 className="text-lg font-bold text-[#1b231e]">2. Booking & escrow</h2>
+          <h2 className="text-lg font-bold text-[#1b231e]">2. Accounts</h2>
           <p>
-            Fleet operators must fund escrow before a load is bookable. Drivers claim or accept offers
-            only on funded loads. Platform commission is deducted when a load is marked complete.
+            You must provide accurate account and profile information. You are responsible for activity
+            under your login and for documents you upload.
           </p>
-          <h2 className="text-lg font-bold text-[#1b231e]">3. Accounts & compliance</h2>
+          <h2 className="text-lg font-bold text-[#1b231e]">3. Content & jobs</h2>
           <p>
-            You must provide accurate profile and licensing information. Drivers are responsible for
-            maintaining a valid driver’s licence, insurance, medical fitness certification, and any endorsements required for
-            the cargo they accept.
+            Job and sponsor data may come from public registers and third-party listings. We do not
+            guarantee vacancies, sponsorship outcomes, or that a listing remains open.
           </p>
-          <h2 className="text-lg font-bold text-[#1b231e]">4. Payments</h2>
+          <h2 className="text-lg font-bold text-[#1b231e]">4. Specialist support</h2>
           <p>
-            Payouts and funding may be processed by Stripe or recorded on our ledger during staging.
-            Cashouts may include a micro-fee disclosed in the wallet.
+            Enquiries submitted via specialist support are requests for follow-up, not a guaranteed
+            service engagement until separately confirmed.
           </p>
-          <h2 className="text-lg font-bold text-[#1b231e]">5. Ratings & conduct</h2>
+          <h2 className="text-lg font-bold text-[#1b231e]">5. Acceptable use</h2>
           <p>
-            After completion, parties may rate each other. Fraud, harassment, or unsafe operations may
-            result in suspension.
+            Do not misuse the platform, attempt unauthorised access, or upload unlawful content. We may
+            suspend accounts that abuse the service.
           </p>
-          <h2 className="text-lg font-bold text-[#1b231e]">6. Contact</h2>
           <p>
-            Questions: <Link href="/contact" className="font-semibold text-[#e0511f]">Contact us</Link>.
+            See our{" "}
+            <Link href="/legal/privacy" className="font-semibold text-[#e0511f] underline-offset-2 hover:underline">
+              Privacy Policy
+            </Link>{" "}
+            for how we handle personal data.
           </p>
         </div>
       </article>
     </PublicShell>
-  );
+  )
 }

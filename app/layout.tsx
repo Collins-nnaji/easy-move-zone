@@ -53,7 +53,9 @@ export default function RootLayout({
         <ToastProvider>
           <NativeBridge />
           <AuthSessionCleanup />
-          <AppChrome>{children}</AppChrome>
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <AppChrome>{children}</AppChrome>
+          </div>
         </ToastProvider>
       </body>
     </html>

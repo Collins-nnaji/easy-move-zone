@@ -93,7 +93,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   return (
     <ToastContext.Provider value={api}>
-      {children}
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">{children}</div>
       <ToastViewport toasts={toasts} onDismiss={dismiss} />
     </ToastContext.Provider>
   );

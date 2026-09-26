@@ -20,6 +20,19 @@ export async function saveProfile(profile: Partial<UserProfile>): Promise<UserPr
   return ((await res.json()) as { profile: UserProfile }).profile
 }
 
+export async function saveCareerProfileClient(
+  career: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const res = await fetch("/api/profile", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ career }),
+  })
+  if (res.status === 401) throw new Error("unauthorized")
+  if (!res.ok) throw new Error("failed")
+  return ((await res.json()) as { career: Record<string, unknown> }).career
+}
+
 export async function createSavedSearch(input: {
   name: string
   citySlug?: string

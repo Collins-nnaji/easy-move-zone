@@ -1,11 +1,17 @@
 import type { Metadata } from "next"
 import { PublicShell } from "@/components/platform/PublicShell"
 import { HomePageClient } from "@/components/platform/HomePageClient"
+import { BRAND } from "@/lib/brand"
 
 export const metadata: Metadata = {
-  title: "Commercial driving shifts for drivers",
-  description:
-    "Claim local commercial driving shifts, track routes live, cash out instantly, and keep compliance docs verified.",
+  title: { absolute: `${BRAND.name} — ${BRAND.tagline}` },
+  description: BRAND.description,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: `${BRAND.name} — ${BRAND.tagline}`,
+    description: BRAND.description,
+    url: "/",
+  },
 }
 
 export default async function HomePage() {

@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
-import { BRAND } from "@/lib/brand";
+import type { Metadata } from "next"
+import { BRAND } from "@/lib/brand"
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL
   ? new URL(process.env.NEXT_PUBLIC_APP_URL)
-  : new URL(BRAND.url);
+  : new URL(BRAND.url)
 
 export const siteMetadata: Metadata = {
   metadataBase: siteUrl,
@@ -14,19 +14,21 @@ export const siteMetadata: Metadata = {
   description: BRAND.description,
   applicationName: BRAND.name,
   keywords: [
-    "Nigeria logistics",
-    "Lagos truck drivers",
-    "driver shifts",
-    "fleet operators Nigeria",
-    "instant pay",
-    "delivery driver Lagos",
-    "fleet management",
+    "visa sponsorship jobs",
+    "skilled worker visa",
+    "career change abroad",
+    "UK sponsor licence",
+    "EasyMove Score",
+    "work simulation",
+    "sponsored jobs UK",
+    "relocate for work",
+    "career assessment",
     "EasyMoveZone",
   ],
   authors: [{ name: BRAND.name }],
   creator: BRAND.name,
   publisher: BRAND.name,
-  category: "business",
+  category: "career",
   formatDetection: {
     email: false,
     address: false,
@@ -34,7 +36,7 @@ export const siteMetadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    locale: "en_NG",
+    locale: "en_GB",
     url: siteUrl,
     siteName: BRAND.name,
     title: `${BRAND.name} — ${BRAND.tagline}`,
@@ -42,17 +44,30 @@ export const siteMetadata: Metadata = {
     images: [
       {
         url: BRAND.logo,
-        width: 512,
-        height: 315,
+        width: 1440,
+        height: 515,
         alt: BRAND.logoAlt,
       },
     ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: `${BRAND.name} — ${BRAND.tagline}`,
     description: BRAND.description,
     images: [BRAND.logo],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: siteUrl,
   },
   appleWebApp: {
     capable: true,
@@ -70,4 +85,4 @@ export const siteMetadata: Metadata = {
   other: {
     "mobile-web-app-capable": "yes",
   },
-};
+}

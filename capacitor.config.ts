@@ -19,9 +19,8 @@ const origin = (
   process.env.NEXT_PUBLIC_APP_URL?.trim() ||
   "https://easymovezone.com"
 ).replace(/\/+$/, "");
-// Open the app on the role chooser (Company / Driver). Override the landing
-// path with CAP_ENTRY_PATH if needed.
-const entryPath = process.env.CAP_ENTRY_PATH?.trim() || "/start";
+// Open the consumer move-abroad product. Override with CAP_ENTRY_PATH if needed.
+const entryPath = process.env.CAP_ENTRY_PATH?.trim() || "/";
 const serverUrl = `${origin}${entryPath}`;
 
 const config: CapacitorConfig = {
