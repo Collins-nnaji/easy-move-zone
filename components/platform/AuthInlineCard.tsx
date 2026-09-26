@@ -14,12 +14,9 @@ export function AuthInlineCard({
 }: { redirectIfAuthenticated?: boolean; hideWhenAuthenticated?: boolean }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const role = searchParams.get("role")
-  // Only "driver"/"company" are logistics roles. Everyone else lands in the
-  // move-abroad product after sign-in.
-  const signupRole = role === "company" || role === "driver" ? role : null
-  const roleRedirect = "/can-i-move"
-  const redirectTarget = searchParams.get("redirect") ?? roleRedirect
+  const requested = searchParams.get("redirect")
+  const redirectTarget =
+    requested && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/easymovescore"
   const urlMode = searchParams.get("mode")
   const [mode, setMode] = useState<Mode>(urlMode === "signup" ? "sign-up" : "sign-in")
   const [name, setName] = useState("")
@@ -32,38 +29,8 @@ export function AuthInlineCard({
 
   useEffect(() => {
     if (!redirectIfAuthenticated || !sessionData?.user) return
-    let cancelled = false
-    void (async () => {
-      if (signupRole) {
-        try {
-          await fetch("/api/auth/roles", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ role: signupRole }),
-          })
-        } catch {
-          /* layout guard provisions as a fallback for logistics roles */
-        }
-      }
-      if (!cancelled) window.location.assign(redirectTarget)
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [sessionData?.user, redirectTarget, redirectIfAuthenticated, signupRole])
-
-  async function provisionRole() {
-    if (!signupRole) return
-    try {
-      await fetch("/api/auth/roles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: signupRole }),
-      })
-    } catch {
-      /* ignore — consumer accounts do not need a logistics role */
-    }
-  }
+    window.location.assign(redirectTarget)
+  }, [sessionData?.user, redirectTarget, redirectIfAuthenticated])
 
   if (hideWhenAuthenticated && sessionData?.user) return null
 
@@ -101,7 +68,6 @@ export function AuthInlineCard({
         setError("Sign-in did not complete. Check your email and password.")
         return
       }
-      await provisionRole()
       window.location.assign(redirectTarget)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Authentication failed.")
@@ -114,10 +80,7 @@ export function AuthInlineCard({
     setLoading("google")
     setError(null)
     try {
-      const callbackURL = signupRole
-        ? `/auth/callback?role=${signupRole}&redirect=${encodeURIComponent(redirectTarget)}`
-        : `/auth/callback?redirect=${encodeURIComponent(redirectTarget)}`
-      const result = await authClient.signIn.social({ provider: "google", callbackURL })
+      const result = await authClient.signIn.social({ provider: "google", callbackURL: redirectTarget })
       if (result.error) {
         setError(result.error.message || "Google sign-in failed. Please try again.")
         setLoading(null)

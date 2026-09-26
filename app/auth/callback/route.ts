@@ -1,9 +1,11 @@
-import { neonAuth } from "@neondatabase/auth/next/server"
-
 export const runtime = "nodejs"
 
+const VERIFIER_PARAM = "neon_auth_session_verifier"
+
 /**
- * Post-OAuth landing. Always redirects into the career product.
+ * Legacy OAuth landing. The session is not readable here yet — Neon Auth only
+ * exchanges the verifier in middleware, which skips /auth/* — so forward to the
+ * target with the verifier intact and let middleware finish sign-in there.
  */
 export async function GET(request: Request) {
   const url = new URL(request.url)
@@ -12,13 +14,11 @@ export async function GET(request: Request) {
   // Only allow same-origin relative paths — an attacker-supplied absolute URL
   // here would turn sign-in into an open redirect.
   const safeRedirect =
-    requested && requested.startsWith("/") && !requested.startsWith("//") ? requested : null
+    requested && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/easymovescore"
 
-  const { session, user } = await neonAuth()
-  if (!session || !user?.id) {
-    return Response.redirect(new URL("/auth", url.origin), 303)
-  }
+  const target = new URL(safeRedirect, url.origin)
+  const verifier = url.searchParams.get(VERIFIER_PARAM)
+  if (verifier) target.searchParams.set(VERIFIER_PARAM, verifier)
 
-  const target = safeRedirect ?? "/easymovescore"
-  return Response.redirect(new URL(target, url.origin), 303)
+  return Response.redirect(target, 303)
 }

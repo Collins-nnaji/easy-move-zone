@@ -6,7 +6,7 @@ import { SiteLogo } from "@/components/brand/SiteLogo"
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description: "Sign in to save your mobility profile, move fund, and passport checklist.",
+  description: "Sign in to save your EasyMove Score, career profile, CVs, and assessment badges.",
 }
 
 export default function AuthPage() {
@@ -30,7 +30,7 @@ export default function AuthPage() {
               Welcome back
             </h1>
             <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-[#5f655c]">
-              Sign in to keep your mobility profile, destinations, and move fund on this account.
+              Sign in to keep your EasyMove Score, career profile, CVs, and badges on one account.
             </p>
           </div>
           <Suspense
