@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { ChevronDown, ExternalLink, MapPin, Search, SlidersHorizontal, X } from "lucide-react"
+import { BadgeCheck, ChevronDown, CreditCard, ExternalLink, FileText, LockKeyhole, MapPin, Search, SlidersHorizontal, X } from "lucide-react"
 import { CompanyLogo } from "@/components/career/CompanyLogo"
 
 type BoardJob = {
@@ -37,7 +37,7 @@ type Filters = {
 }
 
 const PAGE_SIZE = 20
-const PRIMARY = "#e0511f"
+const PRIMARY = "#2f5d50"
 const INK = "#1b231e"
 const TWIN_KEY = "emz.career.twin.skills.v1"
 const SAMPLE_SKILLS = ["Excel", "Communication", "Reporting"] as const
@@ -55,6 +55,13 @@ type FitCheckResult = {
   strongestSellingPoint: string
   applyAdvice: "prepare" | "skip"
   applyReasons: string[]
+}
+
+type SubscriptionState = {
+  active: boolean
+  status: string
+  customerId: string | null
+  paymentLink?: string
 }
 
 const EMPTY_FILTERS: Filters = {
@@ -141,7 +148,7 @@ function FilterSection({
   )
 }
 
-export function JobsClient() {
+export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
   const [jobs, setJobs] = useState<BoardJob[]>([])
   const [facets, setFacets] = useState<FacetCounts>({
     countries: {},
@@ -163,6 +170,9 @@ export function JobsClient() {
   const [fit, setFit] = useState<FitCheckResult | null>(null)
   const [fitBusy, setFitBusy] = useState(false)
   const [userSkills, setUserSkills] = useState<string[]>([])
+  const [selectedJobId, setSelectedJobId] = useState(initialJobId)
+  const [subscription, setSubscription] = useState<SubscriptionState | null>(null)
+  const [billingBusy, setBillingBusy] = useState(false)
 
   useEffect(() => {
     let mounted = true
@@ -195,8 +205,42 @@ export function JobsClient() {
     }
   }, [])
 
+  useEffect(() => {
+    let active = true
+    const returningFromCheckout = new URLSearchParams(window.location.search).get("subscription") === "success"
+    const loadSubscription = async () => {
+      for (let attempt = 0; attempt < (returningFromCheckout ? 5 : 1); attempt += 1) {
+        const data = await fetch("/api/subscription/status", { cache: "no-store" }).then((res) => (res.ok ? res.json() : null)).catch(() => null)
+        if (!active) return
+        if (data) setSubscription(data)
+        if (data?.active || !returningFromCheckout) return
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+      }
+    }
+    void loadSubscription()
+    return () => { active = false }
+  }, [])
+
+  async function openBilling(action: "checkout" | "portal") {
+    setBillingBusy(true)
+    try {
+      const res = await fetch(`/api/subscription/${action}`, { method: "POST" })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Could not open Stripe")
+      if (data.url) window.location.href = data.url
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not open Stripe")
+    } finally {
+      setBillingBusy(false)
+    }
+  }
+
   async function openFitCheck(jobId: string) {
     setFitJobId(jobId)
+    if (!subscription?.active) {
+      setFit(null)
+      return
+    }
     setFitBusy(true)
     setFit(null)
     try {
@@ -229,6 +273,7 @@ export function JobsClient() {
       const params = new URLSearchParams()
       params.set("page", String(page))
       params.set("limit", String(PAGE_SIZE))
+      if (selectedJobId) params.set("id", selectedJobId)
       if (query.trim()) params.set("q", query.trim())
       for (const value of filters.location) params.append("country", value)
       for (const value of filters.experienceLevel) params.append("experienceLevel", value)
@@ -248,7 +293,7 @@ export function JobsClient() {
     } finally {
       setLoading(false)
     }
-  }, [filters, page, query])
+  }, [filters, page, query, selectedJobId])
 
   useEffect(() => {
     void load()
@@ -281,6 +326,7 @@ export function JobsClient() {
   )
 
   function toggle(key: keyof Filters, value: string) {
+    setSelectedJobId("")
     setFilters((current) => {
       const list = current[key]
       const next = list.includes(value) ? list.filter((item) => item !== value) : [...list, value]
@@ -294,6 +340,7 @@ export function JobsClient() {
     setDraftQuery("")
     setQuery("")
     setPage(1)
+    setSelectedJobId("")
   }
 
   const rangeStart = jobs.length ? (page - 1) * PAGE_SIZE + 1 : 0
@@ -364,6 +411,17 @@ export function JobsClient() {
         <p className="mt-1 max-w-xl text-sm text-[#5f655c]">
           Sponsored roles with Fit Check — must-haves, overlap, and when to skip.
         </p>
+        <div className={`mt-4 flex flex-col gap-3 rounded-2xl border p-4 sm:flex-row sm:items-center sm:justify-between ${subscription?.active ? "border-emerald-200 bg-emerald-50" : "border-[#ead4c4] bg-[#fff8f2]"}`}>
+          <div className="flex items-start gap-3">
+            <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${subscription?.active ? "bg-emerald-100 text-emerald-700" : "bg-[#fbe6da] text-[#e0511f]"}`}>
+              {subscription?.active ? <BadgeCheck className="h-4 w-4" /> : <LockKeyhole className="h-4 w-4" />}
+            </span>
+            <div><p className="text-sm font-extrabold">{subscription?.active ? "Jobs membership active" : "Unlock Fit Check and application packs"}</p><p className="mt-0.5 text-xs leading-relaxed text-[#626861]">{subscription?.active ? "Create a tailored CV and application pack from any role." : "Browse every role for free. Subscribe when you want tailored analysis and application documents."}</p></div>
+          </div>
+          <button type="button" disabled={billingBusy || !subscription} onClick={() => void openBilling(subscription?.active ? "portal" : "checkout")} className={`inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl px-4 text-xs font-extrabold disabled:opacity-50 ${subscription?.active ? "border border-emerald-300 bg-white text-emerald-800" : "bg-[#e0511f] text-white"}`}>
+            <CreditCard className="h-3.5 w-3.5" />{billingBusy ? "Opening Stripe…" : subscription?.active ? "Manage subscription" : "Subscribe"}
+          </button>
+        </div>
       </div>
 
       {/* Thin blended search — same page colour, hairline only */}
@@ -374,6 +432,7 @@ export function JobsClient() {
               className="relative min-w-0 flex-1"
               onSubmit={(event) => {
                 event.preventDefault()
+                setSelectedJobId("")
                 setQuery(draftQuery)
                 setPage(1)
               }}
@@ -381,7 +440,7 @@ export function JobsClient() {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa094]" />
               <input
                 value={draftQuery}
-                onChange={(event) => setDraftQuery(event.target.value)}
+                onChange={(event) => { setDraftQuery(event.target.value); setSelectedJobId("") }}
                 placeholder="Search jobs, companies, locations…"
                 className="h-10 w-full rounded-xl border border-[#e4dfd5] bg-white pl-10 pr-10 text-sm outline-none focus:border-[#e0511f]"
               />
@@ -389,6 +448,7 @@ export function JobsClient() {
                 <button
                   type="button"
                   onClick={() => {
+                    setSelectedJobId("")
                     setDraftQuery("")
                     setQuery("")
                     setPage(1)
@@ -554,8 +614,14 @@ export function JobsClient() {
                   </div>
                   {fitJobId === job.id && (
                     <div className="mt-3 rounded-xl border border-[#e4dfd5] bg-[#f6f3ec]/80 p-3 text-sm">
+                      {!subscription?.active && (
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div><p className="font-extrabold">This is a member feature</p><p className="mt-1 text-xs text-[#626861]">Subscribe to run Fit Check and build a tailored application pack.</p></div>
+                          <button type="button" disabled={billingBusy} onClick={() => void openBilling("checkout")} className="rounded-lg bg-[#e0511f] px-4 py-2 text-xs font-bold text-white">Subscribe with Stripe</button>
+                        </div>
+                      )}
                       {fitBusy && <p className="text-[#7c827a]">Building Fit Check…</p>}
-                      {fit && !fitBusy && (
+                      {fit && !fitBusy && subscription?.active && (
                         <div className="space-y-2">
                           {usingSampleSkills && (
                             <p className="rounded-lg bg-white/80 px-2.5 py-1.5 text-[11px] font-medium text-[#7a3b24]">
@@ -564,8 +630,8 @@ export function JobsClient() {
                                 Profile
                               </a>{" "}
                               or run{" "}
-                              <a href="/easymovescore" className="font-bold underline underline-offset-2">
-                                EasyMove Score
+                              <a href="/workspace" className="font-bold underline underline-offset-2">
+                                My Workspace
                               </a>
                               .
                             </p>
@@ -587,6 +653,9 @@ export function JobsClient() {
                           <p className="text-xs"><strong>Missing:</strong> {fit.missing.join(", ") || "None detected"}</p>
                           <p className="text-xs"><strong>Sponsorship:</strong> {fit.sponsorship.vacancyStatement} ({fit.sponsorship.employerSignal})</p>
                           <p className="text-xs"><strong>Sell:</strong> {fit.strongestSellingPoint}</p>
+                          <a href={`/application-pack?jobId=${encodeURIComponent(job.id)}`} className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#1b231e] px-4 py-2 text-xs font-extrabold text-white">
+                            <FileText className="h-3.5 w-3.5" /> Create CV & application pack
+                          </a>
                         </div>
                       )}
                     </div>

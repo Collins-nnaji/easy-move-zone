@@ -2,9 +2,10 @@
 
 import Link from "next/link"
 import { motion, useReducedMotion } from "framer-motion"
-import { ArrowRight, BadgeCheck, ClipboardCheck, Headphones } from "lucide-react"
+import { ArrowRight, BriefcaseBusiness, CheckCircle2, Globe2, Compass, Headphones, Route } from "lucide-react"
+import { HomeJobsPreview } from "@/components/platform/HomeJobsPreview"
 
-const PRIMARY = "#e0511f"
+const PRIMARY = "#2f5d50"
 const INK = "#1b231e"
 const easeOut = [0.16, 1, 0.3, 1] as const
 
@@ -38,19 +39,6 @@ function VerifiedChecklistIcon({ className }: { className?: string }) {
   )
 }
 
-function VisaWorldIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-      <circle cx="24" cy="24" r="18" stroke="currentColor" strokeWidth="2.25" />
-      <ellipse cx="24" cy="24" rx="8" ry="18" stroke="currentColor" strokeWidth="2" />
-      <path d="M6.5 24h35M8.5 15.5h31M8.5 32.5h31" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-      <rect x="28" y="28" width="14" height="11" rx="2" fill="#efece4" stroke="currentColor" strokeWidth="2" />
-      <path d="M31 31.5h8M31 35h5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <circle cx="38.5" cy="35" r="1.4" fill="currentColor" />
-    </svg>
-  )
-}
-
 /** Large hero visual: sponsorship checklist with verified seal. */
 function HeroVerifiedVisual() {
   return (
@@ -70,7 +58,7 @@ function HeroVerifiedVisual() {
       <g filter="url(#heroSoft)">
         <rect x="78" y="56" width="264" height="340" rx="28" fill="url(#heroSheet)" stroke="#e4dfd5" strokeWidth="2" />
         <rect x="150" y="40" width="120" height="36" rx="12" fill="#1b231e" />
-        <rect x="178" y="50" width="64" height="16" rx="8" fill="#e0511f" />
+        <rect x="178" y="50" width="64" height="16" rx="8" fill="#2f5d50" />
 
         {[
           { y: 120, label: "Licensed employer", done: true },
@@ -126,25 +114,16 @@ function HeroVerifiedVisual() {
   )
 }
 
-const entryPoints = [
-  {
-    href: "/easymovescore",
-    title: "EasyMove Score",
-    body: "One signed-in flow: upload your CV, pick any country and target careers, get move chances, simulator, and skill ROI together.",
-    icon: BadgeCheck,
-  },
-  {
-    href: "/sponsors",
-    title: "Visa sponsorship jobs",
-    body: "Check licensed sponsor registers by country — UK live today, more destinations next — then open careers pages we already track.",
-    icon: VisaWorldIcon,
-  },
-  {
-    href: "/work-simulation",
-    title: "Work Simulation",
-    body: "Timed role simulations with badges once EasyMove Score locks your target career.",
-    icon: ClipboardCheck,
-  },
+const journeyModes = [
+  { icon: BriefcaseBusiness, title: "Move careers", body: "Compare your current skills with target roles, uncover gaps, and see which learning gives you the strongest return." },
+  { icon: Globe2, title: "Move countries", body: "Understand route strength, sponsorship needs, readiness gaps, and the practical next steps for your destination." },
+  { icon: Route, title: "Move both", body: "Plan a career transition and an international move together, so your new role supports the route you want." },
+] as const
+
+const steps = [
+  { number: "01", title: "Tell us your direction", body: "Choose career, country, or both. Add only the details relevant to that plan." },
+  { number: "02", title: "Build your evidence", body: "Upload a CV or use the guided form. We map skills, experience, routes, and live market demand." },
+  { number: "03", title: "Act on one clear report", body: "Prioritise the best route, close the highest-value gaps, and move into jobs or simulations." },
 ] as const
 
 export function HomePageClient() {
@@ -181,7 +160,7 @@ export function HomePageClient() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(70% 55% at 8% -10%, rgba(224,81,31,0.22) 0%, transparent 55%), radial-gradient(50% 40% at 92% 20%, rgba(27,35,30,0.08) 0%, transparent 50%), linear-gradient(180deg, #f3efe7 0%, #efece4 55%, #e8e3d8 100%)",
+              "radial-gradient(70% 55% at 8% -10%, rgba(47,93,80,0.18) 0%, transparent 55%), radial-gradient(50% 40% at 92% 20%, rgba(27,35,30,0.08) 0%, transparent 50%), linear-gradient(180deg, #f3f2ec 0%, #efece4 55%, #e8e3d8 100%)",
           }}
         />
         <div
@@ -226,11 +205,11 @@ export function HomePageClient() {
               className="mt-5 flex flex-col gap-2.5 sm:mt-6 sm:flex-row sm:flex-wrap sm:items-stretch"
             >
               <Link
-                href="/easymovescore"
+                href="/workspace"
                 className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-2xl px-5 text-[15px] font-bold text-white transition hover:brightness-105 sm:min-h-12 sm:min-w-[11rem] sm:flex-none sm:px-6 sm:text-base"
-                style={{ background: PRIMARY, boxShadow: "0 12px 28px rgba(224,81,31,.3)" }}
+                style={{ background: PRIMARY, boxShadow: "0 12px 28px rgba(47,93,80,.24)" }}
               >
-                Open EasyMove Score
+                Open My Workspace
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
@@ -267,28 +246,59 @@ export function HomePageClient() {
         </div>
       </section>
 
-      <section className="border-t border-[#e4dfd5] bg-[#f6f3ec] py-10 sm:py-14">
+      <section className="border-t border-[#ded8cc] bg-[#1b231e] py-5 text-white">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-5 px-4 sm:grid-cols-4 sm:px-6 lg:px-8">
+          {[['3', 'planning modes'], ['20', 'jobs on this page'], ['1', 'joined-up report'], ['24/7', 'self-serve planning']].map(([value, label]) => (
+            <div key={label} className="text-center sm:text-left"><p className="text-2xl font-extrabold text-[#9bc2b5]">{value}</p><p className="text-xs font-semibold text-white/65">{label}</p></div>
+          ))}
+        </div>
+      </section>
+
+      <HomeJobsPreview />
+
+      <section className="bg-white py-14 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.h2 {...fadeUp()} className="max-w-3xl text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
-            Skills, sponsorship, proof — same engine.
-          </motion.h2>
-          <p className="mt-2 max-w-2xl text-sm text-[#5f655c] sm:mt-3 sm:text-base">
-            For one person the constraint is skills. For another, it is a visa sponsor in the right country. Both end in
-            roles you can actually apply for.
-          </p>
-          <div className="mt-6 grid gap-3 sm:mt-8 sm:gap-4 lg:grid-cols-3">
-            {entryPoints.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="rounded-3xl border border-[#e4dfd5] bg-white p-4 transition hover:border-[#e0511f]/40 sm:p-5"
-              >
-                <item.icon className="h-6 w-6 text-[#e0511f]" />
-                <h3 className="mt-3 text-lg font-extrabold sm:mt-4 sm:text-xl">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#5f655c]">{item.body}</p>
-              </Link>
+          <motion.div {...fadeUp()} className="mx-auto max-w-3xl text-center">
+            <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#e0511f]">Start with your real goal</p>
+            <h2 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">One score, shaped around the move you are making.</h2>
+            <p className="mt-3 text-[#60665f]">Choose your direction once. EasyMove adapts the assessment, recommendations, and next steps to what you are actually trying to change.</p>
+          </motion.div>
+          <div className="mt-8 grid gap-4 lg:grid-cols-3">
+            {journeyModes.map((mode, index) => (
+              <motion.div key={mode.title} {...fadeUp(index * .05)} className="rounded-3xl border border-[#e4dfd5] bg-[#faf8f3] p-6">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#dfeae6] text-[#2f5d50]"><mode.icon className="h-5 w-5" /></span>
+                <h3 className="mt-5 text-xl font-extrabold">{mode.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#646a63]">{mode.body}</p>
+              </motion.div>
             ))}
           </div>
+          <motion.div {...fadeUp(0.1)} className="mt-6 rounded-3xl bg-[#1b231e] p-6 text-white sm:mt-8 sm:p-8">
+            <div className="grid gap-7 lg:grid-cols-[1fr_1.35fr] lg:items-center">
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#9bc2b5]">One joined-up plan</p>
+                <h3 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">Skills, sponsorship and proof—working together.</h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/70">Your score finds the constraint that matters, then connects it to roles you can pursue and practical actions you can take.</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  ["Skills", "Role gaps and learning ROI"],
+                  ["Sponsorship", "Route readiness and employers"],
+                  ["Proof", "Work simulations and evidence"],
+                ].map(([title, body]) => (
+                  <div key={title} className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+                    <CheckCircle2 className="h-5 w-5 text-[#9bc2b5]" />
+                    <p className="mt-3 text-sm font-extrabold">{title}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-white/60">{body}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-7 flex justify-center border-t border-white/10 pt-6">
+              <Link href="/workspace" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2f5d50] px-6 py-3.5 text-sm font-extrabold text-white transition hover:bg-[#376d5d]">
+                Open My Workspace <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </motion.div>
 
           <motion.div
             {...fadeUp(0.06)}
@@ -315,15 +325,34 @@ export function HomePageClient() {
             <Link href="/jobs" className="text-sm font-bold text-[#4a5047] underline-offset-4 hover:underline">
               Browse sponsorship jobs worldwide
             </Link>
-            <Link href="/news" className="text-sm font-bold text-[#4a5047] underline-offset-4 hover:underline">
-              Immigration news
-            </Link>
             <Link href="/specialist-support" className="text-sm font-bold text-[#4a5047] underline-offset-4 hover:underline">
               Specialist enquiry
             </Link>
             <Link href="/contact" className="text-sm font-bold text-[#4a5047] underline-offset-4 hover:underline">
               Contact
             </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-14 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
+            <motion.div {...fadeUp()}>
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1b231e] text-white"><Compass className="h-5 w-5" /></span>
+              <h2 className="mt-5 text-3xl font-extrabold tracking-tight sm:text-4xl">From uncertainty to a next step you can use.</h2>
+              <p className="mt-3 text-sm leading-relaxed text-[#626861] sm:text-base">EasyMoveZone brings career fit, immigration routes, sponsorship signals, and practice into one decision flow.</p>
+              <div className="mt-6 space-y-3">
+                {["Personalised to your direction", "Built around evidence from your CV", "Connected to live jobs and sponsor checks"].map((item) => <p key={item} className="flex items-center gap-2 text-sm font-bold"><CheckCircle2 className="h-4 w-4 text-[#e0511f]" />{item}</p>)}
+              </div>
+            </motion.div>
+            <div className="space-y-3">
+              {steps.map((item, index) => (
+                <motion.div key={item.number} {...fadeUp(index * .05)} className="grid grid-cols-[3rem_1fr] gap-4 rounded-2xl border border-[#e4dfd5] bg-[#faf8f3] p-5">
+                  <span className="text-lg font-extrabold text-[#e0511f]">{item.number}</span><div><h3 className="font-extrabold">{item.title}</h3><p className="mt-1 text-sm leading-relaxed text-[#686e67]">{item.body}</p></div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

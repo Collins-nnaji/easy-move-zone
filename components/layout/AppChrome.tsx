@@ -10,7 +10,11 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAuth = pathname === "/auth" || pathname.startsWith("/auth/")
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/")
-  const isHomeLanding = pathname === "/"
+  const showFooter =
+    pathname === "/" ||
+    pathname.startsWith("/legal/") ||
+    pathname === "/contact" ||
+    pathname === "/specialist-support"
 
   if (isAuth) {
     return (
@@ -28,7 +32,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <PlatformNav />
         <main className="min-h-0 min-w-0 flex-1">{children}</main>
-        {isHomeLanding && <PlatformFooter />}
+        {showFooter && <PlatformFooter />}
         {!isAdmin && <SupportWidget />}
       </div>
     </ClientErrorBoundary>

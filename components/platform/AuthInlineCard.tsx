@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { FormEvent, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { authClient } from "@/lib/auth/client"
@@ -16,7 +17,7 @@ export function AuthInlineCard({
   const searchParams = useSearchParams()
   const requested = searchParams.get("redirect")
   const redirectTarget =
-    requested && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/easymovescore"
+    requested && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/workspace"
   const urlMode = searchParams.get("mode")
   const [mode, setMode] = useState<Mode>(urlMode === "signup" ? "sign-up" : "sign-in")
   const [name, setName] = useState("")
@@ -190,6 +191,11 @@ export function AuthInlineCard({
           )}
         </button>
       </form>
+      <p className="mt-4 text-center text-[11px] leading-relaxed text-[#7c827a]">
+        By continuing, you agree to our{" "}
+        <Link href="/legal/terms" className="font-semibold text-[#4a5047] underline underline-offset-2">Terms of Service</Link> and{" "}
+        <Link href="/legal/privacy" className="font-semibold text-[#4a5047] underline underline-offset-2">Privacy Policy</Link>.
+      </p>
     </div>
   )
 }

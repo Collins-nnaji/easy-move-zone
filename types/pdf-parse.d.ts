@@ -1,6 +1,12 @@
 declare module "pdf-parse" {
-  export class PDFParse {
-    constructor(options: { data?: Buffer | Uint8Array; url?: string })
-    getText(): Promise<{ text?: string }>
+  type PdfParseResult = {
+    numpages: number
+    numrender: number
+    info: Record<string, unknown>
+    metadata: unknown
+    text: string
+    version: string
   }
+
+  export default function pdfParse(data: Buffer | Uint8Array): Promise<PdfParseResult>
 }

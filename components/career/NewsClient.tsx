@@ -107,8 +107,8 @@ export function NewsClient({ initial }: { initial: Article[] }) {
 
         <p className="mt-8 text-center text-sm text-[#7c827a]">
           Planning a move?{" "}
-          <Link href="/easymovescore" className="font-bold text-[#e0511f] underline-offset-2 hover:underline">
-            Open EasyMove Score
+          <Link href="/workspace" className="font-bold text-[#e0511f] underline-offset-2 hover:underline">
+            Open My Workspace
           </Link>
         </p>
       </div>

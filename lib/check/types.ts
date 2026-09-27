@@ -8,6 +8,8 @@ export type CheckDocumentMeta = {
   bytes: number
   excerpt: string | null
   createdAt: string
+  /** True when the original file is kept in object storage and can be viewed or downloaded. */
+  hasFile?: boolean
 }
 
 export type CheckInput = {

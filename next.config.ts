@@ -64,6 +64,13 @@ const nextConfig: NextConfig = {
       { source: "/profile/driver", destination: "/profile", permanent: true },
       { source: "/profile/company", destination: "/profile", permanent: true },
       { source: "/legal/independent-contractor", destination: "/legal/terms", permanent: true },
+      { source: "/privacy", destination: "/legal/privacy", permanent: true },
+      { source: "/terms", destination: "/legal/terms", permanent: true },
+      { source: "/cookies", destination: "/legal/cookies", permanent: true },
+      // News is paused; temporary so it can come back without stale permanent redirects.
+      { source: "/news", destination: "/", permanent: false },
+      { source: "/news/:path*", destination: "/", permanent: false },
+      { source: "/admin/news", destination: "/admin", permanent: false },
       { source: "/can-i-move", destination: "/easymovescore", permanent: true },
       { source: "/can-i-move/:path*", destination: "/easymovescore", permanent: true },
       { source: "/career-lab", destination: "/easymovescore", permanent: true },

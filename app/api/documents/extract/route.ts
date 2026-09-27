@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { neonAuth } from "@neondatabase/auth/next/server"
 import { DocumentUploadError, extractTextFromUploadedFile } from "@/lib/documents/upload"
+import { extractCvFromText } from "@/lib/documents/cv-ai"
 import { excerptFromText } from "@/lib/check/extract-text"
 import { saveCheckDocument } from "@/lib/check/documents-store"
 import { isObjectStorageConfigured, storeAppFile, vaultBucket } from "@/lib/storage/s3"
@@ -22,6 +23,7 @@ export async function POST(request: Request) {
     let sessionId = request.headers.get("x-check-session")?.trim() || ""
     let persist = true
     let kind: "cv" | "certificate" | "offer" | "passport" | "other" = "cv"
+    let processWithAi = true
 
     if (contentType.includes("multipart/form-data")) {
       const form = await request.formData()
@@ -39,6 +41,7 @@ export async function POST(request: Request) {
       persist = form.get("persist") !== "0"
       const k = String(form.get("kind") || "cv")
       if (["cv", "certificate", "offer", "passport", "other"].includes(k)) kind = k as typeof kind
+      processWithAi = form.get("processWithAi") !== "0"
     } else {
       const body = (await request.json().catch(() => null)) as {
         base64?: string
@@ -47,6 +50,7 @@ export async function POST(request: Request) {
         sessionId?: string
         persist?: boolean
         kind?: string
+        processWithAi?: boolean
       } | null
       if (!body?.base64 || !body.fileName) {
         return NextResponse.json({ error: "fileName and base64 are required." }, { status: 400 })
@@ -59,6 +63,7 @@ export async function POST(request: Request) {
       if (body.kind && ["cv", "certificate", "offer", "passport", "other"].includes(body.kind)) {
         kind = body.kind as typeof kind
       }
+      processWithAi = body.processWithAi !== false
     }
 
     const text = await extractTextFromUploadedFile({
@@ -66,6 +71,7 @@ export async function POST(request: Request) {
       originalName: fileName,
       mimeType: mime,
     })
+    const cvData = kind === "cv" && processWithAi ? await extractCvFromText(text) : null
 
     let documentId: string | null = null
     let storageKey: string | null = null
@@ -77,6 +83,8 @@ export async function POST(request: Request) {
         fileName,
         fileMime: mime,
         base64: buffer.toString("base64"),
+        extractedText: text,
+        extractedData: cvData,
       })
       documentId = saved.id
     } else if (isObjectStorageConfigured() && user?.id) {
@@ -97,6 +105,7 @@ export async function POST(request: Request) {
       documentId,
       storageKey,
       chars: text.length,
+      cvData,
     })
   } catch (error) {
     if (error instanceof DocumentUploadError) {

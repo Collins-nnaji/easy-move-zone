@@ -4,7 +4,7 @@ import { useMemo, useState, type ReactNode } from "react"
 import Link from "next/link"
 import { ArrowLeft, CheckCircle2, Loader2, Send } from "lucide-react"
 
-const PRIMARY = "#e0511f"
+const PRIMARY = "#2f5d50"
 const fieldClass =
   "h-11 w-full rounded-xl border border-[#e4dfd5] bg-white px-3 text-sm text-[#1b231e] outline-none focus:border-[#e0511f]"
 const labelClass = "mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#7c827a]"
@@ -189,11 +189,11 @@ export function SpecialistEnquiryForm() {
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
-            href="/easymovescore"
+            href="/workspace"
             className="inline-flex rounded-xl px-5 py-2.5 text-sm font-bold text-white"
             style={{ background: PRIMARY }}
           >
-            Meanwhile, open EasyMove Score
+            Meanwhile, open My Workspace
           </Link>
           <button
             type="button"

@@ -44,7 +44,8 @@ Generate VAPID keys with: `npx web-push generate-vapid-keys`
 - **Vault uploads:** Drivers upload CDL / background / medical / insurance files from `/move/vault` (stored as base64 in Postgres for now; max ~1.5MB)
 - **Verified badge:** All four required docs must be **approved by ops** in `/admin/kyc`; verified drivers sort first in fleet Find Drivers
 - **Bilateral ratings:** After a load completes, driver and fleet each get a rating sheet (1–5 + optional comment)
-- **Legal pages:** `/legal/terms`, `/legal/privacy`, `/legal/independent-contractor` (linked in footer)
+- **Legal pages:** `/legal/privacy`, `/legal/terms`, `/legal/cookies` (short links `/privacy`, `/terms`, `/cookies`; linked in footer and on sign-in)
+- **News:** paused — `/news` and `/admin/news` temporarily redirect (see `next.config.ts`); code is kept for re-enabling
 
 For object storage at scale, swap vault `file_data` for S3/R2/Blob and keep the same API shape.
 
@@ -100,6 +101,9 @@ Create a Stripe account → Developers → API keys.
 STRIPE_SECRET_KEY=sk_test_...                 # or sk_live_...
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_... # or pk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...               # from Stripe CLI or Dashboard webhook
+STRIPE_JOBS_PRICE_ID=price_...                 # recurring Jobs membership price
+NEXT_PUBLIC_STRIPE_JOBS_PAYMENT_LINK=https://buy.stripe.com/... # optional fallback
+NEXT_PUBLIC_APP_URL=https://YOUR_DOMAIN
 ```
 
 ### Enable in Stripe Dashboard
@@ -109,6 +113,14 @@ STRIPE_WEBHOOK_SECRET=whsec_...               # from Stripe CLI or Dashboard web
 3. Webhook endpoint: `https://YOUR_DOMAIN/api/payments/webhook`
    - Events: `checkout.session.completed`
 4. Local testing: `stripe listen --forward-to localhost:3000/api/payments/webhook`
+
+### Jobs membership and billing portal
+
+1. In Stripe, open **Settings → Billing → Customer portal** and activate/configure the portal.
+2. Add webhook endpoint `https://YOUR_DOMAIN/api/subscription/webhook`.
+3. Subscribe it to `checkout.session.completed`, `customer.subscription.created`,
+   `customer.subscription.updated`, and `customer.subscription.deleted`.
+4. The app creates short-lived portal sessions through `/api/subscription/portal`; Stripe does not provide one permanent customer-management link to store in the app.
 
 ### What Stripe powers in the app
 

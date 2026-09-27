@@ -6,7 +6,7 @@ import { SiteLogo } from "@/components/brand/SiteLogo"
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description: "Sign in to save your EasyMove Score, career profile, CVs, and assessment badges.",
+  description: "Sign in to use My Workspace, save your career plans and CVs, and keep assessment badges.",
 }
 
 export default function AuthPage() {
@@ -18,7 +18,7 @@ export default function AuthPage() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(60% 50% at 12% 0%, rgba(224,81,31,0.14) 0%, transparent 60%), radial-gradient(55% 45% at 100% 10%, rgba(243,170,121,0.18) 0%, transparent 55%)",
+              "radial-gradient(60% 50% at 12% 0%, rgba(47,93,80,0.14) 0%, transparent 60%), radial-gradient(55% 45% at 100% 10%, rgba(143,181,168,0.18) 0%, transparent 55%)",
           }}
         />
         <div className="relative mx-auto w-full max-w-md">
@@ -30,7 +30,7 @@ export default function AuthPage() {
               Welcome back
             </h1>
             <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-[#5f655c]">
-              Sign in to keep your EasyMove Score, career profile, CVs, and badges on one account.
+              Sign in to keep your plans, career profile, CVs, and badges together in My Workspace.
             </p>
           </div>
           <Suspense

@@ -275,14 +275,14 @@ export function ProfileHub({ authName, authEmail }: ProfileHubProps) {
           </button>
         </div>
         <p className="mt-4 text-sm leading-relaxed text-[#5f655c]">
-          Keep your career details and CVs here so Fit Check, EasyMove Score, and sponsorship picks use your real profile.
+          Keep your career details and CVs here so My Workspace, Fit Check, and sponsorship picks use your real profile.
         </p>
         <div className="mt-5 grid gap-2 sm:grid-cols-3">
           <Link
-            href="/easymovescore"
+            href="/workspace"
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1b231e] py-3 text-sm font-bold text-white"
           >
-            EasyMove Score <ArrowUpRight className="h-3.5 w-3.5" />
+            My Workspace <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
           <Link
             href="/work-simulation"
@@ -645,7 +645,12 @@ export function ProfileHub({ authName, authEmail }: ProfileHubProps) {
         </div>
       </Section>
 
-      <Section title="CV vault" subtitle="Upload PDFs or Word docs. Skills are extracted for Fit Check.">
+      <Section title="CV vault" subtitle="Upload source documents here, then open them in My Workspace to edit, refine with AI, and save reusable CVs.">
+        <div className="mb-4 flex justify-end">
+          <Link href="/workspace?view=cvs#cv-workspace" className="inline-flex items-center gap-2 rounded-xl bg-[#1b231e] px-4 py-2.5 text-xs font-bold text-white">
+            Open My CVs <ArrowUpRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
         <input
           ref={fileRef}
           type="file"
@@ -659,9 +664,10 @@ export function ProfileHub({ authName, authEmail }: ProfileHubProps) {
           onClick={() => fileRef.current?.click()}
           className="inline-flex items-center gap-2 rounded-xl border border-dashed border-[#cfc6b6] bg-[#faf8f3] px-4 py-3 text-sm font-bold text-[#1b231e] disabled:opacity-60"
         >
-          {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-          {uploading ? "Uploading…" : "Upload CV"}
+          {uploading ? <Loader2 className="h-4 w-4 animate-spin text-[#2f5d50]" /> : <Upload className="h-4 w-4" />}
+          {uploading ? "Uploading, reading & structuring…" : "Upload CV"}
         </button>
+        {uploading && <div className="mt-3 max-w-sm overflow-hidden rounded-full bg-[#dfe7e3]"><div className="h-1.5 w-3/4 animate-pulse rounded-full bg-[#2f5d50]" /></div>}
         {documents.length === 0 ? (
           <p className="mt-4 text-sm text-[#6e746b]">No documents yet.</p>
         ) : (
@@ -680,14 +686,17 @@ export function ProfileHub({ authName, authEmail }: ProfileHubProps) {
                     {doc.kind} · {formatBytes(doc.bytes)}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => void removeDocument(doc.id)}
-                  className="rounded-lg p-2 text-[#9a5040] hover:bg-white"
-                  aria-label={`Delete ${doc.fileName}`}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                <div className="flex items-center gap-1">
+                  {doc.kind === "cv" && <Link href={`/workspace?view=cvs&document=${encodeURIComponent(doc.id)}#cv-workspace`} className="rounded-lg px-2.5 py-2 text-xs font-bold text-[#2f5d50] hover:bg-white">Use & edit</Link>}
+                  <button
+                    type="button"
+                    onClick={() => void removeDocument(doc.id)}
+                    className="rounded-lg p-2 text-[#9a5040] hover:bg-white"
+                    aria-label={`Delete ${doc.fileName}`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

@@ -3,16 +3,16 @@ import { BRAND } from "@/lib/brand"
 
 const paths = [
   "/",
-  "/easymovescore",
+  "/workspace",
   "/sponsors",
   "/jobs",
   "/work-simulation",
-  "/news",
   "/specialist-support",
   "/contact",
   "/profile",
   "/legal/privacy",
   "/legal/terms",
+  "/legal/cookies",
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -22,6 +22,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${base}${path}`,
     lastModified: now,
     changeFrequency: path === "/" ? "weekly" : "monthly",
-    priority: path === "/" ? 1 : path === "/easymovescore" || path === "/jobs" ? 0.9 : 0.7,
+    priority: path === "/" ? 1 : path === "/workspace" || path === "/jobs" ? 0.9 : 0.7,
   }))
 }

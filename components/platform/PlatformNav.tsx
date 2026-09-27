@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Gauge, LogOut, Menu, Newspaper, UserRound, User, X } from "lucide-react"
+import { Gauge, LogOut, Menu, UserRound, User, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { authClient } from "@/lib/auth/client"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
@@ -10,9 +10,10 @@ import { SiteLogo } from "@/components/brand/SiteLogo"
 
 const NAV = [
   {
-    href: "/easymovescore",
-    label: "EasyMove Score",
+    href: "/workspace",
+    label: "My Workspace",
     match: (path: string) =>
+      path === "/workspace" ||
       path === "/easymovescore" ||
       path === "/path" ||
       path.startsWith("/can-i-move") ||
@@ -24,14 +25,7 @@ const NAV = [
   {
     href: "/work-simulation",
     label: "Work Simulation",
-    match: (path: string) =>
-      path === "/work-simulation" || path === "/practice" || path.startsWith("/assessments"),
-    featured: false,
-  },
-  {
-    href: "/news",
-    label: "News",
-    match: (path: string) => path === "/news" || path.startsWith("/news/"),
+    match: (path: string) => path === "/work-simulation" || path === "/practice" || path.startsWith("/assessments"),
     featured: false,
   },
 ] as const
@@ -91,7 +85,7 @@ export function PlatformNav() {
 
   const user = sessionData?.user ?? null
   const initials = getInitials(user?.name, user?.email)
-  const authHref = `/auth?redirect=${encodeURIComponent(pathname === "/" ? "/easymovescore" : pathname)}`
+  const authHref = `/auth?redirect=${encodeURIComponent(pathname === "/" ? "/workspace" : pathname)}`
 
   return (
     <header
@@ -112,19 +106,12 @@ export function PlatformNav() {
                     aria-current={active ? "page" : undefined}
                     className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-bold transition ${
                       active
-                        ? "bg-[#e0511f] text-white shadow-sm ring-2 ring-[#e0511f]/25"
-                        : "border border-[#ded7cb] bg-white text-[#1b231e] hover:border-[#e0511f]/50 hover:text-[#e0511f]"
+                        ? "bg-[#2f5d50] text-white shadow-sm ring-2 ring-[#2f5d50]/20"
+                        : "border border-[#ded7cb] bg-white text-[#1b231e] hover:border-[#2f5d50]/50 hover:text-[#2f5d50]"
                     }`}
                   >
-                    <Gauge className={`h-3.5 w-3.5 ${active ? "text-white" : "text-[#e0511f]"}`} />
-                    EasyMove
-                    <span
-                      className={`rounded-full px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${
-                        active ? "bg-white/20 text-white" : "bg-[#fbeae0] text-[#e0511f]"
-                      }`}
-                    >
-                      Score
-                    </span>
+                    <Gauge className={`h-3.5 w-3.5 ${active ? "text-white" : "text-[#2f5d50]"}`} />
+                    My Workspace
                   </Link>
                 )
               }
@@ -151,7 +138,7 @@ export function PlatformNav() {
             <button
               type="button"
               onClick={() => setMenuOpen((p) => !p)}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#e0511f] to-[#bf6a3c] text-[13px] font-bold text-white shadow-sm ring-1 ring-black/5 transition hover:brightness-105"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#2f5d50] to-[#426f62] text-[13px] font-bold text-white shadow-sm ring-1 ring-black/5 transition hover:brightness-105"
               aria-label="Account menu"
               aria-expanded={menuOpen}
             >
@@ -199,19 +186,12 @@ export function PlatformNav() {
                         aria-current={active ? "page" : undefined}
                         className={`mx-2 mb-1 flex items-center gap-2 rounded-xl px-3 py-2.5 text-[13px] font-bold transition ${
                           active
-                            ? "bg-[#e0511f] text-white"
+                            ? "bg-[#2f5d50] text-white"
                             : "border border-[#ded7cb] bg-[#faf8f3] text-[#1b231e]"
                         }`}
                       >
-                        <Gauge className={`h-3.5 w-3.5 ${active ? "text-white" : "text-[#e0511f]"}`} />
-                        EasyMove
-                        <span
-                          className={`rounded-full px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${
-                            active ? "bg-white/20 text-white" : "bg-[#fbeae0] text-[#e0511f]"
-                          }`}
-                        >
-                          Score
-                        </span>
+                        <Gauge className={`h-3.5 w-3.5 ${active ? "text-white" : "text-[#2f5d50]"}`} />
+                        My Workspace
                       </Link>
                     )
                   }
@@ -225,7 +205,6 @@ export function PlatformNav() {
                         active ? "bg-[#fbeae0] text-[#e0511f]" : "text-[#4a5047] hover:bg-[#faf8f3] hover:text-[#1b231e]"
                       }`}
                     >
-                      {item.href === "/news" ? <Newspaper className="h-3.5 w-3.5" /> : null}
                       {item.label}
                     </Link>
                   )

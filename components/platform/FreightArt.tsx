@@ -8,7 +8,7 @@
  * their own markup.
  */
 
-const PRIMARY = "#e0511f"
+const PRIMARY = "#2f5d50"
 const INK = "#1b231e"
 
 /**

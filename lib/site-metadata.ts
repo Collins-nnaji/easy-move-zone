@@ -18,7 +18,7 @@ export const siteMetadata: Metadata = {
     "skilled worker visa",
     "career change abroad",
     "UK sponsor licence",
-    "EasyMove Score",
+    "My Workspace",
     "work simulation",
     "sponsored jobs UK",
     "relocate for work",

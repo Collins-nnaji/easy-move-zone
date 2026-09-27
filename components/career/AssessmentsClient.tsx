@@ -57,7 +57,7 @@ type Attempt = {
 
 type View = "roles" | "badges" | "progress"
 
-const PRIMARY = "#e0511f"
+const PRIMARY = "#2f5d50"
 const INK = "#1b231e"
 const TIER_STYLE: Record<string, string> = {
   gold: "bg-amber-100 text-amber-900",

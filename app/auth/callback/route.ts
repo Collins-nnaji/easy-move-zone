@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   // Only allow same-origin relative paths — an attacker-supplied absolute URL
   // here would turn sign-in into an open redirect.
   const safeRedirect =
-    requested && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/easymovescore"
+    requested && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/workspace"
 
   const target = new URL(safeRedirect, url.origin)
   const verifier = url.searchParams.get(VERIFIER_PARAM)

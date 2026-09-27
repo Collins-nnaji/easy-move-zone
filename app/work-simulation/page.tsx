@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 import { AssessmentsClient } from "@/components/career/AssessmentsClient"
+import { authServer } from "@/lib/auth/server"
+import { AuthPreviewGate } from "@/components/platform/AuthPreviewGate"
 
 export const metadata: Metadata = {
   title: "Work Simulation",
@@ -7,6 +9,11 @@ export const metadata: Metadata = {
   alternates: { canonical: "/work-simulation" },
 }
 
-export default function WorkSimulationPage() {
-  return <AssessmentsClient />
+export default async function WorkSimulationPage() {
+  const session = await authServer.getSession()
+  return (
+    <AuthPreviewGate signedIn={Boolean(session?.data?.user)} redirectTo="/work-simulation" title="Work Simulation">
+      <AssessmentsClient />
+    </AuthPreviewGate>
+  )
 }

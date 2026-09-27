@@ -115,10 +115,10 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               {PUBLIC_CONTACT_EMAIL}
             </a>
             <Link
-              href="/easymovescore"
+              href="/workspace"
               className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 underline decoration-orange-500/35 underline-offset-4 hover:text-white"
             >
-              EasyMove Score
+              My Workspace
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link

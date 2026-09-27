@@ -25,6 +25,7 @@ export async function GET(request: Request) {
   const jobTypes = multi(url.searchParams, "jobType")
   const categories = multi(url.searchParams, "category")
   const featuredOnly = url.searchParams.get("featured") === "1"
+  const requestedId = Number(url.searchParams.get("id"))
 
   const featuredIds = (await listFeaturedJobIds())
     .map((id) => Number(id))
@@ -40,6 +41,7 @@ export async function GET(request: Request) {
     offset,
     featuredIds,
     featuredOnly,
+    ids: Number.isFinite(requestedId) && requestedId > 0 ? [requestedId] : undefined,
   }
 
   const [found, facets] = await Promise.all([

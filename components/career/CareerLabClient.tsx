@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import { Loader2, Sparkles, TrendingUp } from "lucide-react"
+import { Loader2, Play, TrendingUp } from "lucide-react"
 import { AssessmentsClient } from "@/components/career/AssessmentsClient"
 
 type Tab = "simulator" | "roi" | "practice"
@@ -38,7 +38,7 @@ type RoiResult = {
   topDemand: Array<{ skill: string; pct: number; count: number }>
 }
 
-const PRIMARY = "#e0511f"
+const PRIMARY = "#2f5d50"
 const field =
   "h-11 w-full rounded-xl border border-[#e4dfd5] bg-white px-3 text-sm outline-none focus:border-[#e0511f]"
 
@@ -181,7 +181,7 @@ export function CareerLabClient() {
               className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl text-sm font-bold text-white disabled:opacity-60"
               style={{ background: PRIMARY }}
             >
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
               Simulate
             </button>
             <button

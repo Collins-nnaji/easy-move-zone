@@ -8,6 +8,8 @@ import {
 } from "@/lib/career-lab/intelligence"
 import { buildFitCheck } from "@/lib/career-lab/fit-check"
 import { loadDocumentTexts } from "@/lib/check/documents-store"
+import { neonAuth } from "@neondatabase/auth/next/server"
+import { getJobsSubscription } from "@/lib/payments/jobs-subscription"
 
 export const runtime = "nodejs"
 export const maxDuration = 60
@@ -82,6 +84,12 @@ export async function POST(request: Request) {
     }
 
     if (action === "fit-check" || action === "job-dna") {
+      const { session, user } = await neonAuth()
+      if (!session || !user) return NextResponse.json({ error: "Sign in required" }, { status: 401 })
+      const subscription = await getJobsSubscription(String(user.id))
+      if (!subscription.active) {
+        return NextResponse.json({ error: "An active jobs subscription is required", code: "subscription_required" }, { status: 402 })
+      }
       const result = await buildFitCheck({
         jobId: String(body?.jobId ?? ""),
         userSkills: Array.isArray(body?.userSkills) ? body.userSkills.map(String) : [],

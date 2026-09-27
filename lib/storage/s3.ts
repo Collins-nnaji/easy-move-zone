@@ -1,4 +1,4 @@
-import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
+import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
 
 let client: S3Client | null | undefined
 
@@ -54,6 +54,15 @@ const EXT_BY_MIME: Record<string, string> = {
   "text/markdown": "md",
 }
 
+const MIME_BY_EXT: Record<string, string> = Object.fromEntries(
+  Object.entries(EXT_BY_MIME).filter(([mime]) => mime !== "image/jpg").map(([mime, ext]) => [ext, mime]),
+)
+
+export function mimeForFileName(fileName: string) {
+  const ext = fileName.toLowerCase().split(".").pop() || ""
+  return MIME_BY_EXT[ext === "jpeg" ? "jpg" : ext] || null
+}
+
 export function extensionForMime(mime?: string | null) {
   if (!mime) return "bin"
   return EXT_BY_MIME[mime.toLowerCase()] || "bin"
@@ -86,6 +95,12 @@ export async function getObjectBuffer(bucket: string, key: string) {
   const res = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: key }))
   if (!res.Body) return null
   return Buffer.from(await res.Body.transformToByteArray())
+}
+
+export async function deleteObject(bucket: string, key: string) {
+  const s3 = getS3Client()
+  if (!s3) return
+  await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }))
 }
 
 export async function storeAppFile(input: {

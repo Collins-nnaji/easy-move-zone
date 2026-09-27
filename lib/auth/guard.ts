@@ -16,7 +16,7 @@ export async function requireSignedIn(currentPath: string): Promise<SessionRoles
   }
 }
 
-/** @deprecated Logistics apps removed — always sends users to EasyMove Score. */
+/** @deprecated Logistics apps removed — always sends users to My Workspace. */
 export function defaultHomeForRoles(_roles: unknown[]): string {
-  return "/easymovescore"
+  return "/workspace"
 }

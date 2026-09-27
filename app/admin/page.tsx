@@ -1,4 +1,4 @@
-import { Briefcase, Newspaper, Users } from "lucide-react"
+import { Briefcase, Users } from "lucide-react"
 import { requireAdmin } from "@/lib/auth/admin"
 import Link from "next/link"
 import { redirect } from "next/navigation"
@@ -13,12 +13,6 @@ export default async function AdminHomePage() {
       title: "Sponsorship jobs",
       desc: "Curate which roles appear on /jobs",
       icon: Briefcase,
-    },
-    {
-      href: "/admin/news",
-      title: "Immigration news",
-      desc: "Publish and edit news for /news",
-      icon: Newspaper,
     },
     {
       href: "/admin/users",
