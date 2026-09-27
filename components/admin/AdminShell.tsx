@@ -2,12 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BadgeCheck, Briefcase, LayoutGrid, Users } from "lucide-react"
+import { BadgeCheck, Briefcase, GraduationCap, LayoutGrid, Users } from "lucide-react"
 import { clsx } from "clsx"
 
 const NAV = [
   { href: "/admin", label: "Overview", icon: LayoutGrid },
   { href: "/admin/jobs", label: "Jobs", icon: Briefcase },
+  { href: "/admin/education", label: "Education", icon: GraduationCap },
   { href: "/admin/users", label: "Users", icon: Users },
 ] as const
 
@@ -22,7 +23,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <BadgeCheck className="h-5 w-5 text-[#e0511f]" />
             <div>
               <p className="text-sm font-bold">EasyMoveZone Admin</p>
-              <p className="text-[11px] text-white/40">Jobs, users</p>
+              <p className="text-[11px] text-white/40">Jobs, education, users</p>
             </div>
           </div>
           <Link href="/" className="text-xs font-semibold text-white/60 hover:text-white">

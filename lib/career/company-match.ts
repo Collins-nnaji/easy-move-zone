@@ -57,8 +57,24 @@ export function careerSiteFromJobUrl(url: string | null | undefined): string | n
   try {
     const parsed = new URL(url)
     if (!parsed.hostname) return null
+    const host = parsed.hostname.toLowerCase()
+    const segments = parsed.pathname.split("/").filter(Boolean)
+    const boardDepth = ATS_BOARD_DEPTH.find(([suffix]) => host === suffix || host.endsWith(`.${suffix}`))?.[1]
+    if (boardDepth && segments.length >= boardDepth) {
+      return `${parsed.origin}/${segments.slice(0, boardDepth).join("/")}`
+    }
     return parsed.origin
   } catch {
     return null
   }
 }
+
+/** Shared job-board hosts where the company's board lives under the first path segment(s). */
+const ATS_BOARD_DEPTH: Array<[string, number]> = [
+  ["greenhouse.io", 1],
+  ["ashbyhq.com", 1],
+  ["lever.co", 1],
+  ["smartrecruiters.com", 1],
+  ["workable.com", 1],
+  ["careerpuck.com", 2],
+]

@@ -6,8 +6,8 @@ export const PERMANENT_LOGOS: Record<string, string> = {
   'Accenture': 'https://img.logo.dev/accenture.com',
   'Admiral Group': 'https://img.logo.dev/admiralgroup.co.uk',
   'Allen & Overy': 'https://img.logo.dev/allenovery.com',
-  'Amazon UK': 'https://i0.wp.com/magzoid.com/wp-content/uploads/2025/05/amazon-rebrand-2025_dezeen_2364_col_1-1.webp?resize=768%2C432&ssl=1',
-  'Amazon': 'https://i0.wp.com/magzoid.com/wp-content/uploads/2025/05/amazon-rebrand-2025_dezeen_2364_col_1-1.webp?resize=768%2C432&ssl=1',
+  'Amazon UK': 'https://img.logo.dev/amazon.co.uk',
+  'Amazon': 'https://img.logo.dev/amazon.com',
   'ARM Holdings': 'https://img.logo.dev/arm.com',
   'ARM': 'https://img.logo.dev/arm.com',
   'Arup': 'https://img.logo.dev/arup.com',
@@ -194,15 +194,17 @@ export function getPermanentLogo(companyName: string): string | null {
     }
   }
   
-  // Fuzzy matching for partial inclusions
+  // Whole-word partial matches only, so "Admiral Money" never matches "EY".
+  const containsWords = (haystack: string, needle: string) =>
+    needle.length >= 3 && new RegExp(`(^|[^a-z0-9])${needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^a-z0-9])`).test(haystack);
   const possibleMatches = Object.keys(PERMANENT_LOGOS).filter(key => {
     const normalizedKey = key.toLowerCase().trim().replace(/ (uk|ltd|limited|inc|corp|corporation)$/g, '');
-    return normalizedInput.includes(normalizedKey) || normalizedKey.includes(normalizedInput);
+    return containsWords(normalizedInput, normalizedKey) || containsWords(normalizedKey, normalizedInput);
   });
   
   if (possibleMatches.length > 0) {
-    // Sort by length - shorter matches are usually more accurate
-    possibleMatches.sort((a, b) => a.length - b.length);
+    // Longest key is the most specific match
+    possibleMatches.sort((a, b) => b.length - a.length);
     return PERMANENT_LOGOS[possibleMatches[0]];
   }
   

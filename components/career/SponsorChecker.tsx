@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { ArrowLeft, Building2, ChevronRight, ExternalLink, MapPin, Search } from "lucide-react"
+import { CountryRouteGuide } from "@/components/career/CountryRouteGuide"
+import { COUNTRY_GUIDES, getCountryGuide } from "@/lib/sponsors/country-guides"
 
 type Sponsor = {
   id: number
@@ -25,52 +27,8 @@ type OccupationCode = {
   lowerGoingRate: string | null
 }
 
-type CountryRegister = {
-  id: "uk" | "canada" | "germany" | "australia"
-  flag: string
-  name: string
-  registerLabel: string
-  blurb: string
-  available: boolean
-}
-
-const REGISTERS: CountryRegister[] = [
-  {
-    id: "uk",
-    flag: "🇬🇧",
-    name: "United Kingdom",
-    registerLabel: "UK sponsor register",
-    blurb: "Search licensed sponsors and SOC occupation codes. Links to careers pages when we already hold jobs for that employer.",
-    available: true,
-  },
-  {
-    id: "canada",
-    flag: "🇨🇦",
-    name: "Canada",
-    registerLabel: "Canada · coming soon",
-    blurb: "LMIA / employer pathways will live here when we add the register.",
-    available: false,
-  },
-  {
-    id: "germany",
-    flag: "🇩🇪",
-    name: "Germany",
-    registerLabel: "Germany · coming soon",
-    blurb: "EU Blue Card and skilled-worker employer checks — next up.",
-    available: false,
-  },
-  {
-    id: "australia",
-    flag: "🇦🇺",
-    name: "Australia",
-    registerLabel: "Australia · coming soon",
-    blurb: "Sponsored skilled visas will plug in the same way.",
-    available: false,
-  },
-]
-
 export function SponsorChecker() {
-  const [activeCountry, setActiveCountry] = useState<"uk" | null>(null)
+  const [activeCountry, setActiveCountry] = useState<string | null>(null)
   const [tab, setTab] = useState<"companies" | "codes">("companies")
   const [query, setQuery] = useState("")
   const [sponsors, setSponsors] = useState<Sponsor[]>([])
@@ -103,47 +61,56 @@ export function SponsorChecker() {
     }
   }
 
+  const guide = activeCountry && activeCountry !== "uk" ? getCountryGuide(activeCountry) : undefined
+  if (guide) return <CountryRouteGuide guide={guide} onBack={() => setActiveCountry(null)} />
+
   if (!activeCountry) {
     return (
       <div>
-        <p className="mb-4 text-sm font-semibold text-[#5f655c]">Choose a country register</p>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {REGISTERS.map((country) =>
-            country.available ? (
-              <button
-                key={country.id}
-                type="button"
-                onClick={() => setActiveCountry("uk")}
-                className="group flex flex-col rounded-3xl border border-[#e4dfd5] bg-white p-6 text-left shadow-sm transition hover:border-[#e0511f]/50 hover:shadow-md"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <span className="text-4xl" aria-hidden>
-                    {country.flag}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#e0511f] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
-                    Open
-                    <ChevronRight className="h-3 w-3" />
-                  </span>
-                </div>
-                <h2 className="mt-4 text-2xl font-extrabold tracking-tight">{country.registerLabel}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-[#5f655c]">{country.blurb}</p>
-                <p className="mt-4 text-sm font-bold text-[#e0511f] group-hover:underline">
-                  Search licensed employers →
-                </p>
-              </button>
-            ) : (
-              <div
-                key={country.id}
-                className="flex flex-col rounded-3xl border border-dashed border-[#ded7cb] bg-[#faf8f3] p-6 opacity-80"
-              >
-                <span className="text-4xl grayscale" aria-hidden>
-                  {country.flag}
+        <button
+          type="button"
+          onClick={() => setActiveCountry("uk")}
+          className="group flex w-full flex-col rounded-3xl border border-[#e4dfd5] bg-white p-6 text-left shadow-sm transition hover:border-[#e0511f]/50 hover:shadow-md sm:flex-row sm:items-center sm:gap-6"
+        >
+          <span className="text-5xl" aria-hidden>🇬🇧</span>
+          <span className="mt-4 min-w-0 flex-1 sm:mt-0">
+            <span className="flex flex-wrap items-center gap-2">
+              <span className="text-2xl font-extrabold tracking-tight">United Kingdom</span>
+              <span className="rounded-full bg-[#e0511f] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white">Live register</span>
+            </span>
+            <span className="mt-1 block text-sm leading-relaxed text-[#5f655c]">
+              Skilled Worker visa. Search every licensed sponsor and SOC occupation code, with links to careers pages when we hold jobs for that employer.
+            </span>
+          </span>
+          <span className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-[#e0511f] group-hover:underline sm:mt-0">
+            Search sponsors <ChevronRight className="h-4 w-4" />
+          </span>
+        </button>
+
+        <p className="mb-3 mt-8 text-sm font-semibold text-[#5f655c]">More countries with skilled worker routes</p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {COUNTRY_GUIDES.map((country) => (
+            <button
+              key={country.id}
+              type="button"
+              onClick={() => setActiveCountry(country.id)}
+              className="group flex flex-col rounded-2xl border border-[#e4dfd5] bg-white p-5 text-left transition hover:border-[#e0511f]/50 hover:shadow-md"
+            >
+              <span className="flex items-center justify-between gap-3">
+                <span className="text-3xl" aria-hidden>{country.flag}</span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                    country.register ? "bg-[#e8f1ed] text-[#285045]" : "bg-[#f6f3ec] text-[#6b716a]"
+                  }`}
+                >
+                  {country.register ? "Official list" : "Route guide"}
                 </span>
-                <h2 className="mt-4 text-xl font-extrabold tracking-tight text-[#7c827a]">{country.registerLabel}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-[#9aa097]">{country.blurb}</p>
-              </div>
-            ),
-          )}
+              </span>
+              <span className="mt-3 text-lg font-extrabold tracking-tight">{country.name}</span>
+              <span className="mt-1 text-sm leading-relaxed text-[#5f655c]">{country.headline}</span>
+              <span className="mt-3 truncate text-xs font-semibold text-[#8a9086]">{country.routes.map((route) => route.name).join(" · ")}</span>
+            </button>
+          ))}
         </div>
       </div>
     )

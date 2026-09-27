@@ -1,16 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useRef, useState, type ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import {
   ArrowUpRight,
   ClipboardCheck,
-  FileText,
   Loader2,
   LogOut,
   Save,
-  Trash2,
-  Upload,
   User,
 } from "lucide-react"
 import { authClient } from "@/lib/auth/client"
@@ -19,7 +16,6 @@ import {
   type CareerProfile,
 } from "@/lib/career/profile-store"
 import { EMPTY_PROFILE, type UserProfile } from "@/lib/profile/types"
-import type { CheckDocumentMeta } from "@/lib/check/types"
 
 interface ProfileHubProps {
   authName: string
@@ -56,16 +52,9 @@ function Section({
   )
 }
 
-function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
 export function ProfileHub({ authName, authEmail }: ProfileHubProps) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [badges, setBadges] = useState<Badge[]>([])
@@ -78,8 +67,6 @@ export function ProfileHub({ authName, authEmail }: ProfileHubProps) {
     email: authEmail,
   })
   const [skillDraft, setSkillDraft] = useState("")
-  const [documents, setDocuments] = useState<CheckDocumentMeta[]>([])
-  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     let mounted = true
@@ -117,7 +104,6 @@ export function ProfileHub({ authName, authEmail }: ProfileHubProps) {
               }
             }
           }
-          if (Array.isArray(data.documents)) setDocuments(data.documents)
         }
         if (badgeRes.ok) {
           const data = await badgeRes.json()
@@ -186,54 +172,6 @@ export function ProfileHub({ authName, authEmail }: ProfileHubProps) {
     }))
   }
 
-  async function onUpload(file: File | null) {
-    if (!file) return
-    setUploading(true)
-    setMessage(null)
-    setError(null)
-    try {
-      const form = new FormData()
-      form.append("file", file)
-      form.append("kind", "cv")
-      const res = await fetch("/api/profile/documents", { method: "POST", body: form })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Upload failed")
-      setDocuments(data.documents ?? [])
-      if (Array.isArray(data.extractedSkills) && data.extractedSkills.length) {
-        setCareer((prev) => ({
-          ...prev,
-          skills: [...new Set([...prev.skills, ...data.extractedSkills])].slice(0, 40),
-        }))
-        window.localStorage.setItem(
-          TWIN_KEY,
-          JSON.stringify({ extractedSkills: data.extractedSkills }),
-        )
-        setMessage(`CV uploaded. Added ${data.extractedSkills.length} skills from your document.`)
-      } else {
-        setMessage("CV uploaded to your vault.")
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed.")
-    } finally {
-      setUploading(false)
-      if (fileRef.current) fileRef.current.value = ""
-    }
-  }
-
-  async function removeDocument(id: string) {
-    setError(null)
-    try {
-      const res = await fetch(`/api/profile/documents?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Delete failed")
-      setDocuments(data.documents ?? [])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not delete file.")
-    }
-  }
-
   async function signOut() {
     await authClient.signOut()
     window.location.href = "/"
@@ -275,7 +213,7 @@ export function ProfileHub({ authName, authEmail }: ProfileHubProps) {
           </button>
         </div>
         <p className="mt-4 text-sm leading-relaxed text-[#5f655c]">
-          Keep your career details and CVs here so My Workspace, Fit Check, and sponsorship picks use your real profile.
+          Keep your career details up to date so My Workspace, Fit Check, and sponsorship picks use your real profile.
         </p>
         <div className="mt-5 grid gap-2 sm:grid-cols-3">
           <Link
@@ -643,64 +581,6 @@ export function ProfileHub({ authName, authEmail }: ProfileHubProps) {
             />
           </div>
         </div>
-      </Section>
-
-      <Section title="CV vault" subtitle="Upload source documents here, then open them in My Workspace to edit, refine with AI, and save reusable CVs.">
-        <div className="mb-4 flex justify-end">
-          <Link href="/workspace?view=cvs#cv-workspace" className="inline-flex items-center gap-2 rounded-xl bg-[#1b231e] px-4 py-2.5 text-xs font-bold text-white">
-            Open My CVs <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-        <input
-          ref={fileRef}
-          type="file"
-          accept=".pdf,.doc,.docx,.txt,.md,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-          className="hidden"
-          onChange={(e) => void onUpload(e.target.files?.[0] ?? null)}
-        />
-        <button
-          type="button"
-          disabled={uploading}
-          onClick={() => fileRef.current?.click()}
-          className="inline-flex items-center gap-2 rounded-xl border border-dashed border-[#cfc6b6] bg-[#faf8f3] px-4 py-3 text-sm font-bold text-[#1b231e] disabled:opacity-60"
-        >
-          {uploading ? <Loader2 className="h-4 w-4 animate-spin text-[#2f5d50]" /> : <Upload className="h-4 w-4" />}
-          {uploading ? "Uploading, reading & structuring…" : "Upload CV"}
-        </button>
-        {uploading && <div className="mt-3 max-w-sm overflow-hidden rounded-full bg-[#dfe7e3]"><div className="h-1.5 w-3/4 animate-pulse rounded-full bg-[#2f5d50]" /></div>}
-        {documents.length === 0 ? (
-          <p className="mt-4 text-sm text-[#6e746b]">No documents yet.</p>
-        ) : (
-          <ul className="mt-4 space-y-2">
-            {documents.map((doc) => (
-              <li
-                key={doc.id}
-                className="flex items-center justify-between gap-3 rounded-xl bg-[#faf8f3] px-3 py-2.5"
-              >
-                <div className="min-w-0">
-                  <p className="flex items-center gap-2 truncate text-sm font-semibold text-[#1b231e]">
-                    <FileText className="h-4 w-4 shrink-0 text-[#e0511f]" />
-                    {doc.fileName}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-[#7c827a]">
-                    {doc.kind} · {formatBytes(doc.bytes)}
-                  </p>
-                </div>
-                <div className="flex items-center gap-1">
-                  {doc.kind === "cv" && <Link href={`/workspace?view=cvs&document=${encodeURIComponent(doc.id)}#cv-workspace`} className="rounded-lg px-2.5 py-2 text-xs font-bold text-[#2f5d50] hover:bg-white">Use & edit</Link>}
-                  <button
-                    type="button"
-                    onClick={() => void removeDocument(doc.id)}
-                    className="rounded-lg p-2 text-[#9a5040] hover:bg-white"
-                    aria-label={`Delete ${doc.fileName}`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
       </Section>
 
       <Section title="Badges" subtitle="Earn bronze, silver, or gold from role assessments.">

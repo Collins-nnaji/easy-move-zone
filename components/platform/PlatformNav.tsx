@@ -22,6 +22,7 @@ const NAV = [
   },
   { href: "/sponsors", label: "Sponsors", match: (path: string) => path === "/sponsors", featured: false },
   { href: "/jobs", label: "Jobs", match: (path: string) => path === "/jobs", featured: false },
+  { href: "/education", label: "Education", match: (path: string) => path.startsWith("/education"), featured: false },
   {
     href: "/work-simulation",
     label: "Work Simulation",

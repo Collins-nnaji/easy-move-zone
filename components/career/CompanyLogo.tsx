@@ -1,10 +1,11 @@
 "use client"
 
 /**
- * Company mark with cascading sources, then a letter avatar (never a broken img).
- * curated logo_url → permanent logo.dev map → DuckDuckGo favicon → initials avatar.
+ * Company mark with cascading sources over a letter avatar (never a broken img).
+ * The avatar stays visible until a source loads at a usable size; placeholder
+ * favicons (16px globes) and dead hosts are skipped.
  */
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { getPermanentLogo } from "@/lib/career/permanent-logos"
 
 const ATS_HOSTS = [
@@ -64,26 +65,43 @@ function domainFromCompanyName(company: string): string | null {
   return slug.length >= 3 ? `${slug}.com` : null
 }
 
-function logoDevFromCompany(company: string): string | null {
-  const domain = domainFromCompanyName(company)
-  return domain ? `https://img.logo.dev/${domain}` : null
+const LOGO_DEV_TOKEN = process.env.NEXT_PUBLIC_LOGO_DEV_TOKEN
+const DEAD_LOGO_HOSTS = /(^|\.)(logo\.clearbit\.com|icons\.duckduckgo\.com)$/
+const MIN_LOGO_PX = 32
+const LOAD_TIMEOUT_MS = 5000
+
+function logoDevDomain(url: string | null | undefined): string | null {
+  return url?.match(/(?:img\.logo\.dev|logo\.clearbit\.com)\/([^/?#]+)/)?.[1] ?? null
 }
 
 function cleanLogoUrl(url?: string | null): string | null {
   const value = url?.trim()
-  if (!value) return null
-  if (value === "null" || value === "undefined") return null
+  if (!value || value === "null" || value === "undefined") return null
+  try {
+    const parsed = new URL(value)
+    if (DEAD_LOGO_HOSTS.test(parsed.hostname)) return null
+    if (parsed.hostname === "img.logo.dev" && !LOGO_DEV_TOKEN) return null
+  } catch {
+    return null
+  }
   return value
 }
 
-export function companyLogoSources(company: string, careerUrl?: string | null): string[] {
-  const domains = [domainFromCareerUrl(careerUrl), domainFromCompanyName(company)].filter(
-    (d): d is string => Boolean(d),
-  )
+/** logo.dev needs a publishable token; without one, fall back to Google's favicon service (128px when known). */
+export function companyLogoSources(company: string, careerUrl?: string | null, logoUrl?: string | null): string[] {
+  const permanent = getPermanentLogo(company)
+  const permanentDomain = logoDevDomain(permanent)
+  const domains = [
+    ...new Set(
+      [logoDevDomain(logoUrl), permanentDomain, domainFromCareerUrl(careerUrl), domainFromCompanyName(company)].filter(
+        (d): d is string => Boolean(d),
+      ),
+    ),
+  ]
   return [
-    getPermanentLogo(company),
-    logoDevFromCompany(company),
-    ...domains.map((domain) => `https://icons.duckduckgo.com/ip3/${domain}.ico`),
+    permanent && !permanentDomain ? permanent : null,
+    ...(LOGO_DEV_TOKEN ? domains.map((d) => `https://img.logo.dev/${d}?token=${LOGO_DEV_TOKEN}&size=128&format=png`) : []),
+    ...domains.map((d) => `https://www.google.com/s2/favicons?domain=${encodeURIComponent(d)}&sz=128`),
   ].filter((src): src is string => Boolean(src))
 }
 
@@ -124,41 +142,76 @@ type Props = {
 export function CompanyLogo({ company, logoUrl, careerUrl, className, fallback }: Props) {
   const sources = useMemo(
     () =>
-      [cleanLogoUrl(logoUrl), ...companyLogoSources(company, careerUrl)].filter(
+      [cleanLogoUrl(logoUrl), ...companyLogoSources(company, careerUrl, logoUrl)].filter(
         (s): s is string => Boolean(s),
       ),
     [company, logoUrl, careerUrl],
   )
-  const [attempt, setAttempt] = useState(0)
-
-  useEffect(() => {
-    setAttempt(0)
-  }, [company, logoUrl, careerUrl])
-
-  const src = attempt < sources.length ? sources[attempt] : undefined
+  const [state, setState] = useState({ key: "", attempt: 0, loaded: false })
+  const sourceKey = sources.join("|")
+  const current = state.key === sourceKey ? state : { key: sourceKey, attempt: 0, loaded: false }
+  const src = current.attempt < sources.length ? sources[current.attempt] : undefined
   const avatar = fallback ?? <LetterAvatar company={company} />
+
+  const advance = useCallback(
+    (failed: string) =>
+      setState((prev) => {
+        const base = prev.key === sourceKey ? prev : { key: sourceKey, attempt: 0, loaded: false }
+        if (sources[base.attempt] !== failed) return base
+        return { key: sourceKey, attempt: base.attempt + 1, loaded: false }
+      }),
+    [sourceKey, sources],
+  )
+
+  const accept = useCallback(
+    (img: HTMLImageElement) => {
+      if (img.naturalWidth < MIN_LOGO_PX || img.naturalHeight < MIN_LOGO_PX) {
+        advance(img.dataset.src ?? "")
+        return
+      }
+      setState((prev) => {
+        const base = prev.key === sourceKey ? prev : { key: sourceKey, attempt: 0, loaded: false }
+        return sources[base.attempt] === img.dataset.src ? { ...base, loaded: true } : base
+      })
+    },
+    [advance, sourceKey, sources],
+  )
+
+  const imgRef = useRef<HTMLImageElement | null>(null)
+  useEffect(() => {
+    if (!src || current.loaded) return
+    const img = imgRef.current
+    if (img?.complete) {
+      if (img.naturalWidth > 0) accept(img)
+      else advance(src)
+      return
+    }
+    const timer = setTimeout(() => advance(src), LOAD_TIMEOUT_MS)
+    return () => clearTimeout(timer)
+  }, [src, current.loaded, accept, advance])
 
   return (
     <span
-      className={
+      className={`relative ${
         className ??
         "flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#efece4] bg-white"
-      }
+      }`}
     >
-      {src ? (
+      {!current.loaded && avatar}
+      {src && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          ref={imgRef}
           key={src}
           src={src}
+          data-src={src}
           alt=""
-          loading="lazy"
           decoding="async"
           referrerPolicy="no-referrer"
-          className="h-full w-full object-contain p-1.5"
-          onError={() => setAttempt((n) => n + 1)}
+          className={`h-full w-full object-contain p-1.5 ${current.loaded ? "" : "absolute inset-0 opacity-0"}`}
+          onLoad={(event) => accept(event.currentTarget)}
+          onError={() => advance(src)}
         />
-      ) : (
-        avatar
       )}
     </span>
   )

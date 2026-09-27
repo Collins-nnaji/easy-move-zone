@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { BadgeCheck, ChevronDown, CreditCard, ExternalLink, FileText, LockKeyhole, MapPin, Search, SlidersHorizontal, X } from "lucide-react"
+import { BadgeCheck, BriefcaseBusiness, ChevronDown, CreditCard, ExternalLink, Layers, LockKeyhole, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react"
 import { CompanyLogo } from "@/components/career/CompanyLogo"
 
 type BoardJob = {
@@ -36,7 +36,7 @@ type Filters = {
   category: string[]
 }
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 30
 const PRIMARY = "#2f5d50"
 const INK = "#1b231e"
 const TWIN_KEY = "emz.career.twin.skills.v1"
@@ -81,6 +81,41 @@ function pageWindow(current: number, total: number): Array<number | "ellipsis"> 
     out.push(sorted[i]!)
   }
   return out
+}
+
+function postedLabel(value: string | null): string | null {
+  if (!value) return null
+  const time = new Date(value).getTime()
+  if (!Number.isFinite(time)) return null
+  const days = Math.floor((Date.now() - time) / 86_400_000)
+  if (days <= 0) return "Posted today"
+  if (days === 1) return "Posted yesterday"
+  if (days < 30) return `Posted ${days}d ago`
+  const months = Math.floor(days / 30)
+  return months < 12 ? `Posted ${months}mo ago` : "Posted over a year ago"
+}
+
+function FitCheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 shrink-0" aria-hidden>
+      <path d="M4.5 16.5a8 8 0 1115 0" stroke={PRIMARY} strokeWidth="2" strokeLinecap="round" />
+      <path d="M7.2 16.5a5.2 5.2 0 019.6 0" stroke={PRIMARY} strokeWidth="1.6" strokeLinecap="round" opacity=".35" />
+      <path d="M12 16.5l3.6-5.4" stroke="#e0511f" strokeWidth="2.2" strokeLinecap="round" />
+      <circle cx="12" cy="16.5" r="1.9" fill={INK} />
+    </svg>
+  )
+}
+
+function TailorCvIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 shrink-0" aria-hidden>
+      <path d="M6 3.5h7.5L18 8v5" stroke="#b5532c" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M13.5 3.5V8H18" stroke="#b5532c" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M6 3.5a1.5 1.5 0 00-1.5 1.5v14A1.5 1.5 0 006 20.5h5" stroke="#b5532c" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M7.5 10h6M7.5 13.5h4" stroke="#b5532c" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M13.5 20.5l.6-2.6 5.2-5.2a1.4 1.4 0 012 2l-5.2 5.2z" fill="#e0511f" />
+    </svg>
+  )
 }
 
 function FilterSection({
@@ -258,6 +293,15 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
     } finally {
       setFitBusy(false)
     }
+  }
+
+  function openTailorCv(jobId: string) {
+    if (subscription?.active) {
+      window.location.href = `/application-pack?jobId=${encodeURIComponent(jobId)}`
+      return
+    }
+    setFit(null)
+    setFitJobId(jobId)
   }
 
   const usingSampleSkills = userSkills.length === 0
@@ -499,9 +543,9 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
           </p>
 
           {loading && jobs.length === 0 ? (
-            <div className="space-y-2.5">
+            <div className="space-y-4">
               {Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="h-24 animate-pulse rounded-xl bg-white/70" />
+                <div key={index} className="h-44 animate-pulse rounded-2xl bg-white/70" />
               ))}
             </div>
           ) : jobs.length === 0 ? (
@@ -520,103 +564,114 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
               )}
             </div>
           ) : (
-            <div className="space-y-2.5 pb-6">
-              {jobs.map((job) => (
+            <div className="space-y-4 pb-6">
+              {jobs.map((job) => {
+                const posted = postedLabel(job.postedAt)
+                const locked = !subscription?.active
+                return (
                 <article
                   key={job.id}
-                  className="group rounded-xl border border-[#e4dfd5] bg-white px-3 py-2.5 shadow-[0_1px_2px_rgba(27,35,30,0.04)] transition hover:border-[#e0511f]/35 sm:px-4 sm:py-3"
+                  className="group rounded-2xl border border-[#e4dfd5] bg-white p-5 shadow-[0_1px_2px_rgba(27,35,30,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-[#d6cfc2] hover:shadow-[0_18px_40px_rgba(27,35,30,0.08)] sm:p-6"
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-4">
                     <CompanyLogo
                       company={job.company ?? job.title}
                       logoUrl={job.logoUrl}
                       careerUrl={job.url}
+                      className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#efece4] bg-white shadow-sm"
                     />
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <h2 className="text-[15px] font-bold leading-snug group-hover:text-[#e0511f]">{job.title}</h2>
-                        {job.featured && (
-                          <span className="rounded-full bg-[#fbeae0] px-1.5 py-0.5 text-[10px] font-bold text-[#7a3b24]">
-                            Featured
-                          </span>
-                        )}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-bold" style={{ color: PRIMARY }}>
+                            {job.company ?? "Company"}
+                          </p>
+                          <h2 className="mt-0.5 text-lg font-extrabold leading-snug tracking-tight transition-colors group-hover:text-[#2f5d50] sm:text-xl">{job.title}</h2>
+                        </div>
+                        <div className="flex shrink-0 flex-col items-end gap-1.5">
+                          {job.featured && (
+                            <span className="rounded-full bg-[#fbeae0] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-[#7a3b24]">
+                              Featured
+                            </span>
+                          )}
+                          {posted && <span className="whitespace-nowrap text-xs font-medium text-[#8a9086]">{posted}</span>}
+                        </div>
                       </div>
-                      <p className="mt-0.5 text-[13px] font-semibold" style={{ color: PRIMARY }}>
-                        {job.company ?? "Company"}
-                      </p>
-                      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#5f655c]">
-                        <span className="inline-flex items-center gap-1 font-medium">
-                          <MapPin className="h-3 w-3 text-[#9aa094]" />
+                      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f6f3ec] px-3 py-1.5 font-semibold text-[#3f463f]">
+                          <MapPin className="h-3.5 w-3.5 text-[#8a9086]" />
                           {job.flag} {job.city}
                           {job.country && job.country !== job.city ? `, ${job.country}` : ""}
                         </span>
-                        {job.jobType && <span>{job.jobType}</span>}
-                        {job.sponsorship && <span className="font-semibold text-[#7a3b24]">{job.sponsorship}</span>}
-                      </div>
-                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        {job.jobType && (
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f6f3ec] px-3 py-1.5 font-semibold text-[#3f463f]">
+                            <BriefcaseBusiness className="h-3.5 w-3.5 text-[#8a9086]" />
+                            {job.jobType}
+                          </span>
+                        )}
                         {job.experienceLevel && (
-                          <span className="rounded-md bg-[#f6f3ec] px-2 py-0.5 text-[11px] font-semibold text-[#4a5047]">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f6f3ec] px-3 py-1.5 font-semibold text-[#3f463f]">
+                            <Layers className="h-3.5 w-3.5 text-[#8a9086]" />
                             {job.experienceLevel}
                           </span>
                         )}
-                        {job.skills.slice(0, 3).map((skill) => (
-                          <span
-                            key={skill}
-                            className="hidden rounded-md bg-[#f6f3ec] px-2 py-0.5 text-[11px] font-medium text-[#5f655c] sm:inline-block"
-                          >
-                            {skill}
+                        {job.sponsorship && (
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#e8f1ed] px-3 py-1.5 font-bold text-[#285045]">
+                            <ShieldCheck className="h-3.5 w-3.5" />
+                            {job.sponsorship}
                           </span>
-                        ))}
+                        )}
                       </div>
-                    </div>
-                    <div className="hidden shrink-0 self-center items-center gap-2 sm:flex">
-                      <button
-                        type="button"
-                        onClick={() => void openFitCheck(job.id)}
-                        className="rounded-lg border border-[#e4dfd5] bg-[#f6f3ec] px-3 py-1.5 text-xs font-bold"
-                      >
-                        Fit Check
-                      </button>
-                      {job.url && (
-                        <a
-                          href={job.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 rounded-lg px-3.5 py-1.5 text-xs font-bold text-white"
-                          style={{ background: PRIMARY }}
-                        >
-                          Apply
-                          <ExternalLink className="h-3.5 w-3.5" />
-                        </a>
+                      {job.skills.length > 0 && (
+                        <p className="mt-3 hidden truncate text-[13px] text-[#6b716a] sm:block">
+                          <span className="font-semibold text-[#4a5047]">Skills:</span> {job.skills.slice(0, 5).join(" · ")}
+                        </p>
                       )}
                     </div>
                   </div>
-                  <div className="mt-2 flex gap-2 sm:hidden">
-                    <button
-                      type="button"
-                      onClick={() => void openFitCheck(job.id)}
-                      className="inline-flex flex-1 items-center justify-center rounded-lg border border-[#e4dfd5] bg-[#f6f3ec] px-3 py-1.5 text-xs font-bold"
-                    >
-                      Fit Check
-                    </button>
-                    {job.url && (
+
+                  <div className="mt-5 grid grid-cols-3 gap-2 border-t border-[#efe9dd] pt-4 sm:flex sm:items-center sm:justify-between">
+                    <div className="col-span-2 grid grid-cols-2 gap-2 sm:flex">
+                      <button
+                        type="button"
+                        onClick={() => void openFitCheck(job.id)}
+                        aria-expanded={fitJobId === job.id}
+                        className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl border px-3 text-sm font-bold transition sm:px-4 ${
+                          fitJobId === job.id ? "border-[#2f5d50] bg-[#eef4f1] text-[#1f4a3e]" : "border-[#e4dfd5] bg-white hover:border-[#2f5d50] hover:bg-[#f4f8f6]"
+                        }`}
+                      >
+                        <FitCheckIcon />
+                        Fit Check
+                        {locked && <LockKeyhole className="hidden h-3 w-3 text-[#9aa094] sm:block" />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openTailorCv(job.id)}
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#f1d6c6] bg-[#fff5ef] px-3 text-sm font-bold text-[#7a3b24] transition hover:border-[#e0511f] hover:bg-[#ffede2] sm:px-4"
+                      >
+                        <TailorCvIcon />
+                        Tailor CV
+                        {locked && <LockKeyhole className="hidden h-3 w-3 text-[#c79a82] sm:block" />}
+                      </button>
+                    </div>
+                    {job.url ? (
                       <a
                         href={job.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-white"
+                        className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-bold text-white shadow-[0_8px_20px_rgba(47,93,80,0.22)] transition hover:brightness-110 sm:px-5"
                         style={{ background: PRIMARY }}
                       >
                         Apply
-                        <ExternalLink className="h-3 w-3" />
+                        <ExternalLink className="h-4 w-4" />
                       </a>
-                    )}
+                    ) : <span />}
                   </div>
                   {fitJobId === job.id && (
-                    <div className="mt-3 rounded-xl border border-[#e4dfd5] bg-[#f6f3ec]/80 p-3 text-sm">
+                    <div className="mt-4 rounded-xl border border-[#e4dfd5] bg-[#f6f3ec]/80 p-4 text-sm">
                       {!subscription?.active && (
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <div><p className="font-extrabold">This is a member feature</p><p className="mt-1 text-xs text-[#626861]">Subscribe to run Fit Check and build a tailored application pack.</p></div>
+                          <div><p className="font-extrabold">This is a member feature</p><p className="mt-1 text-xs text-[#626861]">Subscribe to run Fit Check and tailor your CV and application pack for this role.</p></div>
                           <button type="button" disabled={billingBusy} onClick={() => void openBilling("checkout")} className="rounded-lg bg-[#e0511f] px-4 py-2 text-xs font-bold text-white">Subscribe with Stripe</button>
                         </div>
                       )}
@@ -653,15 +708,13 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
                           <p className="text-xs"><strong>Missing:</strong> {fit.missing.join(", ") || "None detected"}</p>
                           <p className="text-xs"><strong>Sponsorship:</strong> {fit.sponsorship.vacancyStatement} ({fit.sponsorship.employerSignal})</p>
                           <p className="text-xs"><strong>Sell:</strong> {fit.strongestSellingPoint}</p>
-                          <a href={`/application-pack?jobId=${encodeURIComponent(job.id)}`} className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#1b231e] px-4 py-2 text-xs font-extrabold text-white">
-                            <FileText className="h-3.5 w-3.5" /> Create CV & application pack
-                          </a>
                         </div>
                       )}
                     </div>
                   )}
                 </article>
-              ))}
+                )
+              })}
             </div>
           )}
 

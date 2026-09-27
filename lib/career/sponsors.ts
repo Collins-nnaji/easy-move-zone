@@ -151,6 +151,51 @@ export async function searchSponsors(query: string): Promise<SponsorHit[]> {
   }))
 }
 
+export type CountryEmployer = {
+  name: string
+  jobCount: number
+  careerUrl: string | null
+  openings: Array<{ title: string; url: string }>
+}
+
+/** Employers with live roles in a destination, from the jobs board (not an official sponsor register). */
+export async function listCountryEmployers(
+  countries: string[],
+  query = "",
+): Promise<{ employers: CountryEmployer[]; totalJobs: number }> {
+  if (!careerSql || countries.length === 0) return { employers: [], totalJobs: 0 }
+  const q = query.trim() || null
+  const [rows, totals] = await Promise.all([
+    careerSql`
+      SELECT max(company) AS company,
+             count(*)::int AS job_count,
+             (array_agg(url ORDER BY posted_at DESC NULLS LAST))[1] AS latest_url,
+             (array_agg(json_build_object('title', title, 'url', url) ORDER BY posted_at DESC NULLS LAST))[1:3] AS openings
+      FROM skilledjobs.jobs
+      WHERE country = ANY(${countries})
+        AND company IS NOT NULL AND trim(company) <> ''
+        AND (${q}::text IS NULL OR company ILIKE '%' || ${q} || '%' OR title ILIKE '%' || ${q} || '%')
+      GROUP BY lower(trim(company))
+      ORDER BY count(*) DESC, max(company) ASC
+      LIMIT 30
+    `,
+    careerSql`SELECT count(*)::int AS n FROM skilledjobs.jobs WHERE country = ANY(${countries})`,
+  ])
+  return {
+    totalJobs: Number(totals[0]?.n ?? 0),
+    employers: rows.map((row) => ({
+      name: String(row.company),
+      jobCount: Number(row.job_count ?? 0),
+      careerUrl: careerSiteFromJobUrl(row.latest_url ? String(row.latest_url) : null),
+      openings: Array.isArray(row.openings)
+        ? (row.openings as Array<{ title: unknown; url: unknown }>)
+            .filter((job) => job?.url)
+            .map((job) => ({ title: String(job.title), url: String(job.url) }))
+        : [],
+    })),
+  }
+}
+
 export async function searchOccupationCodes(query: string): Promise<OccupationCodeHit[]> {
   if (!careerSql) return []
   const q = query.trim()

@@ -6,6 +6,7 @@ const paths = [
   "/workspace",
   "/sponsors",
   "/jobs",
+  "/education",
   "/work-simulation",
   "/specialist-support",
   "/contact",

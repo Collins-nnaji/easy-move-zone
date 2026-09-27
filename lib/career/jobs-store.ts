@@ -156,6 +156,28 @@ export async function searchLocalJobs(filters: JobFilters = {}): Promise<{ rows:
   }
 }
 
+/** Random roles for previews, at most one per company so the list stays varied. */
+export async function sampleLocalJobs(limit = 10): Promise<JobRow[] | null> {
+  if (!careerSql) return null
+  try {
+    const size = Math.min(Math.max(limit, 1), 50)
+    const rows = (await careerSql`
+      SELECT * FROM (
+        SELECT DISTINCT ON (lower(coalesce(nullif(trim(company), ''), title)))
+               id, title, company, location, country, category, experience_level, job_type,
+               visa_type, skills, url, logo_url, posted_at, description
+        FROM skilledjobs.jobs
+        ORDER BY lower(coalesce(nullif(trim(company), ''), title)), random()
+      ) per_company
+      ORDER BY random()
+      LIMIT ${size}
+    `) as JobRow[]
+    return await withCompanyLogos(rows)
+  } catch {
+    return null
+  }
+}
+
 export async function listLocalFacets(): Promise<{ countries: string[]; visaTypes: string[]; categories: string[] } | null> {
   if (!careerSql) return null
   try {

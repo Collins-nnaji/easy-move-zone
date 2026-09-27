@@ -2,14 +2,15 @@
 
 import Link from "next/link"
 import { motion, useReducedMotion } from "framer-motion"
-import { ArrowRight, BriefcaseBusiness, CheckCircle2, Globe2, Compass, Headphones, Route } from "lucide-react"
-import { HomeJobsPreview } from "@/components/platform/HomeJobsPreview"
+import { ArrowRight, Headphones } from "lucide-react"
+import { HomeHowItWorks } from "@/components/platform/HomeHowItWorks"
+import { HomeJobsPreview, PREVIEW_COUNT } from "@/components/platform/HomeJobsPreview"
 
 const PRIMARY = "#2f5d50"
 const INK = "#1b231e"
 const easeOut = [0.16, 1, 0.3, 1] as const
 
-/** Checklist + verified seal — used for Get sponsorship. */
+/** Checklist + verified seal — used for Check sponsorship. */
 function VerifiedChecklistIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -114,18 +115,6 @@ function HeroVerifiedVisual() {
   )
 }
 
-const journeyModes = [
-  { icon: BriefcaseBusiness, title: "Move careers", body: "Compare your current skills with target roles, uncover gaps, and see which learning gives you the strongest return." },
-  { icon: Globe2, title: "Move countries", body: "Understand route strength, sponsorship needs, readiness gaps, and the practical next steps for your destination." },
-  { icon: Route, title: "Move both", body: "Plan a career transition and an international move together, so your new role supports the route you want." },
-] as const
-
-const steps = [
-  { number: "01", title: "Tell us your direction", body: "Choose career, country, or both. Add only the details relevant to that plan." },
-  { number: "02", title: "Build your evidence", body: "Upload a CV or use the guided form. We map skills, experience, routes, and live market demand." },
-  { number: "03", title: "Act on one clear report", body: "Prioritise the best route, close the highest-value gaps, and move into jobs or simulations." },
-] as const
-
 export function HomePageClient() {
   const reduceMotion = useReducedMotion()
   const fadeUp = (delay = 0, y = 18) =>
@@ -217,7 +206,7 @@ export function HomePageClient() {
                 className="group inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white/85 px-5 text-[15px] font-bold text-[#1b231e] backdrop-blur-sm transition hover:border-[#e0511f]/45 hover:bg-white sm:min-h-12 sm:min-w-[11rem] sm:flex-none sm:px-6 sm:text-base"
               >
                 <VerifiedChecklistIcon className="h-6 w-6 text-[#1b231e] transition group-hover:text-[#e0511f]" />
-                Get sponsorship
+                Check sponsorship
               </Link>
               <Link
                 href="/specialist-support"
@@ -248,7 +237,7 @@ export function HomePageClient() {
 
       <section className="border-t border-[#ded8cc] bg-[#1b231e] py-5 text-white">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-5 px-4 sm:grid-cols-4 sm:px-6 lg:px-8">
-          {[['3', 'planning modes'], ['20', 'jobs on this page'], ['1', 'joined-up report'], ['24/7', 'self-serve planning']].map(([value, label]) => (
+          {[['3', 'planning modes'], [String(PREVIEW_COUNT), 'jobs on this page'], ['1', 'joined-up report'], ['24/7', 'self-serve planning']].map(([value, label]) => (
             <div key={label} className="text-center sm:text-left"><p className="text-2xl font-extrabold text-[#9bc2b5]">{value}</p><p className="text-xs font-semibold text-white/65">{label}</p></div>
           ))}
         </div>
@@ -256,106 +245,7 @@ export function HomePageClient() {
 
       <HomeJobsPreview />
 
-      <section className="bg-white py-14 sm:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.div {...fadeUp()} className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#e0511f]">Start with your real goal</p>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">One score, shaped around the move you are making.</h2>
-            <p className="mt-3 text-[#60665f]">Choose your direction once. EasyMove adapts the assessment, recommendations, and next steps to what you are actually trying to change.</p>
-          </motion.div>
-          <div className="mt-8 grid gap-4 lg:grid-cols-3">
-            {journeyModes.map((mode, index) => (
-              <motion.div key={mode.title} {...fadeUp(index * .05)} className="rounded-3xl border border-[#e4dfd5] bg-[#faf8f3] p-6">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#dfeae6] text-[#2f5d50]"><mode.icon className="h-5 w-5" /></span>
-                <h3 className="mt-5 text-xl font-extrabold">{mode.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#646a63]">{mode.body}</p>
-              </motion.div>
-            ))}
-          </div>
-          <motion.div {...fadeUp(0.1)} className="mt-6 rounded-3xl bg-[#1b231e] p-6 text-white sm:mt-8 sm:p-8">
-            <div className="grid gap-7 lg:grid-cols-[1fr_1.35fr] lg:items-center">
-              <div>
-                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#9bc2b5]">One joined-up plan</p>
-                <h3 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">Skills, sponsorship and proof—working together.</h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/70">Your score finds the constraint that matters, then connects it to roles you can pursue and practical actions you can take.</p>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-3">
-                {[
-                  ["Skills", "Role gaps and learning ROI"],
-                  ["Sponsorship", "Route readiness and employers"],
-                  ["Proof", "Work simulations and evidence"],
-                ].map(([title, body]) => (
-                  <div key={title} className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
-                    <CheckCircle2 className="h-5 w-5 text-[#9bc2b5]" />
-                    <p className="mt-3 text-sm font-extrabold">{title}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-white/60">{body}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-7 flex justify-center border-t border-white/10 pt-6">
-              <Link href="/workspace" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2f5d50] px-6 py-3.5 text-sm font-extrabold text-white transition hover:bg-[#376d5d]">
-                Open My Workspace <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </motion.div>
-
-          <motion.div
-            {...fadeUp(0.06)}
-            className="mt-8 flex flex-col gap-4 rounded-3xl border border-[#1b231e]/10 bg-[#1b231e] p-5 text-white sm:mt-10 sm:flex-row sm:items-center sm:justify-between sm:p-7"
-          >
-            <div className="max-w-xl">
-              <p className="text-xs font-bold uppercase tracking-wider text-[#e0511f]">Concierge</p>
-              <h3 className="mt-1 text-xl font-extrabold sm:text-2xl">Complex move? Talk to a specialist.</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/75">
-                Family, refusals, career switches, or multi-country options — send a detailed enquiry and we&apos;ll
-                follow up with a clear next step.
-              </p>
-            </div>
-            <Link
-              href="/specialist-support"
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#e0511f] px-5 py-3 text-sm font-bold text-white transition hover:brightness-110"
-            >
-              Request support
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </motion.div>
-
-          <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2">
-            <Link href="/jobs" className="text-sm font-bold text-[#4a5047] underline-offset-4 hover:underline">
-              Browse sponsorship jobs worldwide
-            </Link>
-            <Link href="/specialist-support" className="text-sm font-bold text-[#4a5047] underline-offset-4 hover:underline">
-              Specialist enquiry
-            </Link>
-            <Link href="/contact" className="text-sm font-bold text-[#4a5047] underline-offset-4 hover:underline">
-              Contact
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-14 sm:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
-            <motion.div {...fadeUp()}>
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1b231e] text-white"><Compass className="h-5 w-5" /></span>
-              <h2 className="mt-5 text-3xl font-extrabold tracking-tight sm:text-4xl">From uncertainty to a next step you can use.</h2>
-              <p className="mt-3 text-sm leading-relaxed text-[#626861] sm:text-base">EasyMoveZone brings career fit, immigration routes, sponsorship signals, and practice into one decision flow.</p>
-              <div className="mt-6 space-y-3">
-                {["Personalised to your direction", "Built around evidence from your CV", "Connected to live jobs and sponsor checks"].map((item) => <p key={item} className="flex items-center gap-2 text-sm font-bold"><CheckCircle2 className="h-4 w-4 text-[#e0511f]" />{item}</p>)}
-              </div>
-            </motion.div>
-            <div className="space-y-3">
-              {steps.map((item, index) => (
-                <motion.div key={item.number} {...fadeUp(index * .05)} className="grid grid-cols-[3rem_1fr] gap-4 rounded-2xl border border-[#e4dfd5] bg-[#faf8f3] p-5">
-                  <span className="text-lg font-extrabold text-[#e0511f]">{item.number}</span><div><h3 className="font-extrabold">{item.title}</h3><p className="mt-1 text-sm leading-relaxed text-[#686e67]">{item.body}</p></div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <HomeHowItWorks />
     </div>
   )
 }

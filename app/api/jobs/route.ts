@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { listJobFacetCounts, searchLocalJobs } from "@/lib/career/jobs-store"
+import { listJobFacetCounts, sampleLocalJobs, searchLocalJobs } from "@/lib/career/jobs-store"
 import { mapJob } from "@/lib/career/map-job"
 import { listFeaturedJobIds } from "@/lib/mobility/featured-jobs"
 
@@ -30,6 +30,23 @@ export async function GET(request: Request) {
   const featuredIds = (await listFeaturedJobIds())
     .map((id) => Number(id))
     .filter((id) => Number.isFinite(id))
+
+  if (url.searchParams.get("sample") === "1") {
+    const sampled = await sampleLocalJobs(limit)
+    const featured = new Set(featuredIds.map(String))
+    const jobs = (sampled ?? []).map((row) => ({
+      ...mapJob(row),
+      experienceLevel: row.experience_level,
+      jobType: row.job_type,
+      logoUrl: row.logo_url,
+      skills: row.skills ?? [],
+      featured: featured.has(String(row.id)),
+    }))
+    return NextResponse.json(
+      { jobs, source: sampled ? "easymovezone" : "unconfigured", count: jobs.length },
+      { headers: { "Cache-Control": "no-store" } },
+    )
+  }
 
   const filters = {
     q,

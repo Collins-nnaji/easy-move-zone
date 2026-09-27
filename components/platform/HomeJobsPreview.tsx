@@ -19,6 +19,8 @@ type PreviewJob = {
   featured: boolean
 }
 
+export const PREVIEW_COUNT = 10
+
 export function HomeJobsPreview() {
   const [jobs, setJobs] = useState<PreviewJob[]>([])
   const [loading, setLoading] = useState(true)
@@ -26,9 +28,9 @@ export function HomeJobsPreview() {
   useEffect(() => {
     const controller = new AbortController()
     let active = true
-    void fetch("/api/jobs?page=1&limit=20", { signal: controller.signal })
+    void fetch(`/api/jobs?sample=1&limit=${PREVIEW_COUNT}`, { signal: controller.signal, cache: "no-store" })
       .then((response) => (response.ok ? response.json() : { jobs: [] }))
-      .then((data) => { if (active) setJobs(Array.isArray(data.jobs) ? data.jobs.slice(0, 20) : []) })
+      .then((data) => { if (active) setJobs(Array.isArray(data.jobs) ? data.jobs.slice(0, PREVIEW_COUNT) : []) })
       .catch(() => undefined)
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false; controller.abort() }
@@ -41,11 +43,8 @@ export function HomeJobsPreview() {
           <div>
             <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#e0511f]">Live opportunities</p>
             <h2 className="mt-2 max-w-2xl text-3xl font-extrabold tracking-tight text-[#1b231e] sm:text-4xl">
-              20 roles from the jobs board
+              {PREVIEW_COUNT} roles from the jobs board
             </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#5f655c] sm:text-base">
-              See what is open before you create an account. Sign in to filter the full board, run Fit Check, and apply with a clearer view of your match.
-            </p>
           </div>
           <Link href="/jobs" className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#1b231e] px-5 text-sm font-bold text-white">
             View all jobs <ArrowRight className="h-4 w-4" />
@@ -54,7 +53,7 @@ export function HomeJobsPreview() {
 
         {loading ? (
           <div className="mt-8 space-y-2">
-            {Array.from({ length: 8 }).map((_, index) => <div key={index} className="h-24 animate-pulse rounded-2xl bg-white/70" />)}
+            {Array.from({ length: PREVIEW_COUNT }).map((_, index) => <div key={index} className="h-24 animate-pulse rounded-2xl bg-white/70" />)}
           </div>
         ) : jobs.length ? (
           <div className="mt-8 overflow-hidden rounded-3xl border border-[#ddd8ce] bg-white shadow-[0_12px_35px_rgba(27,35,30,.06)]">
