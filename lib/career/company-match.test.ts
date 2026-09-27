@@ -12,6 +12,15 @@ describe("companyKey", () => {
     expect(companyKey("GOOGLE UK LIMITED")).toBe("google")
     expect(companyKey("Amazon UK Services Ltd.")).toBe("amazon")
   })
+
+  it("strips non-UK legal forms for other countries' registers", () => {
+    expect(companyKey("Roblox B.V.")).toBe("roblox")
+    expect(companyKey("Booking.com B.V.")).toBe(companyKey("Booking.com"))
+    expect(companyKey("SAP SE")).toBe("sap")
+    expect(companyKey("Siemens AG")).toBe("siemens")
+    expect(companyKey("Zalando GmbH")).toBe("zalando")
+    expect(companyKey("A.P. Møller - Mærsk A/S")).toBe(companyKey("A.P. Møller - Mærsk"))
+  })
 })
 
 describe("matchSponsorCompany", () => {

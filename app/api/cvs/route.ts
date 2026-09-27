@@ -29,6 +29,7 @@ function cvFromRow(row: Record<string, unknown>) {
     skillCategories: categories.length
       ? categories
       : [{ id: "skills", name: "Skills", skills: Array.isArray(row.skills) ? row.skills : [] }],
+    ...(Array.isArray(settings.sections) ? { sections: settings.sections } : {}),
     parsed: settings.parsed ?? {}, templateId: "minimal",
     ...sourceFrom(settings),
     createdAt: String(row.created_at ?? ""), updatedAt: String(row.updated_at ?? ""),
@@ -41,7 +42,8 @@ function cvColumns(data: Record<string, unknown>) {
   const education = Array.isArray(data.education) ? data.education : []
   const categories = Array.isArray(data.skillCategories) ? data.skillCategories.map(object) : []
   const skills = categories.flatMap((item) => Array.isArray(item.skills) ? item.skills.map(String) : []).slice(0, 60)
-  return { personal, experience, education, categories, skills }
+  const sections = Array.isArray(data.sections) ? data.sections.map(object).slice(0, 30) : []
+  return { personal, experience, education, categories, skills, sections }
 }
 
 async function userId() {
@@ -76,10 +78,10 @@ export async function POST(request: Request) {
   const body = object(await request.json().catch(() => null))
   const data = object(body.data)
   const source = object(body.source)
-  const { personal, experience, education, categories, skills } = cvColumns(data)
+  const { personal, experience, education, categories, skills, sections } = cvColumns(data)
   const name = String(body.name || personal.fullName || "My CV").trim().slice(0, 180)
   const settings = {
-    source: "easymove-score", parsed: data.parsed ?? {},
+    source: "easymove-score", parsed: data.parsed ?? {}, sections,
     sourceDocumentId: source.documentId ? String(source.documentId) : null,
     sourceFileName: source.fileName ? String(source.fileName).slice(0, 240) : null,
   }
@@ -105,8 +107,8 @@ export async function PUT(request: Request) {
   const id = Number(body.id)
   const data = object(body.data)
   if (!Number.isFinite(id)) return Response.json({ error: "CV id is required" }, { status: 400 })
-  const { personal, experience, education, categories, skills } = cvColumns(data)
-  const patch = { source: "easymove-score", parsed: data.parsed ?? {} }
+  const { personal, experience, education, categories, skills, sections } = cvColumns(data)
+  const patch = { source: "easymove-score", parsed: data.parsed ?? {}, sections }
   const rows = await sql`
     update skilledjobs.cvs set name = ${String(body.name || "My CV").slice(0, 180)},
       personal_info = ${JSON.stringify(personal)}::jsonb, summary = ${String(personal.summary ?? "")},

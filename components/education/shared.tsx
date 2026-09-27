@@ -69,10 +69,10 @@ export function CapIcon({ className = "h-5 w-5" }: { className?: string }) {
   )
 }
 
-const VERDICT_STYLE: Record<CourseFit["verdict"], { label: string; className: string }> = {
-  strong: { label: "Strong fit", className: "bg-emerald-100 text-emerald-900" },
-  possible: { label: "Possible fit", className: "bg-amber-100 text-amber-900" },
-  stretch: { label: "Stretch", className: "bg-rose-100 text-rose-900" },
+const VERDICT_STYLE: Record<CourseFit["verdict"], { label: string; hint: string; steps: number; className: string; bar: string }> = {
+  strong: { label: "Strong fit", hint: "You look ready to apply", steps: 3, className: "bg-emerald-100 text-emerald-900", bar: "bg-emerald-600" },
+  possible: { label: "Possible fit", hint: "Apply once you confirm the gaps below", steps: 2, className: "bg-amber-100 text-amber-900", bar: "bg-amber-500" },
+  stretch: { label: "Stretch", hint: "Close the gaps first or pick a closer course", steps: 1, className: "bg-rose-100 text-rose-900", bar: "bg-rose-500" },
 }
 
 export function FitSummary({ fit, compact = false }: { fit: CourseFit; compact?: boolean }) {
@@ -80,23 +80,11 @@ export function FitSummary({ fit, compact = false }: { fit: CourseFit; compact?:
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative h-12 w-12 shrink-0">
-          <svg viewBox="0 0 36 36" className="h-12 w-12 -rotate-90" aria-hidden>
-            <circle cx="18" cy="18" r="15.5" fill="none" stroke="#e4ded2" strokeWidth="4" />
-            <circle
-              cx="18"
-              cy="18"
-              r="15.5"
-              fill="none"
-              stroke={fit.verdict === "stretch" ? ACCENT : PRIMARY}
-              strokeWidth="4"
-              strokeLinecap="round"
-              strokeDasharray={`${(fit.score / 100) * 97.4} 97.4`}
-            />
-          </svg>
-          <span className="absolute inset-0 flex items-center justify-center text-xs font-extrabold">{fit.score}</span>
-        </div>
         <span className={`rounded-full px-2.5 py-1 text-xs font-extrabold ${verdict.className}`}>{verdict.label}</span>
+        <span className="flex gap-1" aria-hidden>
+          {[1, 2, 3].map((step) => <span key={step} className={`h-1.5 w-6 rounded-full ${step <= verdict.steps ? verdict.bar : "bg-[#e4dfd5]"}`} />)}
+        </span>
+        {!compact && <span className="text-xs font-semibold text-[#5f655c]">{verdict.hint}</span>}
       </div>
       {!compact && (
         <div className="grid gap-3 sm:grid-cols-3">

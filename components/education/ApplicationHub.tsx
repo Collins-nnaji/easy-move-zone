@@ -207,7 +207,7 @@ function ApplicationCard({
           <h3 className="mt-0.5 text-lg font-extrabold leading-snug tracking-tight">{course.title}</h3>
           <p className="mt-1 text-xs text-[#6b716a]">
             {STUDY_LEVEL_LABELS[course.level]} · {formatTuition(course)} per year
-            {application.fit ? ` · Fit ${application.fit.score}/100` : ""}
+            {application.fit ? ` · ${{ strong: "Strong fit", possible: "Possible fit", stretch: "Stretch" }[application.fit.verdict]}` : ""}
             {application.personalStatement ? " · Statement drafted" : ""}
           </p>
         </button>

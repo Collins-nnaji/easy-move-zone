@@ -68,7 +68,7 @@ export async function checkCourseFit(course: CourseWithUniversity, ctx: Applican
     "You are an admissions adviser for international students. Judge how well an applicant fits a university course using only the evidence given. Never invent grades, degrees or test scores. If evidence is missing, say what they need to confirm. Return JSON only.",
     `${describeCourse(course)}\n\nAPPLICANT\n${describeApplicant(ctx)}\n\nReturn {"score":0-100,"verdict":"strong|possible|stretch","meets":["requirement the applicant clearly meets, with the evidence"],"gaps":["missing or unconfirmed requirement"],"advice":["specific next step to strengthen the application"]}. Keep each item under 25 words, 2-5 items per list.`,
     fallback,
-    { maxTokens: 900 },
+    { maxTokens: 900, temperature: 0 },
   )
   const score = Math.max(0, Math.min(100, Math.round(Number(result.score ?? fallback.score))))
   const verdict = result.verdict === "strong" || result.verdict === "possible" || result.verdict === "stretch" ? result.verdict : fallback.verdict

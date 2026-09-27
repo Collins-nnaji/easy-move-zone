@@ -86,7 +86,7 @@ export function mapJob(row: JobRow): SponsorshipJob & {
     country: countryName,
     countrySlug: slug ?? "united-kingdom",
     flag: FLAG[slug ?? ""] ?? FLAG[countryName.toLowerCase()] ?? "🌍",
-    sponsorship: row.visa_type?.trim() || "International applicants considered",
+    sponsorship: row.visa_type?.trim() && row.visa_type.trim() !== "Other" ? row.visa_type.trim() : "International applicants considered",
     band: bandFromJob(row),
     minExperience: experienceYears(row.experience_level),
     minEducation: "bachelor",

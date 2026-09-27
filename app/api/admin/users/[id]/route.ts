@@ -20,7 +20,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const sql = neon(DATABASE_URL)
 
     const currentRows = await sql`
-      select is_agent, agent_verified, role from user_profiles where auth_user_id = ${id} limit 1
+      select is_agent, agent_verified, role from user_profiles where user_id = ${id} limit 1
     `
     const current = currentRows[0] as { is_agent: boolean; agent_verified: boolean; role: string } | undefined
     if (!current) return NextResponse.json({ error: "User not found" }, { status: 404 })
@@ -35,8 +35,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
           agent_verified = ${agentVerified},
           role = ${role},
           updated_at = now()
-      where auth_user_id = ${id}
-      returning auth_user_id, full_name, role, is_agent, agent_company, agent_verified, created_at, updated_at
+      where user_id = ${id}
+      returning is_agent, agent_company, agent_verified
     `
     return NextResponse.json({ user: rows[0] })
   } catch (err) {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { listJobFacetCounts, sampleLocalJobs, searchLocalJobs } from "@/lib/career/jobs-store"
 import { mapJob } from "@/lib/career/map-job"
 import { listFeaturedJobIds } from "@/lib/mobility/featured-jobs"
+import { registeredSponsorJobIds } from "@/lib/career/sponsor-check"
 
 export const runtime = "nodejs"
 
@@ -25,6 +26,7 @@ export async function GET(request: Request) {
   const jobTypes = multi(url.searchParams, "jobType")
   const categories = multi(url.searchParams, "category")
   const featuredOnly = url.searchParams.get("featured") === "1"
+  const visaSponsoredOnly = url.searchParams.get("visa") === "1"
   const requestedId = Number(url.searchParams.get("id"))
 
   const featuredIds = (await listFeaturedJobIds())
@@ -58,6 +60,7 @@ export async function GET(request: Request) {
     offset,
     featuredIds,
     featuredOnly,
+    visaSponsoredOnly,
     ids: Number.isFinite(requestedId) && requestedId > 0 ? [requestedId] : undefined,
   }
 
@@ -74,11 +77,12 @@ export async function GET(request: Request) {
       page,
       total: 0,
       totalPages: 0,
-      facets: { countries: {}, experienceLevels: {}, jobTypes: {}, categories: {} },
+      facets: { countries: {}, experienceLevels: {}, jobTypes: {}, categories: {}, visaSponsored: 0 },
     })
   }
 
   const featuredSet = new Set(featuredIds.map(String))
+  const onRegister = await registeredSponsorJobIds(found.rows.map((row) => Number(row.id)))
   const jobs = found.rows.map((row) => {
     const mapped = mapJob(row)
     return {
@@ -88,6 +92,7 @@ export async function GET(request: Request) {
       logoUrl: row.logo_url,
       skills: row.skills ?? [],
       featured: featuredSet.has(String(row.id)),
+      sponsorOnRegister: onRegister.has(Number(row.id)),
     }
   })
 
@@ -102,6 +107,6 @@ export async function GET(request: Request) {
     limit,
     totalPages,
     featuredCount: featuredIds.length,
-    facets: facets ?? { countries: {}, experienceLevels: {}, jobTypes: {}, categories: {} },
+    facets: facets ?? { countries: {}, experienceLevels: {}, jobTypes: {}, categories: {}, visaSponsored: 0 },
   })
 }

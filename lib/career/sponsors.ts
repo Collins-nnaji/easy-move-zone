@@ -105,11 +105,35 @@ export async function searchSponsors(query: string): Promise<SponsorHit[]> {
     LIMIT 20
   `
 
-  const index = await companyIndex()
+  return toSponsorHits(rows)
+}
+
+type SponsorDbRow = Record<string, unknown>
+
+/** Careers URLs saved in admin for these exact sponsor names; read fresh so edits show immediately. */
+async function savedCareerUrls(names: string[]): Promise<Map<string, string>> {
+  const map = new Map<string, string>()
+  if (!careerSql || names.length === 0) return map
+  const rows = await careerSql`
+    SELECT DISTINCT ON (lower(trim(company))) lower(trim(company)) AS k, url
+    FROM skilledjobs.saved_job_urls
+    WHERE lower(trim(company)) IN (SELECT lower(trim(n)) FROM unnest(${names}::text[]) AS n)
+      AND url IS NOT NULL AND trim(url) <> ''
+    ORDER BY lower(trim(company)), id DESC
+  `
+  for (const row of rows) map.set(String(row.k), String(row.url))
+  return map
+}
+
+async function toSponsorHits(rows: SponsorDbRow[]): Promise<SponsorHit[]> {
+  if (!careerSql || rows.length === 0) return []
+  const [index, saved] = await Promise.all([companyIndex(), savedCareerUrls(rows.map((row) => String(row.name)))])
   const matched = rows.map((row) => {
     const hit = matchSponsorCompany(String(row.name), index.entries)
-    const careerUrl = hit?.savedCareerUrl ?? careerSiteFromJobUrl(hit?.latestUrl)
-    const careerUrlSource = hit?.savedCareerUrl ? "saved" : hit?.latestUrl ? "jobs" : null
+    const exactUrl = saved.get(String(row.name).trim().toLowerCase()) ?? null
+    const savedUrl = exactUrl ?? hit?.savedCareerUrl ?? null
+    const careerUrl = savedUrl ?? careerSiteFromJobUrl(hit?.latestUrl)
+    const careerUrlSource = savedUrl ? "saved" : hit?.latestUrl ? "jobs" : null
     return {
       row,
       hit,
@@ -149,6 +173,32 @@ export async function searchSponsors(query: string): Promise<SponsorHit[]> {
     matchedCompany: item.hit?.name ?? null,
     openings: item.rawKey ? openings.get(item.rawKey) ?? [] : [],
   }))
+}
+
+/** Licensed sponsors that have a careers page saved in admin, most recently added first. */
+export async function listSponsorsWithCareerPages(limit = 24): Promise<{ sponsors: SponsorHit[]; total: number }> {
+  if (!careerSql) return { sponsors: [], total: 0 }
+  const rows = await careerSql`
+    WITH urls AS (
+      SELECT lower(trim(company)) AS k, max(id) AS url_id
+      FROM skilledjobs.saved_job_urls
+      WHERE company IS NOT NULL AND trim(company) <> '' AND url IS NOT NULL AND trim(url) <> ''
+      GROUP BY 1
+    ),
+    sponsors AS (
+      SELECT DISTINCT ON (lower(trim(name)))
+        lower(trim(name)) AS k, id, name, city, county, type_and_rating, route
+      FROM skilledjobs.sponsored_companies
+      WHERE lower(trim(name)) IN (SELECT k FROM urls)
+      ORDER BY lower(trim(name)), id
+    )
+    SELECT s.id, s.name, s.city, s.county, s.type_and_rating, s.route, count(*) OVER ()::int AS total_count
+    FROM sponsors s
+    JOIN urls u ON u.k = s.k
+    ORDER BY u.url_id DESC
+    LIMIT ${Math.min(Math.max(limit, 1), 100)}
+  `
+  return { sponsors: await toSponsorHits(rows), total: Number(rows[0]?.total_count ?? 0) }
 }
 
 export type CountryEmployer = {
@@ -196,25 +246,34 @@ export async function listCountryEmployers(
   }
 }
 
+/** Loose word stems so "nurses", "nursing", "developer" and "teacher" find "nurse", "development", "teaching". */
+export function occupationSearchTerms(query: string) {
+  return query.toLowerCase().split(/[^a-z0-9]+/).filter((word) => word.length > 1).map((word) => {
+    const stem = word.replace(/(ments?|ers?|ing|ists?|ies|es|s)$/, "")
+    return stem.length >= 4 ? stem : word
+  })
+}
+
 export async function searchOccupationCodes(query: string): Promise<OccupationCodeHit[]> {
   if (!careerSql) return []
   const q = query.trim()
-  const like = `%${q}%`
-  const rows = q
+  const terms = occupationSearchTerms(q)
+  const rows = terms.length
     ? await careerSql`
         SELECT code, job_type, related_job_titles, standard_going_rate, lower_going_rate
         FROM skilledjobs.occupation_codes
-        WHERE code ILIKE ${like}
-           OR job_type ILIKE ${like}
-           OR coalesce(related_job_titles, '') ILIKE ${like}
-        ORDER BY code ASC
-        LIMIT 40
+        WHERE (
+          SELECT bool_and(concat_ws(' ', code, job_type, related_job_titles) ILIKE '%' || term || '%')
+          FROM unnest(${terms}::text[]) AS term
+        )
+        ORDER BY (code = ${q}) DESC, (job_type ILIKE ${`%${q}%`}) DESC, code ASC
+        LIMIT 60
       `
     : await careerSql`
         SELECT code, job_type, related_job_titles, standard_going_rate, lower_going_rate
         FROM skilledjobs.occupation_codes
         ORDER BY code ASC
-        LIMIT 20
+        LIMIT 500
       `
 
   return rows.map((row) => ({

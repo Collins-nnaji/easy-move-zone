@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { BadgeCheck, BriefcaseBusiness, ChevronDown, CreditCard, ExternalLink, Layers, LockKeyhole, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react"
+import { BadgeCheck, BriefcaseBusiness, ChevronDown, CreditCard, ExternalLink, Layers, LockKeyhole, MapPin, Search, ShieldCheck, SlidersHorizontal, Star, X } from "lucide-react"
 import { CompanyLogo } from "@/components/career/CompanyLogo"
 
 type BoardJob = {
@@ -20,6 +20,8 @@ type BoardJob = {
   skills: string[]
   featured: boolean
   postedAt: string | null
+  visaType: string | null
+  sponsorOnRegister?: boolean
 }
 
 type FacetCounts = {
@@ -27,7 +29,10 @@ type FacetCounts = {
   experienceLevels: Record<string, number>
   jobTypes: Record<string, number>
   categories: Record<string, number>
+  visaSponsored?: number
 }
+
+type QuickFilter = "all" | "featured" | "visa"
 
 type Filters = {
   location: string[]
@@ -48,13 +53,31 @@ type FitCheckResult = {
   company: string | null
   mustHave: string[]
   niceToHave: string[]
-  overlapPct: number
+  fitLevel: "strong" | "good" | "partial" | "stretch" | "unclear"
+  fitLabel: string
+  mustHaveCovered: number
+  niceToHaveCovered: number
   missing: string[]
-  evidence: Array<{ skill: string; present: boolean }>
+  evidence: Array<{ skill: string; present: boolean; mustHave: boolean }>
   sponsorship: { employerSignal: string; vacancyStatement: string }
   strongestSellingPoint: string
-  applyAdvice: "prepare" | "skip"
+  applyAdvice: "apply" | "prepare" | "skip"
+  applyLabel: string
   applyReasons: string[]
+}
+
+const FIT_LEVEL_STYLE: Record<FitCheckResult["fitLevel"], { steps: number; tone: string; bar: string }> = {
+  strong: { steps: 4, tone: "text-emerald-800", bar: "bg-emerald-600" },
+  good: { steps: 3, tone: "text-emerald-700", bar: "bg-emerald-500" },
+  partial: { steps: 2, tone: "text-amber-800", bar: "bg-amber-500" },
+  stretch: { steps: 1, tone: "text-rose-800", bar: "bg-rose-500" },
+  unclear: { steps: 0, tone: "text-[#5f655c]", bar: "bg-[#9aa097]" },
+}
+
+const APPLY_ADVICE_STYLE: Record<FitCheckResult["applyAdvice"], string> = {
+  apply: "bg-emerald-100 text-emerald-900",
+  prepare: "bg-amber-100 text-amber-900",
+  skip: "bg-rose-100 text-rose-900",
 }
 
 type SubscriptionState = {
@@ -197,6 +220,8 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
   const [query, setQuery] = useState("")
   const [draftQuery, setDraftQuery] = useState("")
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
+  const [quick, setQuick] = useState<QuickFilter>("all")
+  const [featuredCount, setFeaturedCount] = useState(0)
   const [openSection, setOpenSection] = useState<keyof Filters | "location">("location")
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -308,6 +333,7 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
 
   const hasActiveFilters =
     Boolean(query.trim()) ||
+    quick !== "all" ||
     filters.location.length + filters.experienceLevel.length + filters.jobType.length + filters.category.length > 0
 
   const load = useCallback(async () => {
@@ -323,12 +349,15 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
       for (const value of filters.experienceLevel) params.append("experienceLevel", value)
       for (const value of filters.jobType) params.append("jobType", value)
       for (const value of filters.category) params.append("category", value)
+      if (quick === "featured") params.set("featured", "1")
+      if (quick === "visa") params.set("visa", "1")
 
       const res = await fetch(`/api/jobs?${params}`)
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Could not load jobs")
       setJobs(data.jobs ?? [])
       setFacets(data.facets ?? { countries: {}, experienceLevels: {}, jobTypes: {}, categories: {} })
+      setFeaturedCount(data.featuredCount ?? 0)
       setTotal(data.total ?? 0)
       setTotalPages(data.totalPages ?? 1)
     } catch (err) {
@@ -337,7 +366,7 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
     } finally {
       setLoading(false)
     }
-  }, [filters, page, query, selectedJobId])
+  }, [filters, page, query, quick, selectedJobId])
 
   useEffect(() => {
     void load()
@@ -379,8 +408,15 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
     setPage(1)
   }
 
+  function chooseQuick(next: QuickFilter) {
+    setSelectedJobId("")
+    setQuick((current) => (current === next ? "all" : next))
+    setPage(1)
+  }
+
   function clearAll() {
     setFilters(EMPTY_FILTERS)
+    setQuick("all")
     setDraftQuery("")
     setQuery("")
     setPage(1)
@@ -453,7 +489,7 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
               Jobs you can relocate for
             </h1>
         <p className="mt-1 max-w-xl text-sm text-[#5f655c]">
-          Sponsored roles with Fit Check — must-haves, overlap, and when to skip.
+          Sponsored roles with Fit Check — must-haves, how well you fit, and when to skip.
         </p>
         <div className={`mt-4 flex flex-col gap-3 rounded-2xl border p-4 sm:flex-row sm:items-center sm:justify-between ${subscription?.active ? "border-emerald-200 bg-emerald-50" : "border-[#ead4c4] bg-[#fff8f2]"}`}>
           <div className="flex items-start gap-3">
@@ -516,16 +552,49 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
                     filters.experienceLevel.length +
                     filters.jobType.length +
                     filters.category.length +
+                    (quick !== "all" ? 1 : 0) +
                     (query ? 1 : 0)}
                 </span>
               ) : null}
             </button>
           </div>
+          <div className="mx-auto flex w-full max-w-[1600px] gap-2 overflow-x-auto px-3 pb-2.5 sm:px-5 lg:px-6">
+            {([
+              { id: "all", label: "All roles", icon: null, count: null },
+              { id: "featured", label: "Featured", icon: Star, count: featuredCount },
+              { id: "visa", label: "Visa sponsored", icon: ShieldCheck, count: facets.visaSponsored ?? null },
+            ] as const).map((chip) => {
+              const active = quick === chip.id
+              return (
+                <button
+                  key={chip.id}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => chooseQuick(chip.id)}
+                  className={`inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-xs font-bold transition ${
+                    active
+                      ? chip.id === "featured"
+                        ? "border-[#e0511f] bg-[#e0511f] text-white"
+                        : "border-[#2f5d50] bg-[#2f5d50] text-white"
+                      : "border-[#e4dfd5] bg-white text-[#4a5047] hover:border-[#cfc7b9]"
+                  }`}
+                >
+                  {chip.icon && <chip.icon className={`h-3.5 w-3.5 ${chip.id === "featured" && !active ? "text-[#e0511f]" : ""}`} />}
+                  {chip.label}
+                  {chip.count != null && chip.count > 0 && (
+                    <span className={`rounded-full px-1.5 text-[10px] ${active ? "bg-white/20" : "bg-[#f1ede4] text-[#6b716a]"}`}>
+                      {chip.count.toLocaleString()}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
 
       <div className="mx-auto flex w-full max-w-[1600px] lg:px-6">
-        <aside className="sticky top-[6.5rem] hidden h-[calc(100dvh-6.5rem)] w-[220px] shrink-0 self-start overflow-y-auto overscroll-contain border-r border-[#e4dfd5]/70 px-3 py-5 lg:block xl:w-[240px]">
+        <aside className="sticky top-[9rem] hidden h-[calc(100dvh-9rem)] w-[220px] shrink-0 self-start overflow-y-auto overscroll-contain border-r border-[#e4dfd5]/70 px-3 py-5 lg:block xl:w-[240px]">
           {filterPanel}
         </aside>
 
@@ -615,10 +684,19 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
                             {job.experienceLevel}
                           </span>
                         )}
-                        {job.sponsorship && (
+                        {job.visaType && job.visaType !== "Other" && (
                           <span className="inline-flex items-center gap-1.5 rounded-full bg-[#e8f1ed] px-3 py-1.5 font-bold text-[#285045]">
                             <ShieldCheck className="h-3.5 w-3.5" />
-                            {job.sponsorship}
+                            {job.visaType}
+                          </span>
+                        )}
+                        {job.sponsorOnRegister && (
+                          <span
+                            className="inline-flex items-center gap-1.5 rounded-full border border-[#b9d6c9] bg-white px-3 py-1.5 font-bold text-[#285045]"
+                            title="This employer is on the official sponsor register. That does not guarantee this role offers sponsorship."
+                          >
+                            <BadgeCheck className="h-3.5 w-3.5" />
+                            Licensed sponsor
                           </span>
                         )}
                       </div>
@@ -691,22 +769,33 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
                               .
                             </p>
                           )}
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-lg font-extrabold">{fit.overlapPct}% overlap</span>
-                            <span
-                              className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
-                                fit.applyAdvice === "skip"
-                                  ? "bg-rose-100 text-rose-900"
-                                  : "bg-emerald-100 text-emerald-900"
-                              }`}
-                            >
-                              {fit.applyAdvice === "skip" ? "Don't waste this application" : "Strong opportunity"}
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                            <span className={`text-lg font-extrabold ${FIT_LEVEL_STYLE[fit.fitLevel].tone}`}>{fit.fitLabel}</span>
+                            <span className="flex gap-1" aria-hidden>
+                              {[1, 2, 3, 4].map((step) => (
+                                <span key={step} className={`h-1.5 w-6 rounded-full ${step <= FIT_LEVEL_STYLE[fit.fitLevel].steps ? FIT_LEVEL_STYLE[fit.fitLevel].bar : "bg-[#e4dfd5]"}`} />
+                              ))}
                             </span>
+                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${APPLY_ADVICE_STYLE[fit.applyAdvice]}`}>{fit.applyLabel}</span>
                           </div>
                           <p className="text-xs text-[#5f655c]">{fit.applyReasons.join(" · ")}</p>
-                          <p className="text-xs"><strong>Must-have:</strong> {fit.mustHave.join(", ") || "—"}</p>
-                          <p className="text-xs"><strong>Missing:</strong> {fit.missing.join(", ") || "None detected"}</p>
-                          <p className="text-xs"><strong>Sponsorship:</strong> {fit.sponsorship.vacancyStatement} ({fit.sponsorship.employerSignal})</p>
+                          {fit.evidence.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                              {fit.evidence.map((item) => (
+                                <span
+                                  key={`${item.mustHave ? "m" : "n"}-${item.skill}`}
+                                  title={item.mustHave ? "Must-have" : "Nice to have"}
+                                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                                    item.present ? "bg-emerald-50 text-emerald-900" : item.mustHave ? "bg-rose-50 text-rose-900" : "bg-white text-[#7c827a]"
+                                  } ${item.mustHave ? "" : "border border-dashed border-[#d9d3c7]"}`}
+                                >
+                                  {item.present ? "✓" : "✗"} {item.skill}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          <p className="text-[11px] text-[#7c827a]">Solid chips are must-haves, dashed are nice-to-haves.</p>
+                          <p className="text-xs"><strong>Sponsorship:</strong> {fit.sponsorship.vacancyStatement}</p>
                           <p className="text-xs"><strong>Sell:</strong> {fit.strongestSellingPoint}</p>
                         </div>
                       )}

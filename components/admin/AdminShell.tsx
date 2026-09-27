@@ -2,11 +2,10 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BadgeCheck, Briefcase, GraduationCap, LayoutGrid, Users } from "lucide-react"
+import { BadgeCheck, Briefcase, GraduationCap, Users } from "lucide-react"
 import { clsx } from "clsx"
 
 const NAV = [
-  { href: "/admin", label: "Overview", icon: LayoutGrid },
   { href: "/admin/jobs", label: "Jobs", icon: Briefcase },
   { href: "/admin/education", label: "Education", icon: GraduationCap },
   { href: "/admin/users", label: "Users", icon: Users },
@@ -32,10 +31,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
         <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 pb-3 sm:px-6">
           {NAV.map((item) => {
-            const active =
-              item.href === "/admin"
-                ? pathname === "/admin"
-                : pathname === item.href || pathname.startsWith(`${item.href}/`)
+            const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
             return (
               <Link
                 key={item.href}

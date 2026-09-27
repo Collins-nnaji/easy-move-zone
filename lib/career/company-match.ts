@@ -1,10 +1,12 @@
 const LEGAL_WORDS =
-  /\b(limited|ltd|llc|llp|plc|inc|incorporated|uk|the|and|company|co|group|holdings|holding|services|service|international|global)\b/g
+  /\b(limited|ltd|llc|llp|plc|inc|incorporated|corp|corporation|uk|the|and|company|co|group|holdings|holding|services|service|international|global|bv|nv|vof|gmbh|mbh|ag|kg|ug|ev|sa|sas|sarl|srl|spa|sl|slu|ltda|ab|oy|oyj|as|aps|asa|pty|pte|kk|sro|se)\b/g
 
-/** Collapse a legal employer name so "GOOGLE UK LIMITED" and "Google" can meet. */
+/** Collapse a legal employer name so "GOOGLE UK LIMITED", "Roblox B.V." or "Maersk A/S" meet the plain brand name. */
 export function companyKey(name: string): string {
   return name
     .toLowerCase()
+    .replace(/\b([a-z])\.(?=[a-z]\b)/g, "$1")
+    .replace(/\b([a-z])\/([a-z])\b/g, "$1$2")
     .replace(/&/g, " and ")
     .replace(LEGAL_WORDS, " ")
     .replace(/[^a-z0-9]+/g, " ")

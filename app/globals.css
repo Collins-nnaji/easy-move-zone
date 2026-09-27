@@ -736,5 +736,6 @@ html.native-app [data-selectable] {
     print-color-adjust: exact;
   }
   body.cv-exporting .cv-editor-control { display: none !important; }
+  body.cv-exporting #cv-workspace-print [data-placeholder]:empty::before { content: none !important; }
   @page { size: A4; margin: 0; }
 }

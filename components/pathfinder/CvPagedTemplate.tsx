@@ -2,9 +2,10 @@
 
 import { useCallback, useLayoutEffect, useRef, useState } from "react"
 import type { ClipboardEvent as ReactClipboardEvent, CSSProperties, FocusEvent as ReactFocusEvent, KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react"
-import { List, Loader2, PenLine, Plus, Trash2 } from "lucide-react"
+import { ArrowDown, ArrowUp, List, Loader2, PenLine, Plus, Trash2 } from "lucide-react"
 import type { BuilderCV } from "@/lib/documents/cv-ai"
 import { parseBulletText, toBulletText, toggleBullets } from "@/lib/documents/bullets"
+import { SECTION_PRESETS } from "@/lib/documents/cv-sections"
 
 type AiAction = "summary" | `experience-${number}`
 
@@ -92,8 +93,8 @@ function splitLines(value: string) {
  * Each line (a bullet, or a summary paragraph) is its own editable field and its own
  * page-break block, so a line never splits across pages and editing never spans two pages.
  */
-function EditableLines({ value, onChange, placeholder, className = "", defaultBullets = false }: {
-  value: string; onChange: (value: string) => void; placeholder: string; className?: string; defaultBullets?: boolean
+function EditableLines({ value, onChange, placeholder, className = "", defaultBullets = false, linePlaceholder = "Achievement" }: {
+  value: string; onChange: (value: string) => void; placeholder: string; className?: string; defaultBullets?: boolean; linePlaceholder?: string
 }) {
   const [synced, setSynced] = useState(value)
   const [lines, setLines] = useState(() => splitLines(value))
@@ -178,12 +179,27 @@ function EditableLines({ value, onChange, placeholder, className = "", defaultBu
     if (cleaned.join("\n") !== linesRef.current.join("\n")) commit(cleaned)
   }
 
+  function addLine() {
+    const current = linesRef.current
+    const blank = current.findIndex((line) => !line)
+    if (blank >= 0) {
+      const element = lineElement(blank)
+      if (element) placeCaret(element, 0)
+      return
+    }
+    commit([...current, ""], { index: current.length, offset: 0 })
+  }
+
   const renderLine = (line: string, index: number) => <div key={`${index}:${line}`} data-line="" contentEditable suppressContentEditableWarning role="textbox"
-    data-placeholder={index === 0 ? placeholder : bulleted ? "Achievement" : ""}
+    data-placeholder={index === 0 ? placeholder : bulleted ? linePlaceholder : "New line"}
     onKeyDown={(event) => onKeyDown(event, index)} onPaste={(event) => onPaste(event, index)} onBlur={(event) => onBlur(event, index)}
     className={`${editableClass} block`}>{line}</div>
 
-  return <div ref={containerRef} className={className}>
+  return <div ref={containerRef} className={`group/lines relative ${className}`}>
+    <button type="button" onClick={addLine} title={bulleted ? "Add bullet" : "Add line"} aria-label={bulleted ? "Add bullet" : "Add line"}
+      className="cv-editor-control absolute bottom-0 left-full ml-2 flex h-6 w-6 items-center justify-center rounded-md border border-[#dfe7e3] bg-white text-[#2f5d50] opacity-0 shadow-sm transition hover:bg-[#eef4f1] group-hover/lines:opacity-100 group-focus-within/lines:opacity-100">
+      <Plus className="h-3 w-3" />
+    </button>
     {bulleted
       ? <ul className="list-disc space-y-1 pl-4 marker:text-[#2f5d50]">{lines.map((line, index) => <li key={`${index}:${line}`} data-cv-block="">{renderLine(line, index)}</li>)}</ul>
       : <div className="space-y-1.5">{lines.map((line, index) => <div key={`${index}:${line}`} data-cv-block="">{renderLine(line, index)}</div>)}</div>}
@@ -198,7 +214,7 @@ function ToolButton({ label, onClick, children, danger = false }: { label: strin
   return <button type="button" onClick={onClick} title={label} aria-label={label} className={`flex h-6 w-6 items-center justify-center rounded-md border bg-white shadow-sm ${danger ? "border-rose-100 text-rose-500 hover:bg-rose-50" : "border-[#dfe7e3] text-[#2f5d50] hover:bg-[#eef4f1]"}`}>{children}</button>
 }
 
-function SectionHeading({ title, children }: { title: string; children?: ReactNode }) {
+function SectionHeading({ title, children }: { title: ReactNode; children?: ReactNode }) {
   return <div data-cv-block="" data-cv-keep="" className="group">
     <div className="relative border-b border-[#2f5d50]/30 pb-1">
       <h2 className="text-[11px] font-black uppercase tracking-[.18em] text-[#2f5d50]">{title}</h2>
@@ -219,7 +235,31 @@ export function CvPagedTemplate({ cv, onChange, busy, onAi }: {
   const patchExperience = (index: number, changes: Partial<BuilderCV["experience"][number]>) => onChange({ ...cv, experience: cv.experience.map((item, itemIndex) => itemIndex === index ? { ...item, ...changes } : item) })
   const patchEducation = (index: number, changes: Partial<BuilderCV["education"][number]>) => onChange({ ...cv, education: cv.education.map((item, itemIndex) => itemIndex === index ? { ...item, ...changes } : item) })
   const categories = cv.skillCategories.length ? cv.skillCategories : [{ id: "skills", name: "Skills", skills: [] }]
-  const patchSkills = (index: number, value: string) => onChange({ ...cv, skillCategories: categories.map((item, itemIndex) => itemIndex === index ? { ...item, skills: value.split(/[·,;\n]/).map((skill) => skill.trim()).filter(Boolean) } : item) })
+  const patchCategory = (index: number, changes: Partial<BuilderCV["skillCategories"][number]>) => onChange({ ...cv, skillCategories: categories.map((item, itemIndex) => itemIndex === index ? { ...item, ...changes } : item) })
+  const patchSkills = (index: number, value: string) => patchCategory(index, { skills: value.split(/[·,;\n]/).map((skill) => skill.trim()).filter(Boolean) })
+  const sections = cv.sections ?? []
+  const patchSection = (index: number, changes: Partial<BuilderCV["sections"][number]>) => onChange({ ...cv, sections: sections.map((item, itemIndex) => itemIndex === index ? { ...item, ...changes } : item) })
+  const moveSection = (index: number, step: number) => {
+    const target = index + step
+    if (target < 0 || target >= sections.length) return
+    const next = [...sections]
+    const [moved] = next.splice(index, 1)
+    next.splice(target, 0, moved)
+    onChange({ ...cv, sections: next })
+  }
+  const toggleSectionBullets = (index: number) => {
+    const section = sections[index]
+    if (!section.content.trim()) return patchSection(index, { bullets: !section.bullets })
+    const content = toggleBullets(section.content)
+    patchSection(index, { content, bullets: parseBulletText(content).isBulleted })
+  }
+  const addSection = (title: string, bullets: boolean) => onChange({ ...cv, sections: [...sections, { id: crypto.randomUUID(), title, content: "", bullets }] })
+  const usedTitles = new Set(sections.map((section) => section.title.trim().toLowerCase()))
+  const addSectionBar = <div className="flex flex-wrap items-center gap-1.5">
+    <span className="mr-1 text-[11px] font-extrabold uppercase tracking-wide text-[#5c6a63]">Add a section</span>
+    {SECTION_PRESETS.filter((preset) => !usedTitles.has(preset.title.toLowerCase())).map((preset) => <button key={preset.title} type="button" onClick={() => addSection(preset.title, preset.bullets)} className="inline-flex h-7 items-center gap-1 rounded-full border border-[#cfdcd5] bg-white px-2.5 text-[11px] font-bold text-[#2f5d50] hover:bg-[#eef4f1]"><Plus className="h-3 w-3" />{preset.title}</button>)}
+    <button type="button" onClick={() => addSection("", true)} className="inline-flex h-7 items-center gap-1 rounded-full bg-[#2f5d50] px-2.5 text-[11px] font-bold text-white hover:bg-[#264c42]"><Plus className="h-3 w-3" />Custom section</button>
+  </div>
 
   const paginate = useCallback(() => {
     const sheet = sheetRef.current
@@ -255,7 +295,10 @@ export function CvPagedTemplate({ cv, onChange, busy, onAi }: {
   }, [paginateSoon])
 
   return <div id="cv-workspace-print" className="overflow-x-auto pb-4">
-    <div className="cv-editor-control mx-auto mb-3 flex w-[210mm] items-center justify-between rounded-xl bg-[#e8eeeb] px-3 py-2 text-xs font-bold text-[#405148]"><span>{pageCount} A4 {pageCount === 1 ? "page" : "pages"}</span><span>Lines move to the next page as you type</span></div>
+    <div className="cv-editor-control mx-auto mb-3 w-[210mm] space-y-2 rounded-xl bg-[#e8eeeb] px-3 py-2 text-xs font-bold text-[#405148]">
+      <div className="flex items-center justify-between"><span>{pageCount} A4 {pageCount === 1 ? "page" : "pages"}</span><span>Click any text to edit · Enter adds a new line</span></div>
+      {addSectionBar}
+    </div>
     <article ref={sheetRef} onInput={paginateSoon} className="cv-sheet relative mx-auto w-[210mm] bg-white text-slate-800 shadow-lg" style={{ height: `${pageCount * MM.page}mm`, "--cv-pages": pageCount } as CSSProperties}>
       <div className="absolute inset-x-0 top-0 h-2 bg-[#2f5d50]" />
       {Array.from({ length: pageCount - 1 }, (_, index) => <div key={index} aria-hidden className="cv-editor-control pointer-events-none absolute -inset-x-3 h-3 bg-[#efece4] shadow-[inset_0_4px_4px_-3px_rgba(0,0,0,.18),inset_0_-4px_4px_-3px_rgba(0,0,0,.18)]" style={{ top: `calc(${(index + 1) * MM.page}mm - 6px)` }} />)}
@@ -308,13 +351,29 @@ export function CvPagedTemplate({ cv, onChange, busy, onAi }: {
         </section>
 
         <section className="mt-5">
-          <SectionHeading title="Core skills" />
-          <div className="mt-3 space-y-1.5">{categories.map((category, index) => <div key={category.id} data-cv-block="" className="text-[11px] font-semibold leading-6 text-slate-700">
-            {categories.length > 1 && <span className="mr-1.5 font-extrabold text-[#18231e]">{category.name}:</span>}
-            <Editable value={category.skills.join(" · ")} onChange={(value) => patchSkills(index, value)} placeholder="Add skills separated by commas" />
+          <SectionHeading title="Core skills">
+            <ToolButton label="Add skill group" onClick={() => onChange({ ...cv, skillCategories: [...categories, { id: crypto.randomUUID(), name: "", skills: [] }] })}><Plus className="h-3 w-3" /></ToolButton>
+          </SectionHeading>
+          <div className="mt-3 space-y-1.5">{categories.map((category, index) => <div key={category.id} data-cv-block="" className="group text-[11px] font-semibold leading-6 text-slate-700">
+            <div className="relative">
+              {categories.length > 1 && <span className="mr-1.5 font-extrabold text-[#18231e]"><Editable value={category.name} onChange={(value) => patchCategory(index, { name: value })} placeholder="Group name" />:</span>}
+              <Editable value={category.skills.join(" · ")} onChange={(value) => patchSkills(index, value)} placeholder="Add skills separated by commas" />
+              {categories.length > 1 && <MarginTools><ToolButton danger label="Remove skill group" onClick={() => onChange({ ...cv, skillCategories: categories.filter((_, itemIndex) => itemIndex !== index) })}><Trash2 className="h-3 w-3" /></ToolButton></MarginTools>}
+            </div>
           </div>)}</div>
         </section>
+
+        {sections.map((section, index) => <section key={section.id} className="mt-5">
+          <SectionHeading title={<Editable value={section.title} onChange={(value) => patchSection(index, { title: value })} placeholder="Section title" />}>
+            <ToolButton label="Toggle bullets" onClick={() => toggleSectionBullets(index)}><List className="h-3 w-3" /></ToolButton>
+            {index > 0 && <ToolButton label="Move section up" onClick={() => moveSection(index, -1)}><ArrowUp className="h-3 w-3" /></ToolButton>}
+            {index < sections.length - 1 && <ToolButton label="Move section down" onClick={() => moveSection(index, 1)}><ArrowDown className="h-3 w-3" /></ToolButton>}
+            <ToolButton danger label="Remove section" onClick={() => onChange({ ...cv, sections: sections.filter((_, itemIndex) => itemIndex !== index) })}><Trash2 className="h-3 w-3" /></ToolButton>
+          </SectionHeading>
+          <EditableLines defaultBullets={section.bullets !== false} value={section.content} onChange={(value) => patchSection(index, { content: value })} placeholder="Add details…" linePlaceholder="New line" className="mt-2 text-[11px] leading-[1.6] text-slate-700" />
+        </section>)}
       </div>
     </article>
+    <div className="cv-editor-control mx-auto mt-3 w-[210mm] rounded-xl border border-dashed border-[#cfdcd5] bg-[#f6f9f7] px-3 py-2.5">{addSectionBar}</div>
   </div>
 }

@@ -16,6 +16,7 @@ export default async function SponsorsPage() {
   return (
     <AuthPreviewGate signedIn={Boolean(session?.data?.user)} redirectTo="/sponsors" title="sponsor search">
       <MobilityFrame
+        compact
         eyebrow="Sponsors"
         title="Find employers who can sponsor your visa."
         lede="Pick a country to see its skilled worker routes and who hires there. A licence means the employer is allowed to sponsor — it is not the same as this vacancy offering sponsorship."

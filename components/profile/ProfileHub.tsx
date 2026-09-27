@@ -321,7 +321,7 @@ export function ProfileHub({ authName, authEmail }: ProfileHubProps) {
         </div>
       </Section>
 
-      <Section title="Career" subtitle="Used for Fit Check overlap and job recommendations.">
+      <Section title="Career" subtitle="Used for Fit Check and job recommendations.">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className={labelClass} htmlFor="currentRole">

@@ -6,7 +6,7 @@ import { AuthPreviewGate } from "@/components/platform/AuthPreviewGate"
 export const metadata: Metadata = {
   title: "Sponsored jobs",
   description:
-    "Browse visa-linked and sponsorship-friendly roles with Fit Check — must-haves, skill overlap, and when to skip.",
+    "Browse visa-linked and sponsorship-friendly roles with Fit Check — must-haves, how well you fit, and when to skip.",
   alternates: { canonical: "/jobs" },
 }
 

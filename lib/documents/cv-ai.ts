@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto"
 import { getAiProvider, getAzureOpenAiConfig, openaiClient } from "@/lib/ai/openai"
 import { autoBullet } from "@/lib/documents/bullets"
+import { sectionsFromParsed, type CvSection } from "@/lib/documents/cv-sections"
 
 export type ParsedCV = {
   personalInfo?: {
@@ -69,6 +70,7 @@ export type BuilderCV = {
     current: boolean
   }>
   skillCategories: Array<{ id: string; name: string; skills: string[] }>
+  sections: CvSection[]
   parsed: ParsedCV
 }
 
@@ -202,6 +204,7 @@ export async function extractCvFromText(text: string): Promise<BuilderCV> {
     skillCategories: (parsed.skills ?? []).length
       ? [{ id: randomUUID(), name: "Skills", skills: parsed.skills ?? [] }]
       : [],
+    sections: sectionsFromParsed(parsed, () => randomUUID()),
     parsed,
   }
 }

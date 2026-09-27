@@ -14,9 +14,10 @@ export default async function EducationPage() {
   const session = await authServer.getSession()
   return (
     <MobilityFrame
+      compact
       eyebrow="Education pathway"
       title="Study abroad, with a route to work after."
-      lede="Compare universities, courses and fees across popular study destinations, check how well you fit, and write your personal statement in one place."
+      lede="Find a course, see the visa and work rights that come with it, then check your fit and write your statement."
     >
       <EducationClient signedIn={Boolean(session?.data?.user)} />
     </MobilityFrame>

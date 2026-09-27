@@ -72,8 +72,8 @@ function FitCheckArt() {
       <path d="M40 118a50 50 0 0183.3-37.3" stroke={PRIMARY} strokeWidth="12" strokeLinecap="round" />
       <path d="M90 118l24-30" stroke={ACCENT} strokeWidth="4" strokeLinecap="round" />
       <circle cx="90" cy="118" r="7" fill={INK} />
-      <text x="90" y="152" textAnchor="middle" fontSize="20" fontWeight="800" fill={INK}>78%</text>
-      <text x="90" y="168" textAnchor="middle" fontSize="9" fontWeight="600" fill="#7c827a">skill overlap</text>
+      <text x="90" y="152" textAnchor="middle" fontSize="18" fontWeight="800" fill={INK}>Good fit</text>
+      <text x="90" y="168" textAnchor="middle" fontSize="9" fontWeight="600" fill="#7c827a">4 of 5 must-haves</text>
       {[
         { y: 44, ok: true, w: 70 },
         { y: 72, ok: true, w: 58 },
@@ -128,27 +128,29 @@ function TailorCvArt() {
   )
 }
 
-function SkillsIcon() {
+function SimulationIcon() {
   return (
     <svg viewBox="0 0 40 40" fill="none" className="h-9 w-9" aria-hidden>
-      <path d="M11 28l9-16 9 16z" stroke={PRIMARY} strokeWidth="2" strokeLinejoin="round" />
-      <circle cx="20" cy="12" r="5" fill={PRIMARY} />
-      <circle cx="11" cy="28" r="5" fill="#fff" stroke={PRIMARY} strokeWidth="2" />
-      <circle cx="29" cy="28" r="5" fill={ACCENT} />
+      <path d="M16 4h8M20 4v4" stroke={PRIMARY} strokeWidth="2" strokeLinecap="round" />
+      <circle cx="20" cy="22" r="13" stroke={PRIMARY} strokeWidth="2" />
+      <path d="M20 22V14" stroke={ACCENT} strokeWidth="2.6" strokeLinecap="round" />
+      <path d="M20 22l5 3" stroke={PRIMARY} strokeWidth="2" strokeLinecap="round" />
     </svg>
   )
 }
 
-function SponsorshipIcon() {
+function TiersIcon() {
   return (
     <svg viewBox="0 0 40 40" fill="none" className="h-9 w-9" aria-hidden>
-      <path d="M20 5l12 5v9c0 8-5.2 13.4-12 16-6.8-2.6-12-8-12-16v-9z" stroke={PRIMARY} strokeWidth="2" strokeLinejoin="round" />
-      <path d="M14.5 20l4 4 7-8" stroke={ACCENT} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="9" cy="24" r="6.5" fill="#e7c9a9" stroke="#a86b3c" strokeWidth="1.6" />
+      <circle cx="31" cy="24" r="6.5" fill="#e3e6e8" stroke="#8a9299" strokeWidth="1.6" />
+      <circle cx="20" cy="17" r="8.5" fill="#f6dd8a" stroke="#b8860b" strokeWidth="1.8" />
+      <path d="M17 17l2 2 4-4.5" stroke="#8a6408" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
 
-function ProofIcon() {
+function ProfileBadgeIcon() {
   return (
     <svg viewBox="0 0 40 40" fill="none" className="h-9 w-9" aria-hidden>
       <path d="M14 24l-3 12 9-4 9 4-3-12" stroke={PRIMARY} strokeWidth="2" strokeLinejoin="round" />
@@ -168,8 +170,8 @@ const features = [
   {
     art: FitCheckArt,
     title: "Fit Check",
-    body: "Know before you apply. See how your skills overlap with the role, which must-haves you're missing, and whether the employer can sponsor you.",
-    points: ["Skill overlap score", "Missing must-haves", "Sponsorship signal", "Apply or skip advice"],
+    body: "Know before you apply. See how well you fit the role, which must-haves you're missing, and whether the employer can sponsor you — the same answer every time you check.",
+    points: ["Clear fit level", "Missing must-haves", "Sponsorship signal", "Apply or skip advice"],
   },
   {
     art: TailorCvArt,
@@ -180,14 +182,14 @@ const features = [
 ] as const
 
 const pillars = [
-  { icon: SkillsIcon, title: "Skills", body: "Role gaps and the learning with the best return." },
-  { icon: SponsorshipIcon, title: "Sponsorship", body: "Route readiness and employers who can sponsor you." },
-  { icon: ProofIcon, title: "Proof", body: "Work simulations that show you can do the role." },
+  { icon: SimulationIcon, title: "Timed simulations", body: "Real tasks for the role you want to move into." },
+  { icon: TiersIcon, title: "Bronze, silver, gold", body: "Score 60%, 75% or 88% to earn each badge." },
+  { icon: ProfileBadgeIcon, title: "Kept on your profile", body: "A weaker retake never takes a badge away." },
 ] as const
 
-export function HomeHowItWorks() {
+function useFadeUp() {
   const reduceMotion = useReducedMotion()
-  const fadeUp = (delay = 0, y = 16) =>
+  return (delay = 0, y = 16) =>
     reduceMotion
       ? {}
       : {
@@ -196,6 +198,44 @@ export function HomeHowItWorks() {
           viewport: { once: true, margin: "-80px" },
           transition: { duration: 0.6, delay, ease: easeOut },
         }
+}
+
+export function HomeJobFeatures() {
+  const fadeUp = useFadeUp()
+  return (
+    <section className="border-t border-[#e4dfd5] bg-white pb-14 pt-8 sm:pb-20 sm:pt-10" style={{ color: INK }}>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <motion.div {...fadeUp()} className="mx-auto max-w-2xl text-center">
+          <p className="text-xs font-extrabold uppercase tracking-[0.16em]" style={{ color: ACCENT }}>On every job</p>
+          <h2 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">Check your fit, then tailor your CV in one click.</h2>
+        </motion.div>
+        <div className="mt-10 grid gap-12 lg:grid-cols-2 lg:gap-0 lg:divide-x lg:divide-[#ece7dd]">
+          {features.map((feature, index) => (
+            <motion.div key={feature.title} {...fadeUp(index * 0.08)} className="flex flex-col items-center text-center lg:px-10">
+              <feature.art />
+              <h3 className="mt-6 text-xl font-extrabold">{feature.title}</h3>
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-[#646a63]">{feature.body}</p>
+              <ul className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-2 text-[13px] font-bold text-[#3f463f]">
+                {feature.points.map((point) => (
+                  <li key={point} className="inline-flex items-center gap-1.5">
+                    <svg viewBox="0 0 16 16" className="h-4 w-4 shrink-0" aria-hidden>
+                      <circle cx="8" cy="8" r="8" fill={index === 0 ? "#dfeae6" : "#fbe6da"} />
+                      <path d="M4.8 8.2l2.1 2.1 4.2-4.6" fill="none" stroke={index === 0 ? PRIMARY : ACCENT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export function HomeHowItWorks() {
+  const fadeUp = useFadeUp()
   return (
     <section className="relative overflow-hidden bg-white py-16 sm:py-24" style={{ color: INK }}>
       <div
@@ -225,38 +265,14 @@ export function HomeHowItWorks() {
           ))}
         </div>
 
-        <div className="mt-16 border-t border-[#ece7dd] pt-12 sm:mt-20 sm:pt-16">
-          <motion.div {...fadeUp()} className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-extrabold uppercase tracking-[0.16em]" style={{ color: ACCENT }}>On every job</p>
-            <h3 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">Check your fit, then tailor your CV in one click.</h3>
-          </motion.div>
-          <div className="mt-10 grid gap-12 lg:grid-cols-2 lg:gap-0 lg:divide-x lg:divide-[#ece7dd]">
-            {features.map((feature, index) => (
-              <motion.div key={feature.title} {...fadeUp(index * 0.08)} className="flex flex-col items-center text-center lg:px-10">
-                <feature.art />
-                <h4 className="mt-6 text-xl font-extrabold">{feature.title}</h4>
-                <p className="mt-2 max-w-md text-sm leading-relaxed text-[#646a63]">{feature.body}</p>
-                <ul className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-2 text-[13px] font-bold text-[#3f463f]">
-                  {feature.points.map((point) => (
-                    <li key={point} className="inline-flex items-center gap-1.5">
-                      <svg viewBox="0 0 16 16" className="h-4 w-4 shrink-0" aria-hidden>
-                        <circle cx="8" cy="8" r="8" fill={index === 0 ? "#dfeae6" : "#fbe6da"} />
-                        <path d="M4.8 8.2l2.1 2.1 4.2-4.6" fill="none" stroke={index === 0 ? PRIMARY : ACCENT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      {point}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
         <motion.div {...fadeUp(0.05)} className="mt-16 grid gap-8 border-t border-[#ece7dd] pt-12 sm:mt-20 lg:grid-cols-[1fr_1.6fr] lg:items-center">
           <div>
-            <p className="text-xs font-extrabold uppercase tracking-[0.16em]" style={{ color: PRIMARY }}>Your report joins up</p>
-            <h3 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">Skills, sponsorship and proof, working together.</h3>
-            <p className="mt-3 text-sm leading-relaxed text-[#646a63]">We find the one thing holding your move back, then link it to roles you can pursue and steps you can take.</p>
+            <p className="text-xs font-extrabold uppercase tracking-[0.16em]" style={{ color: PRIMARY }}>Work simulations</p>
+            <h3 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">Prove you can do the role. Earn a badge for it.</h3>
+            <p className="mt-3 text-sm leading-relaxed text-[#646a63]">Take a timed simulation for the job you&apos;re aiming for. Pass it and you earn a badge that shows your skills, not just your CV.</p>
+            <Link href="/work-simulation" className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold underline-offset-4 hover:underline" style={{ color: ACCENT }}>
+              Try a work simulation <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
           <div className="grid gap-6 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-[#ece7dd]">
             {pillars.map((pillar) => (

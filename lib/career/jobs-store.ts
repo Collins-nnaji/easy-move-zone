@@ -15,6 +15,8 @@ export type JobFilters = {
   ids?: number[]
   featuredIds?: number[]
   featuredOnly?: boolean
+  /** Only roles tagged with a named visa route (not blank or "Other"). */
+  visaSponsoredOnly?: boolean
 }
 
 export type JobFacetCounts = {
@@ -22,7 +24,11 @@ export type JobFacetCounts = {
   experienceLevels: Record<string, number>
   jobTypes: Record<string, number>
   categories: Record<string, number>
+  /** Visa-sponsored roles matching every other active filter. */
+  visaSponsored: number
 }
+
+const EMPTY_FACETS: JobFacetCounts = { countries: {}, experienceLevels: {}, jobTypes: {}, categories: {}, visaSponsored: 0 }
 
 function cleanList(values?: string[] | null): string[] | null {
   if (!values?.length) return null
@@ -100,6 +106,7 @@ export async function searchLocalJobs(filters: JobFilters = {}): Promise<{ rows:
     const ids = filters.ids?.filter((id) => Number.isFinite(id)) ?? null
     const featuredIds = filters.featuredIds?.filter((id) => Number.isFinite(id)) ?? null
     const featuredOnly = Boolean(filters.featuredOnly)
+    const visaOnly = Boolean(filters.visaSponsoredOnly)
 
     if (ids && ids.length > 0) {
       const rows = (await careerSql`
@@ -130,6 +137,7 @@ export async function searchLocalJobs(filters: JobFilters = {}): Promise<{ rows:
         AND (${experienceLevels}::text[] IS NULL OR experience_level = ANY(${experienceLevels}))
         AND (${jobTypes}::text[] IS NULL OR job_type = ANY(${jobTypes}))
         AND (${featuredOnlyIds}::int[] IS NULL OR id = ANY(${featuredOnlyIds}))
+        AND (NOT ${visaOnly}::boolean OR (visa_type IS NOT NULL AND trim(visa_type) NOT IN ('', 'Other')))
       ORDER BY
         CASE WHEN ${featuredIds}::int[] IS NOT NULL AND id = ANY(${featuredIds}) THEN 0 ELSE 1 END,
         posted_at DESC NULLS LAST
@@ -149,6 +157,7 @@ export async function searchLocalJobs(filters: JobFilters = {}): Promise<{ rows:
         AND (${experienceLevels}::text[] IS NULL OR experience_level = ANY(${experienceLevels}))
         AND (${jobTypes}::text[] IS NULL OR job_type = ANY(${jobTypes}))
         AND (${featuredOnlyIds}::int[] IS NULL OR id = ANY(${featuredOnlyIds}))
+        AND (NOT ${visaOnly}::boolean OR (visa_type IS NOT NULL AND trim(visa_type) NOT IN ('', 'Other')))
     `
     return { rows: await withCompanyLogos(rows), total: Number(totalRows[0]?.n ?? 0) }
   } catch {
@@ -217,16 +226,16 @@ export async function listJobFacetCounts(filters: JobFilters = {}): Promise<JobF
     const jobTypes = cleanList(filters.jobTypes)
     const featuredIds = filters.featuredIds?.filter((id) => Number.isFinite(id)) ?? null
     const featuredOnlyIds = filters.featuredOnly && featuredIds && featuredIds.length > 0 ? featuredIds : null
-    if (filters.featuredOnly && (!featuredIds || featuredIds.length === 0)) {
-      return { countries: {}, experienceLevels: {}, jobTypes: {}, categories: {} }
-    }
+    const visaOnly = Boolean(filters.visaSponsoredOnly)
+    if (filters.featuredOnly && (!featuredIds || featuredIds.length === 0)) return EMPTY_FACETS
 
-    const [countryRows, experienceRows, jobTypeRows, categoryRows] = await Promise.all([
+    const [countryRows, experienceRows, jobTypeRows, categoryRows, visaRows] = await Promise.all([
       careerSql`
         SELECT country AS key, count(*)::int AS n
         FROM skilledjobs.jobs
         WHERE (${q}::text IS NULL OR title ILIKE '%' || ${q} || '%' OR company ILIKE '%' || ${q} || '%' OR coalesce(location, '') ILIKE '%' || ${q} || '%')
           AND (${featuredOnlyIds}::int[] IS NULL OR id = ANY(${featuredOnlyIds}))
+          AND (NOT ${visaOnly}::boolean OR (visa_type IS NOT NULL AND trim(visa_type) NOT IN ('', 'Other')))
           AND country IS NOT NULL AND country <> ''
           AND (${categories}::text[] IS NULL OR category = ANY(${categories}))
           AND (${experienceLevels}::text[] IS NULL OR experience_level = ANY(${experienceLevels}))
@@ -240,6 +249,7 @@ export async function listJobFacetCounts(filters: JobFilters = {}): Promise<JobF
         FROM skilledjobs.jobs
         WHERE (${q}::text IS NULL OR title ILIKE '%' || ${q} || '%' OR company ILIKE '%' || ${q} || '%' OR coalesce(location, '') ILIKE '%' || ${q} || '%')
           AND (${featuredOnlyIds}::int[] IS NULL OR id = ANY(${featuredOnlyIds}))
+          AND (NOT ${visaOnly}::boolean OR (visa_type IS NOT NULL AND trim(visa_type) NOT IN ('', 'Other')))
           AND experience_level IS NOT NULL AND experience_level <> ''
           AND (${countries}::text[] IS NULL OR country = ANY(${countries}))
           AND (${categories}::text[] IS NULL OR category = ANY(${categories}))
@@ -253,6 +263,7 @@ export async function listJobFacetCounts(filters: JobFilters = {}): Promise<JobF
         FROM skilledjobs.jobs
         WHERE (${q}::text IS NULL OR title ILIKE '%' || ${q} || '%' OR company ILIKE '%' || ${q} || '%' OR coalesce(location, '') ILIKE '%' || ${q} || '%')
           AND (${featuredOnlyIds}::int[] IS NULL OR id = ANY(${featuredOnlyIds}))
+          AND (NOT ${visaOnly}::boolean OR (visa_type IS NOT NULL AND trim(visa_type) NOT IN ('', 'Other')))
           AND job_type IS NOT NULL AND job_type <> ''
           AND (${countries}::text[] IS NULL OR country = ANY(${countries}))
           AND (${categories}::text[] IS NULL OR category = ANY(${categories}))
@@ -266,6 +277,7 @@ export async function listJobFacetCounts(filters: JobFilters = {}): Promise<JobF
         FROM skilledjobs.jobs
         WHERE (${q}::text IS NULL OR title ILIKE '%' || ${q} || '%' OR company ILIKE '%' || ${q} || '%' OR coalesce(location, '') ILIKE '%' || ${q} || '%')
           AND (${featuredOnlyIds}::int[] IS NULL OR id = ANY(${featuredOnlyIds}))
+          AND (NOT ${visaOnly}::boolean OR (visa_type IS NOT NULL AND trim(visa_type) NOT IN ('', 'Other')))
           AND category IS NOT NULL AND category <> ''
           AND (${countries}::text[] IS NULL OR country = ANY(${countries}))
           AND (${experienceLevels}::text[] IS NULL OR experience_level = ANY(${experienceLevels}))
@@ -274,6 +286,17 @@ export async function listJobFacetCounts(filters: JobFilters = {}): Promise<JobF
         ORDER BY n DESC
         LIMIT 60
       `,
+      careerSql`
+        SELECT count(*)::int AS n
+        FROM skilledjobs.jobs
+        WHERE (${q}::text IS NULL OR title ILIKE '%' || ${q} || '%' OR company ILIKE '%' || ${q} || '%' OR coalesce(location, '') ILIKE '%' || ${q} || '%')
+          AND (${featuredOnlyIds}::int[] IS NULL OR id = ANY(${featuredOnlyIds}))
+          AND visa_type IS NOT NULL AND trim(visa_type) NOT IN ('', 'Other')
+          AND (${countries}::text[] IS NULL OR country = ANY(${countries}))
+          AND (${categories}::text[] IS NULL OR category = ANY(${categories}))
+          AND (${experienceLevels}::text[] IS NULL OR experience_level = ANY(${experienceLevels}))
+          AND (${jobTypes}::text[] IS NULL OR job_type = ANY(${jobTypes}))
+      `,
     ])
 
     return {
@@ -281,6 +304,7 @@ export async function listJobFacetCounts(filters: JobFilters = {}): Promise<JobF
       experienceLevels: toCountMap(experienceRows as Array<Record<string, unknown>>, "key"),
       jobTypes: toCountMap(jobTypeRows as Array<Record<string, unknown>>, "key"),
       categories: toCountMap(categoryRows as Array<Record<string, unknown>>, "key"),
+      visaSponsored: Number(visaRows[0]?.n ?? 0),
     }
   } catch {
     return null

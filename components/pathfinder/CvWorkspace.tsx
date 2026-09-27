@@ -6,7 +6,8 @@ import {
   Award, Check, Download, ExternalLink, File as FileIcon, FileSignature, FileText, FolderOpen, History, IdCard,
   FilePen, Loader2, PenLine, Plus, Save, Trash2, Upload, X,
 } from "lucide-react"
-import type { BuilderCV } from "@/lib/documents/cv-ai"
+import type { BuilderCV, ParsedCV } from "@/lib/documents/cv-ai"
+import { normalizeSections, sectionsFromParsed } from "@/lib/documents/cv-sections"
 import type { CheckDocumentKind, CheckDocumentMeta } from "@/lib/check/types"
 import { DOCUMENT_KINDS, DOCUMENT_KIND_LABELS } from "@/lib/documents/kind"
 import { autoBullet, toBulletText } from "@/lib/documents/bullets"
@@ -32,7 +33,7 @@ const AI_PROMPTS = [
 
 const emptyCv = (): BuilderCV => ({
   personalInfo: { fullName: "", title: "", email: "", phone: "", location: "", linkedin: "", summary: "" },
-  experience: [], education: [], skillCategories: [], parsed: {},
+  experience: [], education: [], skillCategories: [], sections: [], parsed: {},
 })
 
 function record(value: unknown): Record<string, unknown> {
@@ -69,6 +70,9 @@ function normalizeCv(value: unknown): BuilderCV {
         ? item.skills.map((skill) => typeof skill === "string" ? skill : String(record(skill).name ?? "")).filter(Boolean)
         : [],
     })) : [],
+    sections: Array.isArray(root.sections)
+      ? normalizeSections(root.sections)
+      : sectionsFromParsed(record(root.parsed) as ParsedCV, (index) => `section-${index}`),
     parsed: record(root.parsed),
   }
 }

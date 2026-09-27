@@ -1,6 +1,8 @@
 import { openaiClient, getAiProvider, getAzureOpenAiConfig } from "@/lib/ai/openai"
+import { recordFetchRun } from "./admin-jobs"
 import { careerSql } from "./db"
 import { clearCompanyIndexCache } from "./sponsors"
+import { UK_VISA_TYPE, isOnUkSponsorRegister, ukSponsorJobPlacement } from "./sponsor-check"
 
 export type ExtractedJob = {
   title: string
@@ -489,10 +491,20 @@ async function recordFetchFailure(savedUrlId: number | null | undefined, error: 
   `
 }
 
-export async function fetchJobsFromUrl(input: { url: string; company?: string | null; savedUrlId?: number | null }) {
+export type FetchResult = { staged: number; found: number; duplicates: number; method: string }
+
+export async function fetchJobsFromUrl(input: {
+  url: string
+  company?: string | null
+  savedUrlId?: number | null
+  source?: string
+  createdBy?: string | null
+}): Promise<FetchResult> {
   if (!careerSql) throw new Error("Database is not configured")
   const pageUrl = input.url.trim()
   const companyHint = input.company ?? null
+  const startedAt = Date.now()
+  let method = "none"
 
   let html = ""
   try {
@@ -501,7 +513,10 @@ export async function fetchJobsFromUrl(input: { url: string; company?: string | 
     let jobs: ExtractedJob[] = []
     if (atsFromUrl) {
       const atsJobs = await fetchAtsJobs(atsFromUrl)
-      if (atsJobs?.length) jobs = atsJobs
+      if (atsJobs?.length) {
+        jobs = atsJobs
+        method = `${atsFromUrl.type} API`
+      }
     }
 
     if (jobs.length === 0) {
@@ -511,12 +526,16 @@ export async function fetchJobsFromUrl(input: { url: string; company?: string | 
       const atsFromHtml = detectAtsFromHtml(html)
       if (atsFromHtml) {
         const atsJobs = await fetchAtsJobs(atsFromHtml)
-        if (atsJobs?.length) jobs = atsJobs
+        if (atsJobs?.length) {
+          jobs = atsJobs
+          method = `${atsFromHtml.type} API (embedded)`
+        }
       }
 
       // Strategy 3: JSON-LD JobPosting
       if (jobs.length === 0) {
         jobs = extractJsonLdJobs(html, pageUrl)
+        if (jobs.length) method = "JSON-LD"
       }
 
       const { jobLinks, text } = extractLinksAndText(html, pageUrl)
@@ -525,6 +544,7 @@ export async function fetchJobsFromUrl(input: { url: string; company?: string | 
       if (jobs.length === 0) {
         try {
           jobs = await extractWithAi(pageUrl, text, jobLinks, companyHint)
+          if (jobs.length) method = "AI extraction"
         } catch {
           jobs = []
         }
@@ -533,11 +553,13 @@ export async function fetchJobsFromUrl(input: { url: string; company?: string | 
       // Strategy 5: deep-crawl individual job links
       if (jobs.length === 0 && jobLinks.length > 0) {
         jobs = await deepCrawlJobLinks(jobLinks, 8, companyHint)
+        if (jobs.length) method = "deep crawl"
       }
 
       // Strategy 6: link-text fallback
       if (jobs.length === 0) {
         jobs = fallbackFromLinks(pageUrl, companyHint, jobLinks)
+        if (jobs.length) method = "link fallback"
       }
     }
 
@@ -554,20 +576,34 @@ export async function fetchJobsFromUrl(input: { url: string; company?: string | 
       return true
     })
 
+    const fromUkSponsor =
+      input.source === "sponsor" || (await isOnUkSponsorRegister(companyHint ?? unique[0]?.company ?? null))
+    if (fromUkSponsor) {
+      for (const job of unique) {
+        const placement = ukSponsorJobPlacement(job)
+        if (placement.country) job.country = placement.country
+        if (placement.tag && (!job.visaType || job.visaType === "Other")) job.visaType = UK_VISA_TYPE
+      }
+    }
+
     let staged = 0
+    const createdBy = input.source === "bulk" || input.source === "sponsor" ? "Bulk Fetcher" : "Job Fetcher"
     for (const job of unique) {
-      await careerSql`
+      const inserted = await careerSql`
         INSERT INTO skilledjobs.staged_jobs (
           title, company, location, description, category, experience_level, job_type, visa_type,
           skills, url, posted_at, status, created_by, country
-        ) VALUES (
-          ${job.title}, ${job.company}, ${job.location}, ${job.description}, ${job.category},
-          ${job.experienceLevel}, ${job.jobType}, ${job.visaType}, ${job.skills}, ${job.url},
-          now(), 'pending', 'Job Fetcher', ${job.country}
         )
+        SELECT ${job.title}, ${job.company}, ${job.location}, ${job.description}, ${job.category},
+               ${job.experienceLevel}, ${job.jobType}, ${job.visaType}, ${job.skills}, ${job.url},
+               now(), 'pending', ${createdBy}, ${job.country}
+        WHERE NOT EXISTS (SELECT 1 FROM skilledjobs.jobs WHERE url = ${job.url})
+          AND NOT EXISTS (SELECT 1 FROM skilledjobs.staged_jobs WHERE url = ${job.url} AND status = 'pending')
+        RETURNING id
       `
-      staged += 1
+      staged += inserted.length
     }
+    const duplicates = unique.length - staged
 
     if (input.savedUrlId) {
       await careerSql`
@@ -580,10 +616,34 @@ export async function fetchJobsFromUrl(input: { url: string; company?: string | 
       `
     }
     clearCompanyIndexCache()
-    return { staged, found: unique.length }
+    await recordFetchRun({
+      savedUrlId: input.savedUrlId,
+      company: companyHint ?? unique[0]?.company ?? null,
+      url: pageUrl,
+      source: input.source,
+      status: "success",
+      found: unique.length,
+      staged,
+      duplicates,
+      method,
+      durationMs: Date.now() - startedAt,
+      createdBy: input.createdBy,
+    })
+    return { staged, found: unique.length, duplicates, method }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Fetch failed"
     await recordFetchFailure(input.savedUrlId, message)
+    await recordFetchRun({
+      savedUrlId: input.savedUrlId,
+      company: companyHint,
+      url: pageUrl,
+      source: input.source,
+      status: "failed",
+      method,
+      error: message,
+      durationMs: Date.now() - startedAt,
+      createdBy: input.createdBy,
+    })
     throw error
   }
 }

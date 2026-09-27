@@ -8,24 +8,26 @@ export function MobilityFrame({
   eyebrow,
   title,
   lede,
+  compact = false,
   children,
 }: {
   eyebrow?: string
   title: string
   lede: string
+  compact?: boolean
   children: ReactNode
 }) {
   return (
     <div style={{ background: "#efece4", color: "#1b231e" }}>
-      <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
+      <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 ${compact ? "pb-8 pt-4 sm:pt-5 lg:pt-6" : "py-8 sm:py-10 lg:py-14"}`}>
         {eyebrow && (
-          <p className="text-sm font-extrabold tracking-tight text-[#e0511f]">{eyebrow}</p>
+          <p className={`font-extrabold tracking-tight text-[#e0511f] ${compact ? "text-xs uppercase tracking-wide" : "text-sm"}`}>{eyebrow}</p>
         )}
-        <h1 className={`page-title text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl ${eyebrow ? "mt-3" : ""}`}>
+        <h1 className={`page-title font-extrabold tracking-tight ${compact ? "text-xl sm:text-2xl md:text-3xl" : "text-2xl sm:text-3xl md:text-4xl"} ${eyebrow ? (compact ? "mt-1" : "mt-3") : ""}`}>
           {title}
         </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#5f655c] sm:mt-4 sm:text-base">{lede}</p>
-        <div className="mt-6 sm:mt-8">{children}</div>
+        <p className={`max-w-3xl text-sm leading-relaxed text-[#5f655c] ${compact ? "mt-1.5" : "mt-3 sm:mt-4 sm:text-base"}`}>{lede}</p>
+        <div className={compact ? "mt-4 sm:mt-5" : "mt-6 sm:mt-8"}>{children}</div>
       </div>
     </div>
   )

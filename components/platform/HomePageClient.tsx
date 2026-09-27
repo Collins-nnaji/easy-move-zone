@@ -3,8 +3,8 @@
 import Link from "next/link"
 import { motion, useReducedMotion } from "framer-motion"
 import { ArrowRight, Headphones } from "lucide-react"
-import { HomeHowItWorks } from "@/components/platform/HomeHowItWorks"
-import { HomeJobsPreview, PREVIEW_COUNT } from "@/components/platform/HomeJobsPreview"
+import { HomeHowItWorks, HomeJobFeatures } from "@/components/platform/HomeHowItWorks"
+import { HomeJobsPreview } from "@/components/platform/HomeJobsPreview"
 
 const PRIMARY = "#2f5d50"
 const INK = "#1b231e"
@@ -163,7 +163,7 @@ export function HomePageClient() {
           }}
         />
 
-        <div className="relative mx-auto grid w-full max-w-7xl items-center gap-6 px-4 pt-8 pb-10 sm:gap-8 sm:px-6 sm:pt-12 sm:pb-12 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.85fr)] lg:gap-8 lg:px-8 lg:pt-14 lg:pb-14">
+        <div className="relative mx-auto grid w-full max-w-7xl items-center gap-6 px-4 pt-8 pb-6 sm:gap-8 sm:px-6 sm:pt-12 sm:pb-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.85fr)] lg:gap-8 lg:px-8 lg:pt-14 lg:pb-8">
           <div className="min-w-0 max-w-none lg:pr-2">
             <motion.p
               {...fadeUp(0, 12)}
@@ -174,19 +174,19 @@ export function HomePageClient() {
             </motion.p>
             <motion.h1
               {...fadeUp(0.06, 18)}
-              className="mt-2 max-w-[14ch] text-[2.5rem] font-extrabold leading-[1.02] tracking-tight sm:mt-3 sm:max-w-none sm:text-5xl md:text-6xl lg:text-[3.75rem] xl:text-[4.25rem]"
+              className="mt-2 text-[7vw] font-extrabold leading-[1.05] tracking-tight sm:mt-3 sm:text-5xl md:text-[3.5rem] lg:text-[2.75rem] xl:text-[3.5rem]"
             >
-              Move careers.
-              <span className="block" style={{ color: PRIMARY }}>
-                Move countries.
+              <span className="block whitespace-nowrap">Find visa-sponsored jobs.</span>
+              <span className="block whitespace-nowrap" style={{ color: PRIMARY }}>
+                Across countries.
               </span>
             </motion.h1>
             <motion.p
               {...fadeUp(0.1, 14)}
               className="mt-3 max-w-2xl text-[15px] leading-snug text-[#5f655c] sm:mt-4 sm:text-lg sm:leading-relaxed"
             >
-              Score your path to any destination, match licensed sponsors, and prove the role — or ask a specialist when
-              your case needs hands-on help.
+              Search roles from employers licensed to sponsor visas, check your route to any destination, and apply with a
+              CV built for the job.
             </motion.p>
 
             <motion.div
@@ -235,13 +235,7 @@ export function HomePageClient() {
         </div>
       </section>
 
-      <section className="border-t border-[#ded8cc] bg-[#1b231e] py-5 text-white">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-5 px-4 sm:grid-cols-4 sm:px-6 lg:px-8">
-          {[['3', 'planning modes'], [String(PREVIEW_COUNT), 'jobs on this page'], ['1', 'joined-up report'], ['24/7', 'self-serve planning']].map(([value, label]) => (
-            <div key={label} className="text-center sm:text-left"><p className="text-2xl font-extrabold text-[#9bc2b5]">{value}</p><p className="text-xs font-semibold text-white/65">{label}</p></div>
-          ))}
-        </div>
-      </section>
+      <HomeJobFeatures />
 
       <HomeJobsPreview />
 
