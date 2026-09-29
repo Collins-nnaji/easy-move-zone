@@ -19,16 +19,27 @@ type Register = {
 type Summary = {
   total: number
   unchecked: number
+  uncheckedCompanies?: number
   byStatus: Record<string, number>
   taggedNotListed: number
   tagsApplied: number
 }
 
+type CompanyBatch = {
+  companies: number
+  jobs: number
+  remaining: number
+  licensed: number
+  likely: number
+  notListed: number
+  tagged: number
+  aiReviewed: number
+}
+
 type Overview = { registers: Register[]; summary: Summary }
 type ParsedRow = { name: string; city: string | null; route: string | null }
 
-const QUEUE_SIZE = 500
-const CHECK_CHUNK = 250
+const COMPANY_BATCH = 40
 const IMPORT_CHUNK = 2000
 
 /** Minimal CSV reader: handles quoted fields, commas and new lines inside quotes. */
@@ -90,7 +101,7 @@ export function SponsorCheckTab({ onJobsChanged }: { onJobsChanged: () => void }
   const [data, setData] = useState<Overview | null>(null)
   const [applyTags, setApplyTags] = useState(true)
   const [running, setRunning] = useState<string | null>(null)
-  const [progress, setProgress] = useState({ done: 0, total: 0, licensed: 0, likely: 0, notListed: 0, tagged: 0 })
+  const [progress, setProgress] = useState({ done: 0, total: 0, jobs: 0, licensed: 0, likely: 0, notListed: 0, tagged: 0, ai: 0 })
   const cancelled = useRef(false)
 
   const [country, setCountry] = useState("")
@@ -116,35 +127,32 @@ export function SponsorCheckTab({ onJobsChanged }: { onJobsChanged: () => void }
   async function runCheck(mode: "unchecked" | "all" | "country", onlyCountry?: string) {
     cancelled.current = false
     const before = mode === "unchecked" ? null : new Date().toISOString()
-    setRunning(mode === "country" ? `Rechecking ${onlyCountry}` : mode === "all" ? "Rechecking every job" : "Checking unchecked jobs")
-    const tally = { done: 0, total: 0, licensed: 0, likely: 0, notListed: 0, tagged: 0 }
+    setRunning(mode === "country" ? `Rechecking ${onlyCountry}` : mode === "all" ? "Rechecking every company" : "Checking companies")
+    const tally = { done: 0, total: 0, jobs: 0, licensed: 0, likely: 0, notListed: 0, tagged: 0, ai: 0 }
     setProgress(tally)
     try {
       for (;;) {
         if (cancelled.current) break
-        const queue = await adminApi<{ ids: number[]; remaining: number }>("/api/admin/sponsor-check", {
-          action: "queue",
-          limit: QUEUE_SIZE,
+        const batch = await adminApi<CompanyBatch>("/api/admin/sponsor-check", {
+          action: "check-companies",
+          limit: COMPANY_BATCH,
           before,
           country: onlyCountry ?? null,
+          applyTags,
         })
-        if (!tally.total) tally.total = queue.remaining
-        if (!queue.ids.length) break
-        for (let i = 0; i < queue.ids.length && !cancelled.current; i += CHECK_CHUNK) {
-          const { results } = await adminApi<{ results: Array<{ status: string; tagApplied: string | null }> }>(
-            "/api/admin/sponsor-check",
-            { action: "check", ids: queue.ids.slice(i, i + CHECK_CHUNK), applyTags },
-          )
-          tally.done += results.length
-          tally.licensed += results.filter((r) => r.status === "licensed").length
-          tally.likely += results.filter((r) => r.status === "likely").length
-          tally.notListed += results.filter((r) => r.status === "not_listed").length
-          tally.tagged += results.filter((r) => r.tagApplied).length
-          setProgress({ ...tally })
-        }
+        tally.done += batch.companies
+        tally.total = tally.done + batch.remaining
+        tally.jobs += batch.jobs
+        tally.licensed += batch.licensed
+        tally.likely += batch.likely
+        tally.notListed += batch.notListed
+        tally.tagged += batch.tagged
+        tally.ai += batch.aiReviewed
+        setProgress({ ...tally })
+        if (!batch.companies) break
       }
       notify(
-        `${cancelled.current ? "Stopped" : "Done"}: ${tally.done.toLocaleString()} checked · ${tally.licensed} on register · ${tally.likely} likely · ${tally.notListed} not listed · ${tally.tagged} tagged.`,
+        `${cancelled.current ? "Stopped" : "Done"}: ${tally.done.toLocaleString()} companies · ${tally.jobs.toLocaleString()} jobs · ${tally.licensed} on register · ${tally.likely} close matches · ${tally.notListed} not listed · ${tally.tagged} tagged.`,
       )
     } catch (error) {
       notify(errorMessage(error), "error")
@@ -223,13 +231,13 @@ export function SponsorCheckTab({ onJobsChanged }: { onJobsChanged: () => void }
     <div className="space-y-4">
       <Panel
         title="Sponsor check"
-        description="Match each job's company against the sponsor register for its country. Exact matches can be tagged with that country's visa route automatically. Tags are never removed without you."
+        description="Checks each distinct company against that country's sponsor register, then applies the result to its jobs. An exact name can be tagged automatically. A close name — spelling, word order, extra words, or initials — is compared with AI and saved as a likely match for you to review. Tags are never removed without you."
         actions={
           running ? (
             <>
               <span className="text-xs font-bold text-sky-200">
                 <Loader2 className="mr-1 inline h-3.5 w-3.5 animate-spin" />
-                {running}: {progress.done.toLocaleString()} / {progress.total.toLocaleString()}
+                {running}: {progress.done.toLocaleString()} / {progress.total.toLocaleString()} companies
               </span>
               <Btn variant="danger" onClick={() => { cancelled.current = true }}><Square className="h-3 w-3" /> Stop</Btn>
             </>
@@ -239,7 +247,7 @@ export function SponsorCheckTab({ onJobsChanged }: { onJobsChanged: () => void }
                 <Check checked={applyTags} onChange={() => setApplyTags((v) => !v)} label="Tag exact matches" /> Tag exact matches
               </label>
               <Btn variant="primary" disabled={!summary?.unchecked} onClick={() => void runCheck("unchecked")}>
-                <Play className="h-3.5 w-3.5" /> Check unchecked ({(summary?.unchecked ?? 0).toLocaleString()})
+                <Play className="h-3.5 w-3.5" /> Check {(summary?.uncheckedCompanies ?? summary?.unchecked ?? 0).toLocaleString()} companies
               </Btn>
               <Btn onClick={() => void runCheck("all")}><RotateCcw className="h-3.5 w-3.5" /> Recheck all</Btn>
             </>
@@ -263,7 +271,7 @@ export function SponsorCheckTab({ onJobsChanged }: { onJobsChanged: () => void }
         </div>
         {running && progress.done > 0 && (
           <p className="mt-3 text-xs text-white/60">
-            This run: {progress.licensed} on register · {progress.likely} likely · {progress.notListed} not listed · {progress.tagged} newly tagged
+            This run: {progress.done.toLocaleString()} companies · {progress.jobs.toLocaleString()} jobs · {progress.licensed} on register · {progress.likely} close matches · {progress.notListed} not listed · {progress.tagged} newly tagged · {progress.ai} sent to AI
           </p>
         )}
         <p className="mt-3 text-[11px] text-white/40">

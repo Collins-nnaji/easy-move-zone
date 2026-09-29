@@ -1,5 +1,5 @@
 import { careerSql } from "./db"
-import { clearCompanyIndexCache } from "./sponsors"
+import { clearCompanyIndexCache, ensureSponsorShowcaseColumn } from "./sponsors"
 import { ensureSponsorCheckTables } from "./sponsor-check"
 
 /* ------------------------------------------------------------------ */
@@ -620,6 +620,7 @@ export type SponsorCompanyRow = {
   route: string | null
   career_url: string | null
   saved_url_id: number | null
+  show_on_sponsors: boolean
   last_fetch_status: string | null
   last_fetch_error: string | null
   last_fetched_at: string | null
@@ -628,20 +629,23 @@ export type SponsorCompanyRow = {
 export async function listSponsorCompanies(opts: {
   q?: string
   hasUrl?: "any" | "yes" | "no"
+  shown?: "any" | "yes" | "no"
   page?: number
   limit?: number
 }): Promise<{ rows: SponsorCompanyRow[]; total: number }> {
   if (!careerSql) return { rows: [], total: 0 }
+  await ensureSponsorShowcaseColumn()
   const q = opts.q?.trim() || null
   const page = Math.max(opts.page ?? 1, 1)
   const limit = Math.min(Math.max(opts.limit ?? 50, 1), 200)
   const offset = (page - 1) * limit
   const hasUrl = opts.hasUrl ?? "any"
+  const shown = opts.shown ?? "any"
 
   const rows = await careerSql`
     WITH urls AS (
       SELECT DISTINCT ON (lower(trim(company)))
-        lower(trim(company)) AS k, id, url, last_fetch_status, last_fetch_error, last_fetched_at
+        lower(trim(company)) AS k, id, url, show_on_sponsors, last_fetch_status, last_fetch_error, last_fetched_at
       FROM skilledjobs.saved_job_urls
       WHERE company IS NOT NULL AND trim(company) <> ''
       ORDER BY lower(trim(company)), last_fetched_at DESC NULLS LAST, id DESC
@@ -655,12 +659,16 @@ export async function listSponsorCompanies(opts: {
     ),
     joined AS (
       SELECT s.id, s.name, s.city, s.county, s.type_and_rating, s.route,
-             u.url AS career_url, u.id AS saved_url_id, u.last_fetch_status, u.last_fetch_error, u.last_fetched_at
+             u.url AS career_url, u.id AS saved_url_id, coalesce(u.show_on_sponsors, false) AS show_on_sponsors,
+             u.last_fetch_status, u.last_fetch_error, u.last_fetched_at
       FROM sponsors s
       LEFT JOIN urls u ON u.k = s.k
-      WHERE ${hasUrl}::text = 'any'
+      WHERE (${hasUrl}::text = 'any'
          OR (${hasUrl}::text = 'yes' AND u.url IS NOT NULL)
-         OR (${hasUrl}::text = 'no' AND u.url IS NULL)
+         OR (${hasUrl}::text = 'no' AND u.url IS NULL))
+        AND (${shown}::text = 'any'
+         OR (${shown}::text = 'yes' AND coalesce(u.show_on_sponsors, false))
+         OR (${shown}::text = 'no' AND NOT coalesce(u.show_on_sponsors, false)))
     )
     SELECT *, count(*) OVER ()::int AS total_count
     FROM joined
@@ -709,4 +717,21 @@ export async function upsertSponsorCareerUrl(input: {
       `
   clearCompanyIndexCache()
   return { id: Number(rows[0].id), url: String(rows[0].url), company: String(rows[0].company) }
+}
+
+/** Put chosen sponsors on the public page that shows before a search. A careers URL has to exist first. */
+export async function setSponsorsShown(companies: string[], shown: boolean): Promise<{ updated: number; missing: string[] }> {
+  if (!careerSql) throw new Error("Database is not configured")
+  await ensureSponsorShowcaseColumn()
+  const names = [...new Set(companies.map((company) => company.trim()).filter(Boolean))]
+  if (!names.length) return { updated: 0, missing: [] }
+  const rows = await careerSql`
+    UPDATE skilledjobs.saved_job_urls
+    SET show_on_sponsors = ${shown}
+    WHERE company IS NOT NULL
+      AND lower(trim(company)) IN (SELECT lower(trim(n)) FROM unnest(${names}::text[]) AS n)
+    RETURNING company
+  `
+  const updated = new Set(rows.map((row) => String(row.company).trim().toLowerCase()))
+  return { updated: rows.length, missing: names.filter((name) => !updated.has(name.toLowerCase())) }
 }

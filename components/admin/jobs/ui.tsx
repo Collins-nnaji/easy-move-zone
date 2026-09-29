@@ -167,7 +167,7 @@ export function Badge({ tone = "neutral", children, title }: { tone?: "neutral" 
 
 export const SPONSOR_STATUS: Record<string, { label: string; tone: "success" | "warning" | "error" | "neutral" | "info"; hint: string }> = {
   licensed: { label: "On register", tone: "success", hint: "Company name matches the sponsor register for this country" },
-  likely: { label: "Likely match", tone: "info", hint: "Partial name match on the register. Check before relying on it" },
+  likely: { label: "Likely match", tone: "info", hint: "Close name on the register — spelling, word order, extra words, or initials. Review before relying on it" },
   not_listed: { label: "Not on register", tone: "error", hint: "No company with this name on the sponsor register" },
   no_register: { label: "No register", tone: "neutral", hint: "No sponsor list loaded for this country yet" },
   no_company: { label: "No company", tone: "warning", hint: "The job has no company name to check" },

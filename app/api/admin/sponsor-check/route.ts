@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/auth/admin"
 import {
+  checkDistinctSponsors,
   checkJobSponsors,
   clearCheckResults,
   clearVisaTags,
@@ -40,6 +41,15 @@ export async function POST(request: Request) {
         const ids = toIds(body.ids).slice(0, 1000)
         const results = await checkJobSponsors(ids, { applyTags: body.applyTags !== false })
         return NextResponse.json({ results })
+      }
+      case "check-companies": {
+        const result = await checkDistinctSponsors({
+          limit: Number(body.limit) || 40,
+          before: typeof body.before === "string" ? body.before : null,
+          country: typeof body.country === "string" ? body.country : null,
+          applyTags: body.applyTags !== false,
+        })
+        return NextResponse.json(result)
       }
       case "queue": {
         const queue = await sponsorCheckQueue({

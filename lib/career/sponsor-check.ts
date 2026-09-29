@@ -1,5 +1,14 @@
+import { chatJson } from "@/lib/ai/openai"
 import { careerSql } from "./db"
 import { companyKey } from "./company-match"
+import {
+  buildSponsorSearchIndex,
+  closeCandidates,
+  confidentCloseMatch,
+  fallbackVerdict,
+  verdictFromAi,
+  type SponsorSearchIndex,
+} from "./sponsor-similarity"
 
 /* ------------------------------------------------------------------ */
 /* Registers                                                           */
@@ -70,6 +79,17 @@ export function ensureSponsorCheckTables(): Promise<void> {
       )
     `
     await sql`CREATE INDEX IF NOT EXISTS job_sponsor_checks_status ON skilledjobs.job_sponsor_checks (status)`
+    await sql`
+      CREATE TABLE IF NOT EXISTS skilledjobs.company_sponsor_matches (
+        register_id text NOT NULL,
+        company_norm text NOT NULL,
+        status text NOT NULL,
+        matched_name text,
+        exact boolean NOT NULL DEFAULT false,
+        checked_at timestamptz NOT NULL DEFAULT now(),
+        PRIMARY KEY (register_id, company_norm)
+      )
+    `
   })().catch((error) => {
     tablesReady = null
     throw error
@@ -139,7 +159,10 @@ export async function importRegisterRows(input: {
       source_url = coalesce(${input.sourceUrl?.trim() || null}, skilledjobs.sponsor_register_lists.source_url),
       updated_at = now()
   `
-  if (input.replace) await careerSql`DELETE FROM skilledjobs.sponsor_register_entries WHERE list_id = ${id}`
+  if (input.replace) {
+    await careerSql`DELETE FROM skilledjobs.sponsor_register_entries WHERE list_id = ${id}`
+    await careerSql`DELETE FROM skilledjobs.company_sponsor_matches WHERE register_id = ${id}`
+  }
 
   const clean = input.rows
     .map((row) => ({ name: String(row.name ?? "").trim(), city: row.city?.trim() || null, route: row.route?.trim() || null }))
@@ -163,6 +186,7 @@ export async function deleteRegister(id: string): Promise<void> {
   await ensureSponsorCheckTables()
   await careerSql`DELETE FROM skilledjobs.sponsor_register_lists WHERE id = ${id}`
   await careerSql`DELETE FROM skilledjobs.job_sponsor_checks WHERE register_id = ${id}`
+  await careerSql`DELETE FROM skilledjobs.company_sponsor_matches WHERE register_id = ${id}`
   indexCache.delete(id)
 }
 
@@ -170,7 +194,7 @@ export async function deleteRegister(id: string): Promise<void> {
 /* Matching                                                            */
 /* ------------------------------------------------------------------ */
 
-type RegisterIndex = { at: number; byKey: Map<string, string>; sortedKeys: string[] }
+type RegisterIndex = { at: number; byKey: Map<string, string>; sortedKeys: string[]; search: SponsorSearchIndex }
 const indexCache = new Map<string, RegisterIndex>()
 
 async function registerIndex(id: string): Promise<RegisterIndex> {
@@ -193,7 +217,8 @@ async function registerIndex(id: string): Promise<RegisterIndex> {
       }
     }
   }
-  const index = { at: Date.now(), byKey, sortedKeys: [...byKey.keys()].sort() }
+  const sortedKeys = [...byKey.keys()].sort()
+  const index = { at: Date.now(), byKey, sortedKeys, search: buildSponsorSearchIndex(byKey, sortedKeys) }
   indexCache.set(id, index)
   return index
 }
@@ -299,6 +324,136 @@ export type SponsorCheckResult = {
 
 const isUntagged = (visaType: string | null) => !visaType || !visaType.trim() || visaType.trim() === "Other"
 
+type CompanyDecision = {
+  status: "licensed" | "likely" | "not_listed"
+  name: string | null
+  exact: boolean
+}
+
+const companyNorm = (company: string) => company.trim().toLowerCase()
+
+type AiCompany = { id: string; company: string; candidates: ReturnType<typeof closeCandidates> }
+
+/** Ask the model which close register names are the same organisation. One batch per call. */
+async function judgeCloseCompanies(rows: AiCompany[]): Promise<Map<string, { status: "likely" | "not_listed"; name: string | null }>> {
+  const out = new Map<string, { status: "likely" | "not_listed"; name: string | null }>()
+  for (let i = 0; i < rows.length; i += 25) {
+    const chunk = rows.slice(i, i + 25)
+    const fallback = { results: [] as Array<{ id?: string; verdict?: string; name?: string | null }> }
+    const ai = await chatJson<typeof fallback>(
+      `You match job-board employer names to an official visa sponsor register.
+The job name is often shorter, reordered, misspelled, or missing a legal suffix. It can also be a different organisation that only shares a word.
+For each item choose one verdict:
+- match: the same organisation, written differently
+- likely: the same group, such as a parent, subsidiary, or regional company, but not clearly the same legal entity
+- none: a different organisation
+name must be copied exactly from that item's candidates, or null when the verdict is none.
+Return JSON only: {"results":[{"id":"...","verdict":"match","name":"..."}]}`,
+      JSON.stringify(chunk.map((row) => ({
+        id: row.id,
+        company: row.company,
+        candidates: row.candidates.map((candidate) => candidate.name),
+      }))),
+      fallback,
+      { maxTokens: 1800, temperature: 0 },
+    )
+    const byId = new Map((ai.results ?? []).map((row) => [String(row.id ?? ""), row]))
+    for (const row of chunk) {
+      const judged = byId.get(row.id)
+      const parsed = judged ? verdictFromAi(judged.verdict, judged.name, row.candidates) : null
+      out.set(row.id, parsed ?? fallbackVerdict(row.candidates))
+    }
+  }
+  return out
+}
+
+/** Exact names stay licensed. Close names become likely, with AI judging the ambiguous ones. */
+async function decideFresh(companies: string[], registerId: string): Promise<{ decisions: Map<string, CompanyDecision>; aiReviewed: number }> {
+  const index = await registerIndex(registerId)
+  const decisions = new Map<string, CompanyDecision>()
+  const pending: AiCompany[] = []
+  companies.forEach((company, i) => {
+    const hit = matchRegister(company, index)
+    if (hit) {
+      decisions.set(companyNorm(company), { status: hit.status, name: hit.name, exact: hit.status === "licensed" })
+      return
+    }
+    const candidates = closeCandidates(company, index.search)
+    const strong = confidentCloseMatch(candidates)
+    if (strong) {
+      decisions.set(companyNorm(company), { status: "likely", name: strong.name, exact: false })
+      return
+    }
+    if (candidates.length) pending.push({ id: String(i), company, candidates })
+    else decisions.set(companyNorm(company), { status: "not_listed", name: null, exact: false })
+  })
+  const judged = await judgeCloseCompanies(pending)
+  for (const row of pending) {
+    const result = judged.get(row.id) ?? fallbackVerdict(row.candidates)
+    decisions.set(companyNorm(row.company), { status: result.status, name: result.name, exact: false })
+  }
+  return { decisions, aiReviewed: pending.length }
+}
+
+async function saveCompanyDecisions(registerId: string, decisions: Map<string, CompanyDecision>): Promise<void> {
+  if (!careerSql || decisions.size === 0) return
+  const rows = [...decisions.entries()]
+  await careerSql`
+    INSERT INTO skilledjobs.company_sponsor_matches (register_id, company_norm, status, matched_name, exact, checked_at)
+    SELECT ${registerId}, u.company_norm, u.status, u.matched_name, u.exact, now()
+    FROM unnest(
+      ${rows.map(([norm]) => norm)}::text[],
+      ${rows.map(([, decision]) => decision.status)}::text[],
+      ${rows.map(([, decision]) => decision.name)}::text[],
+      ${rows.map(([, decision]) => decision.exact)}::boolean[]
+    ) AS u(company_norm, status, matched_name, exact)
+    ON CONFLICT (register_id, company_norm) DO UPDATE SET
+      status = EXCLUDED.status,
+      matched_name = EXCLUDED.matched_name,
+      exact = EXCLUDED.exact,
+      checked_at = now()
+  `
+}
+
+/**
+ * One decision per distinct company name on a register.
+ * A full recheck ignores saved decisions and asks again.
+ */
+async function matchCompaniesOnRegister(
+  registerId: string,
+  companies: string[],
+  refresh: boolean,
+): Promise<{ decisions: Map<string, CompanyDecision>; aiReviewed: number }> {
+  const unique = [...new Set(companies.map((company) => company.trim()).filter((company) => company && company.toLowerCase() !== "unknown"))]
+  const decisions = new Map<string, CompanyDecision>()
+  let todo = unique
+  if (!refresh && careerSql && unique.length) {
+    const cached = await careerSql`
+      SELECT company_norm, status, matched_name, exact
+      FROM skilledjobs.company_sponsor_matches
+      WHERE register_id = ${registerId} AND company_norm = ANY(${unique.map(companyNorm)})
+    `
+    const known = new Map(cached.map((row) => [String(row.company_norm), row]))
+    todo = []
+    for (const company of unique) {
+      const row = known.get(companyNorm(company))
+      const status = row ? String(row.status) : ""
+      if (row && (status === "licensed" || status === "likely" || status === "not_listed")) {
+        decisions.set(companyNorm(company), {
+          status: status as CompanyDecision["status"],
+          name: row.matched_name ? String(row.matched_name) : null,
+          exact: Boolean(row.exact),
+        })
+      } else todo.push(company)
+    }
+  }
+  if (!todo.length) return { decisions, aiReviewed: 0 }
+  const fresh = await decideFresh(todo, registerId)
+  await saveCompanyDecisions(registerId, fresh.decisions)
+  for (const [norm, decision] of fresh.decisions) decisions.set(norm, decision)
+  return { decisions, aiReviewed: fresh.aiReviewed }
+}
+
 /** Check jobs against the register for their country, save the flag, and tag exact matches that are untagged. */
 export async function checkJobSponsors(ids: number[], opts: { applyTags?: boolean } = {}): Promise<SponsorCheckResult[]> {
   if (!careerSql || ids.length === 0) return []
@@ -309,31 +464,50 @@ export async function checkJobSponsors(ids: number[], opts: { applyTags?: boolea
     registersByCountry(),
   ])
 
-  const results: SponsorCheckResult[] = []
+  const prepared: Array<{
+    jobId: number
+    company: string | null
+    country: string | null
+    visaType: string | null
+    register: RegisterDef | undefined
+  }> = []
+  const pending = new Map<string, string[]>()
   for (const job of jobs) {
     const company = job.company ? String(job.company).trim() : null
     const country = job.country ? String(job.country).trim() : null
-    const visaType = job.visa_type ? String(job.visa_type) : null
-    const base = { jobId: Number(job.id), company, country, registerId: null, matchedName: null, tagApplied: null }
     const register = country ? registers.get(country.toLowerCase()) : undefined
-    if (!register) {
-      results.push({ ...base, status: "no_register" })
-      continue
+    prepared.push({ jobId: Number(job.id), company, country, visaType: job.visa_type ? String(job.visa_type) : null, register })
+    if (register && company && company.toLowerCase() !== "unknown") {
+      pending.set(register.id, [...(pending.get(register.id) ?? []), company])
     }
-    if (!company || company.toLowerCase() === "unknown") {
-      results.push({ ...base, registerId: register.id, status: "no_company" })
-      continue
-    }
-    const hit = matchRegister(company, await registerIndex(register.id))
-    const tag = hit?.status === "licensed" && applyTags && register.visaType && isUntagged(visaType) ? register.visaType : null
-    results.push({
-      ...base,
-      registerId: register.id,
-      status: hit ? hit.status : "not_listed",
-      matchedName: hit?.name ?? null,
-      tagApplied: tag,
-    })
   }
+
+  const matched = new Map<string, Map<string, CompanyDecision>>()
+  for (const [registerId, companies] of pending) {
+    const { decisions } = await matchCompaniesOnRegister(registerId, companies, true)
+    matched.set(registerId, decisions)
+  }
+
+  const results: SponsorCheckResult[] = prepared.map((job) => {
+    const base = {
+      jobId: job.jobId,
+      company: job.company,
+      country: job.country,
+      registerId: job.register?.id ?? null,
+      matchedName: null as string | null,
+      tagApplied: null as string | null,
+    }
+    if (!job.register) return { ...base, status: "no_register" as const }
+    if (!job.company || job.company.toLowerCase() === "unknown") return { ...base, status: "no_company" as const }
+    const decision = matched.get(job.register.id)?.get(companyNorm(job.company))
+    const tag = decision?.exact && applyTags && job.register.visaType && isUntagged(job.visaType) ? job.register.visaType : null
+    return {
+      ...base,
+      status: decision?.status ?? "not_listed",
+      matchedName: decision?.name ?? null,
+      tagApplied: tag,
+    }
+  })
 
   if (results.length) {
     await careerSql`
@@ -401,17 +575,208 @@ export async function sponsorCheckQueue(opts: {
   return { ids: rows.map((row) => Number(row.id)), remaining: Number(counts[0]?.n ?? 0) }
 }
 
+function countriesForFilter(country: string | null | undefined): string[] | null {
+  const value = country?.trim().toLowerCase() || null
+  if (!value) return null
+  if (UK_REGISTER.countries.some((name) => name.toLowerCase() === value)) {
+    return UK_REGISTER.countries.map((name) => name.toLowerCase())
+  }
+  return [value]
+}
+
+export type DistinctSponsorCheck = {
+  companies: number
+  jobs: number
+  remaining: number
+  licensed: number
+  likely: number
+  notListed: number
+  tagged: number
+  aiReviewed: number
+}
+
+/**
+ * Check distinct company names, not every job. Exact register names stay "licensed".
+ * Similar names are shortlisted from the register and judged by AI as "likely".
+ * The decision is then written onto every pending job for that company and country.
+ */
+export async function checkDistinctSponsors(opts: {
+  limit?: number
+  before?: string | null
+  country?: string | null
+  applyTags?: boolean
+} = {}): Promise<DistinctSponsorCheck> {
+  const empty: DistinctSponsorCheck = {
+    companies: 0, jobs: 0, remaining: 0, licensed: 0, likely: 0, notListed: 0, tagged: 0, aiReviewed: 0,
+  }
+  if (!careerSql) return empty
+  await ensureSponsorCheckTables()
+  const limit = Math.min(Math.max(opts.limit ?? 40, 1), 80)
+  const before = opts.before || null
+  const applyTags = opts.applyTags ?? true
+  const countries = countriesForFilter(opts.country)
+
+  const [groups, counts] = await Promise.all([
+    careerSql`
+      SELECT
+        lower(trim(coalesce(j.company, ''))) AS norm,
+        min(nullif(trim(j.company), '')) AS company,
+        lower(trim(coalesce(j.country, ''))) AS country_norm,
+        min(nullif(trim(j.country), '')) AS country,
+        count(*)::int AS jobs
+      FROM skilledjobs.jobs j
+      LEFT JOIN skilledjobs.job_sponsor_checks c ON c.job_id = j.id
+      WHERE (c.job_id IS NULL OR (${before}::timestamptz IS NOT NULL AND c.checked_at < ${before}::timestamptz))
+        AND (${countries}::text[] IS NULL OR lower(trim(coalesce(j.country, ''))) = ANY(${countries}))
+      GROUP BY 1, 3
+      ORDER BY count(*) DESC, 1
+      LIMIT ${limit}
+    `,
+    careerSql`
+      SELECT count(*)::int AS n
+      FROM (
+        SELECT 1
+        FROM skilledjobs.jobs j
+        LEFT JOIN skilledjobs.job_sponsor_checks c ON c.job_id = j.id
+        WHERE (c.job_id IS NULL OR (${before}::timestamptz IS NOT NULL AND c.checked_at < ${before}::timestamptz))
+          AND (${countries}::text[] IS NULL OR lower(trim(coalesce(j.country, ''))) = ANY(${countries}))
+        GROUP BY lower(trim(coalesce(j.company, ''))), lower(trim(coalesce(j.country, '')))
+      ) groups
+    `,
+  ])
+  if (!groups.length) return empty
+
+  const registers = await registersByCountry()
+  type Planned = {
+    norm: string
+    company: string | null
+    countryNorm: string
+    country: string | null
+    jobs: number
+    status: SponsorStatus
+    registerId: string | null
+    matchedName: string | null
+    visaTag: string | null
+  }
+  const planned: Planned[] = []
+  const byRegister = new Map<string, string[]>()
+  for (const row of groups) {
+    const company = row.company ? String(row.company).trim() : null
+    const country = row.country ? String(row.country).trim() : null
+    const register = country ? registers.get(country.toLowerCase()) : undefined
+    const group: Planned = {
+      norm: String(row.norm ?? ""),
+      company,
+      countryNorm: String(row.country_norm ?? ""),
+      country,
+      jobs: Number(row.jobs ?? 0),
+      status: "not_listed",
+      registerId: register?.id ?? null,
+      matchedName: null,
+      visaTag: null,
+    }
+    if (!register) group.status = "no_register"
+    else if (!company || company.toLowerCase() === "unknown") group.status = "no_company"
+    else byRegister.set(register.id, [...(byRegister.get(register.id) ?? []), company])
+    planned.push(group)
+  }
+
+  let aiReviewed = 0
+  const decisionsByRegister = new Map<string, Map<string, CompanyDecision>>()
+  for (const [registerId, companies] of byRegister) {
+    const matched = await matchCompaniesOnRegister(registerId, companies, Boolean(before))
+    decisionsByRegister.set(registerId, matched.decisions)
+    aiReviewed += matched.aiReviewed
+  }
+  for (const group of planned) {
+    if (!group.registerId || !group.company) continue
+    const decision = decisionsByRegister.get(group.registerId)?.get(companyNorm(group.company))
+    if (!decision) continue
+    group.status = decision.status
+    group.matchedName = decision.name
+    const register = group.country ? registers.get(group.country.toLowerCase()) : undefined
+    if (decision.exact && applyTags && register?.visaType) group.visaTag = register.visaType
+  }
+
+  const written = await careerSql`
+    INSERT INTO skilledjobs.job_sponsor_checks (job_id, status, register_id, matched_name, company, tag_applied, checked_at)
+    SELECT j.id, u.status, u.register_id, u.matched_name, coalesce(nullif(trim(j.company), ''), u.company),
+           CASE
+             WHEN u.visa_tag IS NOT NULL AND (j.visa_type IS NULL OR trim(j.visa_type) IN ('', 'Other')) THEN u.visa_tag
+             ELSE NULL
+           END,
+           now()
+    FROM skilledjobs.jobs j
+    JOIN unnest(
+      ${planned.map((group) => group.norm)}::text[],
+      ${planned.map((group) => group.countryNorm)}::text[],
+      ${planned.map((group) => group.status)}::text[],
+      ${planned.map((group) => group.registerId)}::text[],
+      ${planned.map((group) => group.matchedName)}::text[],
+      ${planned.map((group) => group.company)}::text[],
+      ${planned.map((group) => group.visaTag)}::text[]
+    ) AS u(norm, country_norm, status, register_id, matched_name, company, visa_tag)
+      ON lower(trim(coalesce(j.company, ''))) = u.norm
+     AND lower(trim(coalesce(j.country, ''))) = u.country_norm
+    WHERE (
+      NOT EXISTS (SELECT 1 FROM skilledjobs.job_sponsor_checks c WHERE c.job_id = j.id)
+      OR (${before}::timestamptz IS NOT NULL AND EXISTS (
+        SELECT 1 FROM skilledjobs.job_sponsor_checks c
+        WHERE c.job_id = j.id AND c.checked_at < ${before}::timestamptz
+      ))
+    )
+    ON CONFLICT (job_id) DO UPDATE SET
+      status = EXCLUDED.status,
+      register_id = EXCLUDED.register_id,
+      matched_name = EXCLUDED.matched_name,
+      company = EXCLUDED.company,
+      tag_applied = coalesce(EXCLUDED.tag_applied, skilledjobs.job_sponsor_checks.tag_applied),
+      checked_at = now()
+    RETURNING job_id, tag_applied
+  `
+
+  const taggedIds = written.filter((row) => row.tag_applied).map((row) => Number(row.job_id))
+  let tagged = 0
+  if (taggedIds.length) {
+    const taggedRows = await careerSql`
+      UPDATE skilledjobs.jobs j
+      SET visa_type = c.tag_applied
+      FROM skilledjobs.job_sponsor_checks c
+      WHERE j.id = c.job_id
+        AND j.id = ANY(${taggedIds})
+        AND (j.visa_type IS NULL OR trim(j.visa_type) IN ('', 'Other'))
+      RETURNING j.id
+    `
+    tagged = taggedRows.length
+  }
+
+  const jobsWith = (status: SponsorStatus) =>
+    planned.filter((group) => group.status === status).reduce((sum, group) => sum + group.jobs, 0)
+
+  return {
+    companies: planned.length,
+    jobs: written.length,
+    remaining: Math.max(Number(counts[0]?.n ?? 0) - planned.length, 0),
+    licensed: jobsWith("licensed"),
+    likely: jobsWith("likely"),
+    notListed: jobsWith("not_listed"),
+    tagged,
+    aiReviewed,
+  }
+}
+
 export async function sponsorCheckSummary(): Promise<{
   total: number
   unchecked: number
+  uncheckedCompanies: number
   byStatus: Record<SponsorStatus, number>
   taggedNotListed: number
   tagsApplied: number
 }> {
   const empty = { licensed: 0, likely: 0, not_listed: 0, no_register: 0, no_company: 0 }
-  if (!careerSql) return { total: 0, unchecked: 0, byStatus: empty, taggedNotListed: 0, tagsApplied: 0 }
+  if (!careerSql) return { total: 0, unchecked: 0, uncheckedCompanies: 0, byStatus: empty, taggedNotListed: 0, tagsApplied: 0 }
   await ensureSponsorCheckTables()
-  const [rows, totals] = await Promise.all([
+  const [rows, totals, companyTotals] = await Promise.all([
     careerSql`
       SELECT c.status, count(*)::int AS n
       FROM skilledjobs.job_sponsor_checks c
@@ -426,12 +791,23 @@ export async function sponsorCheckSummary(): Promise<{
       FROM skilledjobs.jobs j
       LEFT JOIN skilledjobs.job_sponsor_checks c ON c.job_id = j.id
     `,
+    careerSql`
+      SELECT count(*)::int AS n
+      FROM (
+        SELECT 1
+        FROM skilledjobs.jobs j
+        LEFT JOIN skilledjobs.job_sponsor_checks c ON c.job_id = j.id
+        WHERE c.job_id IS NULL
+        GROUP BY lower(trim(coalesce(j.company, ''))), lower(trim(coalesce(j.country, '')))
+      ) groups
+    `,
   ])
   const byStatus = { ...empty }
   for (const row of rows) byStatus[String(row.status) as SponsorStatus] = Number(row.n ?? 0)
   return {
     total: Number(totals[0]?.total ?? 0),
     unchecked: Number(totals[0]?.unchecked ?? 0),
+    uncheckedCompanies: Number(companyTotals[0]?.n ?? 0),
     byStatus,
     taggedNotListed: Number(totals[0]?.tagged_not_listed ?? 0),
     tagsApplied: Number(totals[0]?.tags_applied ?? 0),
@@ -466,4 +842,5 @@ export async function clearCheckResults(): Promise<void> {
   if (!careerSql) return
   await ensureSponsorCheckTables()
   await careerSql`DELETE FROM skilledjobs.job_sponsor_checks`
+  await careerSql`DELETE FROM skilledjobs.company_sponsor_matches`
 }

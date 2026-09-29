@@ -282,14 +282,14 @@ export function SponsorChecker() {
       {!loading && tab === "companies" && !searched && (featuredLoading || (featured && featured.sponsors.length > 0)) && (
         <div className="mt-6">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 className="text-base font-extrabold tracking-tight">Sponsors with careers pages</h3>
+            <h3 className="text-base font-extrabold tracking-tight">Featured sponsors</h3>
             {featured && featured.total > featured.sponsors.length && (
               <p className="text-xs font-semibold text-[#7c827a]">
-                Showing {featured.sponsors.length} of {featured.total.toLocaleString()} · search to find more
+                Showing {featured.sponsors.length} of {featured.total.toLocaleString()}
               </p>
             )}
           </div>
-          <p className="mt-1 text-sm text-[#5f655c]">Licensed sponsors whose careers page we track. Apply directly on their site.</p>
+          <p className="mt-1 text-sm text-[#5f655c]">Licensed sponsors we highlight. Search to find any other company on the register.</p>
           {featuredLoading && !featured && <p className="mt-4 text-sm text-[#7c827a]">Loading sponsors…</p>}
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
             {featured?.sponsors.map((sponsor) => (

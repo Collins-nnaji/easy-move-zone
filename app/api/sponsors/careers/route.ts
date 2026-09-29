@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {
-    const result = await listSponsorsWithCareerPages(24)
+    const result = await listSponsorsWithCareerPages(100)
     return NextResponse.json(result)
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to load sponsors"

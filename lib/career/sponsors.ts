@@ -84,6 +84,22 @@ export function clearCompanyIndexCache() {
   indexCache = null
 }
 
+let showcaseReady: Promise<void> | null = null
+
+/** Admin chooses which saved careers pages appear before someone searches. */
+export function ensureSponsorShowcaseColumn(): Promise<void> {
+  if (!careerSql) return Promise.resolve()
+  const sql = careerSql
+  showcaseReady ??= sql`
+    ALTER TABLE skilledjobs.saved_job_urls
+    ADD COLUMN IF NOT EXISTS show_on_sponsors boolean NOT NULL DEFAULT false
+  `.then(() => undefined).catch((error) => {
+    showcaseReady = null
+    throw error
+  })
+  return showcaseReady
+}
+
 export async function searchSponsors(query: string): Promise<SponsorHit[]> {
   if (!careerSql) return []
   const q = query.trim()
@@ -175,14 +191,17 @@ async function toSponsorHits(rows: SponsorDbRow[]): Promise<SponsorHit[]> {
   }))
 }
 
-/** Licensed sponsors that have a careers page saved in admin, most recently added first. */
+/** Licensed sponsors an admin has chosen to show before someone searches. */
 export async function listSponsorsWithCareerPages(limit = 24): Promise<{ sponsors: SponsorHit[]; total: number }> {
   if (!careerSql) return { sponsors: [], total: 0 }
+  await ensureSponsorShowcaseColumn()
   const rows = await careerSql`
     WITH urls AS (
       SELECT lower(trim(company)) AS k, max(id) AS url_id
       FROM skilledjobs.saved_job_urls
-      WHERE company IS NOT NULL AND trim(company) <> '' AND url IS NOT NULL AND trim(url) <> ''
+      WHERE company IS NOT NULL AND trim(company) <> ''
+        AND url IS NOT NULL AND trim(url) <> ''
+        AND show_on_sponsors
       GROUP BY 1
     ),
     sponsors AS (
@@ -195,7 +214,7 @@ export async function listSponsorsWithCareerPages(limit = 24): Promise<{ sponsor
     SELECT s.id, s.name, s.city, s.county, s.type_and_rating, s.route, count(*) OVER ()::int AS total_count
     FROM sponsors s
     JOIN urls u ON u.k = s.k
-    ORDER BY u.url_id DESC
+    ORDER BY s.name ASC
     LIMIT ${Math.min(Math.max(limit, 1), 100)}
   `
   return { sponsors: await toSponsorHits(rows), total: Number(rows[0]?.total_count ?? 0) }

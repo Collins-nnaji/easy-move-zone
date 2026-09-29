@@ -13,6 +13,7 @@ type SponsorRow = {
   route: string | null
   career_url: string | null
   saved_url_id: number | null
+  show_on_sponsors: boolean
   last_fetch_status: string | null
   last_fetch_error: string | null
   last_fetched_at: string | null
@@ -29,6 +30,7 @@ export function SponsorsTab({ onUrlsChanged, onStaged }: { onUrlsChanged: () => 
   const [searchInput, setSearchInput] = useState("")
   const [q, setQ] = useState("")
   const [hasUrl, setHasUrl] = useState<"any" | "yes" | "no">("any")
+  const [shown, setShown] = useState<"any" | "yes" | "no">("any")
   const [page, setPage] = useState(1)
   const [data, setData] = useState<SponsorResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -46,7 +48,7 @@ export function SponsorsTab({ onUrlsChanged, onStaged }: { onUrlsChanged: () => 
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const params = new URLSearchParams({ view: "sponsors", hasUrl, page: String(page), limit: String(PAGE_SIZE) })
+      const params = new URLSearchParams({ view: "sponsors", hasUrl, shown, page: String(page), limit: String(PAGE_SIZE) })
       if (q) params.set("q", q)
       const result = await adminApi<SponsorResponse>(`/api/admin/career-jobs?${params}`)
       setData(result)
@@ -56,7 +58,7 @@ export function SponsorsTab({ onUrlsChanged, onStaged }: { onUrlsChanged: () => 
     } finally {
       setLoading(false)
     }
-  }, [hasUrl, page, q, notify])
+  }, [hasUrl, shown, page, q, notify])
 
   useEffect(() => {
     void load()
@@ -67,6 +69,32 @@ export function SponsorsTab({ onUrlsChanged, onStaged }: { onUrlsChanged: () => 
   const draftFor = (row: SponsorRow) => (drafts[row.id] ?? "").trim()
   const selectedRows = sponsors.filter((row) => selection.selected.has(row.id))
   const fetchable = selectedRows.filter((row) => draftFor(row) || row.career_url)
+
+  async function setPageVisibility(rows: SponsorRow[], visible: boolean) {
+    const ready = rows.filter((row) => row.saved_url_id)
+    const skipped = rows.length - ready.length
+    if (!ready.length) {
+      notify("Save a careers URL before choosing who shows on the sponsors page.", "error")
+      return
+    }
+    try {
+      const result = await adminApi<{ updated: number; missing: string[] }>("/api/admin/career-jobs", {
+        action: "set-sponsor-shown",
+        companies: ready.map((row) => row.name),
+        shown: visible,
+      })
+      const hidden = result.missing.length
+      notify(
+        visible
+          ? `Showing ${ready.length - hidden} on the sponsors page${skipped || hidden ? `. ${skipped + hidden} still need a careers URL.` : "."}`
+          : `Removed ${ready.length - hidden} from the sponsors page.`,
+      )
+      selection.clear()
+      await load()
+    } catch (error) {
+      notify(errorMessage(error), "error")
+    }
+  }
 
   async function saveUrl(row: SponsorRow) {
     const url = draftFor(row)
@@ -125,7 +153,7 @@ export function SponsorsTab({ onUrlsChanged, onStaged }: { onUrlsChanged: () => 
   return (
     <Panel
       title={`Sponsor register companies (${(data?.total ?? 0).toLocaleString()})`}
-      description="The UK licensed sponsor register. Saving a careers URL also shows it on the public sponsors page. Fetch one, or select many and bulk fetch; results go to History."
+      description="The UK licensed sponsor register. Saving a careers URL does not put a company on the public page. Tick Show for the ones you want visitors to see before they search. Search still finds every sponsor."
       actions={
         runner.running ? (
           <>
@@ -145,6 +173,17 @@ export function SponsorsTab({ onUrlsChanged, onStaged }: { onUrlsChanged: () => 
           <option value="yes">Has careers URL</option>
           <option value="no">Missing careers URL</option>
         </select>
+        <select className={inputClass} value={shown} onChange={(e) => { setShown(e.target.value as "any" | "yes" | "no"); setPage(1); selection.clear() }}>
+          <option value="any">Shown: any</option>
+          <option value="yes">On the sponsors page</option>
+          <option value="no">Not on the sponsors page</option>
+        </select>
+        <Btn disabled={runner.running || !selectedRows.some((row) => row.saved_url_id)} onClick={() => void setPageVisibility(selectedRows, true)}>
+          Show selected
+        </Btn>
+        <Btn disabled={runner.running || !selectedRows.some((row) => row.show_on_sponsors)} onClick={() => void setPageVisibility(selectedRows, false)}>
+          Hide selected
+        </Btn>
         <Btn disabled={runner.running || !withUrlOnPage.length} onClick={() => selection.toggleAll(withUrlOnPage)}>
           {selection.allOf(withUrlOnPage) ? "Deselect page" : `Select page with URL (${withUrlOnPage.length})`}
         </Btn>
@@ -157,19 +196,20 @@ export function SponsorsTab({ onUrlsChanged, onStaged }: { onUrlsChanged: () => 
       )}
 
       <div className="mt-3 overflow-x-auto rounded-xl border border-white/10">
-        <table className="w-full min-w-[980px] text-left text-sm">
+        <table className="w-full min-w-[1080px] text-left text-sm">
           <thead className="bg-white/[0.04] text-[10px] uppercase tracking-wide text-white/40">
             <tr>
               <th className="w-10 p-3"><Check checked={selection.allOf(pageIds)} disabled={runner.running} onChange={() => selection.toggleAll(pageIds)} label="Select page" /></th>
               <th className="p-3">Sponsor</th>
+              <th className="w-16 p-3">Show</th>
               <th className="p-3">Careers URL</th>
               <th className="w-52 p-3">Last fetch</th>
               <th className="p-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {loading && !sponsors.length && <tr><td colSpan={5} className="p-6 text-center text-white/40">Loading sponsors…</td></tr>}
-            {!loading && !sponsors.length && <tr><td colSpan={5} className="p-6 text-center text-white/40">No sponsors match.</td></tr>}
+            {loading && !sponsors.length && <tr><td colSpan={6} className="p-6 text-center text-white/40">Loading sponsors…</td></tr>}
+            {!loading && !sponsors.length && <tr><td colSpan={6} className="p-6 text-center text-white/40">No sponsors match.</td></tr>}
             {sponsors.map((row) => {
               const draft = drafts[row.id] ?? ""
               const changed = draft.trim() !== (row.career_url ?? "")
@@ -182,6 +222,16 @@ export function SponsorsTab({ onUrlsChanged, onStaged }: { onUrlsChanged: () => 
                       {[row.city, row.county].filter(Boolean).join(", ") || "Location unknown"}
                       {row.route ? ` · ${row.route}` : ""}
                     </p>
+                  </td>
+                  <td className="p-3 align-top">
+                    <span title={row.saved_url_id ? "Show this company before someone searches" : "Save a careers URL first"}>
+                      <Check
+                        checked={Boolean(row.show_on_sponsors)}
+                        disabled={runner.running || !row.saved_url_id}
+                        onChange={() => void setPageVisibility([row], !row.show_on_sponsors)}
+                        label={`Show ${row.name} on the sponsors page`}
+                      />
+                    </span>
                   </td>
                   <td className="p-3 align-top">
                     <input

@@ -7,6 +7,7 @@ import {
   listSavedUrls,
   listSponsorCompanies,
   saveJobUrl,
+  setSponsorsShown,
   updateSavedUrl,
   upsertSponsorCareerUrl,
   urlCheckQueue,
@@ -30,7 +31,8 @@ export async function GET(request: Request) {
 
   if (view === "sponsors") {
     const hasUrl = (params.get("hasUrl") as "any" | "yes" | "no" | null) ?? "any"
-    const result = await listSponsorCompanies({ q: params.get("q") ?? undefined, hasUrl, page, limit })
+    const shown = (params.get("shown") as "any" | "yes" | "no" | null) ?? "any"
+    const result = await listSponsorCompanies({ q: params.get("q") ?? undefined, hasUrl, shown, page, limit })
     return NextResponse.json({
       sponsors: result.rows,
       total: result.total,
@@ -78,6 +80,11 @@ export async function POST(request: Request) {
       }
       case "delete-urls":
         return NextResponse.json({ deleted: await deleteSavedUrls(toIds(body.ids)) })
+      case "set-sponsor-shown": {
+        const companies = Array.isArray(body.companies) ? body.companies.map((name) => String(name)) : []
+        const result = await setSponsorsShown(companies, body.shown !== false)
+        return NextResponse.json(result)
+      }
       case "upsert-sponsor-url": {
         const company = str("company")?.trim()
         const url = str("url")?.trim()
