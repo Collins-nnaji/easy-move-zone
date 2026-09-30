@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { BadgeCheck, BriefcaseBusiness, ChevronDown, CreditCard, ExternalLink, Layers, LockKeyhole, MapPin, Search, ShieldCheck, SlidersHorizontal, Star, X } from "lucide-react"
+import { BadgeCheck, BriefcaseBusiness, ChevronDown, CreditCard, ExternalLink, Layers, LockKeyhole, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react"
 import { CompanyLogo } from "@/components/career/CompanyLogo"
 
 type BoardJob = {
@@ -18,7 +18,6 @@ type BoardJob = {
   jobType: string | null
   logoUrl: string | null
   skills: string[]
-  featured: boolean
   postedAt: string | null
   visaType: string | null
   sponsorOnRegister?: boolean
@@ -32,7 +31,7 @@ type FacetCounts = {
   visaSponsored?: number
 }
 
-type QuickFilter = "all" | "featured" | "visa"
+type QuickFilter = "all" | "visa"
 
 type Filters = {
   location: string[]
@@ -221,7 +220,6 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
   const [draftQuery, setDraftQuery] = useState("")
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [quick, setQuick] = useState<QuickFilter>("all")
-  const [featuredCount, setFeaturedCount] = useState(0)
   const [openSection, setOpenSection] = useState<keyof Filters | "location">("location")
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -349,7 +347,6 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
       for (const value of filters.experienceLevel) params.append("experienceLevel", value)
       for (const value of filters.jobType) params.append("jobType", value)
       for (const value of filters.category) params.append("category", value)
-      if (quick === "featured") params.set("featured", "1")
       if (quick === "visa") params.set("visa", "1")
 
       const res = await fetch(`/api/jobs?${params}`)
@@ -357,7 +354,6 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
       if (!res.ok) throw new Error(data.error || "Could not load jobs")
       setJobs(data.jobs ?? [])
       setFacets(data.facets ?? { countries: {}, experienceLevels: {}, jobTypes: {}, categories: {} })
-      setFeaturedCount(data.featuredCount ?? 0)
       setTotal(data.total ?? 0)
       setTotalPages(data.totalPages ?? 1)
     } catch (err) {
@@ -561,7 +557,6 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
           <div className="mx-auto flex w-full max-w-[1600px] gap-2 overflow-x-auto px-3 pb-2.5 sm:px-5 lg:px-6">
             {([
               { id: "all", label: "All roles", icon: null, count: null },
-              { id: "featured", label: "Featured", icon: Star, count: featuredCount },
               { id: "visa", label: "Visa sponsored", icon: ShieldCheck, count: facets.visaSponsored ?? null },
             ] as const).map((chip) => {
               const active = quick === chip.id
@@ -573,13 +568,11 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
                   onClick={() => chooseQuick(chip.id)}
                   className={`inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-xs font-bold transition ${
                     active
-                      ? chip.id === "featured"
-                        ? "border-[#e0511f] bg-[#e0511f] text-white"
-                        : "border-[#2f5d50] bg-[#2f5d50] text-white"
+                      ? "border-[#2f5d50] bg-[#2f5d50] text-white"
                       : "border-[#e4dfd5] bg-white text-[#4a5047] hover:border-[#cfc7b9]"
                   }`}
                 >
-                  {chip.icon && <chip.icon className={`h-3.5 w-3.5 ${chip.id === "featured" && !active ? "text-[#e0511f]" : ""}`} />}
+                  {chip.icon && <chip.icon className="h-3.5 w-3.5" />}
                   {chip.label}
                   {chip.count != null && chip.count > 0 && (
                     <span className={`rounded-full px-1.5 text-[10px] ${active ? "bg-white/20" : "bg-[#f1ede4] text-[#6b716a]"}`}>
@@ -658,11 +651,6 @@ export function JobsClient({ initialJobId = "" }: { initialJobId?: string }) {
                           <h2 className="mt-0.5 text-lg font-extrabold leading-snug tracking-tight transition-colors group-hover:text-[#2f5d50] sm:text-xl">{job.title}</h2>
                         </div>
                         <div className="flex shrink-0 flex-col items-end gap-1.5">
-                          {job.featured && (
-                            <span className="rounded-full bg-[#fbeae0] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-[#7a3b24]">
-                              Featured
-                            </span>
-                          )}
                           {posted && <span className="whitespace-nowrap text-xs font-medium text-[#8a9086]">{posted}</span>}
                         </div>
                       </div>

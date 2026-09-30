@@ -6,6 +6,7 @@ import { ApplicationPackClient } from "@/components/career/ApplicationPackClient
 export const metadata: Metadata = {
   title: "Application pack",
   description: "Create a tailored CV, cover letter, and application answers from a job and your saved CV.",
+  robots: { index: false, follow: false },
 }
 
 export default async function ApplicationPackPage({ searchParams }: { searchParams: Promise<{ jobId?: string }> }) {

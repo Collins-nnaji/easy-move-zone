@@ -202,7 +202,7 @@ export function HomePageClient() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/sponsors"
+                href="/visa-sponsor-checker"
                 className="group inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-2xl border border-[#d8d2c6] bg-white/85 px-5 text-[15px] font-bold text-[#1b231e] backdrop-blur-sm transition hover:border-[#e0511f]/45 hover:bg-white sm:min-h-12 sm:min-w-[11rem] sm:flex-none sm:px-6 sm:text-base"
               >
                 <VerifiedChecklistIcon className="h-6 w-6 text-[#1b231e] transition group-hover:text-[#e0511f]" />

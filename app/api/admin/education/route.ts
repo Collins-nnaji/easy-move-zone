@@ -4,9 +4,10 @@ import {
   createUniversity,
   deleteCourse,
   deleteUniversity,
-  listCourses,
-  listUniversities,
+  educationStats,
   saveCourse,
+  searchCourses,
+  searchUniversities,
 } from "@/lib/education/store"
 import { STUDY_LEVELS, type StudyLevel } from "@/lib/education/types"
 
@@ -22,11 +23,6 @@ async function guard() {
   }
 }
 
-async function snapshot() {
-  const [universities, courses] = await Promise.all([listUniversities(), listCourses()])
-  return NextResponse.json({ universities, courses })
-}
-
 const text = (value: unknown) => (typeof value === "string" ? value : "")
 const money = (value: unknown) => {
   if (value === "" || value == null) return null
@@ -34,8 +30,22 @@ const money = (value: unknown) => {
   return Number.isFinite(n) && n >= 0 ? Math.round(n) : null
 }
 
-export async function GET() {
-  return (await guard()) ?? snapshot()
+export async function GET(request: Request) {
+  const denied = await guard()
+  if (denied) return denied
+  const params = new URL(request.url).searchParams
+  const [stats, universities, courses] = await Promise.all([
+    educationStats(),
+    searchUniversities({ q: params.get("uq"), page: Number(params.get("upage")) || 1, pageSize: 25 }),
+    searchCourses({
+      q: params.get("cq"),
+      universityId: params.get("university"),
+      page: Number(params.get("cpage")) || 1,
+      pageSize: 50,
+      sort: "recommended",
+    }),
+  ])
+  return NextResponse.json({ stats, universities, courses })
 }
 
 export async function POST(request: Request) {
@@ -47,14 +57,15 @@ export async function POST(request: Request) {
     if (!text(body.name).trim() || !text(body.country).trim()) {
       return NextResponse.json({ error: "Name and country are required" }, { status: 400 })
     }
-    await createUniversity({
+    const id = await createUniversity({
       name: text(body.name),
       country: text(body.country),
       city: text(body.city),
       website: text(body.website),
       summary: text(body.summary),
+      studentSponsor: typeof body.studentSponsor === "boolean" ? body.studentSponsor : undefined,
     })
-    return snapshot()
+    return NextResponse.json({ ok: true, id })
   }
 
   if (body.type === "course") {
@@ -78,7 +89,7 @@ export async function POST(request: Request) {
       englishRequirement: text(body.englishRequirement),
       courseUrl: text(body.courseUrl),
     })
-    return snapshot()
+    return NextResponse.json({ ok: true })
   }
 
   return NextResponse.json({ error: "Unknown type" }, { status: 400 })
@@ -92,5 +103,5 @@ export async function DELETE(request: Request) {
   if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
   if (params.get("type") === "university") await deleteUniversity(id)
   else await deleteCourse(id)
-  return snapshot()
+  return NextResponse.json({ ok: true })
 }

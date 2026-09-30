@@ -1,6 +1,7 @@
 "use client"
 
-import { ExternalLink } from "lucide-react"
+import { useState } from "react"
+import { BriefcaseBusiness, ChevronDown, Clock3, ExternalLink, FileCheck2, Users } from "lucide-react"
 import type { StudyRoute } from "@/lib/education/study-routes"
 import { PRIMARY } from "./shared"
 
@@ -49,8 +50,15 @@ export function RouteCompareTable({ routes }: { routes: StudyRoute[] }) {
 }
 
 export function RouteFacts({ route }: { route: StudyRoute }) {
-  const facts = [
-    ["Visa", `${route.visa} — you'll need a ${route.keyDocument}.`],
+  const [open, setOpen] = useState(false)
+  const highlights = [
+    { icon: FileCheck2, label: "Visa", value: route.visa, detail: `Needs a ${route.keyDocument.replace(/\s*\(.*\)$/, "")}` },
+    { icon: Clock3, label: "Work while studying", value: firstSentence(route.workWhileStudying) },
+    { icon: BriefcaseBusiness, label: "After you graduate", value: route.postStudyShort },
+    { icon: Users, label: "Bring family", value: route.familyShort, tone: FAMILY_STYLE[route.familyShort] },
+  ]
+  const details = [
+    ["Visa", `${route.visa}: you'll need a ${route.keyDocument}.`],
     ["Work while studying", route.workWhileStudying],
     ["After you graduate", route.afterStudy],
     ["Then", route.nextStep],
@@ -59,21 +67,45 @@ export function RouteFacts({ route }: { route: StudyRoute }) {
   ]
   return (
     <section className="rounded-2xl border border-[#cfe0d8] bg-[#f3f8f5] p-4 sm:p-5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-base font-extrabold tracking-tight">{route.flag} Studying in {route.country}: your route</h2>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <h2 className="text-base font-extrabold tracking-tight">{route.flag} Studying in {route.country}</h2>
         <a href={route.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-bold hover:underline" style={{ color: PRIMARY }}>
           Official guidance <ExternalLink className="h-3 w-3" />
         </a>
       </div>
-      <dl className="mt-3 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
-        {facts.map(([label, value]) => (
-          <div key={label}>
-            <dt className="text-[11px] font-bold uppercase tracking-wide text-[#5f7a70]">{label}</dt>
-            <dd className="mt-0.5 text-[13px] leading-relaxed text-[#2c3530]">{value}</dd>
+      <div className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
+        {highlights.map(({ icon: Icon, label, value, detail, tone }) => (
+          <div key={label} className="rounded-xl bg-white/80 p-3">
+            <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[#5f7a70]">
+              <Icon className="h-3.5 w-3.5" /> {label}
+            </p>
+            <p className="mt-1.5 text-sm font-bold leading-snug text-[#1b231e]">
+              {tone ? <span className={`rounded-full px-2 py-0.5 text-xs ${tone}`}>{value}</span> : value}
+            </p>
+            {detail && <p className="mt-0.5 text-xs leading-snug text-[#6b716a]">{detail}</p>}
           </div>
         ))}
-      </dl>
-      <p className="mt-3 text-[11px] text-[#6b716a]">{route.tuition} Rules change often — always confirm on the official site.</p>
+      </div>
+      {open && (
+        <dl className="mt-4 grid gap-x-8 gap-y-3 border-t border-[#d9e6df] pt-4 md:grid-cols-2">
+          {details.map(([label, value]) => (
+            <div key={label}>
+              <dt className="text-[11px] font-bold uppercase tracking-wide text-[#5f7a70]">{label}</dt>
+              <dd className="mt-1 text-[13px] leading-relaxed text-[#2c3530]">{value}</dd>
+            </div>
+          ))}
+          <p className="text-[11px] text-[#6b716a] md:col-span-2">{route.tuition} Rules change often, so always confirm on the official site.</p>
+        </dl>
+      )}
+      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} className="mt-3 inline-flex items-center gap-1 text-xs font-bold" style={{ color: PRIMARY }}>
+        {open ? "Hide route details" : "Full route details: money, family and next steps"}
+        <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
     </section>
   )
+}
+
+function firstSentence(text: string) {
+  const match = text.match(/^[^.]*?(?:,|\.|$)/)
+  return (match?.[0] ?? text).replace(/[,.]$/, "")
 }

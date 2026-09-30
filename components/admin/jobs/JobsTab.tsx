@@ -1,7 +1,7 @@
 "use client"
 
-import { Fragment, useCallback, useEffect, useState } from "react"
-import { ExternalLink, Pencil, Plus, ShieldCheck, ShieldOff, Star, Trash2 } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
+import { BadgeCheck, ExternalLink, Pencil, Plus, ShieldCheck, ShieldOff, Trash2 } from "lucide-react"
 import {
   Badge,
   Btn,
@@ -38,25 +38,23 @@ type AdminJob = {
   posted_at: string | null
   expires_at: string | null
   description: string | null
-  featured: boolean
   sponsor_status: string | null
   sponsor_register: string | null
   sponsor_match: string | null
   sponsor_checked_at: string | null
+  sponsor_flagged_by: string | null
 }
 
 type Facets = { countries: string[]; visaTypes: string[]; categories: string[] }
-
-type FeaturedView = "all" | "yes" | "no"
 
 type ListResponse = {
   jobs: AdminJob[]
   total: number
   totalPages: number
-  featuredCount: number
-  counts: { all: number; featured: number; notFeatured: number }
   facets: Facets
 }
+
+const isManual = (job: AdminJob) => job.sponsor_status === "manual"
 
 const PAGE_SIZE = 50
 
@@ -89,7 +87,6 @@ export function JobsTab() {
   const [country, setCountry] = useState("")
   const [visaType, setVisaType] = useState("")
   const [category, setCategory] = useState("")
-  const [featuredView, setFeaturedView] = useState<FeaturedView>("all")
   const [sponsor, setSponsor] = useState("")
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editForm, setEditForm] = useState<JobFormValues>(EMPTY_JOB_FORM)
@@ -113,7 +110,6 @@ export function JobsTab() {
       if (country) params.set("country", country)
       if (visaType) params.set("visaType", visaType)
       if (category) params.set("category", category)
-      if (featuredView !== "all") params.set("featured", featuredView)
       if (sponsor) params.set("sponsor", sponsor)
       setData(await adminApi<ListResponse>(`/api/admin/jobs?${params}`))
     } catch (error) {
@@ -121,7 +117,7 @@ export function JobsTab() {
     } finally {
       setLoading(false)
     }
-  }, [page, q, country, visaType, category, featuredView, sponsor, notify])
+  }, [page, q, country, visaType, category, sponsor, notify])
 
   useEffect(() => {
     void load()
@@ -131,9 +127,17 @@ export function JobsTab() {
   const pageIds = jobs.map((job) => job.id)
   const selectedIds = [...selection.selected]
   const selectedJobs = jobs.filter((job) => selection.selected.has(job.id))
-  const toFeature = selectedJobs.filter((job) => !job.featured).map((job) => job.id)
-  const toUnfeature = selectedJobs.filter((job) => job.featured).map((job) => job.id)
-  const counts = data?.counts
+  const toFlag = selectedJobs.filter((job) => !isManual(job)).map((job) => job.id)
+  const toUnflag = selectedJobs.filter(isManual).map((job) => job.id)
+
+  function flagSkilledWorker(ids: number[], flagged: boolean) {
+    if (!ids.length) return
+    if (!flagged && !window.confirm(`Remove the manual UK Skilled Worker flag from ${ids.length} job${ids.length === 1 ? "" : "s"}? The visa tag goes back to "Other" and the job becomes unchecked.`)) return
+    void act(
+      { action: "skilled-worker", ids, flagged },
+      (r) => `${flagged ? "Flagged" : "Unflagged"} ${r.updated} job${r.updated === 1 ? "" : "s"} as UK Skilled Worker.`,
+    )
+  }
 
   async function act(body: Record<string, unknown>, success: (result: Record<string, number>) => string, path = "/api/admin/jobs") {
     setBusy(true)
@@ -221,7 +225,7 @@ export function JobsTab() {
     <div className="space-y-4">
       <Panel
         title={`Live jobs (${(data?.total ?? 0).toLocaleString()})`}
-        description={`Every job here is live on the public Jobs page. Featured jobs (${data?.featuredCount ?? 0}) are pinned to the top.`}
+        description="Every job here is live on the public Jobs page. When the register check can't match a real UK sponsor, flag the job as UK Skilled Worker by hand."
         actions={
           <>
             <select
@@ -253,27 +257,6 @@ export function JobsTab() {
           </div>
         )}
 
-        <div className="mb-3 inline-flex flex-wrap gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1">
-          {([
-            { id: "all", label: "All jobs", count: counts?.all, tone: "bg-white text-[#0b0f17]" },
-            { id: "yes", label: "Featured", count: counts?.featured, tone: "bg-amber-400 text-[#1a1206]" },
-            { id: "no", label: "Not featured", count: counts?.notFeatured, tone: "bg-white/80 text-[#0b0f17]" },
-          ] as const).map((seg) => (
-            <button
-              key={seg.id}
-              type="button"
-              onClick={() => { resetPage(setFeaturedView)(seg.id); selection.clear() }}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
-                featuredView === seg.id ? seg.tone : "text-white/60 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              {seg.id === "yes" && <Star className={`h-3.5 w-3.5 ${featuredView === "yes" ? "fill-current" : "text-amber-300"}`} />}
-              {seg.label}
-              {seg.count != null && <span className="opacity-60">{seg.count.toLocaleString()}</span>}
-            </button>
-          ))}
-        </div>
-
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr_1fr]">
           <input className={inputClass} value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="Search title, company, location or #id" />
           <select className={inputClass} value={country} onChange={(e) => resetPage(setCountry)(e.target.value)}>
@@ -291,6 +274,7 @@ export function JobsTab() {
           <select className={inputClass} value={sponsor} onChange={(e) => { resetPage(setSponsor)(e.target.value); selection.clear() }} aria-label="Sponsor check">
             <option value="">Sponsor: any</option>
             <option value="licensed">On register</option>
+            <option value="manual">Manual: UK Skilled Worker</option>
             <option value="likely">Likely match</option>
             <option value="not_listed">Not on register</option>
             <option value="tag_unverified">Tagged but not on register</option>
@@ -311,14 +295,14 @@ export function JobsTab() {
             <Btn size="sm" disabled={busy} onClick={() => clearVisaTags(selectedIds)}>
               <ShieldOff className="h-3 w-3" /> Clear visa tag
             </Btn>
-            {toFeature.length > 0 && (
-              <Btn size="sm" variant="success" disabled={busy} onClick={() => void act({ action: "feature", ids: toFeature, featured: true }, (r) => `Featured ${r.updated}.`)}>
-                <Star className="h-3 w-3" /> Feature ({toFeature.length})
+            {toFlag.length > 0 && (
+              <Btn size="sm" variant="success" disabled={busy} onClick={() => flagSkilledWorker(toFlag, true)}>
+                <BadgeCheck className="h-3 w-3" /> Flag UK Skilled Worker ({toFlag.length})
               </Btn>
             )}
-            {toUnfeature.length > 0 && (
-              <Btn size="sm" disabled={busy} onClick={() => void act({ action: "feature", ids: toUnfeature, featured: false }, (r) => `Unfeatured ${r.updated}.`)}>
-                Unfeature ({toUnfeature.length})
+            {toUnflag.length > 0 && (
+              <Btn size="sm" disabled={busy} onClick={() => flagSkilledWorker(toUnflag, false)}>
+                Remove manual flag ({toUnflag.length})
               </Btn>
             )}
             <Btn size="sm" variant="ghost" onClick={selection.clear}>Clear</Btn>
@@ -346,23 +330,10 @@ export function JobsTab() {
               {!loading && !jobs.length && (
                 <tr><td colSpan={6} className="p-6 text-center text-white/40">No jobs match these filters.</td></tr>
               )}
-              {jobs.map((job, index) => {
-                const sectionStart = featuredView === "all" && (index === 0 || jobs[index - 1].featured !== job.featured)
-                const divider = sectionStart ? (
-                  <tr className={job.featured ? "bg-amber-400/10" : "bg-white/[0.04]"}>
-                    <td colSpan={6} className={`px-3 py-2 text-[11px] font-bold uppercase tracking-wide ${job.featured ? "text-amber-200" : "text-white/50"}`}>
-                      {job.featured ? (
-                        <span className="inline-flex items-center gap-1.5">
-                          <Star className="h-3.5 w-3.5 fill-current" /> Featured · pinned to the top of the public Jobs page ({counts?.featured ?? 0})
-                        </span>
-                      ) : (
-                        `Not featured · normal order by date (${(counts?.notFeatured ?? 0).toLocaleString()})`
-                      )}
-                    </td>
-                  </tr>
-                ) : null
-                const row = editingId === job.id ? (
-                  <tr className="border-t border-white/10 bg-sky-500/5">
+              {jobs.map((job) => {
+                const manual = isManual(job)
+                return editingId === job.id ? (
+                  <tr key={job.id} className="border-t border-white/10 bg-sky-500/5">
                     <td colSpan={6} className="p-4">
                       <p className="mb-3 text-sm font-bold">Editing job #{job.id}</p>
                       <JobForm values={editForm} onChange={setEditForm} countries={data?.facets.countries} />
@@ -374,28 +345,14 @@ export function JobsTab() {
                   </tr>
                 ) : (
                   <tr
-                    className={`border-t border-white/5 ${
-                      selection.selected.has(job.id)
-                        ? "bg-[#e0511f]/10"
-                        : job.featured
-                          ? "bg-amber-400/[0.06] hover:bg-amber-400/10"
-                          : "hover:bg-white/[0.03]"
-                    }`}
+                    key={job.id}
+                    className={`border-t border-white/5 ${selection.selected.has(job.id) ? "bg-[#e0511f]/10" : "hover:bg-white/[0.03]"}`}
                   >
-                    <td className={`p-3 align-top ${job.featured ? "border-l-[3px] border-l-amber-400" : "border-l-[3px] border-l-transparent"}`}>
+                    <td className="p-3 align-top">
                       <Check checked={selection.selected.has(job.id)} onChange={() => selection.toggle(job.id)} />
                     </td>
                     <td className="max-w-[22rem] p-3 align-top">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] text-white/30">#{job.id}</span>
-                        {job.featured ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#1a1206]">
-                            <Star className="h-2.5 w-2.5 fill-current" /> Featured
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-semibold uppercase tracking-wide text-white/25">Not featured</span>
-                        )}
-                      </div>
+                      <span className="font-mono text-[10px] text-white/30">#{job.id}</span>
                       <p className="mt-0.5 truncate font-semibold" title={job.title}>{job.title}</p>
                       <p className="truncate text-xs text-white/50">{job.company ?? "Unknown company"}</p>
                     </td>
@@ -410,7 +367,7 @@ export function JobsTab() {
                         ) : (
                           <span className="text-[10px] font-semibold text-white/30">Visa: {job.visa_type || "none"}</span>
                         )}
-                        <SponsorBadge status={job.sponsor_status} match={job.sponsor_match} register={job.sponsor_register} />
+                        <SponsorBadge status={job.sponsor_status} match={job.sponsor_match} register={job.sponsor_register} flaggedBy={job.sponsor_flagged_by} />
                         {job.sponsor_match && job.sponsor_status !== "not_listed" && (
                           <span className="max-w-[12rem] truncate text-[10px] text-white/40" title={job.sponsor_match}>{job.sponsor_match}</span>
                         )}
@@ -431,17 +388,18 @@ export function JobsTab() {
                         </Btn>
                         <button
                           type="button"
-                          title={job.featured ? "Remove from featured" : "Pin to the top of the public Jobs page"}
+                          title={manual ? "Remove the manual UK Skilled Worker flag" : "Tag as UK Skilled Worker without the register check"}
+                          aria-pressed={manual}
                           disabled={busy}
-                          onClick={() => void act({ action: "feature", ids: [job.id], featured: !job.featured }, () => (job.featured ? "Unfeatured." : "Featured."))}
-                          className={`inline-flex h-7 items-center gap-1 rounded-lg px-2 text-xs font-bold transition disabled:opacity-50 ${
-                            job.featured
-                              ? "bg-amber-400 text-[#1a1206] hover:bg-amber-300"
-                              : "border border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+                          onClick={() => flagSkilledWorker([job.id], !manual)}
+                          className={`inline-flex h-7 items-center gap-1 whitespace-nowrap rounded-lg px-2 text-xs font-bold transition disabled:opacity-50 ${
+                            manual
+                              ? "bg-emerald-400 text-[#06140d] hover:bg-emerald-300"
+                              : "border border-emerald-400/40 text-emerald-200 hover:bg-emerald-400/10"
                           }`}
                         >
-                          <Star className={`h-3.5 w-3.5 ${job.featured ? "fill-current" : ""}`} />
-                          {job.featured ? "Unfeature" : "Feature"}
+                          <BadgeCheck className="h-3.5 w-3.5" />
+                          {manual ? "UK Skilled Worker" : "Flag UK SW"}
                         </button>
                         {job.url && (
                           <a href={job.url} target="_blank" rel="noreferrer" title="Open job" className="inline-flex h-7 items-center rounded-lg px-2 text-white/60 hover:bg-white/5 hover:text-white">
@@ -454,12 +412,6 @@ export function JobsTab() {
                       </div>
                     </td>
                   </tr>
-                )
-                return (
-                  <Fragment key={job.id}>
-                    {divider}
-                    {row}
-                  </Fragment>
                 )
               })}
             </tbody>

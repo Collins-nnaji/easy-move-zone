@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import { Bullets, LegalLink, LegalPage, Mail } from "@/components/platform/LegalPage"
+import { buildPageMetadata } from "@/lib/site-metadata"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Terms of Service",
   description: "The terms for using EasyMoveZone career, CV, sponsorship job and relocation tools.",
-}
+  path: "/legal/terms",
+})
 
 const sections = [
   {

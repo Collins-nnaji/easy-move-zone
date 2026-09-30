@@ -26,6 +26,7 @@ export type AdminJobRow = {
   sponsor_register?: string | null
   sponsor_match?: string | null
   sponsor_checked_at?: string | null
+  sponsor_flagged_by?: string | null
 }
 
 export type JobInput = {
@@ -50,25 +51,17 @@ export async function listAdminJobs(opts: {
   visaType?: string | null
   category?: string | null
   ids?: number[] | null
-  /** Featured job ids; "all" lists them first, "yes"/"no" restrict to or exclude them. */
-  featuredIds?: number[]
-  featured?: "all" | "yes" | "no"
   /** Sponsor check status, or "unchecked" / "tag_unverified". */
   sponsor?: string | null
   page?: number
   limit?: number
-}): Promise<{ rows: AdminJobRow[]; total: number; counts: { all: number; featured: number; notFeatured: number } }> {
-  const empty = { rows: [], total: 0, counts: { all: 0, featured: 0, notFeatured: 0 } }
-  if (!careerSql) return empty
+}): Promise<{ rows: AdminJobRow[]; total: number }> {
+  if (!careerSql) return { rows: [], total: 0 }
   const q = opts.q?.trim() || null
   const country = opts.country?.trim() || null
   const visaType = opts.visaType?.trim() || null
   const category = opts.category?.trim() || null
   const ids = opts.ids ?? null
-  const featuredIds = opts.featuredIds ?? []
-  const mode = opts.featured ?? "all"
-  const only = mode === "yes" ? featuredIds : null
-  const exclude = mode === "no" && featuredIds.length ? featuredIds : null
   const limit = Math.min(Math.max(opts.limit ?? 50, 1), 200)
   const offset = (Math.max(opts.page ?? 1, 1) - 1) * limit
 
@@ -76,34 +69,29 @@ export async function listAdminJobs(opts: {
   await ensureSponsorCheckTables()
 
   const [rawRows, totals] = await Promise.all([
-    mode === "yes" && featuredIds.length === 0
-      ? Promise.resolve([])
-      : careerSql`
-          SELECT j.id, j.title, j.company, j.location, j.country, j.category, j.experience_level, j.job_type, j.visa_type,
-                 j.skills, j.url, j.logo_url, j.posted_at, j.expires_at, j.description,
-                 c.status AS sponsor_status, c.register_id AS sponsor_register, c.matched_name AS sponsor_match,
-                 c.checked_at AS sponsor_checked_at
-          FROM skilledjobs.jobs j
-          LEFT JOIN skilledjobs.job_sponsor_checks c ON c.job_id = j.id
-          WHERE (${q}::text IS NULL OR j.title ILIKE '%' || ${q} || '%' OR j.company ILIKE '%' || ${q} || '%'
-                 OR coalesce(j.location, '') ILIKE '%' || ${q} || '%' OR j.id::text = ${q})
-            AND (${country}::text IS NULL OR j.country = ${country})
-            AND (${visaType}::text IS NULL OR j.visa_type = ${visaType})
-            AND (${category}::text IS NULL OR j.category = ${category})
-            AND (${ids}::int[] IS NULL OR j.id = ANY(${ids}))
-            AND (${only}::int[] IS NULL OR j.id = ANY(${only}))
-            AND (${exclude}::int[] IS NULL OR NOT (j.id = ANY(${exclude})))
-            AND (${sponsor}::text IS NULL
-                 OR (${sponsor} = 'unchecked' AND c.job_id IS NULL)
-                 OR (${sponsor} = 'tag_unverified' AND c.status IN ('not_listed', 'no_company')
-                     AND j.visa_type IS NOT NULL AND trim(j.visa_type) NOT IN ('', 'Other'))
-                 OR c.status = ${sponsor})
-          ORDER BY CASE WHEN j.id = ANY(${featuredIds}::int[]) THEN 0 ELSE 1 END, j.posted_at DESC NULLS LAST, j.id DESC
-          LIMIT ${limit} OFFSET ${offset}
-        `,
     careerSql`
-      SELECT count(*)::int AS all_n,
-             count(*) FILTER (WHERE j.id = ANY(${featuredIds}::int[]))::int AS featured_n
+      SELECT j.id, j.title, j.company, j.location, j.country, j.category, j.experience_level, j.job_type, j.visa_type,
+             j.skills, j.url, j.logo_url, j.posted_at, j.expires_at, j.description,
+             c.status AS sponsor_status, c.register_id AS sponsor_register, c.matched_name AS sponsor_match,
+             c.checked_at AS sponsor_checked_at, c.flagged_by AS sponsor_flagged_by
+      FROM skilledjobs.jobs j
+      LEFT JOIN skilledjobs.job_sponsor_checks c ON c.job_id = j.id
+      WHERE (${q}::text IS NULL OR j.title ILIKE '%' || ${q} || '%' OR j.company ILIKE '%' || ${q} || '%'
+             OR coalesce(j.location, '') ILIKE '%' || ${q} || '%' OR j.id::text = ${q})
+        AND (${country}::text IS NULL OR j.country = ${country})
+        AND (${visaType}::text IS NULL OR j.visa_type = ${visaType})
+        AND (${category}::text IS NULL OR j.category = ${category})
+        AND (${ids}::int[] IS NULL OR j.id = ANY(${ids}))
+        AND (${sponsor}::text IS NULL
+             OR (${sponsor} = 'unchecked' AND c.job_id IS NULL)
+             OR (${sponsor} = 'tag_unverified' AND c.status IN ('not_listed', 'no_company')
+                 AND j.visa_type IS NOT NULL AND trim(j.visa_type) NOT IN ('', 'Other'))
+             OR c.status = ${sponsor})
+      ORDER BY j.posted_at DESC NULLS LAST, j.id DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `,
+    careerSql`
+      SELECT count(*)::int AS all_n
       FROM skilledjobs.jobs j
       LEFT JOIN skilledjobs.job_sponsor_checks c ON c.job_id = j.id
       WHERE (${q}::text IS NULL OR j.title ILIKE '%' || ${q} || '%' OR j.company ILIKE '%' || ${q} || '%'
@@ -119,12 +107,7 @@ export async function listAdminJobs(opts: {
              OR c.status = ${sponsor})
     `,
   ])
-  const rows = rawRows as AdminJobRow[]
-  const all = Number(totals[0]?.all_n ?? 0)
-  const featured = Number(totals[0]?.featured_n ?? 0)
-  const counts = { all, featured, notFeatured: all - featured }
-  const total = mode === "yes" ? featured : mode === "no" ? counts.notFeatured : all
-  return { rows, total, counts }
+  return { rows: rawRows as AdminJobRow[], total: Number(totals[0]?.all_n ?? 0) }
 }
 
 const blankToNull = (value: string | undefined) => (value === undefined ? undefined : value.trim() || null)
@@ -176,7 +159,6 @@ export async function updateLocalJob(id: number, patch: JobInput) {
 export async function deleteLocalJobs(ids: number[]): Promise<number> {
   if (!careerSql || ids.length === 0) return 0
   const rows = await careerSql`DELETE FROM skilledjobs.jobs WHERE id = ANY(${ids}) RETURNING id`
-  await careerSql`DELETE FROM mobility_featured_jobs WHERE external_job_id = ANY(${ids.map(String)})`.catch(() => {})
   clearCompanyIndexCache()
   return rows.length
 }

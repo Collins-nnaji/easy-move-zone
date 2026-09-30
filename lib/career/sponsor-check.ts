@@ -14,7 +14,8 @@ import {
 /* Registers                                                           */
 /* ------------------------------------------------------------------ */
 
-export type SponsorStatus = "licensed" | "likely" | "not_listed" | "no_register" | "no_company"
+/** "manual" is an admin override: the job is flagged UK Skilled Worker and checks leave it alone. */
+export type SponsorStatus = "licensed" | "likely" | "not_listed" | "no_register" | "no_company" | "manual"
 
 export type RegisterInfo = {
   id: string
@@ -78,6 +79,7 @@ export function ensureSponsorCheckTables(): Promise<void> {
         checked_at timestamptz NOT NULL DEFAULT now()
       )
     `
+    await sql`ALTER TABLE skilledjobs.job_sponsor_checks ADD COLUMN IF NOT EXISTS flagged_by text`
     await sql`CREATE INDEX IF NOT EXISTS job_sponsor_checks_status ON skilledjobs.job_sponsor_checks (status)`
     await sql`
       CREATE TABLE IF NOT EXISTS skilledjobs.company_sponsor_matches (
@@ -460,7 +462,12 @@ export async function checkJobSponsors(ids: number[], opts: { applyTags?: boolea
   await ensureSponsorCheckTables()
   const applyTags = opts.applyTags ?? true
   const [jobs, registers] = await Promise.all([
-    careerSql`SELECT id, company, country, visa_type FROM skilledjobs.jobs WHERE id = ANY(${ids})`,
+    careerSql`
+      SELECT j.id, j.company, j.country, j.visa_type, c.status = 'manual' AS manual
+      FROM skilledjobs.jobs j
+      LEFT JOIN skilledjobs.job_sponsor_checks c ON c.job_id = j.id
+      WHERE j.id = ANY(${ids})
+    `,
     registersByCountry(),
   ])
 
@@ -470,14 +477,16 @@ export async function checkJobSponsors(ids: number[], opts: { applyTags?: boolea
     country: string | null
     visaType: string | null
     register: RegisterDef | undefined
+    manual: boolean
   }> = []
   const pending = new Map<string, string[]>()
   for (const job of jobs) {
     const company = job.company ? String(job.company).trim() : null
     const country = job.country ? String(job.country).trim() : null
     const register = country ? registers.get(country.toLowerCase()) : undefined
-    prepared.push({ jobId: Number(job.id), company, country, visaType: job.visa_type ? String(job.visa_type) : null, register })
-    if (register && company && company.toLowerCase() !== "unknown") {
+    const manual = Boolean(job.manual)
+    prepared.push({ jobId: Number(job.id), company, country, visaType: job.visa_type ? String(job.visa_type) : null, register, manual })
+    if (!manual && register && company && company.toLowerCase() !== "unknown") {
       pending.set(register.id, [...(pending.get(register.id) ?? []), company])
     }
   }
@@ -497,6 +506,7 @@ export async function checkJobSponsors(ids: number[], opts: { applyTags?: boolea
       matchedName: null as string | null,
       tagApplied: null as string | null,
     }
+    if (job.manual) return { ...base, registerId: UK_REGISTER.id, status: "manual" as const }
     if (!job.register) return { ...base, status: "no_register" as const }
     if (!job.company || job.company.toLowerCase() === "unknown") return { ...base, status: "no_company" as const }
     const decision = matched.get(job.register.id)?.get(companyNorm(job.company))
@@ -509,13 +519,14 @@ export async function checkJobSponsors(ids: number[], opts: { applyTags?: boolea
     }
   })
 
-  if (results.length) {
+  const checked = results.filter((r) => r.status !== "manual")
+  if (checked.length) {
     await careerSql`
       INSERT INTO skilledjobs.job_sponsor_checks (job_id, status, register_id, matched_name, company, tag_applied, checked_at)
       SELECT u.job_id, u.status, u.register_id, u.matched_name, u.company, u.tag_applied, now()
-      FROM unnest(${results.map((r) => r.jobId)}::int[], ${results.map((r) => r.status)}::text[],
-                  ${results.map((r) => r.registerId)}::text[], ${results.map((r) => r.matchedName)}::text[],
-                  ${results.map((r) => r.company)}::text[], ${results.map((r) => r.tagApplied)}::text[])
+      FROM unnest(${checked.map((r) => r.jobId)}::int[], ${checked.map((r) => r.status)}::text[],
+                  ${checked.map((r) => r.registerId)}::text[], ${checked.map((r) => r.matchedName)}::text[],
+                  ${checked.map((r) => r.company)}::text[], ${checked.map((r) => r.tagApplied)}::text[])
         AS u(job_id, status, register_id, matched_name, company, tag_applied)
       ON CONFLICT (job_id) DO UPDATE SET
         status = EXCLUDED.status,
@@ -524,8 +535,9 @@ export async function checkJobSponsors(ids: number[], opts: { applyTags?: boolea
         company = EXCLUDED.company,
         tag_applied = coalesce(EXCLUDED.tag_applied, skilledjobs.job_sponsor_checks.tag_applied),
         checked_at = now()
+      WHERE skilledjobs.job_sponsor_checks.status <> 'manual'
     `
-    const tagged = results.filter((r) => r.tagApplied)
+    const tagged = checked.filter((r) => r.tagApplied)
     const byTag = new Map<string, number[]>()
     for (const r of tagged) byTag.set(r.tagApplied!, [...(byTag.get(r.tagApplied!) ?? []), r.jobId])
     for (const [tag, jobIds] of byTag) {
@@ -560,6 +572,7 @@ export async function sponsorCheckQueue(opts: {
       FROM skilledjobs.jobs j
       LEFT JOIN skilledjobs.job_sponsor_checks c ON c.job_id = j.id
       WHERE (c.job_id IS NULL OR (${before}::timestamptz IS NOT NULL AND c.checked_at < ${before}::timestamptz))
+        AND c.status IS DISTINCT FROM 'manual'
         AND (${countries}::text[] IS NULL OR lower(trim(j.country)) = ANY(${countries}))
       ORDER BY j.id
       LIMIT ${limit}
@@ -569,6 +582,7 @@ export async function sponsorCheckQueue(opts: {
       FROM skilledjobs.jobs j
       LEFT JOIN skilledjobs.job_sponsor_checks c ON c.job_id = j.id
       WHERE (c.job_id IS NULL OR (${before}::timestamptz IS NOT NULL AND c.checked_at < ${before}::timestamptz))
+        AND c.status IS DISTINCT FROM 'manual'
         AND (${countries}::text[] IS NULL OR lower(trim(j.country)) = ANY(${countries}))
     `,
   ])
@@ -627,6 +641,7 @@ export async function checkDistinctSponsors(opts: {
       FROM skilledjobs.jobs j
       LEFT JOIN skilledjobs.job_sponsor_checks c ON c.job_id = j.id
       WHERE (c.job_id IS NULL OR (${before}::timestamptz IS NOT NULL AND c.checked_at < ${before}::timestamptz))
+        AND c.status IS DISTINCT FROM 'manual'
         AND (${countries}::text[] IS NULL OR lower(trim(coalesce(j.country, ''))) = ANY(${countries}))
       GROUP BY 1, 3
       ORDER BY count(*) DESC, 1
@@ -639,6 +654,7 @@ export async function checkDistinctSponsors(opts: {
         FROM skilledjobs.jobs j
         LEFT JOIN skilledjobs.job_sponsor_checks c ON c.job_id = j.id
         WHERE (c.job_id IS NULL OR (${before}::timestamptz IS NOT NULL AND c.checked_at < ${before}::timestamptz))
+        AND c.status IS DISTINCT FROM 'manual'
           AND (${countries}::text[] IS NULL OR lower(trim(coalesce(j.country, ''))) = ANY(${countries}))
         GROUP BY lower(trim(coalesce(j.company, ''))), lower(trim(coalesce(j.country, '')))
       ) groups
@@ -722,7 +738,7 @@ export async function checkDistinctSponsors(opts: {
       NOT EXISTS (SELECT 1 FROM skilledjobs.job_sponsor_checks c WHERE c.job_id = j.id)
       OR (${before}::timestamptz IS NOT NULL AND EXISTS (
         SELECT 1 FROM skilledjobs.job_sponsor_checks c
-        WHERE c.job_id = j.id AND c.checked_at < ${before}::timestamptz
+        WHERE c.job_id = j.id AND c.checked_at < ${before}::timestamptz AND c.status <> 'manual'
       ))
     )
     ON CONFLICT (job_id) DO UPDATE SET
@@ -732,6 +748,7 @@ export async function checkDistinctSponsors(opts: {
       company = EXCLUDED.company,
       tag_applied = coalesce(EXCLUDED.tag_applied, skilledjobs.job_sponsor_checks.tag_applied),
       checked_at = now()
+    WHERE skilledjobs.job_sponsor_checks.status <> 'manual'
     RETURNING job_id, tag_applied
   `
 
@@ -773,7 +790,7 @@ export async function sponsorCheckSummary(): Promise<{
   taggedNotListed: number
   tagsApplied: number
 }> {
-  const empty = { licensed: 0, likely: 0, not_listed: 0, no_register: 0, no_company: 0 }
+  const empty = { licensed: 0, likely: 0, not_listed: 0, no_register: 0, no_company: 0, manual: 0 }
   if (!careerSql) return { total: 0, unchecked: 0, uncheckedCompanies: 0, byStatus: empty, taggedNotListed: 0, tagsApplied: 0 }
   await ensureSponsorCheckTables()
   const [rows, totals, companyTotals] = await Promise.all([
@@ -814,12 +831,12 @@ export async function sponsorCheckSummary(): Promise<{
   }
 }
 
-/** Job ids whose company matched the sponsor register exactly. */
+/** Job ids whose company matched the sponsor register exactly, or that an admin flagged by hand. */
 export async function registeredSponsorJobIds(ids: number[]): Promise<Set<number>> {
   if (!careerSql || ids.length === 0) return new Set()
   try {
     const rows = await careerSql`
-      SELECT job_id FROM skilledjobs.job_sponsor_checks WHERE job_id = ANY(${ids}) AND status = 'licensed'
+      SELECT job_id FROM skilledjobs.job_sponsor_checks WHERE job_id = ANY(${ids}) AND status IN ('licensed', 'manual')
     `
     return new Set(rows.map((row) => Number(row.job_id)))
   } catch {
@@ -827,9 +844,47 @@ export async function registeredSponsorJobIds(ids: number[]): Promise<Set<number
   }
 }
 
+/**
+ * Admin override of the register check. Flagging tags the jobs UK Skilled Worker and records a
+ * "manual" check that later checks skip. Unflagging removes it and resets that tag to "Other",
+ * leaving the job unchecked.
+ */
+export async function setManualSkilledWorker(ids: number[], flagged: boolean, adminEmail: string): Promise<number> {
+  if (!careerSql || ids.length === 0) return 0
+  await ensureSponsorCheckTables()
+  if (flagged) {
+    const rows = await careerSql`
+      INSERT INTO skilledjobs.job_sponsor_checks (job_id, status, register_id, company, tag_applied, flagged_by, checked_at)
+      SELECT j.id, 'manual', ${UK_REGISTER.id}, j.company, ${UK_VISA_TYPE}, ${adminEmail}, now()
+      FROM skilledjobs.jobs j
+      WHERE j.id = ANY(${ids})
+      ON CONFLICT (job_id) DO UPDATE SET
+        status = 'manual',
+        register_id = EXCLUDED.register_id,
+        company = EXCLUDED.company,
+        tag_applied = EXCLUDED.tag_applied,
+        flagged_by = EXCLUDED.flagged_by,
+        checked_at = now()
+      RETURNING job_id
+    `
+    await careerSql`UPDATE skilledjobs.jobs SET visa_type = ${UK_VISA_TYPE} WHERE id = ANY(${ids})`
+    return rows.length
+  }
+  const removed = await careerSql`
+    DELETE FROM skilledjobs.job_sponsor_checks WHERE job_id = ANY(${ids}) AND status = 'manual' RETURNING job_id
+  `
+  const removedIds = removed.map((row) => Number(row.job_id))
+  if (removedIds.length) {
+    await careerSql`UPDATE skilledjobs.jobs SET visa_type = 'Other' WHERE id = ANY(${removedIds}) AND visa_type = ${UK_VISA_TYPE}`
+  }
+  return removedIds.length
+}
+
 /** Set selected jobs back to "Other" (e.g. a sponsorship tag the register does not back up). */
 export async function clearVisaTags(ids: number[]): Promise<number> {
   if (!careerSql || ids.length === 0) return 0
+  await ensureSponsorCheckTables()
+  await careerSql`DELETE FROM skilledjobs.job_sponsor_checks WHERE job_id = ANY(${ids}) AND status = 'manual'`
   const rows = await careerSql`
     UPDATE skilledjobs.jobs SET visa_type = 'Other'
     WHERE id = ANY(${ids}) AND visa_type IS DISTINCT FROM 'Other'

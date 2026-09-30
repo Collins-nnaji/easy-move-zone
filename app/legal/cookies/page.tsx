@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import { Bullets, LegalLink, LegalPage } from "@/components/platform/LegalPage"
+import { buildPageMetadata } from "@/lib/site-metadata"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Cookie Policy",
   description: "The cookies and browser storage EasyMoveZone uses, and how to control them.",
-}
+  path: "/legal/cookies",
+})
 
 const rows = [
   { name: "Sign-in session cookies", purpose: "Keep you signed in and protect your account from forged requests.", type: "Strictly necessary", duration: "Session to 30 days" },

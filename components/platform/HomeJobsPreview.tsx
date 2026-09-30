@@ -16,7 +16,6 @@ type PreviewJob = {
   url: string | null
   logoUrl: string | null
   jobType: string | null
-  featured: boolean
 }
 
 export const PREVIEW_COUNT = 10
@@ -68,7 +67,6 @@ export function HomeJobsPreview() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="truncate text-sm font-extrabold leading-snug text-[#1b231e] group-hover:text-[#2f5d50] sm:text-[15px]">{job.title}</h3>
-                      {job.featured && <span className="rounded-full bg-[#e5efeb] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-[#285045]">Featured</span>}
                     </div>
                     <p className="mt-1 truncate text-xs font-bold text-[#2f5d50]">{job.company ?? "Hiring company"}</p>
                     <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#626861]">

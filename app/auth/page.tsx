@@ -3,11 +3,14 @@ import { Suspense } from "react"
 import { AuthInlineCard } from "@/components/platform/AuthInlineCard"
 import { PublicShell } from "@/components/platform/PublicShell"
 import { SiteLogo } from "@/components/brand/SiteLogo"
+import { buildPageMetadata } from "@/lib/site-metadata"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Sign in",
   description: "Sign in to use My Workspace, save your career plans and CVs, and keep assessment badges.",
-}
+  path: "/auth",
+  noIndex: true,
+})
 
 export default function AuthPage() {
   return (

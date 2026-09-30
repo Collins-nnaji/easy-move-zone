@@ -5,6 +5,7 @@ import { PlatformNav } from "@/components/platform/PlatformNav"
 import { PlatformFooter } from "@/components/platform/PlatformFooter"
 import { SupportWidget } from "@/components/platform/SupportWidget"
 import { ClientErrorBoundary } from "@/components/monitoring/ClientErrorBoundary"
+import { LANDING_HREFS } from "@/lib/seo/landing-pages"
 
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -14,7 +15,8 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
     pathname === "/" ||
     pathname.startsWith("/legal/") ||
     pathname === "/contact" ||
-    pathname === "/specialist-support"
+    pathname === "/specialist-support" ||
+    LANDING_HREFS.includes(pathname)
 
   if (isAuth) {
     return (

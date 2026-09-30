@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Gauge, LogOut, Menu, UserRound, User, X } from "lucide-react"
+import { Gauge, LogOut, Menu, ShieldCheck, UserRound, User, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { authClient } from "@/lib/auth/client"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
@@ -85,7 +85,24 @@ export function PlatformNav() {
   }
 
   const user = sessionData?.user ?? null
+  const userId = user?.id ?? null
   const initials = getInitials(user?.name, user?.email)
+  const [adminFor, setAdminFor] = useState<string | null>(null)
+  const isAdmin = Boolean(userId) && adminFor === userId
+
+  useEffect(() => {
+    if (!userId) return
+    let cancelled = false
+    fetch("/api/admin/me", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : { admin: false }))
+      .then((data: { admin?: boolean }) => {
+        if (!cancelled) setAdminFor(data.admin ? userId : null)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [userId])
   const authHref = `/auth?redirect=${encodeURIComponent(pathname === "/" ? "/workspace" : pathname)}`
 
   return (
@@ -223,6 +240,18 @@ export function PlatformNav() {
                     <User className="h-4 w-4 text-[#9aa097]" />
                     Profile
                   </Link>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-[13px] font-semibold text-[#2f5d50] transition hover:bg-[#faf8f3]"
+                    >
+                      <ShieldCheck className="h-4 w-4" />
+                      Admin
+                    </Link>
+                  )}
                   <button
                     type="button"
                     onClick={handleSignOut}

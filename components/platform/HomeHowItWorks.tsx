@@ -161,9 +161,9 @@ function ProfileBadgeIcon() {
 }
 
 const directions = [
-  { art: CareersArt, title: "Move careers", body: "See how your skills map to new roles, where the gaps are, and which learning pays off most." },
-  { art: CountriesArt, title: "Move countries", body: "Check how strong your visa route is, whether you need sponsorship, and what to do next." },
-  { art: BothArt, title: "Move both", body: "Plan a new role and a new country together, so each one supports the other." },
+  { art: CareersArt, title: "Move careers", body: "See how your skills map to new roles, where the gaps are, and which learning pays off most.", href: "/career-change", linkLabel: "Plan a career change" },
+  { art: CountriesArt, title: "Move countries", body: "Check how strong your visa route is, whether you need sponsorship, and what to do next.", href: "/jobs-abroad", linkLabel: "Find jobs abroad" },
+  { art: BothArt, title: "Move both", body: "Plan a new role and a new country together, so each one supports the other.", href: "/jobs-in-uk", linkLabel: "Start with UK jobs" },
 ] as const
 
 const features = [
@@ -172,12 +172,16 @@ const features = [
     title: "Fit Check",
     body: "Know before you apply. See how well you fit the role, which must-haves you're missing, and whether the employer can sponsor you — the same answer every time you check.",
     points: ["Clear fit level", "Missing must-haves", "Sponsorship signal", "Apply or skip advice"],
+    href: "/ai-job-search",
+    linkLabel: "How AI job search works",
   },
   {
     art: TailorCvArt,
     title: "Tailor CV",
     body: "Turn your saved CV into one written for this role. We reorder and reword around the job's must-haves, using only your real experience.",
     points: ["ATS-friendly CV", "Cover letter", "Application checklist", "Saved to My CVs"],
+    href: "/cover-letter-generator",
+    linkLabel: "See the cover letter generator",
   },
 ] as const
 
@@ -226,6 +230,9 @@ export function HomeJobFeatures() {
                   </li>
                 ))}
               </ul>
+              <Link href={feature.href} className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold underline-offset-4 hover:underline" style={{ color: PRIMARY }}>
+                {feature.linkLabel} <ArrowRight className="h-4 w-4" />
+              </Link>
             </motion.div>
           ))}
         </div>
@@ -261,6 +268,9 @@ export function HomeHowItWorks() {
               <item.art />
               <h3 className="mt-5 text-xl font-extrabold">{item.title}</h3>
               <p className="mt-2 max-w-xs text-sm leading-relaxed text-[#646a63]">{item.body}</p>
+              <Link href={item.href} className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold underline-offset-4 hover:underline" style={{ color: PRIMARY }}>
+                {item.linkLabel} <ArrowRight className="h-4 w-4" />
+              </Link>
             </motion.div>
           ))}
         </div>

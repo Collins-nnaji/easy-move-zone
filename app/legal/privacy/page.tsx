@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import { Bullets, LegalLink, LegalPage, Mail } from "@/components/platform/LegalPage"
+import { buildPageMetadata } from "@/lib/site-metadata"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Privacy Policy",
   description: "How EasyMoveZone collects, uses, stores and protects your personal information, and the choices you have.",
-}
+  path: "/legal/privacy",
+})
 
 const sections = [
   {

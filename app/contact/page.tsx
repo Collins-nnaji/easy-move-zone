@@ -1,11 +1,13 @@
 import type { Metadata } from "next"
 import { PublicShell } from "@/components/platform/PublicShell"
 import { ContactPageClient } from "@/components/platform/ContactPageClient"
+import { buildPageMetadata } from "@/lib/site-metadata"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Contact",
   description: "Contact EasyMoveZone about career moves, sponsorship jobs, or specialist relocation support.",
-}
+  path: "/contact",
+})
 
 function firstString(v: string | string[] | undefined): string | undefined {
   if (v === undefined) return undefined

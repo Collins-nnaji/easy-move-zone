@@ -5,6 +5,59 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL
   ? new URL(process.env.NEXT_PUBLIC_APP_URL)
   : new URL(BRAND.url)
 
+export const SITE_ORIGIN = siteUrl.origin
+
+export function absoluteUrl(path = "/") {
+  return new URL(path, siteUrl).toString()
+}
+
+const OG_IMAGE = { url: BRAND.logo, width: 1440, height: 515, alt: BRAND.logoAlt }
+
+/**
+ * Full per-page metadata. Next.js replaces (not merges) `openGraph` and `twitter`
+ * objects from the root layout, so every public page must set all of them.
+ */
+export function buildPageMetadata({
+  title,
+  description,
+  path,
+  keywords,
+  absoluteTitle = false,
+  noIndex = false,
+}: {
+  title: string
+  description: string
+  path: string
+  keywords?: string[]
+  /** Use the title as-is instead of appending the brand via the layout template. */
+  absoluteTitle?: boolean
+  noIndex?: boolean
+}): Metadata {
+  const fullTitle = absoluteTitle ? title : `${title} · ${BRAND.name}`
+  return {
+    title: absoluteTitle ? { absolute: title } : title,
+    description,
+    ...(keywords?.length ? { keywords } : {}),
+    alternates: { canonical: path },
+    openGraph: {
+      type: "website",
+      url: path,
+      siteName: BRAND.name,
+      locale: "en_GB",
+      title: fullTitle,
+      description,
+      images: [OG_IMAGE],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: fullTitle,
+      description,
+      images: [BRAND.logo],
+    },
+    ...(noIndex ? { robots: { index: false, follow: true } } : {}),
+  }
+}
+
 export const siteMetadata: Metadata = {
   metadataBase: siteUrl,
   title: {
@@ -41,14 +94,7 @@ export const siteMetadata: Metadata = {
     siteName: BRAND.name,
     title: `${BRAND.name} — ${BRAND.tagline}`,
     description: BRAND.description,
-    images: [
-      {
-        url: BRAND.logo,
-        width: 1440,
-        height: 515,
-        alt: BRAND.logoAlt,
-      },
-    ],
+    images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",

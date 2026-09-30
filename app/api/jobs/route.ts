@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import { listJobFacetCounts, sampleLocalJobs, searchLocalJobs } from "@/lib/career/jobs-store"
 import { mapJob } from "@/lib/career/map-job"
-import { listFeaturedJobIds } from "@/lib/mobility/featured-jobs"
 import { registeredSponsorJobIds } from "@/lib/career/sponsor-check"
 
 export const runtime = "nodejs"
@@ -13,7 +12,6 @@ function multi(params: URLSearchParams, key: string): string[] {
 /**
  * Public job board — EasyMoveZone `skilledjobs` only.
  * Supports search, left-rail filters, and pagination.
- * Featured (admin-pushed) roles sort to the top.
  */
 export async function GET(request: Request) {
   const url = new URL(request.url)
@@ -25,24 +23,17 @@ export async function GET(request: Request) {
   const experienceLevels = multi(url.searchParams, "experienceLevel")
   const jobTypes = multi(url.searchParams, "jobType")
   const categories = multi(url.searchParams, "category")
-  const featuredOnly = url.searchParams.get("featured") === "1"
   const visaSponsoredOnly = url.searchParams.get("visa") === "1"
   const requestedId = Number(url.searchParams.get("id"))
 
-  const featuredIds = (await listFeaturedJobIds())
-    .map((id) => Number(id))
-    .filter((id) => Number.isFinite(id))
-
   if (url.searchParams.get("sample") === "1") {
     const sampled = await sampleLocalJobs(limit)
-    const featured = new Set(featuredIds.map(String))
     const jobs = (sampled ?? []).map((row) => ({
       ...mapJob(row),
       experienceLevel: row.experience_level,
       jobType: row.job_type,
       logoUrl: row.logo_url,
       skills: row.skills ?? [],
-      featured: featured.has(String(row.id)),
     }))
     return NextResponse.json(
       { jobs, source: sampled ? "easymovezone" : "unconfigured", count: jobs.length },
@@ -58,8 +49,6 @@ export async function GET(request: Request) {
     categories,
     limit,
     offset,
-    featuredIds,
-    featuredOnly,
     visaSponsoredOnly,
     ids: Number.isFinite(requestedId) && requestedId > 0 ? [requestedId] : undefined,
   }
@@ -81,7 +70,6 @@ export async function GET(request: Request) {
     })
   }
 
-  const featuredSet = new Set(featuredIds.map(String))
   const onRegister = await registeredSponsorJobIds(found.rows.map((row) => Number(row.id)))
   const jobs = found.rows.map((row) => {
     const mapped = mapJob(row)
@@ -91,7 +79,6 @@ export async function GET(request: Request) {
       jobType: row.job_type,
       logoUrl: row.logo_url,
       skills: row.skills ?? [],
-      featured: featuredSet.has(String(row.id)),
       sponsorOnRegister: onRegister.has(Number(row.id)),
     }
   })
@@ -106,7 +93,6 @@ export async function GET(request: Request) {
     page,
     limit,
     totalPages,
-    featuredCount: featuredIds.length,
     facets: facets ?? { countries: {}, experienceLevels: {}, jobTypes: {}, categories: {}, visaSponsored: 0 },
   })
 }

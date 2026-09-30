@@ -254,10 +254,11 @@ export function SponsorCheckTab({ onJobsChanged }: { onJobsChanged: () => void }
           )
         }
       >
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
           {[
             { label: "Checked", value: `${checked.toLocaleString()} / ${(summary?.total ?? 0).toLocaleString()}`, tone: "text-white" },
             { label: SPONSOR_STATUS.licensed.label, value: summary?.byStatus.licensed ?? 0, tone: "text-emerald-300" },
+            { label: "Manual UK Skilled Worker", value: summary?.byStatus.manual ?? 0, tone: "text-emerald-300" },
             { label: SPONSOR_STATUS.likely.label, value: summary?.byStatus.likely ?? 0, tone: "text-sky-300" },
             { label: SPONSOR_STATUS.not_listed.label, value: summary?.byStatus.not_listed ?? 0, tone: "text-rose-300" },
             { label: SPONSOR_STATUS.no_register.label, value: summary?.byStatus.no_register ?? 0, tone: "text-white/60" },

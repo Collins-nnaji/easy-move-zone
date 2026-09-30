@@ -2,13 +2,15 @@ import type { Metadata } from "next"
 import { EducationClient } from "@/components/education/EducationClient"
 import { MobilityFrame } from "@/components/mobility/MobilityFrame"
 import { authServer } from "@/lib/auth/server"
+import { buildPageMetadata } from "@/lib/site-metadata"
 
-export const metadata: Metadata = {
-  title: "Education pathway",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Study Abroad — Courses, Fees and Work Rights",
   description:
     "Compare universities, courses and international tuition fees in the UK, Ireland, the Netherlands, Germany, Canada, Australia and the US. Check your fit and draft personal statements.",
-  alternates: { canonical: "/education" },
-}
+  path: "/education",
+  keywords: ["study abroad", "international tuition fees", "post-study work visa", "study in the UK", "personal statement help"],
+})
 
 export default async function EducationPage() {
   const session = await authServer.getSession()

@@ -1,5 +1,6 @@
 "use client"
 
+import { DATA_SOURCES } from "@/lib/education/catalog"
 import type { CourseFit, CourseWithUniversity } from "@/lib/education/types"
 
 export const PRIMARY = "#2f5d50"
@@ -20,6 +21,24 @@ export const COUNTRY_FLAGS: Record<string, string> = {
   Denmark: "🇩🇰",
 }
 
+const LOWER_WORDS = new Set(["and", "of", "the", "for", "in", "at", "on", "de", "van", "der"])
+
+/** Registers list some providers in capitals with company suffixes; show them as a reader would. */
+export function displayName(name: string) {
+  const trimmed = name.replace(/\s+(pty\.?\s*ltd\.?|pty\.?\s*limited|limited|ltd\.?|inc\.?|plc)$/i, "").trim()
+  if (/[a-z]/.test(trimmed)) return trimmed
+  return trimmed
+    .toLowerCase()
+    .split(/(\s+|-|\/|\()/)
+    .map((word, i) => {
+      if (!/[a-z]/.test(word)) return word
+      if (i > 0 && LOWER_WORDS.has(word)) return word
+      if (word.length <= 4 && !/[aeiou]/.test(word)) return word.toUpperCase()
+      return word.charAt(0).toUpperCase() + word.slice(1)
+    })
+    .join("")
+}
+
 export function formatTuition(course: Pick<CourseWithUniversity, "tuitionMin" | "tuitionMax" | "currency">) {
   const { tuitionMin: min, tuitionMax: max, currency } = course
   if (min == null && max == null) return "Fees on request"
@@ -33,6 +52,21 @@ export function formatTuition(course: Pick<CourseWithUniversity, "tuitionMin" | 
   if (max === 0 && (min ?? 0) === 0) return "No tuition fees"
   if (min != null && max != null && min !== max) return `${fmt(min)} – ${fmt(max)}`
   return fmt((max ?? min) as number)
+}
+
+export function DataSourcesNote() {
+  return (
+    <p className="mt-2 text-[11px] leading-relaxed text-[#9aa094]">
+      Course and institution data:{" "}
+      {Object.values(DATA_SOURCES).map((source, i, all) => (
+        <span key={source.label}>
+          <a href={source.url} target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-[#5f655c]">{source.label}</a> ({source.country}, {source.licence})
+          {i < all.length - 1 ? "; " : ". "}
+        </span>
+      ))}
+      UK sponsor status from the GOV.UK register of student sponsors (Open Government Licence). Contains Jisc/HESA data.
+    </p>
+  )
 }
 
 export function FitIcon({ className = "h-5 w-5" }: { className?: string }) {

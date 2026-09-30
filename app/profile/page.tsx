@@ -7,6 +7,7 @@ import { ProfileHub } from "@/components/profile/ProfileHub"
 export const metadata: Metadata = {
   title: "Your profile",
   description: "Edit your career profile, skills, move preferences, and assessment badges.",
+  robots: { index: false, follow: false },
 }
 
 export default async function ProfilePage() {

@@ -13,7 +13,7 @@ import {
   type JobInput,
 } from "@/lib/career/admin-jobs"
 import { listLocalFacets } from "@/lib/career/jobs-store"
-import { listFeaturedJobMap, setJobFeatured } from "@/lib/mobility/featured-jobs"
+import { setManualSkilledWorker } from "@/lib/career/sponsor-check"
 
 export const runtime = "nodejs"
 
@@ -56,13 +56,6 @@ export async function GET(request: Request) {
     return NextResponse.json(await findDuplicateJobs(match, keep))
   }
 
-  const featuredMap = await listFeaturedJobMap()
-  const featuredIds = Object.entries(featuredMap)
-    .filter(([, on]) => on)
-    .map(([id]) => Number(id))
-    .filter(Number.isFinite)
-  const featuredParam = params.get("featured")
-  const featured = featuredParam === "1" || featuredParam === "yes" ? "yes" : featuredParam === "no" ? "no" : "all"
   const page = Math.max(Number(params.get("page") ?? 1) || 1, 1)
   const limit = Math.min(Math.max(Number(params.get("limit") ?? 50) || 50, 1), 200)
 
@@ -72,8 +65,6 @@ export async function GET(request: Request) {
       country: params.get("country"),
       visaType: params.get("visaType"),
       category: params.get("category"),
-      featuredIds,
-      featured,
       sponsor: params.get("sponsor"),
       page,
       limit,
@@ -82,13 +73,11 @@ export async function GET(request: Request) {
   ])
 
   return NextResponse.json({
-    jobs: result.rows.map((row) => ({ ...row, featured: Boolean(featuredMap[String(row.id)]) })),
+    jobs: result.rows,
     total: result.total,
-    counts: result.counts,
     page,
     limit,
     totalPages: Math.max(1, Math.ceil(result.total / limit)),
-    featuredCount: featuredIds.length,
     facets: facets ?? { countries: [], visaTypes: [], categories: [] },
   })
 }
@@ -114,13 +103,9 @@ export async function POST(request: Request) {
         const deleted = await deleteLocalJobs(toIds(body.ids))
         return NextResponse.json({ deleted })
       }
-      case "feature": {
-        const ids = toIds(body.ids)
-        const featured = Boolean(body.featured)
-        for (const id of ids) {
-          await setJobFeatured({ externalJobId: String(id), featured, updatedBy: admin.email })
-        }
-        return NextResponse.json({ updated: ids.length })
+      case "skilled-worker": {
+        const updated = await setManualSkilledWorker(toIds(body.ids), Boolean(body.flagged), admin.email)
+        return NextResponse.json({ updated })
       }
       case "delete-old": {
         const months = Number(body.months)

@@ -171,12 +171,28 @@ export const SPONSOR_STATUS: Record<string, { label: string; tone: "success" | "
   not_listed: { label: "Not on register", tone: "error", hint: "No company with this name on the sponsor register" },
   no_register: { label: "No register", tone: "neutral", hint: "No sponsor list loaded for this country yet" },
   no_company: { label: "No company", tone: "warning", hint: "The job has no company name to check" },
+  manual: { label: "Manual: UK Skilled Worker", tone: "success", hint: "Flagged UK Skilled Worker by an admin. Sponsor checks leave it alone" },
 }
 
-export function SponsorBadge({ status, match, register }: { status?: string | null; match?: string | null; register?: string | null }) {
+export function SponsorBadge({
+  status,
+  match,
+  register,
+  flaggedBy,
+}: {
+  status?: string | null
+  match?: string | null
+  register?: string | null
+  flaggedBy?: string | null
+}) {
   if (!status) return <span className="text-[10px] font-semibold uppercase tracking-wide text-white/25">Not checked</span>
   const meta = SPONSOR_STATUS[status] ?? { label: status, tone: "neutral" as const, hint: "" }
-  const title = [meta.hint, match ? `Register name: ${match}` : null, register ? `Register: ${register.toUpperCase()}` : null].filter(Boolean).join("\n")
+  const title = [
+    meta.hint,
+    flaggedBy ? `Flagged by: ${flaggedBy}` : null,
+    match ? `Register name: ${match}` : null,
+    register ? `Register: ${register.toUpperCase()}` : null,
+  ].filter(Boolean).join("\n")
   return <Badge tone={meta.tone} title={title}>{meta.label}</Badge>
 }
 

@@ -1,12 +1,15 @@
 import type { Metadata } from "next"
 import { PublicShell } from "@/components/platform/PublicShell"
 import { SpecialistEnquiryForm } from "@/components/platform/SpecialistEnquiryForm"
+import { buildPageMetadata } from "@/lib/site-metadata"
 
-export const metadata: Metadata = {
-  title: "Specialist relocation support | EasyMoveZone",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Specialist Relocation Support",
   description:
     "Request one-to-one help planning a move abroad — destinations, sponsorship, career fit, and next steps.",
-}
+  path: "/specialist-support",
+  keywords: ["relocation support", "move abroad help", "visa sponsorship advice", "relocation specialist"],
+})
 
 export default function SpecialistSupportPage() {
   return (
