@@ -11,6 +11,7 @@ export const metadata: Metadata = buildPageMetadata({
 const rows = [
   { name: "Sign-in session cookies", purpose: "Keep you signed in and protect your account from forged requests.", type: "Strictly necessary", duration: "Session to 30 days" },
   { name: "Shipment drafts (local storage)", purpose: "Remembers moves you save in this browser so tracking can find the reference.", type: "Functional", duration: "Until you clear it" },
+  { name: "Google Analytics (_ga, _ga_*)", purpose: "Counts visits and shows which pages are used, so we can improve the site.", type: "Analytics", duration: "Up to 2 years" },
 ]
 
 const sections = [
@@ -33,7 +34,7 @@ const sections = [
           </tbody>
         </table>
       </div>
-      <p>We don&apos;t use advertising cookies.</p>
+      <p>Google Analytics is provided by Google, which receives your IP address and browsing data from these cookies. You can opt out with the <LegalLink href="https://tools.google.com/dlpage/gaoptout">Google Analytics opt-out add-on</LegalLink>. We don&apos;t use advertising cookies.</p>
     </>,
   },
   {

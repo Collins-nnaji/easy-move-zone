@@ -4,6 +4,7 @@ import { AppChrome } from "@/components/layout/AppChrome";
 import { NativeBridge } from "@/components/native/NativeBridge";
 import { AuthSessionCleanup } from "@/components/platform/AuthSessionCleanup";
 import { ToastProvider } from "@/components/ui/Toast";
+import { GoogleAnalytics } from "@/components/seo/GoogleAnalytics";
 import { JsonLd, organizationSchema, websiteSchema } from "@/components/seo/JsonLd";
 import { BRAND } from "@/lib/brand";
 import { siteMetadata } from "@/lib/site-metadata";
@@ -52,6 +53,7 @@ export default function RootLayout({
         className={`${jakarta.variable} ${bricolage.variable} min-h-screen min-w-0 flex flex-col overflow-x-hidden antialiased`}
       >
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
+        <GoogleAnalytics />
         <ToastProvider>
           <NativeBridge />
           <AuthSessionCleanup />

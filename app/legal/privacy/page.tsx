@@ -51,7 +51,7 @@ const sections = [
     id: "sharing",
     title: "Who we share it with",
     body: <>
-      <p>We share personal information with service providers who process it for us and under contract, including hosting, sign-in, email and error monitoring. A confirmed haulage partner receives the contact and load details needed to move that shipment.</p>
+      <p>We share personal information with service providers who process it for us and under contract, including hosting, sign-in, email, error monitoring and Google Analytics for site usage statistics. A confirmed haulage partner receives the contact and load details needed to move that shipment.</p>
       <p>We may also disclose information if the law requires it, or as part of a business reorganisation. In a reorganisation, your information would stay protected by this policy.</p>
     </>,
   },
