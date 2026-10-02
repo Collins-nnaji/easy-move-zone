@@ -17,7 +17,7 @@ export function AuthInlineCard({
   const searchParams = useSearchParams()
   const requested = searchParams.get("redirect")
   const redirectTarget =
-    requested && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/workspace"
+    requested && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/book"
   const urlMode = searchParams.get("mode")
   const [mode, setMode] = useState<Mode>(urlMode === "signup" ? "sign-up" : "sign-in")
   const [name, setName] = useState("")

@@ -1,121 +1,150 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Gauge, LogOut, Menu, ShieldCheck, UserRound, User, X } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
-import { authClient } from "@/lib/auth/client"
-import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
-import { SiteLogo } from "@/components/brand/SiteLogo"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  LogOut,
+  Menu,
+  ShieldCheck,
+  Truck,
+  UserRound,
+  User,
+  X,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { authClient } from "@/lib/auth/client";
+import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants";
+import { SiteLogo } from "@/components/brand/SiteLogo";
 
 const NAV = [
   {
-    href: "/workspace",
-    label: "My Workspace",
-    match: (path: string) =>
-      path === "/workspace" ||
-      path === "/easymovescore" ||
-      path === "/path" ||
-      path.startsWith("/can-i-move") ||
-      path.startsWith("/career-lab"),
+    href: "/book",
+    label: "Arrange delivery",
+    match: (path: string) => path === "/book",
     featured: true,
   },
-  { href: "/sponsors", label: "Sponsors", match: (path: string) => path === "/sponsors", featured: false },
-  { href: "/jobs", label: "Jobs", match: (path: string) => path === "/jobs", featured: false },
-  { href: "/education", label: "Education", match: (path: string) => path.startsWith("/education"), featured: false },
   {
-    href: "/work-simulation",
-    label: "Work Simulation",
-    match: (path: string) => path === "/work-simulation" || path === "/practice" || path.startsWith("/assessments"),
+    href: "/lots",
+    label: "Buy produce",
+    match: (path: string) => path === "/lots",
     featured: false,
   },
-] as const
+  {
+    href: "/export",
+    label: "Export",
+    match: (path: string) => path === "/export",
+    featured: false,
+  },
+  {
+    href: "/routes",
+    label: "Routes",
+    match: (path: string) => path === "/routes",
+    featured: false,
+  },
+  {
+    href: "/track",
+    label: "Track shipment",
+    match: (path: string) => path === "/track",
+    featured: false,
+  },
+] as const;
 
 export function PlatformNav() {
-  const pathname = usePathname()
-  const { data: sessionData, isPending: sessionPending, refetch: refetchSession } = authClient.useSession()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [seenPath, setSeenPath] = useState(pathname)
-  const menuRef = useRef<HTMLDivElement>(null)
+  const pathname = usePathname();
+  const {
+    data: sessionData,
+    isPending: sessionPending,
+    refetch: refetchSession,
+  } = authClient.useSession();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [seenPath, setSeenPath] = useState(pathname);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   if (seenPath !== pathname) {
-    setSeenPath(pathname)
-    setMenuOpen(false)
+    setSeenPath(pathname);
+    setMenuOpen(false);
   }
 
   useEffect(() => {
-    const timeout = setTimeout(() => { void refetchSession() }, 120)
-    return () => clearTimeout(timeout)
-  }, [pathname, refetchSession])
+    const timeout = setTimeout(() => {
+      void refetchSession();
+    }, 120);
+    return () => clearTimeout(timeout);
+  }, [pathname, refetchSession]);
 
   useEffect(() => {
-    const onFocus = () => { void refetchSession() }
-    window.addEventListener("focus", onFocus)
-    return () => window.removeEventListener("focus", onFocus)
-  }, [refetchSession])
+    const onFocus = () => {
+      void refetchSession();
+    };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [refetchSession]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false)
+        setMenuOpen(false);
       }
     }
-    if (menuOpen) document.addEventListener("mousedown", handleClick)
-    return () => document.removeEventListener("mousedown", handleClick)
-  }, [menuOpen])
+    if (menuOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [menuOpen]);
 
   async function handleSignOut() {
-    setMenuOpen(false)
+    setMenuOpen(false);
     try {
-      await authClient.signOut()
+      await authClient.signOut();
     } catch {
       /* force reload below */
     }
-    window.location.href = "/"
+    window.location.href = "/";
   }
 
   function getInitials(name?: string | null, email?: string | null) {
     if (name) {
-      const parts = name.trim().split(/\s+/)
+      const parts = name.trim().split(/\s+/);
       return parts.length >= 2
         ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-        : parts[0].slice(0, 2).toUpperCase()
+        : parts[0].slice(0, 2).toUpperCase();
     }
-    return email ? email[0].toUpperCase() : "U"
+    return email ? email[0].toUpperCase() : "U";
   }
 
-  const user = sessionData?.user ?? null
-  const userId = user?.id ?? null
-  const initials = getInitials(user?.name, user?.email)
-  const [adminFor, setAdminFor] = useState<string | null>(null)
-  const isAdmin = Boolean(userId) && adminFor === userId
+  const user = sessionData?.user ?? null;
+  const userId = user?.id ?? null;
+  const initials = getInitials(user?.name, user?.email);
+  const [adminFor, setAdminFor] = useState<string | null>(null);
+  const isAdmin = Boolean(userId) && adminFor === userId;
 
   useEffect(() => {
-    if (!userId) return
-    let cancelled = false
+    if (!userId) return;
+    let cancelled = false;
     fetch("/api/admin/me", { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : { admin: false }))
       .then((data: { admin?: boolean }) => {
-        if (!cancelled) setAdminFor(data.admin ? userId : null)
+        if (!cancelled) setAdminFor(data.admin ? userId : null);
       })
-      .catch(() => {})
+      .catch(() => {});
     return () => {
-      cancelled = true
-    }
-  }, [userId])
-  const authHref = `/auth?redirect=${encodeURIComponent(pathname === "/" ? "/workspace" : pathname)}`
+      cancelled = true;
+    };
+  }, [userId]);
+  const authHref = `/auth?redirect=${encodeURIComponent(pathname === "/" ? "/book" : pathname)}`;
 
   return (
     <header
-      className="sticky top-0 z-50 border-b border-[#e4dfd5] bg-[#f6f3ec]/95 backdrop-blur-xl"
+      className="sticky top-0 z-50 border-b border-[#e4dfd5] bg-[#faf8f2]/95 backdrop-blur-xl"
       data-emz-support-email={PUBLIC_CONTACT_EMAIL}
     >
-      <div className="mx-auto flex h-14 w-full max-w-[1600px] items-center justify-between gap-3 px-3 sm:px-5 lg:px-6">
+      <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-3 px-3 sm:px-5 lg:px-6">
         <div className="flex min-w-0 items-center gap-3 sm:gap-5">
           <SiteLogo href="/" height={28} priority />
-          <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
+          <nav
+            className="hidden items-center gap-1 lg:flex"
+            aria-label="Primary"
+          >
             {NAV.map((item) => {
-              const active = item.match(pathname)
+              const active = item.match(pathname);
               if (item.featured) {
                 return (
                   <Link
@@ -128,10 +157,12 @@ export function PlatformNav() {
                         : "border border-[#ded7cb] bg-white text-[#1b231e] hover:border-[#2f5d50]/50 hover:text-[#2f5d50]"
                     }`}
                   >
-                    <Gauge className={`h-3.5 w-3.5 ${active ? "text-white" : "text-[#2f5d50]"}`} />
-                    My Workspace
+                    <Truck
+                      className={`h-3.5 w-3.5 ${active ? "text-white" : "text-[#2f5d50]"}`}
+                    />
+                    Arrange delivery
                   </Link>
-                )
+                );
               }
               return (
                 <Link
@@ -139,17 +170,22 @@ export function PlatformNav() {
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={`rounded-full px-3 py-1.5 text-[13px] font-semibold transition ${
-                    active ? "bg-[#1b231e] text-white" : "text-[#4a5047] hover:bg-black/5 hover:text-[#1b231e]"
+                    active
+                      ? "bg-[#1b231e] text-white"
+                      : "text-[#4a5047] hover:bg-black/5 hover:text-[#1b231e]"
                   }`}
                 >
                   {item.label}
                 </Link>
-              )
+              );
             })}
           </nav>
         </div>
 
-        <div className="relative flex items-center gap-1.5 sm:gap-2" ref={menuRef}>
+        <div
+          className="relative flex items-center gap-1.5 sm:gap-2"
+          ref={menuRef}
+        >
           {sessionPending ? (
             <div className="h-9 w-9 animate-pulse rounded-full bg-black/5" />
           ) : user ? (
@@ -180,21 +216,29 @@ export function PlatformNav() {
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
           >
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {menuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
 
           {menuOpen && (
             <div className="absolute right-0 top-12 z-50 max-h-[min(80vh,520px)] w-[min(100vw-2rem,280px)] overflow-y-auto overscroll-contain rounded-2xl border border-[#e4dfd5] bg-white py-2 shadow-2xl shadow-black/10">
               {user && (
                 <div className="border-b border-[#efe9dd] px-4 pb-2.5 pt-1">
-                  <p className="truncate text-[13px] font-semibold text-[#1b231e]">{user.name ?? "Account"}</p>
-                  <p className="truncate text-[11px] text-[#9aa097]">{user.email}</p>
+                  <p className="truncate text-[13px] font-semibold text-[#1b231e]">
+                    {user.name ?? "Account"}
+                  </p>
+                  <p className="truncate text-[11px] text-[#9aa097]">
+                    {user.email}
+                  </p>
                 </div>
               )}
 
               <div className="lg:hidden">
                 {NAV.map((item) => {
-                  const active = item.match(pathname)
+                  const active = item.match(pathname);
                   if (item.featured) {
                     return (
                       <Link
@@ -208,10 +252,12 @@ export function PlatformNav() {
                             : "border border-[#ded7cb] bg-[#faf8f3] text-[#1b231e]"
                         }`}
                       >
-                        <Gauge className={`h-3.5 w-3.5 ${active ? "text-white" : "text-[#2f5d50]"}`} />
-                        My Workspace
+                        <Truck
+                          className={`h-3.5 w-3.5 ${active ? "text-white" : "text-[#2f5d50]"}`}
+                        />
+                        Arrange delivery
                       </Link>
-                    )
+                    );
                   }
                   return (
                     <Link
@@ -220,12 +266,14 @@ export function PlatformNav() {
                       onClick={() => setMenuOpen(false)}
                       aria-current={active ? "page" : undefined}
                       className={`flex items-center gap-2 px-4 py-3 text-[13px] font-semibold transition ${
-                        active ? "bg-[#fbeae0] text-[#e0511f]" : "text-[#4a5047] hover:bg-[#faf8f3] hover:text-[#1b231e]"
+                        active
+                          ? "bg-[#fbeae0] text-[#e0511f]"
+                          : "text-[#4a5047] hover:bg-[#faf8f3] hover:text-[#1b231e]"
                       }`}
                     >
                       {item.label}
                     </Link>
-                  )
+                  );
                 })}
                 <div className="my-1 border-t border-[#efe9dd]" />
               </div>
@@ -276,5 +324,5 @@ export function PlatformNav() {
         </div>
       </div>
     </header>
-  )
+  );
 }

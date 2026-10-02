@@ -11,7 +11,7 @@ export async function GET() {
     userId: String(user.id),
     email: user.email ?? null,
     roles: [],
-    home: "/workspace",
+    home: "/book",
   })
 }
 

@@ -18,5 +18,5 @@ export async function requireSignedIn(currentPath: string): Promise<SessionRoles
 
 /** @deprecated Logistics apps removed — always sends users to My Workspace. */
 export function defaultHomeForRoles(_roles: unknown[]): string {
-  return "/workspace"
+  return "/book"
 }

@@ -99,7 +99,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
             transition={{ duration: 0.5, delay: 0.08, ease: easeOut }}
             className="mt-4 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base"
           >
-            Questions about career assessments, sponsorship jobs, or your account? Send a note — we read every message.
+            Questions about a corridor, a bulk lot, or an export lane? Send a note — we read every message.
           </motion.p>
 
           <motion.div
@@ -115,17 +115,17 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               {PUBLIC_CONTACT_EMAIL}
             </a>
             <Link
-              href="/workspace"
+              href="/book"
               className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 underline decoration-orange-500/35 underline-offset-4 hover:text-white"
             >
-              My Workspace
+              Book a move
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              href="/work-simulation"
+              href="/track"
               className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 underline decoration-orange-500/35 underline-offset-4 hover:text-white"
             >
-              Work Simulation
+              Track a shipment
               <ArrowRight className="h-4 w-4" />
             </Link>
           </motion.div>
@@ -140,11 +140,11 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               <ul className="mt-6 space-y-4 text-sm text-[#475569]">
                 <li className="flex gap-3">
                   <MessageSquare className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />
-                  <span>Career assessments, badges, and skill-gap questions.</span>
+                  <span>A state corridor, a truck, or a fare estimate.</span>
                 </li>
                 <li className="flex gap-3">
                   <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />
-                  <span>Visa sponsor search and sponsorship job listings.</span>
+                  <span>A bulk lot, or an export lane out of Apapa, Tin Can or Onne.</span>
                 </li>
                 <li className="flex gap-3">
                   <Phone className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />
@@ -238,7 +238,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
                           value={subject}
                           onChange={(e) => setSubject(e.target.value)}
                           className="w-full rounded-xl border border-[#e2e8f0] bg-[#fafafa] px-4 py-3 text-sm text-[#0f172a] outline-none transition focus:border-[#bf6a3c] focus:ring-2 focus:ring-[#bf6a3c]/20"
-                          placeholder="e.g. Question about a Lisbon nomad visa"
+                          placeholder="e.g. 40 tonnes of yam, Makurdi to Mile 12"
                         />
                       </label>
                       <label className="block sm:col-span-2">

@@ -4,21 +4,20 @@ import { buildPageMetadata } from "@/lib/site-metadata"
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Cookie Policy",
-  description: "The cookies and browser storage EasyMoveZone uses, and how to control them.",
+  description: "The cookies and browser storage EasyMoveZone uses to keep you signed in and remember a move on this device.",
   path: "/legal/cookies",
 })
 
 const rows = [
   { name: "Sign-in session cookies", purpose: "Keep you signed in and protect your account from forged requests.", type: "Strictly necessary", duration: "Session to 30 days" },
-  { name: "Workspace progress (local storage)", purpose: "Remembers your in-progress move plan, profile draft and detected skills on this device so you don't lose work.", type: "Functional", duration: "Until you clear it" },
-  { name: "Stripe cookies", purpose: "Set by Stripe on checkout and billing pages to process payments and prevent fraud.", type: "Strictly necessary", duration: "Up to 2 years" },
+  { name: "Shipment drafts (local storage)", purpose: "Remembers moves you save in this browser so tracking can find the reference.", type: "Functional", duration: "Until you clear it" },
 ]
 
 const sections = [
   {
     id: "what",
     title: "What cookies are",
-    body: <p>Cookies are small text files that a website stores in your browser. Local storage is a similar browser feature that lets a site remember information on your device. We use both only to run EasyMoveZone and remember your progress.</p>,
+    body: <p>Cookies are small text files a website stores in your browser. Local storage is a similar feature that lets a site remember information on your device. We use both to run EasyMoveZone and to keep a move reference on the device where you saved it.</p>,
   },
   {
     id: "what-we-use",
@@ -34,7 +33,7 @@ const sections = [
           </tbody>
         </table>
       </div>
-      <p>We don&apos;t use advertising or cross-site tracking cookies, and we don&apos;t currently use analytics cookies. If we add analytics, we&apos;ll update this policy and ask for your consent first where the law requires it.</p>
+      <p>We don&apos;t use advertising cookies.</p>
     </>,
   },
   {
@@ -48,7 +47,7 @@ const sections = [
         <LegalLink key="firefox" href="https://support.mozilla.org/kb/clear-cookies-and-site-data-firefox">Firefox</LegalLink>,
         <LegalLink key="edge" href="https://support.microsoft.com/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09">Microsoft Edge</LegalLink>,
       ]} />
-      <p>If you block strictly necessary cookies you won&apos;t be able to sign in. If you clear local storage, any unsaved workspace progress on that device will be lost. Anything saved to your account is not affected.</p>
+      <p>If you block strictly necessary cookies you won&apos;t be able to sign in. If you clear local storage, move references saved only on that device are removed.</p>
     </>,
   },
   {
@@ -63,8 +62,8 @@ export default function CookiesPage() {
     <LegalPage
       current="/legal/cookies"
       title="Cookie Policy"
-      updated="27 September 2026"
-      intro={<p>This policy explains the small amount of browser storage EasyMoveZone uses. It&apos;s there to keep you signed in and to save your progress, not to track you.</p>}
+      updated="2 October 2026"
+      intro={<p>This policy explains the browser storage EasyMoveZone uses to keep you signed in and to remember a move on this device.</p>}
       sections={sections}
     />
   )

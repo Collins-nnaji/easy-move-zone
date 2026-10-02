@@ -10,12 +10,6 @@ type Entry = {
 
 const corePages: Entry[] = [
   { path: "/", priority: 1, changeFrequency: "weekly" },
-  { path: "/jobs", priority: 0.9, changeFrequency: "daily" },
-  { path: "/sponsors", priority: 0.9, changeFrequency: "weekly" },
-  { path: "/workspace", priority: 0.9, changeFrequency: "monthly" },
-  { path: "/education", priority: 0.8, changeFrequency: "monthly" },
-  { path: "/work-simulation", priority: 0.7, changeFrequency: "monthly" },
-  { path: "/specialist-support", priority: 0.6, changeFrequency: "monthly" },
   { path: "/contact", priority: 0.5, changeFrequency: "yearly" },
   { path: "/legal/privacy", priority: 0.3, changeFrequency: "yearly" },
   { path: "/legal/terms", priority: 0.3, changeFrequency: "yearly" },

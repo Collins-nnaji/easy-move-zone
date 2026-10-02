@@ -1,6 +1,6 @@
 {
   "name": "easy-move-zone",
-  "description": "Career transition and visa-sponsored jobs",
+  "description": "Nigerian agricultural logistics and produce export corridors",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -43,7 +43,8 @@
     "react-dom": "19.2.3",
     "stripe": "^17.7.0",
     "tailwind-merge": "^3.4.0",
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@capacitor/cli": "^6.2.0",
