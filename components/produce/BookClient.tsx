@@ -259,7 +259,7 @@ export function BookClient() {
                   type="number"
                   min="0.1"
                   max="500"
-                  step="0.1"
+                  step="any"
                   inputMode="decimal"
                   required
                   value={weight}

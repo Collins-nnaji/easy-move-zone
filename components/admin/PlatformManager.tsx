@@ -1050,7 +1050,18 @@ export function PlatformManager() {
                   listings, produce types, routes or page headers in the editor.
                 </p>
               </div>
-              <label className={styles.primaryButton}>
+              <label
+                className={styles.primaryButton}
+                tabIndex={0}
+                role="button"
+                aria-disabled={busy}
+                onKeyDown={(event) => {
+                  if (!busy && (event.key === "Enter" || event.key === " ")) {
+                    event.preventDefault();
+                    event.currentTarget.querySelector("input")?.click();
+                  }
+                }}
+              >
                 {busy ? "Uploading…" : "Upload picture"}
                 <input
                   type="file"

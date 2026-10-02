@@ -18,19 +18,25 @@ function text(
 ) {
   const v = typeof o[key] === "string" ? o[key].trim() : "";
   if ((!optional && !v) || v.length > max)
-    throw new ValidationError(`Please check ${key}.`);
+    throw new ValidationError(
+      `Please check ${key.replace(/[A-Z]/g, " $&").toLowerCase()}.`,
+    );
   return v;
 }
 function number(o: Record<string, unknown>, key: string, max = 1e10) {
   const v = o[key];
   if (typeof v !== "number" || !Number.isFinite(v) || v <= 0 || v > max)
-    throw new ValidationError(`Please check ${key}.`);
+    throw new ValidationError(
+      `Please check ${key.replace(/[A-Z]/g, " $&").toLowerCase()}.`,
+    );
   return v;
 }
 function choice(o: Record<string, unknown>, key: string, options: string[]) {
   const value = text(o, key);
   if (!options.includes(value))
-    throw new ValidationError(`Please check ${key}.`);
+    throw new ValidationError(
+      `Please check ${key.replace(/[A-Z]/g, " $&").toLowerCase()}.`,
+    );
   return value;
 }
 export function imageUrl(value: unknown) {

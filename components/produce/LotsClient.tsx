@@ -83,7 +83,7 @@ function ProduceListing({ lot }: { lot: ProduceCatalog["lots"][number] }) {
               type="number"
               min="0.1"
               max={lot.tonnes}
-              step="0.1"
+              step="any"
               value={quantity}
               onChange={(event) => setQuantity(event.target.value)}
               aria-invalid={!validWeight}

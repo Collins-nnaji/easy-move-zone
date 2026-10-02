@@ -260,7 +260,7 @@ export function ExportBoard() {
                     type="number"
                     min="0.1"
                     max="500"
-                    step="0.1"
+                    step="any"
                     value={quantity}
                     onChange={(event) => setQuantity(event.target.value)}
                   />

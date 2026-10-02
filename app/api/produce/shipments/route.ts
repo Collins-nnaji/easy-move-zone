@@ -75,7 +75,7 @@ export async function POST(request: Request) {
           (r.from === destination.id && r.to === origin.id)),
     );
     const shipment = await createShipment({
-      reference: `EMZ-${(typeof b.requestId === "string" && /^[a-f0-9-]{36}$/.test(b.requestId) ? b.requestId : crypto.randomUUID()).replaceAll("-", "").slice(0, 20).toUpperCase()}`,
+      reference: `EMZ-${(typeof b.requestId === "string" && /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(b.requestId) ? b.requestId : crypto.randomUUID()).replaceAll("-", "").slice(0, 20).toUpperCase()}`,
       role: b.role,
       commodityId: crop.id,
       tonnes: b.tonnes,

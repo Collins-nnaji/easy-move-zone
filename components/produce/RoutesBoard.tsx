@@ -388,7 +388,7 @@ export function RoutesBoard() {
                   type="number"
                   min="0.1"
                   max="500"
-                  step="0.1"
+                  step="any"
                   value={weight}
                   onChange={(event) => setWeight(event.target.value)}
                   aria-invalid={!validWeight}

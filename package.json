@@ -10,7 +10,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:setup": "node scripts/run-driver-setup.mjs",
+    "db:setup": "node --env-file-if-exists=.env scripts/run-produce-setup.mjs",
     "db:copy-jobs": "node scripts/copy-rekruuter-job-tables.mjs",
     "education:import": "node --env-file=.env scripts/import-education.ts",
     "cap:sync": "cap sync",
