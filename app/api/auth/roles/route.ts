@@ -3,7 +3,7 @@ import { neonAuth } from "@neondatabase/auth/next/server"
 
 export const runtime = "nodejs"
 
-/** Logistics roles removed — career product uses a single account. */
+/** Current produce platform accounts use a single sign-in. */
 export async function GET() {
   const { session, user } = await neonAuth()
   if (!session || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })

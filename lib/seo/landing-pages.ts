@@ -1,4 +1,4 @@
-/** Public product pages. Drives the sitemap, footer and footer visibility. */
+/** Public product pages. Drives the sitemap and landing page footer links. */
 export const LANDING_PAGES = [
   { href: "/routes", label: "Delivery routes", priority: 0.9 },
   { href: "/book", label: "Arrange delivery", priority: 0.9 },

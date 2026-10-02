@@ -5,17 +5,12 @@ import { PlatformNav } from "@/components/platform/PlatformNav";
 import { PlatformFooter } from "@/components/platform/PlatformFooter";
 import { SupportWidget } from "@/components/platform/SupportWidget";
 import { ClientErrorBoundary } from "@/components/monitoring/ClientErrorBoundary";
-import { LANDING_HREFS } from "@/lib/seo/landing-pages";
 
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuth = pathname === "/auth" || pathname.startsWith("/auth/");
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
-  const showFooter =
-    pathname === "/" ||
-    pathname.startsWith("/legal/") ||
-    pathname === "/contact" ||
-    LANDING_HREFS.includes(pathname);
+  const showFooter = pathname === "/";
 
   if (isAuth) {
     return (

@@ -46,3 +46,6 @@ next-env.d.ts
 /ios
 /android
 /native/www/**/*.map
+
+# Private local database backups
+/.local/

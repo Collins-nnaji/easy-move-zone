@@ -10,6 +10,6 @@ export default defineConfig({
       "lib/**/*.test.{ts,tsx}",
       "src/**/*.test.{ts,tsx}",
     ],
-    exclude: ["Rekruuter/**", "node_modules/**", ".next/**"],
+    exclude: ["node_modules/**", ".next/**"],
   },
 })
