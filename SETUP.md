@@ -82,7 +82,7 @@ These should already exist in your hosting environment:
 ```bash
 DATABASE_URL=                 # Neon Postgres connection string
 NEON_AUTH_COOKIE_SECRET=      # Neon Auth session secret
-NEON_AUTH_BASE_URL=           # e.g. https://your-app.vercel.app
+NEON_AUTH_BASE_URL=           # Neon Console Auth endpoint (not your app URL)
 NEON_DATA_API_URL=            # Neon Data API URL
 NEXT_PUBLIC_APP_URL=          # Public site URL (same as production URL)
 ```

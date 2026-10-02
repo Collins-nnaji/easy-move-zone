@@ -1,3 +1,8 @@
-import { authApiHandler } from "@neondatabase/auth/next/server"
+import { forwardAuthRequest } from "@/lib/auth/proxy";
 
-export const { GET, POST, PUT, DELETE, PATCH } = authApiHandler()
+export const dynamic = "force-dynamic";
+type Context = { params: Promise<{ path: string[] }> };
+async function handler(request: Request, context: Context) {
+  return forwardAuthRequest(request, (await context.params).path);
+}
+export { handler as GET, handler as POST, handler as PUT, handler as DELETE, handler as PATCH };

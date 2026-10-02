@@ -16,15 +16,15 @@ const VERIFIER_PARAM = "neon_auth_session_verifier";
  * its job) and then removes the param with replaceState, without a navigation.
  */
 export function AuthSessionCleanup() {
-  const { isPending } = authClient.useSession();
+  const { data, isPending } = authClient.useSession();
 
   useEffect(() => {
-    if (isPending || typeof window === "undefined") return;
+    if (!data?.user || isPending || typeof window === "undefined") return;
     const url = new URL(window.location.href);
     if (!url.searchParams.has(VERIFIER_PARAM)) return;
     url.searchParams.delete(VERIFIER_PARAM);
     window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
-  }, [isPending]);
+  }, [data?.user, isPending]);
 
   return null;
 }

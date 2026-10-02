@@ -1,5 +1,8 @@
 "use client"
 
+import { useToast } from "@/components/ui/Toast"
+import { signOutAndRedirect } from "@/lib/auth/sign-out"
+
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -37,6 +40,8 @@ const NAV_LINKS = [
 ]
 
 export function Header() {
+  const toast = useToast()
+  const [signingOut, setSigningOut] = React.useState(false)
   const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = React.useState(false)
   const [userMenuOpen, setUserMenuOpen] = React.useState(false)
@@ -74,9 +79,14 @@ export function Header() {
   async function handleSignOut() {
     setUserMenuOpen(false)
     setIsMenuOpen(false)
-    await authClient.signOut()
-    router.push("/")
-    router.refresh()
+    if (signingOut) return
+    setSigningOut(true)
+    try {
+      await signOutAndRedirect()
+    } catch {
+      setSigningOut(false)
+      toast.error("We couldn’t sign you out. Please try again.")
+    }
   }
 
   const user = sessionData?.user ?? null

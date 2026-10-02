@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { authClient } from "@/lib/auth/client";
+import { signOutAndRedirect } from "@/lib/auth/sign-out";
+import { useToast } from "@/components/ui/Toast";
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants";
 import { SiteLogo } from "@/components/brand/SiteLogo";
 
@@ -51,6 +53,8 @@ const NAV = [
 
 export function PlatformNav() {
   const pathname = usePathname();
+  const toast = useToast();
+  const [signingOut, setSigningOut] = useState(false);
   const {
     data: sessionData,
     isPending: sessionPending,
@@ -91,13 +95,14 @@ export function PlatformNav() {
   }, [menuOpen]);
 
   async function handleSignOut() {
-    setMenuOpen(false);
+    if (signingOut) return;
+    setSigningOut(true);
     try {
-      await authClient.signOut();
+      await signOutAndRedirect();
     } catch {
-      /* force reload below */
+      setSigningOut(false);
+      toast.error("We couldn’t sign you out. Please try again.");
     }
-    window.location.href = "/";
   }
 
   function getInitials(name?: string | null, email?: string | null) {
@@ -303,10 +308,11 @@ export function PlatformNav() {
                   <button
                     type="button"
                     onClick={handleSignOut}
+                    disabled={signingOut}
                     className="flex w-full items-center gap-3 px-4 py-2.5 text-[13px] text-[#c0492a] transition hover:bg-[#fbeae0]"
                   >
                     <LogOut className="h-4 w-4" />
-                    Sign out
+                    {signingOut ? "Signing out…" : "Sign out"}
                   </button>
                 </>
               ) : (

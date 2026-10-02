@@ -1,3 +1,5 @@
+import { forwardAuthRequest } from "@/lib/auth/proxy"
+import { safeAuthRedirect } from "@/lib/auth/redirect"
 import { NextResponse, type NextRequest } from "next/server"
 import { neonAuthMiddleware } from "@neondatabase/auth/next/server"
 
@@ -22,7 +24,43 @@ export default async function middleware(request: NextRequest) {
 
   if (!guarded && !searchParams.has(VERIFIER_PARAM)) return NextResponse.next()
 
+  // Neon skips the login URL and legacy callback before exchanging the verifier.
+  // Forward those landings to a public page where the exchange can finish.
+  if (pathname === "/auth" || pathname.startsWith("/auth/")) {
+    const target = new URL(safeAuthRedirect(searchParams.get("redirect")), request.url)
+    target.searchParams.set(VERIFIER_PARAM, searchParams.get(VERIFIER_PARAM)!)
+    return NextResponse.redirect(target)
+  }
+
+  // Exchange OAuth with the same proxy as email sign-in so each session cookie
+  // is preserved independently, including cookies with an Expires comma.
+  if (searchParams.has(VERIFIER_PARAM) && request.cookies.has("__Secure-neon-auth.session_challange")) {
+    const exchange = await forwardAuthRequest(request, ["get-session"])
+    const session = exchange.ok ? await exchange.json().catch(() => null) : null
+    const target = new URL(request.url)
+    target.searchParams.delete(VERIFIER_PARAM)
+    if (!session?.session || !session?.user) {
+      const login = new URL("/auth", request.url)
+      login.searchParams.set("redirect", `${target.pathname}${target.search}`)
+      login.searchParams.set("error", "oauth")
+      return NextResponse.redirect(login)
+    }
+    const completed = NextResponse.redirect(target)
+    for (const cookie of exchange.headers.getSetCookie()) completed.headers.append("Set-Cookie", cookie)
+    return completed
+  }
+
   const response = await authMiddleware(request)
+  if (guarded) {
+    const location = response.headers.get("location")
+    if (location) {
+      const target = new URL(location, request.url)
+      if (target.pathname === "/auth") {
+        target.searchParams.set("redirect", `${pathname}${request.nextUrl.search}`)
+        response.headers.set("location", target.href)
+      }
+    }
+  }
   if (!guarded) {
     const location = response.headers.get("location")
     if (location && new URL(location, request.url).pathname === "/auth") return NextResponse.next()

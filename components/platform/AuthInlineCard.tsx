@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import { FormEvent, useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
+import { safeAuthRedirect } from "@/lib/auth/redirect"
 import { authClient } from "@/lib/auth/client"
 import { Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react"
 import { clsx } from "clsx"
@@ -13,25 +14,23 @@ export function AuthInlineCard({
   redirectIfAuthenticated = false,
   hideWhenAuthenticated = false,
 }: { redirectIfAuthenticated?: boolean; hideWhenAuthenticated?: boolean }) {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const requested = searchParams.get("redirect")
-  const redirectTarget =
-    requested && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/book"
+  const redirectTarget = safeAuthRedirect(requested)
   const urlMode = searchParams.get("mode")
   const [mode, setMode] = useState<Mode>(urlMode === "signup" ? "sign-up" : "sign-in")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState<"email" | "google" | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(searchParams.get("error") ? "Sign-in did not finish. Please try again." : null)
   const [info, setInfo] = useState<string | null>(null)
-  const { data: sessionData, refetch: refetchSession } = authClient.useSession()
+  const { data: sessionData, isPending: sessionPending, refetch: refetchSession } = authClient.useSession()
 
   useEffect(() => {
-    if (!redirectIfAuthenticated || !sessionData?.user) return
+    if (!redirectIfAuthenticated || sessionPending || loading || !sessionData?.user) return
     window.location.assign(redirectTarget)
-  }, [sessionData?.user, redirectTarget, redirectIfAuthenticated])
+  }, [sessionData?.user, sessionPending, loading, redirectTarget, redirectIfAuthenticated])
 
   if (hideWhenAuthenticated && sessionData?.user) return null
 
@@ -43,27 +42,29 @@ export function AuthInlineCard({
     try {
       if (mode === "sign-up") {
         const result = await authClient.signUp.email({
-          email,
+          email: email.trim(),
           password,
-          name: name || email.split("@")[0],
-          callbackURL: redirectTarget,
+          name: name.trim() || email.trim().split("@")[0],
+          callbackURL: new URL(redirectTarget, window.location.origin).href,
         })
         if (result.error) throw new Error(result.error.message || "Sign up failed.")
         if (!result.data?.token) {
+          await refetchSession()
+          const createdSession = await authClient.getSession()
+          if (createdSession.data?.user) { window.location.assign(redirectTarget); return }
           setMode("sign-in")
           setInfo("Account created. Check your email to verify your address, then sign in.")
           return
         }
       } else {
         const result = await authClient.signIn.email({
-          email,
+          email: email.trim(),
           password,
-          callbackURL: redirectTarget,
+          callbackURL: new URL(redirectTarget, window.location.origin).href,
         })
         if (result.error) throw new Error(result.error.message || "Sign in failed.")
       }
       await refetchSession()
-      router.refresh()
       const nextSession = await authClient.getSession()
       if (!nextSession.data?.user) {
         setError("Sign-in did not complete. Check your email and password.")
@@ -81,13 +82,12 @@ export function AuthInlineCard({
     setLoading("google")
     setError(null)
     try {
-      const result = await authClient.signIn.social({ provider: "google", callbackURL: redirectTarget })
-      if (result.error) {
-        setError(result.error.message || "Google sign-in failed. Please try again.")
-        setLoading(null)
-      }
-    } catch {
-      setError("Google sign-in failed. Please try again.")
+      const result = await authClient.signIn.social({ provider: "google", callbackURL: new URL(redirectTarget, window.location.origin).href })
+      if (result.error) throw new Error(result.error.message || "Google sign-in failed. Please try again.")
+      if (result.data?.url && !result.data.redirect) window.location.assign(result.data.url)
+      else if (!result.data?.url) throw new Error("Google sign-in is unavailable. Please use email.")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Google sign-in failed. Please try again.")
       setLoading(null)
     }
   }
@@ -103,7 +103,7 @@ export function AuthInlineCard({
             {mode === "sign-up" ? "Create account" : "Sign in"}
           </h3>
           <p className="mt-1 text-sm text-[#5f655c]">
-            {mode === "sign-up" ? "Save your move abroad plan." : "Pick up where you left off."}
+            {mode === "sign-up" ? "Arrange deliveries and manage your account." : "Pick up where you left off."}
           </p>
         </div>
         <div className="inline-flex rounded-xl border border-[#e4dfd5] bg-[#f6f3ec] p-1">
@@ -113,6 +113,7 @@ export function AuthInlineCard({
               "rounded-lg px-3.5 py-1.5 text-xs font-bold transition",
               mode === "sign-up" ? "bg-[#1b231e] text-white" : "text-[#5f655c] hover:text-[#1b231e]",
             )}
+            disabled={loading !== null}
             onClick={() => { setMode("sign-up"); setError(null); setInfo(null) }}
           >
             Register
@@ -123,6 +124,7 @@ export function AuthInlineCard({
               "rounded-lg px-3.5 py-1.5 text-xs font-bold transition",
               mode === "sign-in" ? "bg-[#1b231e] text-white" : "text-[#5f655c] hover:text-[#1b231e]",
             )}
+            disabled={loading !== null}
             onClick={() => { setMode("sign-in"); setError(null); setInfo(null) }}
           >
             Sign in
@@ -159,16 +161,16 @@ export function AuthInlineCard({
         {mode === "sign-up" && (
           <div className="relative">
             <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa097]" />
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className={fieldClass} />
+            <input aria-label="Full name" autoComplete="name" disabled={loading !== null} value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className={fieldClass} />
           </div>
         )}
         <div className="relative">
           <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa097]" />
-          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className={fieldClass} />
+          <input aria-label="Email" autoComplete="email" disabled={loading !== null} required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className={fieldClass} />
         </div>
         <div className="relative">
           <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa097]" />
-          <input required minLength={8} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className={fieldClass} />
+          <input aria-label="Password" autoComplete={mode === "sign-up" ? "new-password" : "current-password"} disabled={loading !== null} required minLength={mode === "sign-up" ? 8 : undefined} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className={fieldClass} />
         </div>
 
         {info && <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-semibold text-emerald-800">{info}</p>}
