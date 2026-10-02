@@ -4,7 +4,7 @@ import { buildPageMetadata } from "@/lib/site-metadata"
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Privacy Policy",
-  description: "How EasyMoveZone collects, uses and protects personal information when you book produce moves or contact us.",
+  description: "How EasyMoveZone collects, uses and protects personal information when you book home, office and bulky-item moves or contact us.",
   path: "/legal/privacy",
 })
 
@@ -13,7 +13,7 @@ const sections = [
     id: "who-we-are",
     title: "Who we are",
     body: <>
-      <p>EasyMoveZone (&ldquo;we&rdquo;, &ldquo;us&rdquo;) runs a produce corridor for moving Nigerian food between states and toward export ports. We are the controller of the personal information described in this policy.</p>
+      <p>EasyMoveZone (&ldquo;we&rdquo;, &ldquo;us&rdquo;) coordinates home moves, office relocations and bulky-item transport in Nigeria. We are the controller of the personal information described in this policy.</p>
       <p>You can contact us about privacy at <Mail />.</p>
     </>,
   },
@@ -24,7 +24,7 @@ const sections = [
       <p><strong className="text-[#1b231e]">Information you give us</strong></p>
       <Bullets items={[
         "Account details: your name, email address and password, or the basic profile Google shares if you sign in with Google.",
-        "Move details you type into a booking: crop, weight, origin, destination, ready date and a contact name or phone.",
+        "Move details you submit: inventory, optional photos, move size, addresses, floor levels, access instructions, preferred date, requested extras and contact details.",
         "Messages you send through the contact form, including an optional phone number.",
       ]} />
       <p><strong className="text-[#1b231e]">Information created when you use the service</strong></p>
@@ -40,7 +40,7 @@ const sections = [
     body: <>
       <Bullets items={[
         <><strong className="text-[#1b231e]">To provide the service</strong>: signing you in, keeping a move reference, and showing tracking steps.</>,
-        <><strong className="text-[#1b231e]">To reply to you</strong>: answering questions about corridors, lots and export lanes.</>,
+        <><strong className="text-[#1b231e]">To reply to you</strong>: answering questions about quotes, moving services and existing moves.</>,
         <><strong className="text-[#1b231e]">To keep the service safe</strong>: preventing abuse, fixing errors and understanding which pages are used.</>,
         <><strong className="text-[#1b231e]">To meet legal obligations</strong>: keeping records the law requires, and responding to lawful requests.</>,
       ]} />
@@ -51,7 +51,7 @@ const sections = [
     id: "sharing",
     title: "Who we share it with",
     body: <>
-      <p>We share personal information with service providers who process it for us and under contract, including hosting, sign-in, email, error monitoring and Google Analytics for site usage statistics. A confirmed haulage partner receives the contact and load details needed to move that shipment.</p>
+      <p>We share personal information with service providers who process it for us and under contract, including hosting, sign-in, email, error monitoring and Google Analytics for site usage statistics. A confirmed moving partner receives the contact, inventory and access details needed to carry out your move. Inventory photos are used to plan transport and review item condition.</p>
       <p>We may also disclose information if the law requires it, or as part of a business reorganisation. In a reorganisation, your information would stay protected by this policy.</p>
     </>,
   },
@@ -84,8 +84,8 @@ export default function PrivacyPage() {
     <LegalPage
       current="/legal/privacy"
       title="Privacy Policy"
-      updated="2 October 2026"
-      intro={<p>This policy explains what personal information EasyMoveZone collects when you book a produce move or write to us, and the choices you have.</p>}
+      updated="3 October 2026"
+      intro={<p>This policy explains what personal information EasyMoveZone collects when you book a home, office or bulky-item move or write to us, and the choices you have.</p>}
       sections={sections}
     />
   )

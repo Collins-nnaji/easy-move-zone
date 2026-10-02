@@ -1,9 +1,9 @@
 export const BRAND = {
   name: "EasyMoveZone",
   shortName: "EasyMoveZone",
-  tagline: "Move Nigerian food. Across states. Across borders.",
+  tagline: "Your move, made easy.",
   description:
-    "EasyMoveZone books trucks for Nigerian farm produce between states, lists bulk lots by the tonne, and carries export-grade lots to port.",
+    "Book trusted movers for your home, office and heavy items in Nigeria. Trucks, loading crews and packing help with clear pricing, starting in Lagos.",
   logo: "/emz.svg",
   logoAlt: "EasyMoveZone",
   /** Intrinsic aspect ratio of emz.svg (1440×515) — keeps the mark undistorted. */

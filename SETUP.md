@@ -1,189 +1,57 @@
-# EasyMoveZone — make it real
+# EasyMoveZone setup
 
-Simplified product surface:
+## App and authentication
 
-| Path | Who | Purpose |
-|------|-----|---------|
-| `/` | Everyone | Marketing |
-| `/move` | Drivers / truck owners | Claim loads, schedule, wallet, vault |
-| `/fleet` | Fleet operators | Post loads, find drivers, fund & manage workload |
-| `/auth` | Everyone | Sign in / sign up |
-| `/profile` | Signed-in users | Marketplace account |
-| `/contact` | Everyone | Support |
-
-## Phase 5 platform ops (live)
-
-- **SMS + push:** Claim / book / complete fan out to in-app + Resend email + Twilio SMS + Web Push (each channel skips if not configured)
-- **GPS / maps:** Clock-in captures geolocation; live OSM map on Schedule; Navigate opens Google Maps; Arrived marks waypoints
-- **1099 export:** Wallet → tax summary + CSV download at `/api/driver/tax/1099?year=YYYY&format=csv`
-- **Monitoring:** Optional Sentry DSN (`SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`) + client error boundary; `/api/health/integrations` reports config flags
+Install dependencies with `npm install`. Configure `.env` using `.env.example`:
 
 ```bash
-TWILIO_ACCOUNT_SID=
-TWILIO_AUTH_TOKEN=
-TWILIO_FROM_PHONE=
-VAPID_PUBLIC_KEY=
-VAPID_PRIVATE_KEY=
-VAPID_SUBJECT=mailto:ops@easymovezone.com
-NEXT_PUBLIC_VAPID_PUBLIC_KEY=
-SENTRY_DSN=
-NEXT_PUBLIC_SENTRY_DSN=
-```
-
-Generate VAPID keys with: `npx web-push generate-vapid-keys`
-
-## Phase 4 marketplace ops (live)
-
-- **KYC queue** — `/admin/kyc` — approve/reject driver vault uploads (uploads stay `pending` until approved)
-- **Cashout monitor** — `/admin/cashouts` — failed Stripe transfers logged in `marketplace_payments`
-- **Dispute flags** — `/admin/disputes` — triage 1–2 star ratings on completed loads
-- **Access** — email must be in `admin_users` table (see `db/migrations/20260310_agent_flag_and_admin.sql`)
-
-## Phase 3 trust & legal (live)
-
-- **Vault uploads:** Drivers upload CDL / background / medical / insurance files from `/move/vault` (stored as base64 in Postgres for now; max ~1.5MB)
-- **Verified badge:** All four required docs must be **approved by ops** in `/admin/kyc`; verified drivers sort first in fleet Find Drivers
-- **Bilateral ratings:** After a load completes, driver and fleet each get a rating sheet (1–5 + optional comment)
-- **Legal pages:** `/legal/privacy`, `/legal/terms`, `/legal/cookies` (short links `/privacy`, `/terms`, `/cookies`; linked in footer and on sign-in)
-- **News:** paused — `/news` and `/admin/news` temporarily redirect (see `next.config.ts`); code is kept for re-enabling
-
-For object storage at scale, swap vault `file_data` for S3/R2/Blob and keep the same API shape.
-
-## Phase 2 escrow (live)
-
-- Drivers can **only claim funded loads**
-- Completing a load only pays out if escrow was funded
-- Fleet post → auto-funds escrow (Stripe Checkout if keys set; ledger escrow otherwise)
-- Seeded demo loads are pre-funded
-
-**Add for real card payments:**
-```
-STRIPE_SECRET_KEY=
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
-STRIPE_WEBHOOK_SECRET=
-```
-
-## Phase 1 booking (live)
-
-- Drivers: Home → **Book a load** → `/move/shifts` → slide to claim (sign in only if needed)
-- Fleet: **Book this driver** → pick open load → driver gets Accept offer
-- Claim emails: set `RESEND_API_KEY` + `RESEND_FROM_EMAIL` (otherwise in-app notification only)
-
-Then run:
-
-```bash
-npm run db:setup
-```
-
-## 1. Already wired (Neon)
-
-These should already exist in your hosting environment:
-
-```bash
-DATABASE_URL=                 # Neon Postgres connection string
+DATABASE_URL=                 # Neon PostgreSQL connection string
 NEON_AUTH_COOKIE_SECRET=      # Neon Auth session secret
-NEON_AUTH_BASE_URL=           # Neon Console Auth endpoint (not your app URL)
-NEON_DATA_API_URL=            # Neon Data API URL
-NEXT_PUBLIC_APP_URL=          # Public site URL (same as production URL)
+NEON_AUTH_BASE_URL=           # Neon Console Auth endpoint
+NEXT_PUBLIC_APP_URL=          # Public app URL
+NEXT_PUBLIC_WHATSAPP_NUMBER=  # Optional business number, international digits
 ```
 
-Then run:
+`NEON_DATABASE_URL` is accepted as a fallback for `DATABASE_URL`. Keep all credentials private. Neon Auth manages its own `neon_auth` schema; application migrations must not drop it.
+
+## Database
 
 ```bash
 npm run db:setup
 ```
 
-## 2. Add Stripe (required for real money)
+Setup is idempotent, preserves existing records and prepares these application tables:
 
-Create a Stripe account → Developers → API keys.
+| Table | Purpose |
+| --- | --- |
+| `emz_moves` | Move inventories, photos, contacts, access details, quotes, crew and progress |
+| `contact_submissions` | Support, damage reports and partner enquiries |
+| `emz_enquiry_states` | Internal support status and follow-up notes |
+| `admin_users` | Administrator email allowlist |
+| `user_profiles` | Account administration profiles |
 
-```bash
-STRIPE_SECRET_KEY=sk_test_...                 # or sk_live_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_... # or pk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_...               # from Stripe CLI or Dashboard webhook
-STRIPE_JOBS_PRICE_ID=price_...                 # recurring Jobs membership price
-NEXT_PUBLIC_STRIPE_JOBS_PAYMENT_LINK=https://buy.stripe.com/... # optional fallback
-NEXT_PUBLIC_APP_URL=https://YOUR_DOMAIN
-```
+`emz_moves_updated_idx` supports the operations queue. Setup also installs the contact indexes. The app ensures moving/support tables on first use, so its database role needs table creation permission.
 
-### Enable in Stripe Dashboard
+Authorize administrators through the existing `admin_users` allowlist. Authentication alone does not grant admin access. `/admin/users` uses the account/profile tables and Neon Auth records.
 
-1. **Connect** → Settings → enable **Express** accounts (for driver payouts)
-2. **Transfers** capability on connected accounts
-3. Webhook endpoint: `https://YOUR_DOMAIN/api/payments/webhook`
-   - Events: `checkout.session.completed`
-4. Local testing: `stripe listen --forward-to localhost:3000/api/payments/webhook`
+## Booking and operations
 
-### Jobs membership and billing portal
+- `/book` submits quote requests to `/api/moves`. Database failures return an error rather than a booking confirmation.
+- `/admin` reviews inventories, photos and access; confirms quotes in naira; assigns crews; and records arrival updates.
+- `/track` uses a private move reference and omits customer contacts, addresses, inventories and photos. Anyone with the reference can see its tracking details.
+- `/admin/enquiries` manages customer support, damage reports and partner follow-up.
+- Setting `NEXT_PUBLIC_WHATSAPP_NUMBER` enables the WhatsApp link on Contact. Email and the contact form remain available.
 
-1. In Stripe, open **Settings → Billing → Customer portal** and activate/configure the portal.
-2. Add webhook endpoint `https://YOUR_DOMAIN/api/subscription/webhook`.
-3. Subscribe it to `checkout.session.completed`, `customer.subscription.created`,
-   `customer.subscription.updated`, and `customer.subscription.deleted`.
-4. The app creates short-lived portal sessions through `/api/subscription/portal`; Stripe does not provide one permanent customer-management link to store in the app.
+Quotes and job coordination are manual. This flow does not take payments or provide live GPS tracking. Optional email, SMS, analytics and support-widget settings are documented in `.env.example`.
 
-### What Stripe powers in the app
+## Retired database products
 
-- **Drivers** → Wallet → “Connect bank account” (Stripe Connect Express) → Instant cashout transfers money to their bank
-- **Fleet** → My Loads → “Fund with Stripe” (Checkout) → Escrows the driver payout on the load
+The 27 produce, driver, fleet, marketplace and relocation tables were backed up and removed for the moving-platform migration. Their APIs return HTTP 410. Both old setup script names now delegate to moving setup so they cannot recreate retired tables.
 
-Without Stripe keys, cashouts stay ledger-only (safe for demos) and funding returns a clear error.
+The explicit drop list is in `db/migrations/20261003_retire_legacy_tables.sql`. Use `node --env-file=.env scripts/retire-legacy-tables.mjs` to create a private backup only, or append `--apply` to execute that retirement. The script saves records, table definitions, constraints, indexes, triggers, sequence metadata and restore SQL in `.local/database-backups/`, which is excluded from Git. It locks the target tables, rejects data changes since the backup and uses `RESTRICT` in one transaction. Keep the backup secure; it can contain personal data.
 
-## 3. Optional but recommended
+Historical SQL files are archived migration history. Do not run historical driver or agricultural migrations against the current database.
 
-```bash
-# Support chat (Crisp)
-NEXT_PUBLIC_CRISP_WEBSITE_ID=
+## Validation
 
-# Email / SMS / push (see Phase 5)
-RESEND_API_KEY=
-RESEND_FROM_EMAIL=
-TWILIO_ACCOUNT_SID=
-TWILIO_AUTH_TOKEN=
-TWILIO_FROM_PHONE=
-VAPID_PUBLIC_KEY=
-VAPID_PRIVATE_KEY=
-VAPID_SUBJECT=mailto:ops@easymovezone.com
-NEXT_PUBLIC_VAPID_PUBLIC_KEY=
-
-# Monitoring
-SENTRY_DSN=
-NEXT_PUBLIC_SENTRY_DSN=
-```
-
-## 4. What you still need to add (product checklist)
-
-| Capability | Status | What to add |
-|------------|--------|-------------|
-| Auth (email + Google) | Live via Neon Auth | Confirm Google OAuth credentials in Neon Auth console |
-| Driver wallet ledger | Live | — |
-| Stripe Connect payouts | Code ready | Stripe keys + Connect Express + webhook |
-| Fleet load funding | Code ready | Same Stripe account + Checkout |
-| Document uploads (Vault) | Live (DB base64 + ops review) | S3/R2/Blob for scale |
-| Bilateral ratings | Live | — |
-| Marketplace ops admin | Live (`/admin`) | Formal dispute workflow |
-| Terms / Privacy / IC notice | Live | Legal counsel review before production |
-| Live GPS / maps | Live (OSM + geolocation) | Mapbox tiles optional later |
-| SMS / push notifications | Live (Twilio + Web Push) | Set Twilio + VAPID keys |
-| Tax 1099 | Live CSV estimate | CPA review / Stripe Tax year-end |
-| Monitoring | Live (optional Sentry DSN) | Set `SENTRY_DSN` |
-
-## 5. Clean flows (after this update)
-
-```
-Home
- ├─ Driver app (/move)
- │    welcome → zone → vehicle → shifts → schedule → wallet → vault
- │    claim / cashout require sign-in
- │    complete load credits wallet (minus 8% commission)
- │    rate fleet → upload vault docs for Verified badge
- │    GPS clock-in + map · 1099 CSV · push opt-in
- │
- └─ Fleet console (/fleet)
-      setup → dashboard → post load → find drivers → my loads
-      fund load via Stripe Checkout
-      mark complete → driver paid, commission recorded
-      rate driver · Verified badge on partner cards
-```
-
-Dead relocation/travel routes (explore, visas, schools, etc.) have been removed from the app tree.
+Run `npm run dev` for local development. Validate changes with `npx tsc --noEmit`, `npm run lint`, `npm test` and `npm run build`.

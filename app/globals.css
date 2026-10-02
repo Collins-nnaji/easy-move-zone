@@ -828,3 +828,11 @@ html.native-app [data-selectable] {
   .logistics-route-stops { gap: 9px; }
 }
 @media (prefers-reduced-motion: reduce) { .logistics-button { transition: none; } .logistics-button:hover { transform: none; } }
+
+/* Moving directory cards keep the existing service-row design. */
+.logistics-service.moving-area-card { grid-template-columns: 50px minmax(0, 1fr) 30px; }
+.logistics-service.moving-partner-card { grid-template-columns: 50px minmax(0, 1fr); }
+@media (max-width: 640px) {
+  .logistics-service.moving-area-card { grid-template-columns: 30px minmax(0, 1fr) 24px; }
+  .logistics-service.moving-partner-card { grid-template-columns: minmax(0, 1fr); }
+}

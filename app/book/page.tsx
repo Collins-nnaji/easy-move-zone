@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { PublicShell } from "@/components/platform/PublicShell";
-import { BookClient } from "@/components/produce/BookClient";
+import { BookMove } from "@/components/moving/BookMove";
 import { buildPageMetadata } from "@/lib/site-metadata";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Arrange a Produce Delivery",
+  title: "Book a Home, Office or Bulky-item Move",
   description:
-    "Request a Nigerian produce delivery. Share your produce, weight, collection point and destination; our team confirms the price and arrangements.",
+    "Request a moving quote in Lagos. Share your inventory, photos, addresses, stairs and preferred date for a coordinated home, office or bulky-item move.",
   path: "/book",
 });
 
@@ -21,7 +21,7 @@ export default function BookPage() {
           </div>
         }
       >
-        <BookClient />
+        <BookMove />
       </Suspense>
     </PublicShell>
   );

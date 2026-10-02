@@ -5,7 +5,7 @@ import { buildPageMetadata } from "@/lib/site-metadata"
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Contact",
-  description: "Contact EasyMoveZone about interstate produce moves, bulk lots, or export lanes.",
+  description: "Contact EasyMoveZone about home moves, office relocations, bulky-item transport or moving support.",
   path: "/contact",
 })
 

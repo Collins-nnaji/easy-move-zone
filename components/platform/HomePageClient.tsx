@@ -9,70 +9,65 @@ import {
   MapPin,
   Package,
   Truck,
-  Ship,
+  Building2,
 } from "lucide-react";
 import { HeroFreightArt } from "@/components/platform/FreightArt";
-import { useProduceCatalog } from "@/components/produce/CatalogProvider";
-import Image from "next/image";
+import { AREAS } from "@/lib/moving/model";
 
 const SERVICES = [
   {
-    name: "Move your produce",
+    name: "Move my home",
     detail:
-      "From your farm or warehouse to the next market. We arrange the truck, collection and delivery.",
-    href: "/book",
+      "A room or a whole household. Book a truck, a loading crew and optional packing and unpacking.",
+    href: "/book?service=home",
     icon: Truck,
   },
   {
-    name: "Buy produce in bulk",
+    name: "Move my office",
     detail:
-      "Explore available produce by weight, quality and location. Ask our team to help arrange your purchase and transport.",
-    href: "/lots",
-    icon: Package,
+      "Desks, equipment and a coordinated move. Plan around your working hours and get back to business.",
+    href: "/book?service=office",
+    icon: Building2,
   },
   {
-    name: "Get your goods to port",
+    name: "Move an item",
     detail:
-      "We coordinate transport to Apapa, Tin Can or Onne and help you prepare for the next stage of your export.",
-    href: "/export",
-    icon: Ship,
+      "Sofas, fridges, beds and generators. Arrange transport for bulky purchases, from the seller to your door.",
+    href: "/book?service=item",
+    icon: Package,
   },
 ];
 
 export function HomePageClient() {
-  const {
-    corridors: CORRIDORS,
-    commodityById,
-    placeLabel,
-    settings,
-  } = useProduceCatalog();
-  const [selectedRoute, setSelectedRoute] = useState(CORRIDORS[0]?.id ?? "");
-  const route =
-    CORRIDORS.find((item) => item.id === selectedRoute) ?? CORRIDORS[0];
-  const bookingHref = route
-    ? `/book?from=${route.from}&to=${route.to}&crop=${route.crops[0]}`
-    : "/book";
-
+  const [selectedRoute, setSelectedRoute] = useState(AREAS[0]);
+  const bookingHref = `/book?area=${encodeURIComponent(selectedRoute)}`;
   return (
     <div className="logistics-home">
       <section className="logistics-hero">
         <div className="logistics-container logistics-hero-grid">
           <div>
             <p className="logistics-eyebrow">
-              <span /> Nigerian produce. Moving forward.
+              <span /> Your move, made easy.
             </p>
-            <h1 style={{ whiteSpace: "pre-line" }}>{settings.homeTitle}</h1>
-            <p className="logistics-intro">{settings.homeDescription}</p>
+            <h1 style={{ whiteSpace: "pre-line" }}>
+              {"Move your home, office\nor heavy items.\nWithout the stress."}
+            </h1>
+            <p className="logistics-intro">
+              {
+                "Book trusted movers, a truck and packing help in one place. Clear pricing and reliable coordination, starting in Lagos."
+              }
+            </p>
             <div className="logistics-actions">
               <Link href="/book" className="logistics-button">
-                Arrange a delivery <ArrowRight size={18} />
+                Book a move <ArrowRight size={18} />
               </Link>
               <Link href="/contact" className="logistics-text-link">
                 Talk to our team <ArrowUpRight size={18} />
               </Link>
             </div>
             <div className="logistics-promise">
-              <Check size={16} /> One team from collection to delivery
+              <Check size={16} /> One team. A clear quote. Every step
+              coordinated.
             </div>
           </div>
           <div className="logistics-visual">
@@ -80,22 +75,11 @@ export function HomePageClient() {
               <span>THE WHOLE JOURNEY, HANDLED</span>
               <Truck size={20} />
             </div>
-            {settings.homeImage ? (
-              <Image
-                src={settings.homeImage}
-                alt="Produce collection and delivery"
-                width={560}
-                height={340}
-                unoptimized
-                className="logistics-truck"
-              />
-            ) : (
-              <HeroFreightArt className="logistics-truck" />
-            )}
+            <HeroFreightArt className="logistics-truck" />
             <div className="logistics-journey">
               <div>
                 <span className="logistics-dot" />
-                Your farm
+                Your doorstep
               </div>
               <span className="logistics-journey-line" />
               <div>
@@ -104,7 +88,7 @@ export function HomePageClient() {
               </div>
             </div>
             <p>
-              Collection. Transport. Delivery.
+              Packing. Moving. Settling in.
               <br />
               <strong>We connect every step.</strong>
             </p>
@@ -114,15 +98,15 @@ export function HomePageClient() {
 
       <div className="logistics-strip">
         <div className="logistics-container">
-          <span>Built for the people who feed Nigeria</span>
-          <Link href="/farmers">
-            Farmers <ArrowUpRight size={14} />
+          <span>For life’s next chapter.</span>
+          <Link href="/services#home">
+            Home moves <ArrowUpRight size={14} />
           </Link>
-          <Link href="/traders">
-            Traders <ArrowUpRight size={14} />
+          <Link href="/services#office">
+            Office moves <ArrowUpRight size={14} />
           </Link>
-          <Link href="/exporters">
-            Exporters <ArrowUpRight size={14} />
+          <Link href="/services#item">
+            Heavy items <ArrowUpRight size={14} />
           </Link>
         </div>
       </div>
@@ -169,22 +153,22 @@ export function HomePageClient() {
               We handle the road ahead.
             </h2>
             <Link href="/book" className="logistics-text-link">
-              Start your delivery request <ArrowRight size={18} />
+              Get a moving quote <ArrowRight size={18} />
             </Link>
           </div>
           <ol className="logistics-steps">
             {[
               [
                 "Tell us what you need",
-                "Share your produce, weight, collection address and destination. Tell us when it will be ready.",
+                "Tell us what’s moving, share photos and add both addresses. Include stairs, parking and your preferred date.",
               ],
               [
                 "We arrange the journey",
-                "Our team confirms the price and collection details, then coordinates the right transport for your produce.",
+                "We review your inventory and access, then confirm a quote covering the truck, crew and any extras you choose.",
               ],
               [
                 "Stay updated until delivery",
-                "Follow your shipment with its tracking reference. Come to one team for questions along the way.",
+                "Keep your move reference for crew and arrival updates. Use your item checklist at collection and delivery.",
               ],
             ].map(([title, body], index) => (
               <li key={title}>
@@ -200,30 +184,31 @@ export function HomePageClient() {
       <section className="logistics-routes">
         <div className="logistics-container logistics-section logistics-route-layout">
           <div>
-            <p className="logistics-eyebrow">ACROSS NIGERIA</p>
+            <p className="logistics-eyebrow">STARTING IN LAGOS</p>
             <h2>
-              From where it grows.
+              From your old place.
               <br />
-              To where it’s needed.
+              To your next beginning.
             </h2>
             <p className="logistics-route-intro">
-              Explore our listed delivery routes. Choose a journey to start a
-              request with your collection and destination already filled in.
+              We’re building our service in Lagos, one carefully coordinated
+              move at a time. Tell us your neighbourhood and we’ll confirm
+              coverage and availability.
             </p>
-            <Link href="/routes" className="logistics-text-link">
-              Explore all routes <ArrowRight size={18} />
+            <Link href="/coverage" className="logistics-text-link">
+              Explore our coverage <ArrowRight size={18} />
             </Link>
           </div>
           <div className="logistics-route-picker">
-            <label htmlFor="home-route">Where do you need to deliver?</label>
+            <label htmlFor="home-route">Where are you moving?</label>
             <select
               id="home-route"
               value={selectedRoute}
               onChange={(event) => setSelectedRoute(event.target.value)}
             >
-              {CORRIDORS.map((item) => (
-                <option value={item.id} key={item.id}>
-                  {placeLabel(item.from)} → {placeLabel(item.to)}
+              {AREAS.map((area) => (
+                <option key={area} value={area}>
+                  {area}
                 </option>
               ))}
             </select>
@@ -231,22 +216,17 @@ export function HomePageClient() {
               <MapPin size={22} />
               <div>
                 <span>COLLECTION</span>
-                <strong>{placeLabel(route?.from ?? "")}</strong>
+                <strong>{selectedRoute}</strong>
               </div>
               <ArrowRight size={22} />
               <div>
                 <span>DELIVERY</span>
-                <strong>{placeLabel(route?.to ?? "")}</strong>
+                <strong>Your new address</strong>
               </div>
             </div>
-            <p>
-              {(route?.crops ?? [])
-                .map((crop) => commodityById(crop)?.name)
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
+            <p>Home moves · Office moves · Bulky items</p>
             <Link href={bookingHref} className="logistics-button">
-              Request this delivery <ArrowRight size={18} />
+              Plan my move <ArrowRight size={18} />
             </Link>
             <small>Price and availability are confirmed by our team.</small>
           </div>
@@ -257,21 +237,20 @@ export function HomePageClient() {
         <div>
           <p className="logistics-eyebrow">LET’S GET IT MOVING</p>
           <h2>
-            A harvest to move?
+            A new place ahead?
             <br />A team ready to help.
           </h2>
         </div>
         <div>
           <p>
-            One delivery or regular shipments. Tell us what you need and we’ll
-            help you plan the next step.
+            Moving home, changing offices or delivering furniture? Tell us what
+            you need and we’ll help you plan the next step.
           </p>
           <Link href="/contact" className="logistics-button">
             Talk to EasyMoveZone <ArrowUpRight size={18} />
           </Link>
           <Link href="/track" className="logistics-text-link">
-            Already have a reference? Track your shipment{" "}
-            <ArrowRight size={16} />
+            Already have a reference? Track your move <ArrowRight size={16} />
           </Link>
         </div>
       </section>

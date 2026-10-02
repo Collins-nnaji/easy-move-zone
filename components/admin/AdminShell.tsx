@@ -6,7 +6,8 @@ import { BadgeCheck, Users, LayoutDashboard } from "lucide-react";
 import { clsx } from "clsx";
 
 const NAV = [
-  { href: "/admin", label: "Platform", icon: LayoutDashboard },
+  { href: "/admin", label: "Moves", icon: LayoutDashboard },
+  { href: "/admin/enquiries", label: "Enquiries", icon: Users },
   { href: "/admin/users", label: "Accounts", icon: Users },
 ] as const;
 
@@ -16,7 +17,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <div
       className={
-        pathname === "/admin"
+        pathname !== "/admin/users"
           ? "min-h-screen bg-[#f6f7f1] text-[#26382d]"
           : "min-h-screen bg-[#0b0f17] text-white"
       }
@@ -28,7 +29,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <div>
               <p className="text-sm font-bold">EasyMoveZone Admin</p>
               <p className="text-[11px] text-white/40">
-                Content, customers & deliveries
+                Quotes, crews & moving requests
               </p>
             </div>
           </div>

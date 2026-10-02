@@ -6,6 +6,8 @@ import { motion, useReducedMotion } from "framer-motion"
 import { ArrowRight, CheckCircle2, Loader2, Mail, MessageSquare, Phone, Send, User } from "lucide-react"
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
 
+const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/\D/g, "")
+
 const easeOut = [0.16, 1, 0.3, 1] as const
 
 type ContactPageClientProps = {
@@ -99,7 +101,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
             transition={{ duration: 0.5, delay: 0.08, ease: easeOut }}
             className="mt-4 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base"
           >
-            Questions about a corridor, a bulk lot, or an export lane? Send a note — we read every message.
+            Planning a home move, office relocation or bulky delivery? Ask about a quote, access, packing or an existing move.
           </motion.p>
 
           <motion.div
@@ -114,6 +116,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               <Mail className="h-5 w-5 text-orange-300" />
               {PUBLIC_CONTACT_EMAIL}
             </a>
+            {whatsappNumber && <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200 hover:text-white"><MessageSquare className="h-5 w-5" /> WhatsApp support</a>}
             <Link
               href="/book"
               className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 underline decoration-orange-500/35 underline-offset-4 hover:text-white"
@@ -125,7 +128,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               href="/track"
               className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200/90 underline decoration-orange-500/35 underline-offset-4 hover:text-white"
             >
-              Track a shipment
+              Track my move
               <ArrowRight className="h-4 w-4" />
             </Link>
           </motion.div>
@@ -140,11 +143,11 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               <ul className="mt-6 space-y-4 text-sm text-[#475569]">
                 <li className="flex gap-3">
                   <MessageSquare className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />
-                  <span>A state corridor, a truck, or a fare estimate.</span>
+                  <span>A truck, a moving crew, packing help or a clear quote.</span>
                 </li>
                 <li className="flex gap-3">
                   <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />
-                  <span>A bulk lot, or an export lane out of Apapa, Tin Can or Onne.</span>
+                  <span>Office relocations, furniture deliveries or damage complaints. Include your move reference if you have one.</span>
                 </li>
                 <li className="flex gap-3">
                   <Phone className="mt-0.5 h-5 w-5 shrink-0 text-[#e0511f]" />
@@ -238,7 +241,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
                           value={subject}
                           onChange={(e) => setSubject(e.target.value)}
                           className="w-full rounded-xl border border-[#e2e8f0] bg-[#fafafa] px-4 py-3 text-sm text-[#0f172a] outline-none transition focus:border-[#bf6a3c] focus:ring-2 focus:ring-[#bf6a3c]/20"
-                          placeholder="e.g. 40 tonnes of yam, Makurdi to Mile 12"
+                          placeholder="e.g. Two-bedroom move, Yaba to Lekki"
                         />
                       </label>
                       <label className="block sm:col-span-2">

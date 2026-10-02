@@ -1,20 +1,20 @@
-import { neon } from "@neondatabase/serverless"
-
-const DATABASE_URL = process.env.DATABASE_URL ?? process.env.NEON_DATABASE_URL
-const sql = DATABASE_URL ? neon(DATABASE_URL) : null
+import { database, ensureMovingStore } from "@/lib/database";
 
 export type ContactSubmissionInput = {
-  name: string
-  email: string
-  phone: string | null
-  subject: string | null
-  message: string
-  pageContext: string | null
-}
+  name: string;
+  email: string;
+  phone: string | null;
+  subject: string | null;
+  message: string;
+  pageContext: string | null;
+};
 
-export async function insertContactSubmission(input: ContactSubmissionInput): Promise<{ id: string } | null> {
-  if (!sql) return null
+export async function insertContactSubmission(
+  input: ContactSubmissionInput,
+): Promise<{ id: string } | null> {
   try {
+    await ensureMovingStore();
+    const sql = database();
     const rows = (await sql`
       INSERT INTO contact_submissions (name, email, phone, subject, message, page_context)
       VALUES (
@@ -26,10 +26,10 @@ export async function insertContactSubmission(input: ContactSubmissionInput): Pr
         ${input.pageContext?.trim() || null}
       )
       RETURNING id
-    `) as { id: string }[]
-    const row = rows[0]
-    return row ? { id: row.id } : null
+    `) as { id: string }[];
+    const row = rows[0];
+    return row ? { id: row.id } : null;
   } catch {
-    return null
+    return null;
   }
 }

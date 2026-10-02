@@ -4,17 +4,17 @@ import { HomePageClient } from "@/components/platform/HomePageClient"
 import { buildPageMetadata } from "@/lib/site-metadata"
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Move Nigerian Food Across States and Borders · EasyMoveZone",
+  title: "Your Move, Made Easy · EasyMoveZone",
   absoluteTitle: true,
   description:
-    "EasyMoveZone handles collection, transport and delivery for Nigerian farm produce. Arrange a delivery, explore bulk produce or plan transport to port with one team.",
+    "Move your home, office or heavy items without the stress. Book a truck, movers and packing help in Lagos with clear pricing and reliable coordination.",
   path: "/",
   keywords: [
-    "Nigeria agricultural logistics",
-    "move farm produce between states",
-    "bulk sesame cocoa cashew",
-    "Apapa export",
-    "food commodity haulage Nigeria",
+    "house movers Nigeria",
+    "office relocation Lagos",
+    "furniture and appliance delivery",
+    "packing and loading crews",
+    "truck and van booking Lagos",
     "EasyMoveZone",
   ],
 })

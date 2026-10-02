@@ -6,7 +6,7 @@ import { requireAdmin } from "@/lib/auth/admin";
 export const metadata: Metadata = {
   title: "Admin — EasyMoveZone",
   description:
-    "Manage EasyMoveZone produce, routes, export destinations, pictures, enquiries and delivery requests.",
+    "Manage EasyMoveZone quotes, moving crews, arrival updates, customer enquiries and accounts.",
   robots: { index: false, follow: false },
 };
 

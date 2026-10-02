@@ -21,31 +21,31 @@ import { SiteLogo } from "@/components/brand/SiteLogo";
 const NAV = [
   {
     href: "/book",
-    label: "Arrange delivery",
+    label: "Book a move",
     match: (path: string) => path === "/book",
     featured: true,
   },
   {
-    href: "/lots",
-    label: "Buy produce",
-    match: (path: string) => path === "/lots",
+    href: "/services",
+    label: "Services",
+    match: (path: string) => path === "/services",
     featured: false,
   },
   {
-    href: "/export",
-    label: "Export",
-    match: (path: string) => path === "/export",
+    href: "/partners",
+    label: "Partners",
+    match: (path: string) => path === "/partners",
     featured: false,
   },
   {
-    href: "/routes",
-    label: "Routes",
-    match: (path: string) => path === "/routes",
+    href: "/coverage",
+    label: "Coverage",
+    match: (path: string) => path === "/coverage",
     featured: false,
   },
   {
     href: "/track",
-    label: "Track shipment",
+    label: "Track my move",
     match: (path: string) => path === "/track",
     featured: false,
   },
@@ -165,7 +165,7 @@ export function PlatformNav() {
                     <Truck
                       className={`h-3.5 w-3.5 ${active ? "text-white" : "text-[#2f5d50]"}`}
                     />
-                    Arrange delivery
+                    Book a move
                   </Link>
                 );
               }
@@ -260,7 +260,7 @@ export function PlatformNav() {
                         <Truck
                           className={`h-3.5 w-3.5 ${active ? "text-white" : "text-[#2f5d50]"}`}
                         />
-                        Arrange delivery
+                        Book a move
                       </Link>
                     );
                   }

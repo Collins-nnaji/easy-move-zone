@@ -1,6 +1,6 @@
 {
   "name": "easy-move-zone",
-  "description": "Nigerian agricultural logistics and produce export corridors",
+  "description": "Home moves, office relocations and bulky-item transport in Nigeria",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:setup": "node --env-file-if-exists=.env scripts/run-produce-setup.mjs",
+    "db:setup": "node --env-file-if-exists=.env scripts/run-moving-setup.mjs",
     "cap:sync": "cap sync",
     "cap:add:ios": "cap add ios",
     "cap:add:android": "cap add android",

@@ -1,37 +1,13 @@
 # EasyMoveZone
 
-EasyMoveZone is a travel intelligence and execution platform for international travelers. The product combines destination decision support, on-the-ground awareness, and preparation workflows in one experience.
+A mobile-friendly moving platform for home moves, office relocations and bulky-item transport in Nigeria, starting in Lagos. Built with Next.js, React, Neon authentication and PostgreSQL.
 
-## Core Features
+Customers request quotes with an inventory, up to three photos, addresses, floors, access restrictions and optional services. The team reviews requests in `/admin`, assigns quotes and crews, and records arrival and move status updates. Customers use their private move reference at `/track`.
 
-The current product architecture is documented in [docs/easymovezone-core-features.md](docs/easymovezone-core-features.md).
+## Development
 
-- Travel Intelligence Core
-  - Visa Intelligence + Legal and Compliance Navigator + Decision Intelligence Coach
-- Situational Awareness Core
-  - Smart Map Safety Layer + Country Reality Check + Live News Event Map
-- Travel Execution Core
-  - Readiness Checklist + Persona Engine + Booking Integrations
+Install dependencies with `npm install`, then run `npm run dev`. Use `npm run lint`, `npm test` and `npm run build` for validation. See `.env.example` and `SETUP.md` for authentication and database configuration.
 
-## Local Development
+Run `npm run db:setup` to prepare the moving, account and support tables. The moving store uses `DATABASE_URL` (or `NEON_DATABASE_URL`) and also ensures moving/support tables on first use. Database credentials require table creation permission. Failed storage returns an error rather than a booking confirmation. Photos are stored with the request and accessible to administrators; public tracking omits contact details, addresses and photos. Quotes, crew checks and job coordination are handled by the operations team; the app does not automate payments or live GPS tracking.
 
-Run the development server:
-
-```bash
-npm run dev
-```
-
-Then open `http://localhost:3000`.
-
-## Main App Areas
-
-- Public marketing site: `app/page.tsx` and `components/platform/*`
-- Move app experience: `app/move/*`
-- Auth and user workspace: `app/auth/*`, `app/profile/*`, `app/dashboard/*`
-- APIs: `app/api/*`
-- Shared libraries: `lib/*`
-
-## Product Notes
-
-- The homepage feature section reflects the three current product cores.
-- Product copy, design direction, and feature planning should stay aligned to the architecture in `docs/easymovezone-core-features.md`.
+Existing agricultural public URLs redirect to the moving pages. Retired APIs return HTTP 410 and cannot recreate the old tables. Legacy database records were backed up privately before removal. See `db/migrations/20261003_retire_legacy_tables.sql` and `scripts/retire-legacy-tables.mjs` for the transaction and backup workflow.

@@ -4,7 +4,7 @@ import { buildPageMetadata } from "@/lib/site-metadata"
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Terms of Service",
-  description: "The terms for using EasyMoveZone to book produce moves, view bulk lots and follow export lanes.",
+  description: "The terms for using EasyMoveZone to book home moves, office relocations and bulky-item transport.",
   path: "/legal/terms",
 })
 
@@ -20,14 +20,14 @@ const sections = [
   {
     id: "service",
     title: "The service",
-    body: <p>EasyMoveZone helps you move Nigerian farm produce between states, review bulk lots by the tonne, and follow export lanes to port. You can save a move, look up a shipment reference and contact us about a corridor. We may add, change or remove features over time.</p>,
+    body: <p>EasyMoveZone helps coordinate trucks, moving crews and optional packing, unpacking, assembly and cleaning for home moves, office relocations and bulky-item transport. You can request a quote, track a move reference and contact our team. We may add, change or remove features over time.</p>,
   },
   {
     id: "estimates",
-    title: "Estimates, lots and haulage",
+    title: "Quotes and booking confirmation",
     body: <>
-      <p>Fares, distances and lot prices shown on the site are estimates and sample listings for planning. They are not a confirmed truck booking, a binding sale of goods, or a customs clearance.</p>
-      <p>A move is confirmed when a dispatcher agrees the truck, the weight and the fare with you. Export documents such as phytosanitary certificates, certificates of origin and bills of lading are issued by the responsible bodies, and we list them so a shipment can be followed.</p>
+      <p>Submitting the quote request does not take payment or reserve a truck or crew. Service coverage and available extras are confirmed by our team.</p>
+      <p>A request is not a confirmed booking. Your move is confirmed when our team agrees the quote, date, truck, crew and included services with you. Quotes account for inventory, distance, stairs and access. Changes to these details may require a revised quote, agreed before work proceeds. Keep an item checklist and condition photos. Report missing or damaged items to support with your reference and evidence so our team can review the issue with the crew. Any applicable liability or cover is stated in the agreed booking terms.</p>
     </>,
   },
   {
@@ -35,7 +35,7 @@ const sections = [
     title: "Your account",
     body: <Bullets items={[
       "You must be at least 18 to book a move.",
-      "Give accurate information about weight, crop and origin, and keep it up to date.",
+      "Give accurate information about your inventory, addresses and access, and keep it up to date.",
       "Keep your login secure. You are responsible for activity under your account.",
       <>You can stop using the service at any time. To close your account, email <Mail />.</>,
     ]} />,
@@ -46,8 +46,8 @@ const sections = [
     body: <>
       <p>You agree not to:</p>
       <Bullets items={[
-        "break the law, or list produce you have no right to sell or move",
-        "misstate weight, grade, origin or export status",
+        "break the law, or request transport for items you have no right to move",
+        "misstate inventory, item condition, access or collection details",
         "try to access other people's accounts or data, or disrupt the service",
         "scrape, copy or resell the service or its listings without our written permission",
       ]} />
@@ -56,13 +56,13 @@ const sections = [
   {
     id: "ip",
     title: "Our intellectual property",
-    body: <p>The service, including its software, design, corridor information and branding, belongs to EasyMoveZone or its licensors. We give you a personal, non-transferable right to use it in line with these terms.</p>,
+    body: <p>The service, including its software, design, moving service information and branding, belongs to EasyMoveZone or its licensors. We give you a personal, non-transferable right to use it in line with these terms.</p>,
   },
   {
     id: "liability",
     title: "Our responsibility to you",
     body: <>
-      <p>We provide the service with reasonable care. Apart from that, estimates and sample lots are provided for planning, and we cannot promise a truck, a buyer or a sailing on a particular day until that move is confirmed.</p>
+      <p>We provide the service with reasonable care. We cannot promise a truck, a crew or a particular date until the booking arrangements are confirmed.</p>
       <p>Nothing in these terms limits liability that cannot legally be limited, including for death or personal injury caused by negligence, or for fraud.</p>
     </>,
   },
@@ -78,8 +78,8 @@ export default function TermsPage() {
     <LegalPage
       current="/legal/terms"
       title="Terms of Service"
-      updated="2 October 2026"
-      intro={<p>These terms explain what EasyMoveZone provides when you book a produce move, review a bulk lot, or follow an export lane.</p>}
+      updated="3 October 2026"
+      intro={<p>These terms explain what EasyMoveZone provides when you request a home move, office relocation or bulky-item delivery.</p>}
       sections={sections}
     />
   )

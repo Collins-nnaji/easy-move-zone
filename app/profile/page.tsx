@@ -6,7 +6,7 @@ import { PublicShell } from "@/components/platform/PublicShell"
 
 export const metadata: Metadata = {
   title: "Your account",
-  description: "Your EasyMoveZone account for produce moves.",
+  description: "Your EasyMoveZone account for home, office and bulky-item moves.",
   robots: { index: false, follow: false },
 }
 
@@ -27,7 +27,7 @@ export default async function ProfilePage() {
             Book a move
           </Link>
           <Link href="/track" className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-[#d8d2c6] bg-white px-5 text-sm font-bold text-[#1b231e]">
-            Track a shipment
+            Track my move
           </Link>
         </div>
       </div>

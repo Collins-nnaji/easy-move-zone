@@ -24,7 +24,6 @@ const nextConfig: NextConfig = {
       "/vendor",
       "/landlord",
       "/individual",
-      "/services",
       "/cities",
       "/plan",
       "/onboarding",

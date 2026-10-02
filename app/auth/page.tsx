@@ -7,7 +7,7 @@ import { buildPageMetadata } from "@/lib/site-metadata"
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Sign in",
-  description: "Sign in to EasyMoveZone to book produce moves and keep your shipment references.",
+  description: "Sign in to EasyMoveZone for home, office and bulky-item moving services.",
   path: "/auth",
   noIndex: true,
 })
@@ -33,7 +33,7 @@ export default function AuthPage() {
               Welcome back
             </h1>
             <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-[#5f655c]">
-              Sign in to book moves and keep your shipment references with your account.
+              Sign in to your EasyMoveZone account and plan your next home, office or bulky-item move.
             </p>
           </div>
           <Suspense

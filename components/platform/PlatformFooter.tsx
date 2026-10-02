@@ -13,8 +13,7 @@ export function PlatformFooter() {
         <div className="min-w-0 sm:col-span-2 lg:col-span-1">
           <SiteLogo href="/" height={24} />
           <p className="mt-2 max-w-sm text-xs leading-relaxed text-[#5f655c] sm:text-sm">
-            Your produce, our responsibility. We arrange collection, transport
-            and delivery across Nigeria and to port.
+            Your move, made easy. Book trusted movers for your home, office and heavy items. Starting in Lagos.
           </p>
         </div>
         <nav
@@ -79,8 +78,7 @@ export function PlatformFooter() {
       </div>
       <div className="border-t border-[#e4dfd5]">
         <p className="mx-auto w-full max-w-7xl px-4 py-4 text-xs text-[#7c827a] sm:px-6 lg:px-8">
-          © {new Date().getFullYear()} EasyMoveZone. Delivery prices and produce
-          availability are confirmed by our team.
+          © {new Date().getFullYear()} EasyMoveZone. Moving quotes and availability are confirmed by our team.
         </p>
       </div>
     </footer>
