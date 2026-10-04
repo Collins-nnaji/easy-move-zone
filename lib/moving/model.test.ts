@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { today, validateMove, type MoveInput } from "./model";
+import { instantQuote, today, validateMove, type MoveInput } from "./model";
 export const input: MoveInput = {
   service: "home",
   inventory: "Sofa, fridge, bed and 12 boxes",
@@ -18,8 +18,12 @@ export const input: MoveInput = {
 };
 describe("moving quote validation", () => {
   it("accepts all three moving services and same-city moves", () => {
-    for (const service of ["home", "office", "item"])
-      expect(validateMove({ ...input, service })).toBe(true);
+    for (const [service, size] of [
+      ["home", "Two bedrooms"],
+      ["office", "Small office"],
+      ["item", "Single bulky item"],
+    ] as const)
+      expect(validateMove({ ...input, service, size })).toBe(true);
   });
   it("rejects identical addresses, invalid dates and past moves", () => {
     expect(
@@ -39,5 +43,12 @@ describe("moving quote validation", () => {
       { extras: ["Unknown"] },
     ])
       expect(validateMove({ ...input, ...patch })).toBe(false);
+    expect(validateMove({ ...input, size: "A palace" })).toBe(false);
+  });
+  it("confirms a Lagos price from size, stairs and extras", () => {
+    expect(instantQuote(input)).toBe(220000 + 2 * 8000 + 25000 + 65000);
+    expect(instantQuote({ ...input, service: "item", size: "Two bedrooms" })).toBe(
+      0,
+    );
   });
 });

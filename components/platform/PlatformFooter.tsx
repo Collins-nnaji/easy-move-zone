@@ -78,7 +78,7 @@ export function PlatformFooter() {
       </div>
       <div className="border-t border-[#e4dfd5]">
         <p className="mx-auto w-full max-w-7xl px-4 py-4 text-xs text-[#7c827a] sm:px-6 lg:px-8">
-          © {new Date().getFullYear()} EasyMoveZone. Moving quotes and availability are confirmed by our team.
+          © {new Date().getFullYear()} EasyMoveZone. Book a move in Lagos and track it with your reference.
         </p>
       </div>
     </footer>

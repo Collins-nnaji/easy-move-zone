@@ -6,7 +6,7 @@ import { neonAuthMiddleware } from "@neondatabase/auth/next/server"
 const authMiddleware = neonAuthMiddleware({ loginUrl: "/auth" })
 
 const VERIFIER_PARAM = "neon_auth_session_verifier"
-const PROTECTED = ["/profile", "/admin"]
+const PROTECTED = ["/profile", "/admin", "/hub"]
 
 function isProtected(pathname: string) {
   return PROTECTED.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))

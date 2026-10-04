@@ -25,11 +25,8 @@ export default function PartnersPage() {
               and businesses in Lagos. Help customers move with care, and bring
               repeat deliveries together.
             </p>
-            <Link
-              href="/contact?service=Partner+enquiry"
-              className="logistics-button"
-            >
-              Become a partner <ArrowRight size={18} />
+            <Link href="/hub" className="logistics-button">
+              Join the crew hub <ArrowRight size={18} />
             </Link>
           </div>
         </section>
@@ -58,10 +55,15 @@ export default function PartnersPage() {
                   <h3>{title}</h3>
                   <p>{body}</p>
                   <Link
-                    href={`/contact?service=${encodeURIComponent(title)}`}
+                    href={
+                      i === 0
+                        ? "/hub"
+                        : `/contact?service=${encodeURIComponent(title)}`
+                    }
                     className="logistics-text-link"
                   >
-                    Talk to our team <ArrowRight size={16} />
+                    {i === 0 ? "Open the crew hub" : "Talk to our team"}{" "}
+                    <ArrowRight size={16} />
                   </Link>
                 </div>
               </article>

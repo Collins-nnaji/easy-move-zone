@@ -3,21 +3,35 @@ import Link from "next/link";
 import { useRef, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
-import { SERVICES, today } from "@/lib/moving/model";
+import { formatMoney } from "@/lib/money";
+import { instantQuote, SERVICES, SIZES, today } from "@/lib/moving/model";
 import shared from "@/components/produce/CommercePages.module.css";
 import styles from "@/components/produce/JourneyPages.module.css";
 export function BookMove() {
   const params = useSearchParams();
   const area = params.get("area");
-  const [service, setService] = useState(
-    SERVICES.find((s) => s.id === params.get("service"))?.id ?? "home",
-  );
-  const [extras, setExtras] = useState<string[]>(["Loading crew"]);
+  const initialService =
+    SERVICES.find((s) => s.id === params.get("service"))?.id ?? "home";
+  const [service, setService] =
+    useState<(typeof SERVICES)[number]["id"]>(initialService);
+  const [size, setSize] = useState(SIZES[initialService][0]);
+  const [pickupFloor, setPickupFloor] = useState(0);
+  const [destinationFloor, setDestinationFloor] = useState(0);
+  const [extras, setExtras] = useState<string[]>([]);
   const [photos, setPhotos] = useState<string[]>([]);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [reference, setReference] = useState("");
+  const [booked, setBooked] = useState<{ reference: string; quote: number } | null>(
+    null,
+  );
+  const quote = instantQuote({
+    service,
+    size,
+    pickupFloor,
+    destinationFloor,
+    extras,
+  });
   const requestId = useRef<string | null>(null);
   async function selectPhotos(files: FileList | null) {
     setError("");
@@ -77,7 +91,10 @@ export function BookMove() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
-      setReference(data.reference);
+      setBooked({
+        reference: data.reference,
+        quote: typeof data.quote === "number" ? data.quote : quote,
+      });
       window.scrollTo({ top: 0, behavior: "instant" });
     } catch (e) {
       setError(
@@ -89,29 +106,30 @@ export function BookMove() {
       setBusy(false);
     }
   }
-  if (reference)
+  if (booked)
     return (
       <div className={`${shared.page} ${styles.page}`}>
         <section
           className={`${shared.container} ${styles.bookingConfirmation}`}
         >
           <CheckCircle2 size={40} color="#2f5d50" />
-          <p className={shared.eyebrow}>YOUR MOVE REQUEST IS RECEIVED</p>
+          <p className={shared.eyebrow}>YOUR MOVE IS BOOKED</p>
           <h1>
-            Your move.
+            You&apos;re booked.
             <br />
-            One step closer.
+            We&apos;ll assign the crew.
           </h1>
           <p className={shared.intro}>
-            Our team will review your inventory, access and requested date, then
-            contact you with a quote. Your move is booked once you agree the
-            price and arrangements.
+            Your price is confirmed. Our team assigns movers and a vehicle, and
+            you can follow every step with your reference.
           </p>
           <div className={styles.confirmationSummary}>
+            <p>Confirmed price</p>
+            <strong>{formatMoney(booked.quote)}</strong>
             <p>Keep your move reference</p>
-            <strong style={{ overflowWrap: "anywhere" }}>{reference}</strong>
+            <strong style={{ overflowWrap: "anywhere" }}>{booked.reference}</strong>
           </div>
-          <Link href={`/track?ref=${reference}`} className="logistics-button">
+          <Link href={`/track?ref=${booked.reference}`} className="logistics-button">
             Track this move <ArrowRight size={18} />
           </Link>
         </section>
@@ -128,8 +146,8 @@ export function BookMove() {
             needs moving.
           </h1>
           <p className={shared.intro}>
-            A home, an office or one heavy item. Share the details for a quote
-            that accounts for the truck, crew, stairs and access.
+            A home, an office or one heavy item. Your Lagos price is confirmed
+            as you fill this in, and the move is booked when you submit.
           </p>
         </div>
       </section>
@@ -146,7 +164,10 @@ export function BookMove() {
                   type="button"
                   aria-pressed={service === s.id}
                   className={service === s.id ? styles.selectedRole : ""}
-                  onClick={() => setService(s.id)}
+                  onClick={() => {
+                    setService(s.id);
+                    setSize(SIZES[s.id][0]);
+                  }}
                 >
                   {s.name}
                 </button>
@@ -155,18 +176,14 @@ export function BookMove() {
             <div className={styles.bookingFields}>
               <label>
                 Move size
-                <select name="size" key={service} required>
-                  {(service === "home"
-                    ? [
-                        "Studio / one bedroom",
-                        "Two bedrooms",
-                        "Three or more bedrooms",
-                      ]
-                    : service === "office"
-                      ? ["Small office", "Large office"]
-                      : ["Single bulky item", "Several items"]
-                  ).map((size) => (
-                    <option key={size}>{size}</option>
+                <select
+                  name="size"
+                  required
+                  value={size}
+                  onChange={(event) => setSize(event.target.value)}
+                >
+                  {SIZES[service].map((option) => (
+                    <option key={option}>{option}</option>
                   ))}
                 </select>
               </label>
@@ -200,8 +217,8 @@ export function BookMove() {
               <span>02</span>Addresses and access
             </legend>
             <p>
-              We’re starting in Lagos. Availability in your area is confirmed
-              with your quote.
+              We’re starting in Lagos. The price updates with stairs and the
+              help you add.
             </p>
             <div className={styles.bookingFields}>
               <label>
@@ -233,8 +250,9 @@ export function BookMove() {
                   type="number"
                   min={0}
                   max={50}
-                  defaultValue={0}
+                  value={pickupFloor}
                   required
+                  onChange={(event) => setPickupFloor(Number(event.target.value))}
                 />
                 <small>0 = ground floor</small>
               </label>
@@ -245,8 +263,11 @@ export function BookMove() {
                   type="number"
                   min={0}
                   max={50}
-                  defaultValue={0}
+                  value={destinationFloor}
                   required
+                  onChange={(event) =>
+                    setDestinationFloor(Number(event.target.value))
+                  }
                 />
               </label>
               <label>
@@ -274,31 +295,33 @@ export function BookMove() {
               <span>03</span>A little extra help
             </legend>
             <p>
-              Choose what you need. Each service is included separately in your
-              quote.
+              The price already includes a vehicle and a loading crew. Add
+              packing, cleaning or extra hands only if you need them.
             </p>
             <div className={styles.rolePicker}>
-              {[
-                "Loading crew",
-                "Packing",
-                "Unpacking",
-                "Assembly",
-                "Cleaning",
-              ].map((x) => (
+              {(
+                [
+                  ["Loading crew", "Extra loaders"],
+                  ["Packing", "Packing"],
+                  ["Unpacking", "Unpacking"],
+                  ["Assembly", "Assembly"],
+                  ["Cleaning", "Cleaning"],
+                ] as const
+              ).map(([value, label]) => (
                 <button
-                  key={x}
+                  key={value}
                   type="button"
-                  aria-pressed={extras.includes(x)}
-                  className={extras.includes(x) ? styles.selectedRole : ""}
+                  aria-pressed={extras.includes(value)}
+                  className={extras.includes(value) ? styles.selectedRole : ""}
                   onClick={() =>
                     setExtras((prev) =>
-                      prev.includes(x)
-                        ? prev.filter((y) => y !== x)
-                        : [...prev, x],
+                      prev.includes(value)
+                        ? prev.filter((item) => item !== value)
+                        : [...prev, value],
                     )
                   }
                 >
-                  {x}
+                  {label}
                 </button>
               ))}
             </div>
@@ -354,11 +377,11 @@ export function BookMove() {
               ) : (
                 <ArrowRight size={18} />
               )}
-              {busy ? "Sending request…" : "Request my quote"}
+              {busy ? "Booking…" : "Book this move"}
             </button>
             <p>
-              No payment now. Your team confirms price, availability and the
-              moving plan before you book.
+              No payment now. Your price is confirmed instantly. We assign
+              movers and a vehicle after you book.
             </p>
           </div>
         </form>
@@ -369,14 +392,14 @@ export function BookMove() {
             </p>
             <h3>{SERVICES.find((s) => s.id === service)?.name}</h3>
             <p className={styles.plannerNote}>
-              Your quote accounts for distance, truck size, loading help, stairs
-              and access restrictions. Packing, assembly and cleaning are
-              optional.
+              This is a local Lagos price for the vehicle, fuel and crew that
+              fit this move. Stairs and extras are added. A long trip, such as
+              mainland to the Island, can be adjusted by our team.
             </p>
             <div className={styles.routeEstimate}>
               <p>Your price</p>
-              <strong>Confirmed by our team</strong>
-              <span>We review the details before quoting.</span>
+              <strong>{formatMoney(quote)}</strong>
+              <span>Confirmed when you book.</span>
             </div>
             <p className={styles.plannerNote}>
               Keep an item checklist and photos before collection. Report any

@@ -4,7 +4,7 @@ vi.mock("@/lib/moving/store", () => ({
 }));
 import { saveMove } from "@/lib/moving/store";
 import { POST } from "./route";
-import { today } from "@/lib/moving/model";
+import { instantQuote, today } from "@/lib/moving/model";
 const input = {
   service: "item",
   inventory: "Sofa",
@@ -31,15 +31,19 @@ function request(body: unknown, origin = "https://example.com") {
 }
 describe("move requests", () => {
   beforeEach(() => vi.clearAllMocks());
-  it("persists a pending request and returns only its private reference", async () => {
+  it("books immediately with a confirmed price and private reference", async () => {
     const r = await POST(request({ ...input, status: "completed", quote: 1 }));
     expect(r.status).toBe(201);
+    const quote = instantQuote(input);
     expect(await r.json()).toEqual({
       reference: "EMZ-12345678123441238123123456789012",
+      quote,
     });
     expect(vi.mocked(saveMove).mock.calls[0][0]).toMatchObject({
-      status: "requested",
-      quote: null,
+      status: "scheduled",
+      quote,
+      moverId: null,
+      vehicleId: null,
     });
   });
   it("rejects invalid fields and cross-origin submissions", async () => {

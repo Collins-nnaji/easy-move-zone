@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BadgeCheck, Users, LayoutDashboard } from "lucide-react";
+import { BadgeCheck, Users, LayoutDashboard, Truck } from "lucide-react";
 import { clsx } from "clsx";
 
 const NAV = [
   { href: "/admin", label: "Moves", icon: LayoutDashboard },
+  { href: "/admin/workers", label: "Crew & vehicles", icon: Truck },
   { href: "/admin/enquiries", label: "Enquiries", icon: Users },
   { href: "/admin/users", label: "Accounts", icon: Users },
 ] as const;

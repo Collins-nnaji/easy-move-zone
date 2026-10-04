@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { validateMove } from "@/lib/moving/model";
+import { instantQuote, validateMove } from "@/lib/moving/model";
 import { saveMove } from "@/lib/moving/store";
 export async function POST(request: Request) {
   if (
@@ -62,16 +62,22 @@ export async function POST(request: Request) {
       phone,
       photos,
     };
+    const quote = instantQuote(details);
     const move = await saveMove({
       ...details,
       reference: `EMZ-${requestId.replaceAll("-", "").toUpperCase()}`,
-      status: "requested",
-      quote: null,
+      status: "scheduled",
+      quote,
       crew: "",
       arrival: "",
+      moverId: null,
+      vehicleId: null,
       createdAt: new Date().toISOString(),
     });
-    return NextResponse.json({ reference: move.reference }, { status: 201 });
+    return NextResponse.json(
+      { reference: move.reference, quote: move.quote },
+      { status: 201 },
+    );
   } catch {
     return NextResponse.json(
       {

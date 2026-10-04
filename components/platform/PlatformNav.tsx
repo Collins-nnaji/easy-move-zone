@@ -32,6 +32,12 @@ const NAV = [
     featured: false,
   },
   {
+    href: "/hub",
+    label: "Crew hub",
+    match: (path: string) => path === "/hub",
+    featured: false,
+  },
+  {
     href: "/partners",
     label: "Partners",
     match: (path: string) => path === "/partners",
@@ -285,6 +291,14 @@ export function PlatformNav() {
 
               {user ? (
                 <>
+                  <Link
+                    href="/hub"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-[#4a5047] transition hover:bg-[#faf8f3] hover:text-[#1b231e]"
+                  >
+                    <Truck className="h-4 w-4 text-[#9aa097]" />
+                    Crew hub
+                  </Link>
                   <Link
                     href="/profile"
                     onClick={() => setMenuOpen(false)}

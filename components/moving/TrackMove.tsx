@@ -67,8 +67,8 @@ export function TrackMove() {
             Every step.
           </h1>
           <p className={shared.intro}>
-            Use the reference from your quote request to see updates recorded by
-            our team, your quote and arrival arrangements.
+            Use the reference from your booking to see the confirmed price, the
+            assigned crew and arrival updates.
           </p>
           <form
             className={styles.trackingSearch}
@@ -173,8 +173,8 @@ export function TrackMove() {
           <div className={styles.bookingHelp}>
             <h3>Keep your reference handy.</h3>
             <p>
-              Your move is confirmed after you agree the quote and arrangements.
-              Updates are recorded by our team as your move progresses.
+              A booking confirms your price immediately. Crew and vehicle
+              assignments show here once the team assigns them.
             </p>
             <Link href="/book" className="logistics-text-link">
               Plan a move

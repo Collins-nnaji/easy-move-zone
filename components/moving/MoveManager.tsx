@@ -8,19 +8,26 @@ import {
   STATUS_LABELS,
   type Move,
 } from "@/lib/moving/model";
+import type { Worker } from "@/lib/moving/workers";
 import shared from "@/components/produce/CommercePages.module.css";
 import styles from "@/components/produce/JourneyPages.module.css";
 function MoveEditor({
   move,
+  workers,
   onSaved,
 }: {
   move: Move;
+  workers: Worker[];
   onSaved: (move: Move) => void;
 }) {
   const [status, setStatus] = useState(move.status);
   const [quote, setQuote] = useState(move.quote?.toString() ?? "");
   const [crew, setCrew] = useState(move.crew);
   const [arrival, setArrival] = useState(move.arrival);
+  const [moverId, setMoverId] = useState(move.moverId ?? "");
+  const [vehicleId, setVehicleId] = useState(move.vehicleId ?? "");
+  const movers = workers.filter((worker) => worker.kind === "mover");
+  const vehicles = workers.filter((worker) => worker.kind === "vehicle");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
@@ -98,6 +105,8 @@ function MoveEditor({
                   quote: quote === "" ? null : Number(quote),
                   crew,
                   arrival,
+                  moverId: moverId || null,
+                  vehicleId: vehicleId || null,
                 }),
               });
               const data = await r.json();
@@ -135,12 +144,41 @@ function MoveEditor({
               />
             </label>
             <label>
-              Crew / customer contact
+              Assign mover
+              <select value={moverId} onChange={(e) => setMoverId(e.target.value)}>
+                <option value="">Unassigned</option>
+                {movers.map((worker) => (
+                  <option key={worker.id} value={worker.id}>
+                    {worker.name} · {worker.area} · crew of {worker.crewSize}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Assign vehicle
+              <select
+                value={vehicleId}
+                onChange={(e) => setVehicleId(e.target.value)}
+              >
+                <option value="">Unassigned</option>
+                {vehicles.map((worker) => (
+                  <option key={worker.id} value={worker.id}>
+                    {worker.name} · {worker.vehicleType} {worker.plate} · {worker.area}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Crew note shown to the customer
               <input
                 maxLength={200}
                 value={crew}
                 onChange={(e) => setCrew(e.target.value)}
               />
+              <small>
+                Choosing a mover or vehicle replaces this with their names when
+                you save.
+              </small>
             </label>
             <label>
               Arrival update
@@ -172,6 +210,7 @@ function MoveEditor({
 }
 export function MoveManager() {
   const [moves, setMoves] = useState<Move[]>([]);
+  const [workers, setWorkers] = useState<Worker[]>([]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(true);
   const [search, setSearch] = useState("");
@@ -179,10 +218,17 @@ export function MoveManager() {
     setBusy(true);
     setError("");
     try {
-      const r = await fetch("/api/admin/moves", { cache: "no-store" });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
-      setMoves(d.moves);
+      const [movesResponse, workersResponse] = await Promise.all([
+        fetch("/api/admin/moves", { cache: "no-store" }),
+        fetch("/api/admin/workers", { cache: "no-store" }),
+      ]);
+      const movesData = await movesResponse.json();
+      if (!movesResponse.ok) throw new Error(movesData.error);
+      setMoves(movesData.moves);
+      if (workersResponse.ok) {
+        const workersData = await workersResponse.json();
+        setWorkers(workersData.workers);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load requests.");
     } finally {
@@ -202,8 +248,8 @@ export function MoveManager() {
           One workspace.
         </h1>
         <p className={shared.intro}>
-          Review inventories and access, confirm quotes and keep customers
-          updated on crews and arrivals.
+          Booked moves land here immediately. Assign a mover and a vehicle, then
+          adjust the price or arrival if access changes.
         </p>
         <div className={shared.actions}>
           <button
@@ -213,6 +259,9 @@ export function MoveManager() {
           >
             {busy ? "Loading…" : "Refresh requests"}
           </button>
+          <Link href="/admin/workers" className="logistics-text-link">
+            Crew and vehicles
+          </Link>
           <Link href="/admin/users" className="logistics-text-link">
             Manage users
           </Link>
@@ -237,7 +286,7 @@ export function MoveManager() {
           </p>
         )}
         {!busy && !error && moves.length === 0 && (
-          <p>No move requests yet. New quote requests appear here.</p>
+          <p>No moves yet. New bookings appear here as soon as a customer books.</p>
         )}
         {moves
           .filter((m) =>
@@ -249,6 +298,7 @@ export function MoveManager() {
             <MoveEditor
               key={m.reference}
               move={m}
+              workers={workers}
               onSaved={(next) =>
                 setMoves((prev) =>
                   prev.map((x) => (x.reference === next.reference ? next : x)),

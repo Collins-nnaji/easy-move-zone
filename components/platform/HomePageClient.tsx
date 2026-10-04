@@ -61,8 +61,8 @@ export function HomePageClient() {
               <Link href="/book" className="logistics-button">
                 Book a move <ArrowRight size={18} />
               </Link>
-              <Link href="/contact" className="logistics-text-link">
-                Talk to our team <ArrowUpRight size={18} />
+              <Link href="/hub" className="logistics-text-link">
+                Move or drive with us <ArrowUpRight size={18} />
               </Link>
             </div>
             <div className="logistics-promise">
@@ -153,7 +153,7 @@ export function HomePageClient() {
               We handle the road ahead.
             </h2>
             <Link href="/book" className="logistics-text-link">
-              Get a moving quote <ArrowRight size={18} />
+              Book a move <ArrowRight size={18} />
             </Link>
           </div>
           <ol className="logistics-steps">
@@ -164,7 +164,7 @@ export function HomePageClient() {
               ],
               [
                 "We arrange the journey",
-                "We review your inventory and access, then confirm a quote covering the truck, crew and any extras you choose.",
+                "Your Lagos price is confirmed when you book. We then assign movers and a vehicle for the date you chose.",
               ],
               [
                 "Stay updated until delivery",
@@ -228,7 +228,7 @@ export function HomePageClient() {
             <Link href={bookingHref} className="logistics-button">
               Plan my move <ArrowRight size={18} />
             </Link>
-            <small>Price and availability are confirmed by our team.</small>
+            <small>Your price is confirmed when you book.</small>
           </div>
         </div>
       </section>
