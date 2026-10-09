@@ -1,10 +1,19 @@
 "use client";
 import Link from "next/link";
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import { formatMoney } from "@/lib/money";
-import { instantQuote, SERVICES, SIZES, today } from "@/lib/moving/model";
+import { SERVICES, SIZES, today } from "@/lib/moving/model";
+import {
+  estimateMove,
+  DEFAULT_PRICING,
+  CITIES,
+  TRUCKS,
+  type PricingRules,
+  type Account,
+} from "@/lib/marketplace/model";
+import type { Move } from "@/lib/moving/model";
 import shared from "@/components/produce/CommercePages.module.css";
 import styles from "@/components/produce/JourneyPages.module.css";
 export function BookMove() {
@@ -18,20 +27,71 @@ export function BookMove() {
   const [pickupFloor, setPickupFloor] = useState(0);
   const [destinationFloor, setDestinationFloor] = useState(0);
   const [extras, setExtras] = useState<string[]>([]);
+  const [city, setCity] = useState<string>(CITIES.find((c) => c === area) ?? "Lagos");
+  const [distanceKm, setDistanceKm] = useState(10);
+  const [truckSize, setTruckSize] = useState("Auto");
+  const [pickup, setPickup] = useState("");
+  const [destination, setDestination] = useState("");
+  const [rules, setRules] = useState<PricingRules>(DEFAULT_PRICING);
+  const [profile, setProfile] = useState<Account | null>(null);
+  const [repeat, setRepeat] = useState<Move | null>(null);
+  useEffect(() => {
+    let active = true;
+    fetch("/api/marketplace?scope=public")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (active && d) setRules(d.pricing);
+      })
+      .catch(() => {});
+    fetch("/api/marketplace")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!active || !d) return;
+        setProfile(d.profile);
+        const m = d.moves.find(
+          (m: Move) => m.reference === params.get("repeat"),
+        );
+        if (m) {
+          setRepeat(m);
+          setPickup(m.pickup);
+          setDestination(m.destination);
+          setCity(m.city ?? "Lagos");
+          setDistanceKm(m.distanceKm ?? 10);
+          setTruckSize(m.truckSize ?? "Auto");
+          setSize(m.size);
+          setExtras(m.extras);
+          setPickupFloor(m.pickupFloor);
+          setDestinationFloor(m.destinationFloor);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [params]);
   const [photos, setPhotos] = useState<string[]>([]);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [booked, setBooked] = useState<{ reference: string; quote: number } | null>(
-    null,
+  const [booked, setBooked] = useState<{
+    reference: string;
+    estimate: { low: number; high: number };
+  } | null>(null);
+  const estimate = estimateMove(
+    {
+      city,
+      distanceKm,
+      truckSize,
+      pickup,
+      destination,
+      service,
+      size,
+      pickupFloor,
+      destinationFloor,
+      extras,
+    },
+    rules,
   );
-  const quote = instantQuote({
-    service,
-    size,
-    pickupFloor,
-    destinationFloor,
-    extras,
-  });
   const requestId = useRef<string | null>(null);
   async function selectPhotos(files: FileList | null) {
     setError("");
@@ -81,6 +141,10 @@ export function BookMove() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...fields,
+          city,
+          distanceKm,
+          truckSize,
+          notifications: fields.notifications === "on",
           service,
           extras,
           photos,
@@ -93,7 +157,7 @@ export function BookMove() {
       if (!response.ok) throw new Error(data.error);
       setBooked({
         reference: data.reference,
-        quote: typeof data.quote === "number" ? data.quote : quote,
+        estimate: data.estimate ?? estimate,
       });
       window.scrollTo({ top: 0, behavior: "instant" });
     } catch (e) {
@@ -113,23 +177,32 @@ export function BookMove() {
           className={`${shared.container} ${styles.bookingConfirmation}`}
         >
           <CheckCircle2 size={40} color="#2f5d50" />
-          <p className={shared.eyebrow}>YOUR MOVE IS BOOKED</p>
+          <p className={shared.eyebrow}>YOUR REQUEST IS SAVED</p>
           <h1>
-            You&apos;re booked.
+            Request received.
             <br />
-            We&apos;ll assign the crew.
+            We&apos;ll review your photos.
           </h1>
           <p className={shared.intro}>
-            Your price is confirmed. Our team assigns movers and a vehicle, and
-            you can follow every step with your reference.
+            Our team reviews your inventory, route and photos, then confirms a
+            quote. Pay the deposit to secure the booking and follow every step
+            with your reference.
           </p>
           <div className={styles.confirmationSummary}>
-            <p>Confirmed price</p>
-            <strong>{formatMoney(booked.quote)}</strong>
+            <p>Estimated range</p>
+            <strong>
+              {formatMoney(booked.estimate.low)}–
+              {formatMoney(booked.estimate.high)}
+            </strong>
             <p>Keep your move reference</p>
-            <strong style={{ overflowWrap: "anywhere" }}>{booked.reference}</strong>
+            <strong style={{ overflowWrap: "anywhere" }}>
+              {booked.reference}
+            </strong>
           </div>
-          <Link href={`/track?ref=${booked.reference}`} className="logistics-button">
+          <Link
+            href={`/track?ref=${booked.reference}`}
+            className="logistics-button"
+          >
             Track this move <ArrowRight size={18} />
           </Link>
         </section>
@@ -146,13 +219,19 @@ export function BookMove() {
             needs moving.
           </h1>
           <p className={shared.intro}>
-            A home, an office or one heavy item. Your Lagos price is confirmed
-            as you fill this in, and the move is booked when you submit.
+            A home, an office or one heavy item. Get an estimated range now; we
+            confirm the quote after reviewing your photos and route.
           </p>
         </div>
       </section>
       <div className={`${shared.container} ${styles.bookingLayout}`}>
-        <form onSubmit={submit} className={styles.bookingForm}>
+        <form
+          onSubmit={submit}
+          onChange={() => {
+            requestId.current = null;
+          }}
+          className={styles.bookingForm}
+        >
           <fieldset className={styles.bookingFieldset}>
             <legend>
               <span>01</span>What are we moving?
@@ -190,6 +269,7 @@ export function BookMove() {
               <label>
                 Item checklist
                 <input
+                  defaultValue={repeat?.inventory}
                   name="inventory"
                   required
                   minLength={2}
@@ -217,30 +297,100 @@ export function BookMove() {
               <span>02</span>Addresses and access
             </legend>
             <p>
-              We’re starting in Lagos. The price updates with stairs and the
-              help you add.
+              Choose Lagos, Abuja or Port Harcourt. Availability is reviewed for
+              your exact addresses and date.
             </p>
             <div className={styles.bookingFields}>
               <label>
+                City
+                <select value={city} onChange={(e) => setCity(e.target.value)}>
+                  {CITIES.map((c) => (
+                    <option key={c}>{c}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Estimated road distance (km)
+                <input
+                  type="number"
+                  min={1}
+                  max={500}
+                  required
+                  value={distanceKm}
+                  onChange={(e) => setDistanceKm(Number(e.target.value))}
+                />
+                <small>
+                  Within the selected city. Our team checks the route before
+                  confirming.
+                </small>
+              </label>
+              <label>
+                Vehicle preference
+                <select
+                  value={truckSize}
+                  onChange={(e) => setTruckSize(e.target.value)}
+                >
+                  {TRUCKS.map((t) => (
+                    <option key={t}>{t}</option>
+                  ))}
+                </select>
+              </label>
+              {profile?.addresses.length ? (
+                <>
+                  <label>
+                    Saved pickup
+                    <select
+                      defaultValue=""
+                      onChange={(e) => setPickup(e.target.value)}
+                    >
+                      <option value="">Choose an address</option>
+                      {profile.addresses.map((a) => (
+                        <option key={a.label + a.address} value={a.address}>
+                          {a.label} · {a.address}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Saved destination
+                    <select
+                      defaultValue=""
+                      onChange={(e) => setDestination(e.target.value)}
+                    >
+                      <option value="">Choose an address</option>
+                      {profile.addresses.map((a) => (
+                        <option key={a.label + a.address} value={a.address}>
+                          {a.label} · {a.address}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </>
+              ) : null}
+              <label>
                 Pickup address
                 <input
+                  value={pickup}
+                  onChange={(e) => setPickup(e.target.value)}
                   name="pickup"
                   required
                   maxLength={500}
                   placeholder={
                     area
-                      ? `Street address, ${area}, Lagos`
-                      : "Street, neighbourhood, Lagos"
+                      ? `Street address, ${area}, ${city}`
+                      : `Street, neighbourhood, ${city}`
                   }
                 />
               </label>
               <label>
                 Destination address
                 <input
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
                   name="destination"
                   required
                   maxLength={500}
-                  placeholder="Street, neighbourhood, Lagos"
+                  placeholder={`Street, neighbourhood, ${city}`}
                 />
               </label>
               <label>
@@ -252,7 +402,9 @@ export function BookMove() {
                   max={50}
                   value={pickupFloor}
                   required
-                  onChange={(event) => setPickupFloor(Number(event.target.value))}
+                  onChange={(event) =>
+                    setPickupFloor(Number(event.target.value))
+                  }
                 />
                 <small>0 = ground floor</small>
               </label>
@@ -283,6 +435,7 @@ export function BookMove() {
               <label>
                 Access instructions
                 <input
+                  defaultValue={repeat?.access}
                   name="access"
                   maxLength={2000}
                   placeholder="Lift, stairs, parking, estate entry or narrow roads"
@@ -306,6 +459,8 @@ export function BookMove() {
                   ["Unpacking", "Unpacking"],
                   ["Assembly", "Assembly"],
                   ["Cleaning", "Cleaning"],
+                  ["Packing materials", "Packing materials"],
+                  ["Fumigation", "Fumigation"],
                 ] as const
               ).map(([value, label]) => (
                 <button
@@ -365,6 +520,16 @@ export function BookMove() {
               </label>
             </div>
           </fieldset>
+          <label style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <input type="checkbox" name="notifications" /> Send me move status
+            updates by WhatsApp and SMS. You can track online without opting in.
+          </label>
+          <p>
+            <Link href="/auth?redirect=/book">Sign in</Link> to save move
+            history, addresses and condition records. Submitting agrees to our{" "}
+            <Link href="/legal/terms">terms</Link> and{" "}
+            <Link href="/damage-policy">damage policy</Link>.
+          </p>
           {error && (
             <p role="alert" className={styles.formError}>
               {error}
@@ -377,11 +542,11 @@ export function BookMove() {
               ) : (
                 <ArrowRight size={18} />
               )}
-              {busy ? "Booking…" : "Book this move"}
+              {busy ? "Sending…" : "Request reviewed quote"}
             </button>
             <p>
-              No payment now. Your price is confirmed instantly. We assign
-              movers and a vehicle after you book.
+              No payment until your quote is reviewed. A deposit secures the
+              booking; the balance is due after delivery.
             </p>
           </div>
         </form>
@@ -392,14 +557,18 @@ export function BookMove() {
             </p>
             <h3>{SERVICES.find((s) => s.id === service)?.name}</h3>
             <p className={styles.plannerNote}>
-              This is a local Lagos price for the vehicle, fuel and crew that
-              fit this move. Stairs and extras are added. A long trip, such as
-              mainland to the Island, can be adjusted by our team.
+              Your range includes a vehicle and standard crew, estimated
+              distance, floors and selected extras. Our team confirms access,
+              inventory and availability.
             </p>
             <div className={styles.routeEstimate}>
-              <p>Your price</p>
-              <strong>{formatMoney(quote)}</strong>
-              <span>Confirmed when you book.</span>
+              <p>Estimated range</p>
+              <strong style={{ fontSize: 28 }}>
+                {formatMoney(estimate.low)}–{formatMoney(estimate.high)}
+              </strong>
+              <span>
+                Reviewed quote before payment · {rules.depositPercent}% deposit
+              </span>
             </div>
             <p className={styles.plannerNote}>
               Keep an item checklist and photos before collection. Report any

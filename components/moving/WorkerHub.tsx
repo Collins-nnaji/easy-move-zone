@@ -15,6 +15,10 @@ import {
   type Worker,
   type WorkerKind,
 } from "@/lib/moving/workers";
+import { WorkerTools } from "@/components/marketplace/WorkerTools";
+import { JobChecklists } from "@/components/marketplace/JobChecklists";
+import { workerEarning } from "@/lib/marketplace/model";
+import { formatMoney } from "@/lib/money";
 import shared from "@/components/produce/CommercePages.module.css";
 import styles from "@/components/produce/JourneyPages.module.css";
 
@@ -164,7 +168,9 @@ function ProfileForm({
                 min={1}
                 max={30}
                 value={draft.crewSize}
-                onChange={(event) => set("crewSize", Number(event.target.value))}
+                onChange={(event) =>
+                  set("crewSize", Number(event.target.value))
+                }
               />
             </label>
           ) : (
@@ -230,14 +236,19 @@ function ProfileForm({
 function JobCard({
   job,
   onUpdated,
+  workerId,
 }: {
+  workerId: string;
   job: Move;
   onUpdated: (job: Move) => void;
 }) {
   const [arrival, setArrival] = useState(job.arrival);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  async function update(status: (typeof WORKER_PROGRESS)[number]) {
+  async function update(
+    status?: (typeof WORKER_PROGRESS)[number],
+    decision?: string,
+  ) {
     if (status === "completed" && !window.confirm("Mark this move completed?"))
       return;
     setBusy(true);
@@ -246,7 +257,12 @@ function JobCard({
       const response = await fetch("/api/workers/jobs", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reference: job.reference, status, arrival }),
+        body: JSON.stringify({
+          reference: job.reference,
+          status,
+          arrival,
+          decision,
+        }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
@@ -280,11 +296,18 @@ function JobCard({
             {job.date} · {job.size}
           </p>
           <p>
+            <strong>Job earnings pool:</strong>{" "}
+            {formatMoney(workerEarning(job))} after{" "}
+            {job.commissionPercent ?? 15}% commission. Your individual share is
+            agreed with operations.
+          </p>
+          <p>
             <strong>Checklist:</strong> {job.inventory}
           </p>
           <p>
             <strong>Access:</strong> Pickup floor {job.pickupFloor}, destination
-            floor {job.destinationFloor}. {job.access || "No extra instructions."}
+            floor {job.destinationFloor}.{" "}
+            {job.access || "No extra instructions."}
           </p>
           <p>
             <strong>Customer:</strong> {job.name} ·{" "}
@@ -292,6 +315,22 @@ function JobCard({
           </p>
         </div>
         <div className={styles.bookingFields}>
+          <div className={styles.rolePicker}>
+            <button
+              type="button"
+              disabled={busy || ["completed", "cancelled"].includes(job.status)}
+              onClick={() => void update(undefined, "accept")}
+            >
+              {job.acceptedBy?.includes(workerId) ? "Accepted" : "Accept job"}
+            </button>
+            <button
+              type="button"
+              disabled={busy || ["completed", "cancelled"].includes(job.status)}
+              onClick={() => void update(undefined, "decline")}
+            >
+              {job.declinedBy?.includes(workerId) ? "Declined" : "Decline job"}
+            </button>
+          </div>
           <label>
             Arrival note
             <input
@@ -306,7 +345,11 @@ function JobCard({
               <button
                 key={status}
                 type="button"
-                disabled={busy}
+                disabled={
+                  busy ||
+                  !job.acceptedBy?.includes(workerId) ||
+                  STATUSES.indexOf(status) !== STATUSES.indexOf(job.status) + 1
+                }
                 aria-pressed={job.status === status}
                 className={job.status === status ? styles.selectedRole : ""}
                 onClick={() => void update(status)}
@@ -322,6 +365,7 @@ function JobCard({
           )}
         </div>
       </div>
+      <JobChecklists reference={job.reference} />
     </article>
   );
 }
@@ -367,8 +411,9 @@ export function WorkerHub() {
             Assigned from admin.
           </h1>
           <p className={shared.intro}>
-            Movers and vehicle owners join here. Once your profile is saved, admin
-            can assign booked moves and they show up in this hub.
+            Movers and vehicle owners join here. Submit your profile and
+            verification documents. Once approved, assigned jobs show up here
+            with inventory, addresses and the agreed pay arrangements.
           </p>
         </div>
       </section>
@@ -376,8 +421,7 @@ export function WorkerHub() {
         {loading && <p>Loading your hub…</p>}
         {error && (
           <p role="alert" className={styles.formError}>
-            {error}{" "}
-            <Link href="/auth?redirect=/hub">Sign in</Link>
+            {error} <Link href="/auth?redirect=/hub">Sign in</Link>
           </p>
         )}
         {!loading && !error && !worker && (
@@ -390,7 +434,8 @@ export function WorkerHub() {
           <>
             <div className={styles.confirmationSummary}>
               <p>
-                {worker.kind === "mover" ? "Mover" : "Vehicle owner"} · {worker.area}
+                {worker.kind === "mover" ? "Mover" : "Vehicle owner"} ·{" "}
+                {worker.area}
               </p>
               <strong>{worker.name}</strong>
               <p>
@@ -416,6 +461,7 @@ export function WorkerHub() {
                 }}
               />
             )}
+            <WorkerTools jobs={jobs} />
             <h2 style={{ marginTop: 36 }}>Assigned jobs</h2>
             {jobs.length === 0 ? (
               <p>
@@ -427,6 +473,7 @@ export function WorkerHub() {
                 <JobCard
                   key={job.reference}
                   job={job}
+                  workerId={worker.id}
                   onUpdated={(next) =>
                     setJobs((current) =>
                       current.map((item) =>

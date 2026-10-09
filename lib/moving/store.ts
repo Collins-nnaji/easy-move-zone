@@ -33,6 +33,11 @@ export async function saveMove(move: Move) {
     "email",
     "phone",
     "photos",
+    "city",
+    "distanceKm",
+    "truckSize",
+    "notifications",
+    "userId",
   ] as const;
   if (
     !existing ||
@@ -67,7 +72,8 @@ export async function updateMove(
 }
 export async function listJobsForWorker(workerId: string) {
   const sql = await db();
-  const rows = await sql`SELECT data FROM emz_moves WHERE data->>'moverId'=${workerId} OR data->>'vehicleId'=${workerId} ORDER BY updated_at DESC LIMIT 50`;
+  const rows =
+    await sql`SELECT data FROM emz_moves WHERE data->>'moverId'=${workerId} OR data->>'vehicleId'=${workerId} ORDER BY updated_at DESC LIMIT 50`;
   return rows.map((r) => asMove(r.data as Move));
 }
 export async function updateAssignedJob(
@@ -76,6 +82,7 @@ export async function updateAssignedJob(
   patch: Pick<Move, "status" | "arrival">,
 ) {
   const sql = await db();
-  const rows = await sql`UPDATE emz_moves SET data=data || ${JSON.stringify(patch)}::jsonb, updated_at=now() WHERE reference=${reference} AND (data->>'moverId'=${workerId} OR data->>'vehicleId'=${workerId}) RETURNING data`;
+  const rows =
+    await sql`UPDATE emz_moves SET data=data || ${JSON.stringify(patch)}::jsonb, updated_at=now() WHERE reference=${reference} AND (data->>'moverId'=${workerId} OR data->>'vehicleId'=${workerId}) RETURNING data`;
   return rows[0] ? asMove(rows[0].data as Move) : undefined;
 }

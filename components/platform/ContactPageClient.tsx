@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import Link from "next/link"
 import { motion, useReducedMotion } from "framer-motion"
 import { ArrowRight, CheckCircle2, Loader2, Mail, MessageSquare, Phone, Send, User } from "lucide-react"
-import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants"
+import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_PHONE } from "@/lib/contact/constants"
 
 const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/\D/g, "")
 
@@ -116,6 +116,7 @@ export function ContactPageClient({ initialMessage = "", pageContext = null }: C
               <Mail className="h-5 w-5 text-orange-300" />
               {PUBLIC_CONTACT_EMAIL}
             </a>
+            {PUBLIC_CONTACT_PHONE && <a href={`tel:${PUBLIC_CONTACT_PHONE}`} className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200"><Phone className="h-5 w-5"/>{PUBLIC_CONTACT_PHONE}</a>}
             {whatsappNumber && <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200 hover:text-white"><MessageSquare className="h-5 w-5" /> WhatsApp support</a>}
             <Link
               href="/book"

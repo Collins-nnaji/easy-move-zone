@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
-import { instantQuote, validateMove } from "@/lib/moving/model";
+import { validateMove } from "@/lib/moving/model";
 import { saveMove } from "@/lib/moving/store";
+import { requireSessionUser } from "@/lib/auth/session";
+import { pricing } from "@/lib/marketplace/store";
+import { estimateMove } from "@/lib/marketplace/model";
 export async function POST(request: Request) {
   if (
     request.headers.get("origin") &&
@@ -46,7 +49,12 @@ export async function POST(request: Request) {
       phone,
       photos,
     } = input;
+    const user = await requireSessionUser();
     const details = {
+      city: input.city ?? "Lagos",
+      distanceKm: input.distanceKm ?? 10,
+      truckSize: input.truckSize ?? "Auto",
+      notifications: input.notifications === true,
       service,
       inventory,
       size,
@@ -58,16 +66,22 @@ export async function POST(request: Request) {
       access,
       extras,
       name,
-      email,
+      email: user?.email ?? email.trim().toLowerCase(),
       phone,
       photos,
     };
-    const quote = instantQuote(details);
+    const rules = await pricing();
+    const estimate = estimateMove(details, rules);
     const move = await saveMove({
       ...details,
       reference: `EMZ-${requestId.replaceAll("-", "").toUpperCase()}`,
-      status: "scheduled",
-      quote,
+      userId: user?.userId ?? null,
+      status: "requested",
+      quote: null,
+      estimate,
+      depositPercent: rules.depositPercent,
+      commissionPercent: rules.commissionPercent,
+      paidAmount: 0,
       crew: "",
       arrival: "",
       moverId: null,
@@ -75,7 +89,7 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     });
     return NextResponse.json(
-      { reference: move.reference, quote: move.quote },
+      { reference: move.reference, quote: move.quote, estimate: move.estimate },
       { status: 201 },
     );
   } catch {

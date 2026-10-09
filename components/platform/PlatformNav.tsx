@@ -20,6 +20,12 @@ import { SiteLogo } from "@/components/brand/SiteLogo";
 
 const NAV = [
   {
+    href: "/pricing",
+    label: "Pricing",
+    match: (path: string) => path === "/pricing",
+    featured: false,
+  },
+  {
     href: "/book",
     label: "Book a move",
     match: (path: string) => path === "/book",

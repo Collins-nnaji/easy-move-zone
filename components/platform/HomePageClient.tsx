@@ -164,7 +164,7 @@ export function HomePageClient() {
               ],
               [
                 "We arrange the journey",
-                "Your Lagos price is confirmed when you book. We then assign movers and a vehicle for the date you chose.",
+                "Get an estimated range, receive a reviewed quote, then pay a deposit. We coordinate your crew and vehicle for the agreed date.",
               ],
               [
                 "Stay updated until delivery",
@@ -184,16 +184,16 @@ export function HomePageClient() {
       <section className="logistics-routes">
         <div className="logistics-container logistics-section logistics-route-layout">
           <div>
-            <p className="logistics-eyebrow">STARTING IN LAGOS</p>
+            <p className="logistics-eyebrow">LAGOS · ABUJA · PORT HARCOURT</p>
             <h2>
               From your old place.
               <br />
               To your next beginning.
             </h2>
             <p className="logistics-route-intro">
-              We’re building our service in Lagos, one carefully coordinated
-              move at a time. Tell us your neighbourhood and we’ll confirm
-              coverage and availability.
+              Request a move in Lagos, Abuja or Port Harcourt. Tell us your
+              neighbourhood and we’ll confirm partner availability for your
+              exact route.
             </p>
             <Link href="/coverage" className="logistics-text-link">
               Explore our coverage <ArrowRight size={18} />
@@ -228,11 +228,64 @@ export function HomePageClient() {
             <Link href={bookingHref} className="logistics-button">
               Plan my move <ArrowRight size={18} />
             </Link>
-            <small>Your price is confirmed when you book.</small>
+            <small>Get a range now. Confirm your quote before payment.</small>
           </div>
         </div>
       </section>
 
+      <section className="logistics-container logistics-section">
+        <div className="logistics-section-heading">
+          <p className="logistics-eyebrow">CONFIDENCE AT EVERY STEP</p>
+          <h2>
+            Know the price.
+            <br />
+            Keep the record.
+          </h2>
+        </div>
+        <div className="logistics-services">
+          {[
+            [
+              "Estimate before booking",
+              "See a range before sharing your details. Receive a reviewed quote before paying a deposit.",
+              "/pricing",
+              "Explore pricing",
+            ],
+            [
+              "Care you can document",
+              "Record item condition at pickup and delivery, sign the checklist and report concerns in your account.",
+              "/damage-policy",
+              "Damage & cover policy",
+            ],
+            [
+              "Hear from customers",
+              "Read published reviews from completed moves, and leave your own after delivery.",
+              "/reviews",
+              "Customer reviews",
+            ],
+          ].map(([title, body, href, label]) => (
+            <article className="logistics-service" key={href}>
+              <div>
+                <h3>{title}</h3>
+                <p>{body}</p>
+                <Link href={href} className="logistics-text-link">
+                  {label} <ArrowRight size={16} />
+                </Link>
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-6 mt-8">
+          <Link href="/about" className="logistics-text-link">
+            Meet EasyMoveZone <ArrowRight size={16} />
+          </Link>
+          <Link href="/faq" className="logistics-text-link">
+            Moving FAQs <ArrowRight size={16} />
+          </Link>
+          <Link href="/business" className="logistics-text-link">
+            Business accounts <ArrowRight size={16} />
+          </Link>
+        </div>
+      </section>
       <section className="logistics-container logistics-closing">
         <div>
           <p className="logistics-eyebrow">LET’S GET IT MOVING</p>

@@ -9,6 +9,8 @@ import {
 } from "@/lib/moving/worker-store";
 import { validateWorkerDraft, type Worker } from "@/lib/moving/workers";
 
+import { workerExtras, putRecord } from "@/lib/marketplace/store";
+
 function sameOrigin(request: Request) {
   const origin = request.headers.get("origin");
   return !origin || origin === new URL(request.url).origin;
@@ -16,7 +18,8 @@ function sameOrigin(request: Request) {
 
 export async function GET() {
   const user = await requireSessionUser();
-  if (!user) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   try {
     const worker = await resolveWorkerForUser(user);
     const jobs = worker ? await listJobsForWorker(worker.id) : [];
@@ -34,7 +37,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const user = await requireSessionUser();
-  if (!user) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   if (!sameOrigin(request))
     return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
   try {
@@ -68,7 +72,10 @@ export async function POST(request: Request) {
       email: user.email,
       createdAt: new Date().toISOString(),
     };
-    return NextResponse.json({ worker: await saveWorker(worker) }, { status: 201 });
+    return NextResponse.json(
+      { worker: await saveWorker(worker) },
+      { status: 201 },
+    );
   } catch {
     return NextResponse.json(
       { error: "Could not save your profile. Please try again." },
@@ -79,7 +86,8 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   const user = await requireSessionUser();
-  if (!user) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   if (!sameOrigin(request))
     return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
   try {
@@ -91,7 +99,31 @@ export async function PATCH(request: Request) {
       );
     const current = await resolveWorkerForUser(user);
     if (!current)
-      return NextResponse.json({ error: "Create your profile first." }, { status: 404 });
+      return NextResponse.json(
+        { error: "Create your profile first." },
+        { status: 404 },
+      );
+    if (
+      (["kind", "name", "vehicleType", "plate", "capacity"] as const).some(
+        (k) => body[k] !== current[k as keyof typeof current],
+      )
+    ) {
+      const x = await workerExtras(current.id);
+      await putRecord(
+        "worker",
+        current.id,
+        {
+          ...x,
+          verification: {
+            ...x.verification,
+            status: "pending",
+            notes:
+              "Profile changed. Operations must review the updated partner details.",
+          },
+        },
+        current.id,
+      );
+    }
     const worker = await replaceWorker({
       ...current,
       ...body,

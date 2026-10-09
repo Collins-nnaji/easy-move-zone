@@ -6,7 +6,13 @@ vi.mock("@/lib/auth/assert-admin-api", () => ({
 }));
 vi.mock("@/lib/moving/store", () => ({
   listMoves: vi.fn(),
-  updateMove: vi.fn(async (_reference, patch) => ({ reference: "EMZ-1", ...patch })),
+  getMove: vi.fn(async () => ({
+    reference: "EMZ-12345678123441238123123456789012",
+    status: "quoted",
+    quote: 45000,
+    paidAmount: 13500,
+    depositPercent: 30,
+  })),
 }));
 vi.mock("@/lib/moving/worker-store", () => ({
   getWorker: vi.fn(async (id: string) =>
@@ -24,7 +30,22 @@ vi.mock("@/lib/moving/worker-store", () => ({
   ),
 }));
 
-import { updateMove } from "@/lib/moving/store";
+vi.mock("@/lib/marketplace/moves", () => ({
+  changeMove: vi.fn(async (_current, patch) => ({
+    reference: "EMZ-1",
+    ...patch,
+  })),
+}));
+vi.mock("@/lib/marketplace/store", () => ({
+  workerExtras: vi.fn(async () => ({
+    verification: { status: "verified" },
+    available: true,
+  })),
+}));
+vi.mock("@/lib/marketplace/notifications", () => ({ queueUpdate: vi.fn() }));
+import { changeMove } from "@/lib/marketplace/moves";
+import { getMove } from "@/lib/moving/store";
+import { workerExtras } from "@/lib/marketplace/store";
 import { PATCH } from "./route";
 
 const body = {
@@ -40,7 +61,10 @@ const body = {
 function request(payload: unknown) {
   return new Request("https://example.com/api/admin/moves", {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", origin: "https://example.com" },
+    headers: {
+      "Content-Type": "application/json",
+      origin: "https://example.com",
+    },
     body: JSON.stringify(payload),
   });
 }
@@ -50,17 +74,35 @@ describe("admin job assignment", () => {
   it("assigns a mover and a vehicle onto the booked move", async () => {
     const response = await PATCH(request(body));
     expect(response.status).toBe(200);
-    expect(vi.mocked(updateMove).mock.calls[0][1]).toMatchObject({
+    expect(vi.mocked(changeMove).mock.calls[0][1]).toMatchObject({
       moverId: body.moverId,
       vehicleId: body.vehicleId,
       crew: "Movers: Ada Crew · Truck Kola Trucks (LAG 22)",
     });
+  });
+  it("blocks scheduling without a verified deposit", async () => {
+    vi.mocked(getMove).mockResolvedValueOnce({
+      reference: body.reference,
+      status: "quoted",
+      quote: 45000,
+      paidAmount: 0,
+    } as never);
+    expect((await PATCH(request(body))).status).toBe(409);
+    expect(changeMove).not.toHaveBeenCalled();
+  });
+  it("blocks unverified partners", async () => {
+    vi.mocked(workerExtras).mockResolvedValueOnce({
+      verification: { status: "pending" },
+      available: true,
+    } as never);
+    expect((await PATCH(request(body))).status).toBe(409);
+    expect(changeMove).not.toHaveBeenCalled();
   });
   it("rejects a vehicle id used as a mover", async () => {
     const response = await PATCH(
       request({ ...body, moverId: body.vehicleId, vehicleId: null }),
     );
     expect(response.status).toBe(400);
-    expect(updateMove).not.toHaveBeenCalled();
+    expect(changeMove).not.toHaveBeenCalled();
   });
 });

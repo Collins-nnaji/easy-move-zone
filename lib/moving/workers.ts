@@ -1,7 +1,11 @@
 import { AREAS } from "./model";
 
 export const WORKER_KINDS = [
-  { id: "mover", name: "Mover", detail: "Loading crew that carries and packs." },
+  {
+    id: "mover",
+    name: "Mover",
+    detail: "Loading crew that carries and packs.",
+  },
   {
     id: "vehicle",
     name: "Vehicle owner",
@@ -11,10 +15,15 @@ export const WORKER_KINDS = [
 
 export const VEHICLE_TYPES = ["Van", "Pickup", "Truck", "Flatbed"] as const;
 
-export const WORKER_PROGRESS = ["arriving", "transit", "completed"] as const;
+export const WORKER_PROGRESS = [
+  "arriving",
+  "arrived",
+  "loaded",
+  "transit",
+  "completed",
+] as const;
 
-const ID =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export type WorkerKind = (typeof WORKER_KINDS)[number]["id"];
 
@@ -70,7 +79,9 @@ export function validateWorkerDraft(value: unknown): value is WorkerDraft {
     b.notes.length <= 500 &&
     (vehicle
       ? b.crewSize === 0 &&
-        VEHICLE_TYPES.includes(b.vehicleType as (typeof VEHICLE_TYPES)[number]) &&
+        VEHICLE_TYPES.includes(
+          b.vehicleType as (typeof VEHICLE_TYPES)[number],
+        ) &&
         typeof b.plate === "string" &&
         /^[A-Za-z0-9 -]{2,20}$/.test(b.plate) &&
         typeof b.capacity === "string" &&

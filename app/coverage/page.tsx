@@ -5,7 +5,7 @@ import { HeroFreightArt } from "@/components/platform/FreightArt";
 import { AREAS } from "@/lib/moving/model";
 import { buildPageMetadata } from "@/lib/site-metadata";
 export const metadata = buildPageMetadata({
-  title: "Moving in Lagos",
+  title: "Moving in Lagos, Abuja & Port Harcourt",
   description:
     "Plan a home move, office relocation or bulky delivery in Lagos. Our team confirms coverage and availability for your exact addresses.",
   path: "/coverage",
@@ -25,9 +25,10 @@ export default function CoveragePage() {
                 <br />A smoother move.
               </h1>
               <p className="logistics-intro">
-                We’re starting with Lagos moves and carefully coordinating each
-                job. Share your pickup and destination addresses so our team can
-                confirm availability.
+                Request moves in Lagos, Abuja and Port Harcourt. We check
+                partner availability before confirming each job. Share your
+                pickup and destination addresses so our team can confirm
+                availability.
               </p>
               <Link href="/book" className="logistics-button">
                 Check my move <ArrowRight size={18} />
@@ -66,7 +67,7 @@ export default function CoveragePage() {
           </div>
           <p className="logistics-route-intro">
             Listed areas are enquiry locations. Truck and crew availability are
-            confirmed by our team. For moves outside Lagos, contact us before
+            confirmed by our team. For intercity moves, contact us before
             planning your booking.
           </p>
           <Link href="/contact" className="logistics-text-link">

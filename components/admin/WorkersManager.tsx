@@ -83,7 +83,7 @@ export function WorkersManager() {
         </h1>
         <p className={shared.intro}>
           Add a mover or vehicle owner here, or let them join at the crew hub.
-          They are available for assignment straight away. When they sign in with
+          They submit documents for verification before assignment. When they sign in with
           the same email, their jobs are waiting.
         </p>
         <div className={shared.actions}>
@@ -179,7 +179,7 @@ export function WorkersManager() {
             {error}
           </p>
         )}
-        <h2 style={{ marginTop: 36 }}>{busy ? "Loading crew…" : "Ready for jobs"}</h2>
+        <h2 style={{ marginTop: 36 }}>{busy ? "Loading crew…" : "Crew directory"}</h2>
         {!busy && workers.length === 0 && (
           <p>No movers or vehicle owners yet. Add one above or share the crew hub.</p>
         )}

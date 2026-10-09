@@ -1,8 +1,13 @@
-import path from "node:path"
-import { defineConfig } from "vitest/config"
+import path from "node:path";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  resolve: { alias: { "@": path.resolve(__dirname) } },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname),
+      "server-only": path.resolve(__dirname, "tests/server-only.ts"),
+    },
+  },
   test: {
     include: [
       "app/**/*.test.{ts,tsx}",
@@ -12,4 +17,4 @@ export default defineConfig({
     ],
     exclude: ["node_modules/**", ".next/**"],
   },
-})
+});

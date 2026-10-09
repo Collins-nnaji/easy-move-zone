@@ -16,7 +16,7 @@ type PublicMove = Pick<
 >;
 export function TrackMove() {
   const params = useSearchParams();
-  const initial = params.get("ref") ?? "";
+  const initial = params.get("reference") ?? params.get("ref") ?? "";
   const [query, setQuery] = useState(initial);
   const [move, setMove] = useState<PublicMove | null>(null);
   const [error, setError] = useState("");
@@ -38,6 +38,32 @@ export function TrackMove() {
       });
     return () => controller.abort();
   }, [initial]);
+  const trackedReference = move?.reference;
+  const trackedStatus = move?.status;
+  useEffect(() => {
+    if (
+      !trackedReference ||
+      ["completed", "cancelled"].includes(trackedStatus ?? "")
+    )
+      return;
+    const controller = new AbortController();
+    const timer = setInterval(() => {
+      if (document.hidden) return;
+      fetch(`/api/moves/${encodeURIComponent(trackedReference)}`, {
+        cache: "no-store",
+        signal: controller.signal,
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (d) setMove(d.move);
+        })
+        .catch(() => {});
+    }, 15000);
+    return () => {
+      clearInterval(timer);
+      controller.abort();
+    };
+  }, [trackedReference, trackedStatus]);
   async function lookup() {
     setBusy(true);
     setError("");
@@ -113,13 +139,14 @@ export function TrackMove() {
             </div>
             <div className={styles.shipmentBody}>
               <ol className={styles.timeline}>
-                {STATUSES.map((s, i) => (
+                {STATUSES.filter((s) => s !== "cancelled").map((s, i) => (
                   <li
                     key={s}
                     className={
                       i === STATUSES.indexOf(move.status)
                         ? styles.currentStep
-                        : i < STATUSES.indexOf(move.status)
+                        : move.status !== "cancelled" &&
+                            i < STATUSES.indexOf(move.status)
                           ? styles.completedStep
                           : ""
                     }
@@ -160,6 +187,17 @@ export function TrackMove() {
                     <dd>{move.arrival || "To be confirmed"}</dd>
                   </div>
                 </dl>
+                {move.quote && move.status !== "cancelled" && (
+                  <Link
+                    href={`/checkout?move=${move.reference}`}
+                    className="logistics-button"
+                  >
+                    Payments & receipts
+                  </Link>
+                )}
+                <p className={styles.smallNote}>
+                  Status refreshes every 15 seconds while this page is open.
+                </p>
                 <Link
                   href={`/contact?message=${encodeURIComponent(`Please help me with move ${move.reference}.`)}`}
                   className="logistics-text-link"
@@ -173,8 +211,9 @@ export function TrackMove() {
           <div className={styles.bookingHelp}>
             <h3>Keep your reference handy.</h3>
             <p>
-              A booking confirms your price immediately. Crew and vehicle
-              assignments show here once the team assigns them.
+              Our team reviews your request and confirms the quote before
+              payment. Crew and vehicle assignments show here after your deposit
+              is verified.
             </p>
             <Link href="/book" className="logistics-text-link">
               Plan a move

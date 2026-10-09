@@ -1,44 +1,67 @@
 import { NextResponse } from "next/server";
 import { requireSessionUser } from "@/lib/auth/session";
-import { updateAssignedJob } from "@/lib/moving/store";
+import { getMove } from "@/lib/moving/store";
+import { changeMove } from "@/lib/marketplace/moves";
 import { resolveWorkerForUser } from "@/lib/moving/worker-store";
-import { WORKER_PROGRESS } from "@/lib/moving/workers";
-
+import { workerExtras } from "@/lib/marketplace/store";
+import { body, InputError, reference } from "@/lib/marketplace/http";
+import { queueUpdate } from "@/lib/marketplace/notifications";
 export async function PATCH(request: Request) {
-  const user = await requireSessionUser();
-  if (!user) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
-  if (
-    request.headers.get("origin") &&
-    request.headers.get("origin") !== new URL(request.url).origin
-  )
-    return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
   try {
-    const body = await request.json();
-    if (
-      !WORKER_PROGRESS.includes(body.status) ||
-      typeof body.arrival !== "string" ||
-      body.arrival.length > 200 ||
-      typeof body.reference !== "string"
-    )
-      return NextResponse.json(
-        { error: "Check the job status and arrival note." },
-        { status: 400 },
-      );
+    const user = await requireSessionUser();
+    if (!user) throw new InputError("Sign in required.", 401);
+    const b = await body(request);
+    if (!reference(b.reference)) throw new InputError("Invalid job reference.");
     const worker = await resolveWorkerForUser(user);
-    if (!worker)
-      return NextResponse.json({ error: "Create your profile first." }, { status: 404 });
-    const move = await updateAssignedJob(worker.id, body.reference, {
-      status: body.status,
-      arrival: body.arrival,
-    });
+    const m = await getMove(b.reference);
+    if (!worker || !m || ![m.moverId, m.vehicleId].includes(worker.id))
+      throw new InputError("This job is not assigned to you.", 404);
+    if ((await workerExtras(worker.id)).verification.status !== "verified")
+      throw new InputError("Your profile must be verified first.", 403);
+    if (["cancelled", "completed", "requested", "quoted"].includes(m.status))
+      throw new InputError("This job is not available for crew updates.", 409);
+    if (["accept", "decline"].includes(b.decision)) {
+      const accepted = new Set(m.acceptedBy ?? []),
+        declined = new Set(m.declinedBy ?? []);
+      if (b.decision === "accept") {
+        accepted.add(worker.id);
+        declined.delete(worker.id);
+      } else {
+        declined.add(worker.id);
+        accepted.delete(worker.id);
+      }
+      return NextResponse.json({
+        move: await changeMove(m, {
+          acceptedBy: [...accepted],
+          declinedBy: [...declined],
+        }),
+      });
+    }
+    const order = [
+      "scheduled",
+      "arriving",
+      "arrived",
+      "loaded",
+      "transit",
+      "completed",
+    ];
+    if (
+      !(m.acceptedBy ?? []).includes(worker.id) ||
+      order.indexOf(b.status) !== order.indexOf(m.status) + 1 ||
+      typeof b.arrival !== "string" ||
+      b.arrival.length > 200
+    )
+      throw new InputError(
+        "Accept the job and update each stage in order.",
+        409,
+      );
+    const move = await changeMove(m, { status: b.status, arrival: b.arrival });
+    await queueUpdate(move);
+    return NextResponse.json({ move });
+  } catch (e) {
     return NextResponse.json(
-      move ? { move } : { error: "This job is not assigned to you." },
-      { status: move ? 200 : 404 },
-    );
-  } catch {
-    return NextResponse.json(
-      { error: "Could not update this job." },
-      { status: 503 },
+      { error: e instanceof InputError ? e.message : "Could not update job." },
+      { status: e instanceof InputError ? e.status : 503 },
     );
   }
 }

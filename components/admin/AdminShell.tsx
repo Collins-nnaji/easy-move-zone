@@ -6,6 +6,7 @@ import { BadgeCheck, Users, LayoutDashboard, Truck } from "lucide-react";
 import { clsx } from "clsx";
 
 const NAV = [
+  { href: "/admin/operations", label: "Marketplace", icon: LayoutDashboard },
   { href: "/admin", label: "Moves", icon: LayoutDashboard },
   { href: "/admin/workers", label: "Crew & vehicles", icon: Truck },
   { href: "/admin/enquiries", label: "Enquiries", icon: Users },

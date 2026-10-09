@@ -4,7 +4,14 @@ vi.mock("@/lib/moving/store", () => ({
 }));
 import { saveMove } from "@/lib/moving/store";
 import { POST } from "./route";
-import { instantQuote, today } from "@/lib/moving/model";
+import { today } from "@/lib/moving/model";
+vi.mock("@/lib/auth/session", () => ({
+  requireSessionUser: vi.fn(async () => null),
+}));
+vi.mock("@/lib/marketplace/store", () => ({
+  pricing: vi.fn(async () => DEFAULT_PRICING),
+}));
+import { DEFAULT_PRICING, estimateMove } from "@/lib/marketplace/model";
 const input = {
   service: "item",
   inventory: "Sofa",
@@ -31,17 +38,19 @@ function request(body: unknown, origin = "https://example.com") {
 }
 describe("move requests", () => {
   beforeEach(() => vi.clearAllMocks());
-  it("books immediately with a confirmed price and private reference", async () => {
+  it("saves a reviewed quote request and ignores injected price and status", async () => {
     const r = await POST(request({ ...input, status: "completed", quote: 1 }));
     expect(r.status).toBe(201);
-    const quote = instantQuote(input);
+    const estimate = estimateMove(input);
     expect(await r.json()).toEqual({
       reference: "EMZ-12345678123441238123123456789012",
-      quote,
+      quote: null,
+      estimate,
     });
     expect(vi.mocked(saveMove).mock.calls[0][0]).toMatchObject({
-      status: "scheduled",
-      quote,
+      status: "requested",
+      quote: null,
+      estimate,
       moverId: null,
       vehicleId: null,
     });

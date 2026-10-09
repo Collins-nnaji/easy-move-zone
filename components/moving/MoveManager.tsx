@@ -54,6 +54,13 @@ function MoveEditor({
             {move.date} · {move.size}
           </p>
           <p>
+            <strong>Estimate:</strong> ₦
+            {move.estimate?.low?.toLocaleString() ?? "—"}–₦
+            {move.estimate?.high?.toLocaleString() ?? "—"} · paid ₦
+            {(move.paidAmount ?? 0).toLocaleString()} · {move.city ?? "Lagos"},{" "}
+            {move.distanceKm ?? 10} km
+          </p>
+          <p>
             <strong>Checklist:</strong> {move.inventory}
           </p>
           <p>
@@ -135,7 +142,7 @@ function MoveEditor({
               </select>
             </label>
             <label>
-              Quote (₦)
+              Reviewed quote (₦)
               <input
                 type="number"
                 min={1}
@@ -145,7 +152,10 @@ function MoveEditor({
             </label>
             <label>
               Assign mover
-              <select value={moverId} onChange={(e) => setMoverId(e.target.value)}>
+              <select
+                value={moverId}
+                onChange={(e) => setMoverId(e.target.value)}
+              >
                 <option value="">Unassigned</option>
                 {movers.map((worker) => (
                   <option key={worker.id} value={worker.id}>
@@ -163,7 +173,8 @@ function MoveEditor({
                 <option value="">Unassigned</option>
                 {vehicles.map((worker) => (
                   <option key={worker.id} value={worker.id}>
-                    {worker.name} · {worker.vehicleType} {worker.plate} · {worker.area}
+                    {worker.name} · {worker.vehicleType} {worker.plate} ·{" "}
+                    {worker.area}
                   </option>
                 ))}
               </select>
@@ -214,6 +225,12 @@ export function MoveManager() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(true);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  useEffect(() => {
+    setStatusFilter(
+      new URLSearchParams(window.location.search).get("status") ?? "",
+    );
+  }, []);
   async function load() {
     setBusy(true);
     setError("");
@@ -248,8 +265,8 @@ export function MoveManager() {
           One workspace.
         </h1>
         <p className={shared.intro}>
-          Booked moves land here immediately. Assign a mover and a vehicle, then
-          adjust the price or arrival if access changes.
+          Review incoming requests and confirm a quote. Verified deposits secure
+          bookings; assign verified partners and follow each job stage.
         </p>
         <div className={shared.actions}>
           <button
@@ -259,6 +276,9 @@ export function MoveManager() {
           >
             {busy ? "Loading…" : "Refresh requests"}
           </button>
+          <Link href="/admin/operations" className="logistics-text-link">
+            Pricing, payments & claims
+          </Link>
           <Link href="/admin/workers" className="logistics-text-link">
             Crew and vehicles
           </Link>
@@ -270,6 +290,20 @@ export function MoveManager() {
           </Link>
         </div>
         <div className={styles.bookingFields} style={{ marginBlock: 28 }}>
+          <label>
+            Pipeline stage
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="">All stages</option>
+              {STATUSES.map((v, i) => (
+                <option key={v} value={v}>
+                  {STATUS_LABELS[i]}
+                </option>
+              ))}
+            </select>
+          </label>
           <label>
             Find a move
             <input
@@ -286,9 +320,13 @@ export function MoveManager() {
           </p>
         )}
         {!busy && !error && moves.length === 0 && (
-          <p>No moves yet. New bookings appear here as soon as a customer books.</p>
+          <p>
+            No moves yet. New requests appear here as soon as a customer
+            submits.
+          </p>
         )}
         {moves
+          .filter((m) => !statusFilter || m.status === statusFilter)
           .filter((m) =>
             `${m.name} ${m.reference} ${m.pickup} ${m.destination}`
               .toLowerCase()

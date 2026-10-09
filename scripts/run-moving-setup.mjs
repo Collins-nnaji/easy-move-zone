@@ -10,6 +10,8 @@ const files = [
   "db/migrations/20261002_produce_accounts.sql",
   "db/add-contact-submissions.sql",
   "db/migrations/20261003_moving_platform.sql",
+  "db/migrations/20261004_workers.sql",
+  "db/migrations/20261010_moving_marketplace.sql",
 ];
 const statements = (
   await Promise.all(

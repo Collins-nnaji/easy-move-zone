@@ -1,4 +1,4 @@
-import type { NextConfig } from "next"
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
@@ -8,7 +8,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "easymovezone.s3.eu-west-3.idrivee2.com" },
       { protocol: "https", hostname: "s3.eu-west-3.idrivee2.com" },
       { protocol: "https", hostname: "*.blob.core.windows.net" },
-      { protocol: "https", hostname: "br-crimson-silence-ai1l8fhm.storage.c-4.us-east-1.aws.neon.tech" },
+      {
+        protocol: "https",
+        hostname:
+          "br-crimson-silence-ai1l8fhm.storage.c-4.us-east-1.aws.neon.tech",
+      },
     ],
   },
   async redirects() {
@@ -44,25 +48,27 @@ const nextConfig: NextConfig = {
       "/adviser",
       "/paths",
       "/destinations",
-      "/about",
-      "/pricing",
       "/connect",
       "/portal",
       "/corporate",
       "/dashboard",
       "/index",
-    ]
+    ];
 
     const homeRedirects = toHome.flatMap((source) => [
       { source, destination: "/", permanent: true },
       { source: `${source}/:path*`, destination: "/", permanent: true },
-    ])
+    ]);
 
     return [
       ...homeRedirects,
       { source: "/profile/driver", destination: "/profile", permanent: true },
       { source: "/profile/company", destination: "/profile", permanent: true },
-      { source: "/legal/independent-contractor", destination: "/legal/terms", permanent: true },
+      {
+        source: "/legal/independent-contractor",
+        destination: "/legal/terms",
+        permanent: true,
+      },
       { source: "/privacy", destination: "/legal/privacy", permanent: true },
       { source: "/terms", destination: "/legal/terms", permanent: true },
       { source: "/cookies", destination: "/legal/cookies", permanent: true },
@@ -71,9 +77,21 @@ const nextConfig: NextConfig = {
       { source: "/news/:path*", destination: "/", permanent: false },
       { source: "/admin/news", destination: "/admin/users", permanent: false },
       { source: "/admin/jobs", destination: "/admin/users", permanent: true },
-      { source: "/admin/jobs/:path*", destination: "/admin/users", permanent: true },
-      { source: "/admin/education", destination: "/admin/users", permanent: true },
-      { source: "/admin/education/:path*", destination: "/admin/users", permanent: true },
+      {
+        source: "/admin/jobs/:path*",
+        destination: "/admin/users",
+        permanent: true,
+      },
+      {
+        source: "/admin/education",
+        destination: "/admin/users",
+        permanent: true,
+      },
+      {
+        source: "/admin/education/:path*",
+        destination: "/admin/users",
+        permanent: true,
+      },
       { source: "/app/:path*", destination: "/", permanent: true },
       { source: "/corp/:path*", destination: "/", permanent: true },
       { source: "/signup", destination: "/auth?mode=signup", permanent: false },
@@ -112,8 +130,8 @@ const nextConfig: NextConfig = {
         { source, destination: "/", permanent: true },
         { source: `${source}/:path*`, destination: "/", permanent: true },
       ]),
-    ]
+    ];
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;

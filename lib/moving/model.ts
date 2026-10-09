@@ -27,14 +27,12 @@ export const AREAS = [
   "Yaba",
   "Surulere",
   "Other Lagos area",
+  "Abuja",
+  "Port Harcourt",
 ];
 export const SIZES: Record<(typeof SERVICES)[number]["id"], readonly string[]> =
   {
-    home: [
-      "Studio / one bedroom",
-      "Two bedrooms",
-      "Three or more bedrooms",
-    ],
+    home: ["Studio / one bedroom", "Two bedrooms", "Three or more bedrooms"],
     office: ["Small office", "Large office"],
     item: ["Single bulky item", "Several items"],
   };
@@ -70,6 +68,18 @@ const FLOOR_FEES: Record<string, number> = {
   "Several items": 6000,
 };
 const EXTRA_PRICES: Record<string, Record<string, number>> = {
+  "Packing materials": Object.fromEntries(
+    Object.keys(BASE_PRICES).map((size) => [
+      size,
+      size.includes("item") ? 8000 : 20000,
+    ]),
+  ),
+  Fumigation: Object.fromEntries(
+    Object.keys(BASE_PRICES).map((size) => [
+      size,
+      size.includes("item") ? 10000 : 30000,
+    ]),
+  ),
   Packing: {
     "Studio / one bedroom": 45000,
     "Two bedrooms": 65000,
@@ -125,7 +135,10 @@ export function instantQuote(input: {
   extras: string[];
 }) {
   const base = BASE_PRICES[input.size];
-  if (!base || !SIZES[input.service as keyof typeof SIZES]?.includes(input.size))
+  if (
+    !base ||
+    !SIZES[input.service as keyof typeof SIZES]?.includes(input.size)
+  )
     return 0;
   const floors = [input.pickupFloor, input.destinationFloor].reduce(
     (sum, floor) => sum + (Number.isInteger(floor) && floor > 0 ? floor : 0),
@@ -142,16 +155,22 @@ export const STATUSES = [
   "quoted",
   "scheduled",
   "arriving",
+  "arrived",
+  "loaded",
   "transit",
   "completed",
+  "cancelled",
 ] as const;
 export const STATUS_LABELS = [
   "Request received",
   "Quote ready",
   "Booked",
   "Crew arriving",
+  "Crew on site",
+  "Items loaded",
   "On the way",
   "Move completed",
+  "Cancelled",
 ];
 export type MoveInput = {
   service: string;
@@ -168,8 +187,19 @@ export type MoveInput = {
   email: string;
   phone: string;
   photos: string[];
+  city?: string;
+  distanceKm?: number;
+  truckSize?: string;
+  notifications?: boolean;
 };
 export type Move = MoveInput & {
+  userId?: string | null;
+  estimate?: { low: number; high: number };
+  depositPercent?: number;
+  commissionPercent?: number;
+  paidAmount?: number;
+  acceptedBy?: string[];
+  declinedBy?: string[];
   reference: string;
   status: (typeof STATUSES)[number];
   quote: number | null;
@@ -191,17 +221,23 @@ export function validateMove(value: unknown): value is MoveInput {
   if (!value || typeof value !== "object") return false;
   const b = value as MoveInput;
   return (
+    (b.city === undefined ||
+      ["Lagos", "Abuja", "Port Harcourt"].includes(b.city)) &&
+    (b.distanceKm === undefined ||
+      (Number.isFinite(b.distanceKm) &&
+        b.distanceKm >= 1 &&
+        b.distanceKm <= 500)) &&
+    (b.truckSize === undefined ||
+      ["Auto", "Van", "Medium truck", "10-tonne truck"].includes(
+        b.truckSize,
+      )) &&
+    (b.notifications === undefined || typeof b.notifications === "boolean") &&
+    Array.isArray(b.extras) &&
+    new Set(b.extras).size === b.extras.length &&
     SERVICES.some((s) => s.id === b.service) &&
     (SIZES[b.service as keyof typeof SIZES] ?? []).includes(b.size) &&
     (
-      [
-        "inventory",
-        "pickup",
-        "destination",
-        "name",
-        "email",
-        "phone",
-      ] as const
+      ["inventory", "pickup", "destination", "name", "email", "phone"] as const
     ).every(
       (k) =>
         typeof b[k] === "string" &&
@@ -222,11 +258,17 @@ export function validateMove(value: unknown): value is MoveInput {
     typeof b.access === "string" &&
     b.access.length <= 2000 &&
     Array.isArray(b.extras) &&
-    b.extras.length <= 5 &&
+    b.extras.length <= 7 &&
     b.extras.every((x) =>
-      ["Packing", "Unpacking", "Assembly", "Cleaning", "Loading crew"].includes(
-        x,
-      ),
+      [
+        "Packing",
+        "Unpacking",
+        "Assembly",
+        "Cleaning",
+        "Loading crew",
+        "Packing materials",
+        "Fumigation",
+      ].includes(x),
     ) &&
     Array.isArray(b.photos) &&
     b.photos.length <= 3 &&
