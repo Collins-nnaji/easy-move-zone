@@ -20,44 +20,44 @@ import { SiteLogo } from "@/components/brand/SiteLogo";
 
 const NAV = [
   {
-    href: "/pricing",
-    label: "Pricing",
-    match: (path: string) => path === "/pricing",
-    featured: false,
-  },
-  {
     href: "/book",
     label: "Book a move",
     match: (path: string) => path === "/book",
     featured: true,
   },
   {
+    href: "/pricing",
+    label: "Moving prices",
+    match: (path: string) => path === "/pricing",
+    featured: false,
+  },
+  {
     href: "/services",
-    label: "Services",
+    label: "Moving services",
     match: (path: string) => path === "/services",
     featured: false,
   },
   {
     href: "/hub",
-    label: "Crew hub",
+    label: "Mover & driver jobs",
     match: (path: string) => path === "/hub",
     featured: false,
   },
   {
     href: "/partners",
-    label: "Partners",
+    label: "Business partners",
     match: (path: string) => path === "/partners",
     featured: false,
   },
   {
     href: "/coverage",
-    label: "Coverage",
+    label: "Service areas",
     match: (path: string) => path === "/coverage",
     featured: false,
   },
   {
     href: "/track",
-    label: "Track my move",
+    label: "Track a move",
     match: (path: string) => path === "/track",
     featured: false,
   },
@@ -157,7 +157,7 @@ export function PlatformNav() {
         <div className="flex min-w-0 items-center gap-3 sm:gap-5">
           <SiteLogo href="/" height={28} priority />
           <nav
-            className="hidden items-center gap-1 lg:flex"
+            className="hidden items-center gap-1 xl:flex"
             aria-label="Primary"
           >
             {NAV.map((item) => {
@@ -229,7 +229,7 @@ export function PlatformNav() {
           <button
             type="button"
             onClick={() => setMenuOpen((p) => !p)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#6e746b] transition hover:bg-black/5 hover:text-[#1b231e] lg:hidden"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#6e746b] transition hover:bg-black/5 hover:text-[#1b231e] xl:hidden"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
           >
@@ -253,7 +253,7 @@ export function PlatformNav() {
                 </div>
               )}
 
-              <div className="lg:hidden">
+              <div className="xl:hidden">
                 {NAV.map((item) => {
                   const active = item.match(pathname);
                   if (item.featured) {
@@ -303,7 +303,7 @@ export function PlatformNav() {
                     className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-[#4a5047] transition hover:bg-[#faf8f3] hover:text-[#1b231e]"
                   >
                     <Truck className="h-4 w-4 text-[#9aa097]" />
-                    Crew hub
+                    Mover & driver jobs
                   </Link>
                   <Link
                     href="/profile"
@@ -311,7 +311,7 @@ export function PlatformNav() {
                     className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-[#4a5047] transition hover:bg-[#faf8f3] hover:text-[#1b231e]"
                   >
                     <User className="h-4 w-4 text-[#9aa097]" />
-                    Profile
+                    My moves & account
                   </Link>
                   {isAdmin && (
                     <Link
@@ -322,7 +322,7 @@ export function PlatformNav() {
                       className="flex items-center gap-3 px-4 py-2.5 text-[13px] font-semibold text-[#2f5d50] transition hover:bg-[#faf8f3]"
                     >
                       <ShieldCheck className="h-4 w-4" />
-                      Admin
+                      Manage bookings
                     </Link>
                   )}
                   <button

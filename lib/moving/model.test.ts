@@ -35,7 +35,7 @@ describe("moving quote validation", () => {
   it("rejects unsafe photos and invalid access or contact details", () => {
     for (const patch of [
       { photos: ["data:image/svg+xml;base64,AAA="] },
-      { photos: Array(4).fill("data:image/png;base64,AAA=") },
+      { photos: Array(13).fill("data:image/png;base64,AAA=") },
       { pickupFloor: -1 },
       { destinationFloor: 1.5 },
       { phone: "hello" },

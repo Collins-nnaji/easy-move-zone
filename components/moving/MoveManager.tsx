@@ -1,4 +1,5 @@
 "use client";
+import { MovePlanPanel } from "@/components/moving/MovePlanPanel";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -63,6 +64,7 @@ function MoveEditor({
           <p>
             <strong>Checklist:</strong> {move.inventory}
           </p>
+          <MovePlanPanel move={move} role="admin" onUpdated={onSaved} />
           <p>
             <strong>Access:</strong> Pickup floor {move.pickupFloor},
             destination floor {move.destinationFloor}.{" "}

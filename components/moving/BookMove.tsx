@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
+import { PhotoInventoryPlanner } from "./PhotoInventoryPlanner";
+import { FULL_SERVICE_EXTRAS, inventoryText, validPlan, type InventoryPlan } from "@/lib/moving/planner";
 import { formatMoney } from "@/lib/money";
 import { SERVICES, SIZES, today } from "@/lib/moving/model";
 import {
@@ -26,7 +28,7 @@ export function BookMove() {
   const [size, setSize] = useState(SIZES[initialService][0]);
   const [pickupFloor, setPickupFloor] = useState(0);
   const [destinationFloor, setDestinationFloor] = useState(0);
-  const [extras, setExtras] = useState<string[]>([]);
+  const [extras, setExtras] = useState<string[]>(FULL_SERVICE_EXTRAS);
   const [city, setCity] = useState<string>(CITIES.find((c) => c === area) ?? "Lagos");
   const [distanceKm, setDistanceKm] = useState(10);
   const [truckSize, setTruckSize] = useState("Auto");
@@ -35,6 +37,7 @@ export function BookMove() {
   const [rules, setRules] = useState<PricingRules>(DEFAULT_PRICING);
   const [profile, setProfile] = useState<Account | null>(null);
   const [repeat, setRepeat] = useState<Move | null>(null);
+  const [plan, setPlan] = useState<InventoryPlan>({ items: [], references: [], handling: "full-service", reviewed: false });
   useEffect(() => {
     let active = true;
     fetch("/api/marketplace?scope=public")
@@ -53,6 +56,8 @@ export function BookMove() {
         );
         if (m) {
           setRepeat(m);
+          setPhotos(m.photos);
+          setPlan(m.inventoryPlan ? {...m.inventoryPlan, reviewed:false} : {items:[{id:crypto.randomUUID(),name:m.inventory.slice(0,120),room:"Other",quantity:1,photoIndex:null,dimensions:null,measurementSource:"unknown",fragile:false,disassembly:false,notes:"Review the previous list and split it into individual items."}],references:[],handling:"transport-only",reviewed:false});
           setPickup(m.pickup);
           setDestination(m.destination);
           setCity(m.city ?? "Lagos");
@@ -70,7 +75,6 @@ export function BookMove() {
     };
   }, [params]);
   const [photos, setPhotos] = useState<string[]>([]);
-  const [photoBusy, setPhotoBusy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [booked, setBooked] = useState<{
@@ -93,45 +97,10 @@ export function BookMove() {
     rules,
   );
   const requestId = useRef<string | null>(null);
-  async function selectPhotos(files: FileList | null) {
-    setError("");
-    setPhotos([]);
-    if (!files) return;
-    if (
-      files.length > 3 ||
-      Array.from(files).some(
-        (f) =>
-          f.size > 2000000 ||
-          !["image/jpeg", "image/png", "image/webp"].includes(f.type),
-      )
-    ) {
-      setError("Choose up to 3 JPG, PNG or WebP photos, each under 2 MB.");
-      return;
-    }
-    setPhotoBusy(true);
-    try {
-      setPhotos(
-        await Promise.all(
-          Array.from(files).map(
-            (f) =>
-              new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(String(reader.result));
-                reader.onerror = reject;
-                reader.readAsDataURL(f);
-              }),
-          ),
-        ),
-      );
-    } catch {
-      setError("Could not read the photos. Please select them again.");
-    } finally {
-      setPhotoBusy(false);
-    }
-  }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    if (!validPlan(plan, photos.length)) { setError("Add your items, complete all three sizes or leave them for our team, and confirm the item list."); return; }
     setBusy(true);
     const fields = Object.fromEntries(new FormData(event.currentTarget));
     if (!requestId.current) requestId.current = crypto.randomUUID();
@@ -148,6 +117,8 @@ export function BookMove() {
           service,
           extras,
           photos,
+          inventory: inventoryText(plan.items).slice(0,2000),
+          inventoryPlan: plan,
           pickupFloor: Number(fields.pickupFloor),
           destinationFloor: Number(fields.destinationFloor),
           requestId: requestId.current,
@@ -266,31 +237,8 @@ export function BookMove() {
                   ))}
                 </select>
               </label>
-              <label>
-                Item checklist
-                <input
-                  defaultValue={repeat?.inventory}
-                  name="inventory"
-                  required
-                  minLength={2}
-                  maxLength={2000}
-                  placeholder="e.g. sofa, fridge, 2 beds, 15 boxes"
-                />
-              </label>
-              <label>
-                Photos (optional)
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  multiple
-                  onChange={(e) => void selectPhotos(e.target.files)}
-                />
-                <small>
-                  Up to 3 photos, 2 MB each.{" "}
-                  {photoBusy ? "Reading photos…" : `${photos.length} selected.`}
-                </small>
-              </label>
             </div>
+            <PhotoInventoryPlanner plan={plan} photos={photos} onChange={p=>{requestId.current=null;setPlan(p);}} onPhotos={p=>{requestId.current=null;setPhotos(p);}} />
           </fieldset>
           <fieldset className={styles.bookingFieldset}>
             <legend>
@@ -449,8 +397,14 @@ export function BookMove() {
             </legend>
             <p>
               The price already includes a vehicle and a loading crew. Add
-              packing, cleaning or extra hands only if you need them.
+              packing, unpacking and furniture setup for an easier move. Our team confirms the scope and materials in your quote.
             </p>
+            <label>How much should we handle?
+              <select value={plan.handling} onChange={e=>{const handling=e.target.value as InventoryPlan["handling"];setPlan({...plan,handling});setExtras(old=>handling==="full-service"?[...new Set([...old,...FULL_SERVICE_EXTRAS])]:old.filter(x=>!FULL_SERVICE_EXTRAS.includes(x)));}}>
+                <option value="full-service">Pack, move, unpack and set up for me</option>
+                <option value="transport-only">I pack; arrange the vehicle and loading crew</option>
+              </select>
+            </label>
             <div className={styles.rolePicker}>
               {(
                 [
@@ -469,11 +423,11 @@ export function BookMove() {
                   aria-pressed={extras.includes(value)}
                   className={extras.includes(value) ? styles.selectedRole : ""}
                   onClick={() =>
-                    setExtras((prev) =>
+                    {setPlan(p=>({...p,handling:"transport-only"}));setExtras((prev) =>
                       prev.includes(value)
                         ? prev.filter((item) => item !== value)
                         : [...prev, value],
-                    )
+                    );}
                   }
                 >
                   {label}
@@ -536,7 +490,7 @@ export function BookMove() {
             </p>
           )}
           <div className={styles.bookingSubmit}>
-            <button className="logistics-button" disabled={busy || photoBusy}>
+            <button className="logistics-button" disabled={busy}>
               {busy ? (
                 <Loader2 size={18} className={styles.spinner} />
               ) : (

@@ -1,3 +1,4 @@
+import { validPlan, MAX_MOVE_PHOTOS, type InventoryPlan, type MoveTask } from "./planner";
 export const SERVICES = [
   {
     id: "home",
@@ -191,8 +192,10 @@ export type MoveInput = {
   distanceKm?: number;
   truckSize?: string;
   notifications?: boolean;
+  inventoryPlan?: InventoryPlan;
 };
 export type Move = MoveInput & {
+  planTasks?: MoveTask[];
   userId?: string | null;
   estimate?: { low: number; high: number };
   depositPercent?: number;
@@ -270,8 +273,9 @@ export function validateMove(value: unknown): value is MoveInput {
         "Fumigation",
       ].includes(x),
     ) &&
+    (b.inventoryPlan === undefined || validPlan(b.inventoryPlan,Array.isArray(b.photos)?b.photos.length:0)) &&
     Array.isArray(b.photos) &&
-    b.photos.length <= 3 &&
+    b.photos.length <= MAX_MOVE_PHOTOS &&
     b.photos.every(
       (x) =>
         typeof x === "string" &&

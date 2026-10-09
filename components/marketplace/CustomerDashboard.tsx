@@ -1,4 +1,5 @@
 "use client";
+import { MovePlanPanel } from "@/components/moving/MovePlanPanel";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { STATUSES, STATUS_LABELS, type Move } from "@/lib/moving/model";
@@ -121,6 +122,7 @@ function MoveCard({
       {open && (
         <>
           <p>{move.inventory}</p>
+          <MovePlanPanel move={move} role="customer" onUpdated={()=>reload()} />
           {canChangeMove(move) && (
             <>
               <form

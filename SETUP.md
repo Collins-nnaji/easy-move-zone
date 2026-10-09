@@ -22,13 +22,15 @@ npm run db:setup
 
 Setup is idempotent, preserves existing records and prepares these application tables:
 
-| Table | Purpose |
-| --- | --- |
-| `emz_moves` | Move inventories, photos, contacts, access details, quotes, crew and progress |
-| `contact_submissions` | Support, damage reports and partner enquiries |
-| `emz_enquiry_states` | Internal support status and follow-up notes |
-| `admin_users` | Administrator email allowlist |
-| `user_profiles` | Account administration profiles |
+| Table                 | Purpose                                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------------------------- |
+| `emz_marketplace`     | Pricing, payments, accounts, condition records, claims, reviews, partner verification, fleet and payouts |
+| `emz_workers`         | Moving crews and primary vehicle owners                                                                  |
+| `emz_moves`           | Move inventories, photos, contacts, access details, quotes, crew and progress                            |
+| `contact_submissions` | Support, damage reports and partner enquiries                                                            |
+| `emz_enquiry_states`  | Internal support status and follow-up notes                                                              |
+| `admin_users`         | Administrator email allowlist                                                                            |
+| `user_profiles`       | Account administration profiles                                                                          |
 
 `emz_moves_updated_idx` supports the operations queue. Setup also installs the contact indexes. The app ensures moving/support tables on first use, so its database role needs table creation permission.
 
@@ -42,7 +44,7 @@ Authorize administrators through the existing `admin_users` allowlist. Authentic
 - `/admin/enquiries` manages customer support, damage reports and partner follow-up.
 - Setting `NEXT_PUBLIC_WHATSAPP_NUMBER` enables the WhatsApp link on Contact. Email and the contact form remain available.
 
-Quotes and job coordination are manual. This flow does not take payments or provide live GPS tracking. Optional email, SMS, analytics and support-widget settings are documented in `.env.example`.
+Estimates are instant; final quotes and partner verification are reviewed by operations. Paystack checkout collects deposits and delivery balances. Customer accounts, condition records, reviews, claims, fleet listings, commission statements and payout records are available. Tracking refreshes recorded job stages every 15 seconds. Automated WhatsApp/SMS updates need provider credentials and a scheduler. See [marketplace setup and operations](docs/moving-marketplace.md) for payment webhooks, business information and messaging setup.
 
 ## Retired database products
 

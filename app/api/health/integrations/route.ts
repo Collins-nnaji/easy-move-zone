@@ -1,45 +1,51 @@
-import { NextResponse } from "next/server"
-import { chatJson, getAiProvider, getAzureOpenAiConfig } from "@/lib/ai/openai"
-import { isStripeConfigured } from "@/lib/payments/stripe"
-import { isTwilioConfigured } from "@/lib/notify/sms"
-import { isWebPushConfigured } from "@/lib/notify/push"
-import { isSentryConfigured } from "@/lib/monitoring/sentry"
+import { NextResponse } from "next/server";
+import { chatJson, getAiProvider, getAzureOpenAiConfig } from "@/lib/ai/openai";
+import { isStripeConfigured } from "@/lib/payments/stripe";
+import { isTwilioConfigured } from "@/lib/notify/sms";
+import { isWebPushConfigured } from "@/lib/notify/push";
+import { isSentryConfigured } from "@/lib/monitoring/sentry";
 
 /**
  * GET — reports which integrations are configured (no secrets).
  * Optional ?testAi=1 runs a tiny Azure/OpenAI call (uses a few tokens).
  */
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url)
-  const testAi = searchParams.get("testAi") === "1"
+  const { searchParams } = new URL(req.url);
+  const testAi = searchParams.get("testAi") === "1";
 
-  const aiProvider = getAiProvider()
-  const azureOpenAi = getAzureOpenAiConfig()
+  const aiProvider = getAiProvider();
+  const azureOpenAi = getAzureOpenAiConfig();
 
-  let aiTest: { ok: boolean; message?: string } | undefined
+  let aiTest: { ok: boolean; message?: string } | undefined;
   if (testAi && aiProvider) {
     const ping = await chatJson<{ pong: boolean }>(
-      "Reply with exactly this JSON and nothing else: {\"pong\":true}",
+      'Reply with exactly this JSON and nothing else: {"pong":true}',
       "ping",
       { pong: false },
-    )
-    aiTest = { ok: ping.pong === true, message: ping.pong ? "Completion OK" : "Unexpected model output" }
+    );
+    aiTest = {
+      ok: ping.pong === true,
+      message: ping.pong ? "Completion OK" : "Unexpected model output",
+    };
   }
 
-  const has = (name: string) => Boolean(process.env[name]?.trim())
+  const has = (name: string) => Boolean(process.env[name]?.trim());
 
   // Launch-readiness integrations (see docs/launch-readiness-ui-integrations.md).
-  const paystackConfigured = has("PAYSTACK_SECRET_KEY")
-  const flutterwaveConfigured = has("FLUTTERWAVE_SECRET_KEY")
-  const paymentsProvider = (process.env.PAYMENTS_PROVIDER?.trim() || "stripe").toLowerCase()
-  const localPayoutsReady = paystackConfigured || flutterwaveConfigured
-  const mapboxConfigured = has("MAPBOX_TOKEN") || has("NEXT_PUBLIC_MAPBOX_TOKEN")
-  const realtimeConfigured = has("PUSHER_KEY") || has("ABLY_API_KEY")
-  const kycConfigured = has("DOJAH_API_KEY") || has("SMILE_API_KEY")
+  const paystackConfigured = has("PAYSTACK_SECRET_KEY");
+  const flutterwaveConfigured = has("FLUTTERWAVE_SECRET_KEY");
+  const paymentsProvider = "paystack";
+  const localPayoutsReady = paystackConfigured || flutterwaveConfigured;
+  const mapboxConfigured =
+    has("MAPBOX_TOKEN") || has("NEXT_PUBLIC_MAPBOX_TOKEN");
+  const realtimeConfigured = has("PUSHER_KEY") || has("ABLY_API_KEY");
+  const kycConfigured = has("DOJAH_API_KEY") || has("SMILE_API_KEY");
   const objectStorageConfigured =
-    (has("R2_ACCESS_KEY_ID") && has("R2_BUCKET")) || has("BLOB_READ_WRITE_TOKEN") || has("S3_BUCKET")
-  const localSmsConfigured = has("TERMII_API_KEY") || has("AT_API_KEY")
-  const analyticsConfigured = has("NEXT_PUBLIC_POSTHOG_KEY")
+    (has("R2_ACCESS_KEY_ID") && has("R2_BUCKET")) ||
+    has("BLOB_READ_WRITE_TOKEN") ||
+    has("S3_BUCKET");
+  const localSmsConfigured = has("TERMII_API_KEY") || has("AT_API_KEY");
+  const analyticsConfigured = has("NEXT_PUBLIC_POSTHOG_KEY");
 
   return NextResponse.json({
     ai: {
@@ -52,6 +58,21 @@ export async function GET(req: Request) {
           }
         : null,
       openaiConfigured: !!process.env.OPENAI_API_KEY?.trim(),
+    },
+    movingMarketplace: {
+      checkout: { provider: "paystack", configured: paystackConfigured },
+      verification: { mode: "manual-document-review" },
+      payouts: { mode: "record-completed-bank-transfers" },
+      refunds: { mode: "operations-review" },
+      tracking: { mode: "recorded-job-status", refreshSeconds: 15 },
+      whatsapp: {
+        configured:
+          has("TWILIO_ACCOUNT_SID") &&
+          has("TWILIO_AUTH_TOKEN") &&
+          has("TWILIO_WHATSAPP_FROM") &&
+          has("TWILIO_WHATSAPP_CONTENT_SID"),
+      },
+      scheduler: { configured: has("CRON_SECRET") },
     },
     payments: {
       provider: paymentsProvider,
@@ -83,5 +104,5 @@ export async function GET(req: Request) {
         : "GPS clock-in + OSM embed; set MAPBOX_TOKEN for routes, ETA, and live tracking.",
     },
     ...(aiTest ? { aiTest } : {}),
-  })
+  });
 }

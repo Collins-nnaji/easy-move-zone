@@ -1,4 +1,5 @@
 "use client";
+import { MovePlanPanel } from "@/components/moving/MovePlanPanel";
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import {
@@ -304,6 +305,7 @@ function JobCard({
           <p>
             <strong>Checklist:</strong> {job.inventory}
           </p>
+          <MovePlanPanel move={job} role="crew" onUpdated={onUpdated} />
           <p>
             <strong>Access:</strong> Pickup floor {job.pickupFloor}, destination
             floor {job.destinationFloor}.{" "}

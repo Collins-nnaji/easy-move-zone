@@ -52,6 +52,7 @@ const sections = [
     title: "Who we share it with",
     body: <>
       <p>We share personal information with service providers who process it for us and under contract, including hosting, sign-in, email, error monitoring and Google Analytics for site usage statistics. A confirmed moving partner receives the contact, inventory and access details needed to carry out your move. Inventory photos are used to plan transport and review item condition.</p>
+      <p>If you choose photo analysis, we send your selected photos and any reference-size descriptions to our configured AI provider (OpenAI or Microsoft Azure OpenAI) to draft an inventory and estimated dimensions. Photo analysis is optional; you can enter items manually. Review the draft before submitting your booking.</p>
       <p>We may also disclose information if the law requires it, or as part of a business reorganisation. In a reorganisation, your information would stay protected by this policy.</p>
     </>,
   },

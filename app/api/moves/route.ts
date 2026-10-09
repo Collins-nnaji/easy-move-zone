@@ -4,6 +4,7 @@ import { saveMove } from "@/lib/moving/store";
 import { requireSessionUser } from "@/lib/auth/session";
 import { pricing } from "@/lib/marketplace/store";
 import { estimateMove } from "@/lib/marketplace/model";
+import { cleanPlan, createMoveTasks, inventoryText } from "@/lib/moving/planner";
 export async function POST(request: Request) {
   if (
     request.headers.get("origin") &&
@@ -50,13 +51,15 @@ export async function POST(request: Request) {
       photos,
     } = input;
     const user = await requireSessionUser();
+    const plan = input.inventoryPlan ? cleanPlan(input.inventoryPlan) : undefined;
     const details = {
+      ...(plan ? {inventoryPlan:plan} : {}),
       city: input.city ?? "Lagos",
       distanceKm: input.distanceKm ?? 10,
       truckSize: input.truckSize ?? "Auto",
       notifications: input.notifications === true,
       service,
-      inventory,
+      inventory: plan ? inventoryText(plan.items).slice(0,2000) : inventory,
       size,
       pickup,
       destination,
@@ -77,6 +80,7 @@ export async function POST(request: Request) {
       reference: `EMZ-${requestId.replaceAll("-", "").toUpperCase()}`,
       userId: user?.userId ?? null,
       status: "requested",
+      planTasks: createMoveTasks(plan,extras),
       quote: null,
       estimate,
       depositPercent: rules.depositPercent,

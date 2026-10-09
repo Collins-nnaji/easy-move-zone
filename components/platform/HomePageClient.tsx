@@ -263,7 +263,7 @@ export function HomePageClient() {
               "Customer reviews",
             ],
           ].map(([title, body, href, label]) => (
-            <article className="logistics-service" key={href}>
+            <article className="logistics-service moving-trust-card" key={href}>
               <div>
                 <h3>{title}</h3>
                 <p>{body}</p>

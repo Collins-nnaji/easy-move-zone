@@ -21,6 +21,7 @@ export async function saveMove(move: Move) {
   const keys = [
     "service",
     "inventory",
+    "inventoryPlan",
     "size",
     "pickup",
     "destination",
