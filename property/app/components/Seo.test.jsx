@@ -1,0 +1,28 @@
+// @vitest-environment jsdom
+import { vi, test, it, describe, expect, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
+import React from 'react';
+import { render, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import Seo from './Seo';
+
+function renderAt(path) {
+  return render(<MemoryRouter initialEntries={[path]}><Seo /></MemoryRouter>);
+}
+
+test('publishes route-specific metadata and a canonical URL', async () => {
+  renderAt('/listings/build');
+  await waitFor(() => expect(document.title).toMatch(/manage your building process/i));
+  expect(document.querySelector('meta[name="description"]')).toHaveAttribute('content', expect.stringMatching(/contractors/i));
+  expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute('href', 'https://easymovezone.com/listings/build');
+  expect(document.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'index, follow');
+});
+
+test('keeps signed-in and admin routes out of search indexes', async () => {
+  renderAt('/manage/dashboard');
+  await waitFor(() => expect(document.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow'));
+});
+
+test('keeps the tenant portal and the portal chooser out of search indexes', async () => {
+  renderAt('/tenant/rent');
+  await waitFor(() => expect(document.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow'));
+});

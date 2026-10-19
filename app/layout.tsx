@@ -48,10 +48,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${jakarta.variable} ${bricolage.variable} min-h-screen min-w-0 flex flex-col overflow-x-hidden antialiased`}
-      >
+    // Font variables live on <html> so :root-level tokens (the property
+    // site's --font-sans / --font-display) can resolve them.
+    <html lang="en" className={`${jakarta.variable} ${bricolage.variable}`} suppressHydrationWarning>
+      <body className="min-h-screen min-w-0 flex flex-col overflow-x-hidden antialiased">
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <GoogleAnalytics />
         <ToastProvider>

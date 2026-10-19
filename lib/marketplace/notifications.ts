@@ -72,7 +72,7 @@ export async function deliverUpdates() {
       } else
         form.set(
           "Body",
-          `EasyMoveZone ${n.reference}: ${n.label}. Track at ${process.env.NEXT_PUBLIC_APP_URL ?? "https://easymovezone.com"}/track?reference=${n.reference}`,
+          `EasyMoveZone ${n.reference}: ${n.label}. Track at ${process.env.NEXT_PUBLIC_APP_URL ?? "https://easymovezone.com"}/moving/track?reference=${n.reference}`,
         );
       const response = await fetch(
         `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,

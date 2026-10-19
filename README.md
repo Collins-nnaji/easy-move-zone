@@ -1,13 +1,15 @@
 # EasyMoveZone
 
-A mobile-friendly moving platform for home moves, office relocations and bulky-item transport in Nigeria, starting in Lagos. Built with Next.js, React, Neon authentication and PostgreSQL.
+Buy, sell and manage property in Nigeria — and move home. Built with Next.js, React, Neon Auth, PostgreSQL and S3-compatible object storage.
 
-Customers request quotes with an inventory, up to three photos, addresses, floors, access restrictions and optional services. The team reviews requests in `/admin`, assigns quotes and crews, and records arrival and move status updates. Customers use their private move reference at `/track`.
+## What's in the app
+
+- **Property site** (`property/app`) — the landing page (`/`), the marketplace (`/listings`, `/listings/rent`, `/listings/:slug`, `/listings/sell`), verification (`/verify`, `/verify/photo-scan`), renovation (`/renovate`), management (`/manage`, the owner portal at `/manage/*` and the tenant portal at `/tenant/*`, picked by `/portal`), advisers (`/consult`), `/contact`, `/help`, `/privacy`, `/terms` and the one admin for property and moving (`/admin`). It is a react-router app styled with styled-components; every one of those URLs is rewritten to `app/property-app` (see `next.config.ts`), which mounts it.
+- **Property API** (`property/server`) — an Express app served at `/api/property/*` by `app/api/property/[...path]/route.ts`. Its schema is created on first request (`property/server/db.js`).
+- **Moving** (`/moving`, routed inside the property site so it shares its navbar) — home, office and bulky-item moves on one page: services, prices, booking, tracking, account, crew hub, coverage, care policy, reviews and FAQs. Checkout is `/moving/checkout`; moving terms, privacy and cookies live under `/moving/`. Old moving URLs (`/book`, `/track`, `/profile`, `/hub`, …) redirect to their section in `middleware.ts`. Moving is run from the same `/admin`, in its Moving sections.
+
+See [docs/property-platform.md](docs/property-platform.md) for how the property site is wired in, and [marketplace setup and operations](docs/moving-marketplace.md) for moving.
 
 ## Development
 
-Install dependencies with `npm install`, then run `npm run dev`. Use `npm run lint`, `npm test` and `npm run build` for validation. See `.env.example` and `SETUP.md` for authentication and database configuration.
-
-Run `npm run db:setup` to prepare the moving, account and support tables. The moving store uses `DATABASE_URL` (or `NEON_DATABASE_URL`) and also ensures moving/support tables on first use. Database credentials require table creation permission. Failed storage returns an error rather than a booking confirmation. Photos are stored with the request and accessible to administrators; public tracking omits contact details, addresses and photos. Estimates, Paystack checkout, customer accounts, signed item checklists, partner verification, fleet listings, reviews, claims, configurable pricing and reporting extend the original moving flow. Tracking refreshes recorded statuses; automated WhatsApp/SMS delivery requires provider settings and a scheduler. Bank transfers and refunds are recorded/reviewed by operations. See [marketplace setup and operations](docs/moving-marketplace.md).
-
-Existing agricultural public URLs redirect to the moving pages. Retired APIs return HTTP 410 and cannot recreate the old tables. Legacy database records were backed up privately before removal. See `db/migrations/20261003_retire_legacy_tables.sql` and `scripts/retire-legacy-tables.mjs` for the transaction and backup workflow.
+Install dependencies with `npm install`, then run `npm run dev`. Use `npm run lint`, `npm test` and `npm run build` for validation. See `.env.example` and `SETUP.md` for authentication, database and storage configuration.

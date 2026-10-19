@@ -9,6 +9,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature." }, { status: 401 });
   try {
     const event = JSON.parse(raw);
+    // Rent paid through the tenant portal (property/server/routes/tenant.js).
+    // Paystack has one webhook URL per account, so hand those on, signed body intact.
+    if (
+      typeof event.data?.reference === "string" &&
+      event.data.reference.startsWith("EMZRENT-")
+    ) {
+      const res = await fetch(new URL("/api/property/tenant/pay/webhook", request.url), {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-paystack-signature": request.headers.get("x-paystack-signature") ?? "",
+        },
+        body: raw,
+      });
+      return NextResponse.json({ received: res.ok }, { status: res.ok ? 200 : 503 });
+    }
     if (
       event.event === "charge.success" &&
       typeof event.data?.reference === "string" &&

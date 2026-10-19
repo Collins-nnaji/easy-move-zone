@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* ─────────────────────────────────────────────
    Design tokens
@@ -840,3 +841,187 @@ html.native-app [data-selectable] {
 }
 
 .logistics-service.moving-trust-card { grid-template-columns: minmax(0, 1fr); }
+
+/* ─────────────────────────────────────────────
+   Property site (property/app) — shadcn/ui and brand utility names.
+   The --color-green-* values come from the property site's GlobalStyles,
+   which resolve to the EasyMoveZone greens.
+───────────────────────────────────────────── */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1b231e;
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: #f3f0e7;
+  --color-secondary-foreground: #1b231e;
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: #e5efeb;
+  --color-accent-foreground: #2f5d50;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-brand-green: var(--color-green, #426f62);
+  --color-brand-deep: var(--color-green-deep, #2f5d50);
+  --color-brand-forest: var(--color-green-forest, #234b40);
+  --color-brand-bright: var(--color-green-bright, #8fb5a8);
+  --color-brand-mint: var(--color-green-mint, #b9d3c9);
+  --color-brand-soft: var(--color-green-soft, #e5efeb);
+  --color-brand-chip: var(--color-green-chip, #d7e6df);
+  --color-brand-wash: var(--color-green-wash, #f3f0e7);
+  --color-brand-ink: var(--color-ink, #202b25);
+  --color-brand-black: #1b231e;
+}
+
+@theme {
+  --radius-pill: 999px;
+  --radius-button: 6px;
+  --shadow-soft: 0 18px 40px -28px rgba(27, 35, 30, 0.22);
+  --shadow-card: 0 18px 38px -18px rgba(27, 35, 30, 0.14);
+  --shadow-lift: 0 28px 56px -22px rgba(27, 35, 30, 0.2);
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ─────────────────────────────────────────────
+   Moving (/moving) — one short page; cards open full-page panels
+───────────────────────────────────────────── */
+.moving-page { background: #faf8f2; }
+
+/* Hero */
+/* The EasyMoveZone truck photo on the right, fading into the cream where the
+   words sit — the same treatment as the property hero. Phones load a 640px
+   copy (CSS backgrounds only fetch the one that matches). */
+.moving-hero {
+  position: relative;
+  border-bottom: 1px solid #e0e1d5;
+  background:
+    linear-gradient(90deg, #f3f0e7 0%, #f3f0e7 40%, rgba(243, 240, 231, 0.55) 58%, rgba(243, 240, 231, 0.1) 78%, rgba(243, 240, 231, 0) 100%),
+    #f3f0e7 url("/media/moving-hero.jpg") right 55% / 62% auto no-repeat;
+}
+@media (max-width: 720px) {
+  .moving-hero {
+    background:
+      linear-gradient(180deg, rgba(243, 240, 231, 0.95) 0%, rgba(243, 240, 231, 0.88) 55%, rgba(243, 240, 231, 0.7) 100%),
+      #f3f0e7 url("/media/m/moving-hero.jpg") center 55% / cover no-repeat;
+  }
+}
+.moving-hero-inner { padding-block: 32px 28px; }
+.moving-hero-art { display: block; width: 92px; height: auto; margin-bottom: 10px; }
+.moving-page .moving-hero h1 { margin-top: 12px; font-size: clamp(28px, 3.4vw, 44px); line-height: 1.05; letter-spacing: -0.05em; font-weight: 600; max-width: 18ch; }
+.moving-hero-sub { margin-top: 12px; max-width: 560px; font-size: 15px; line-height: 1.65; color: #626b60; }
+.moving-services { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.moving-service { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 1px solid #d7ddcd; border-radius: 999px; background: #fff; font-size: 13px; font-weight: 600; color: #202b25; transition: border-color .15s, color .15s; }
+.moving-service svg:first-child { color: #2f5d50; }
+.moving-service svg:last-child { color: #8a927f; }
+.moving-service:hover { border-color: #2f5d50; color: #2f5d50; }
+
+/* Card grid */
+.moving-cards-wrap { padding-block: 28px 48px; }
+.moving-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.moving-card-tile { position: relative; display: grid; align-content: start; gap: 4px; min-height: 132px; padding: 18px 18px 16px; border: 1px solid #e0e1d5; border-radius: 14px; background: #fff; color: #202b25; transition: border-color .2s, transform .2s, box-shadow .2s; }
+.moving-card-tile:hover { color: #202b25; border-color: rgba(47, 93, 80, 0.45); transform: translateY(-2px); box-shadow: 0 14px 30px -22px rgba(27, 35, 30, 0.35); }
+.moving-card-icon { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; margin-bottom: 8px; border-radius: 10px; background: #e5efeb; color: #2f5d50; }
+.moving-card-tile strong { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.moving-card-sub { font-size: 13px; line-height: 1.45; color: #68715f; }
+.moving-card-arrow { position: absolute; top: 20px; right: 18px; color: #8a927f; transition: transform .2s, color .2s; }
+.moving-card-tile:hover .moving-card-arrow { transform: translateX(3px); color: #2f5d50; }
+.moving-card-tile.is-primary { background: #2f5d50; border-color: #2f5d50; color: #fff; }
+.moving-card-tile.is-primary .moving-card-icon { background: rgba(255, 255, 255, 0.14); color: #fff; }
+.moving-card-tile.is-primary .moving-card-sub, .moving-card-tile.is-primary .moving-card-arrow { color: rgba(255, 255, 255, 0.78); }
+.moving-card-tile.is-primary:hover { color: #fff; border-color: #234b40; background: #234b40; }
+
+/* Full-page panel (Radix Dialog). Sits above the site navbar and tab bar. */
+.moving-modal-overlay { position: fixed; inset: 0; z-index: 1300; background: rgba(27, 35, 30, 0.45); backdrop-filter: blur(3px); animation: moving-fade .18s ease-out; }
+.moving-modal { position: fixed; inset: 12px; z-index: 1310; display: flex; flex-direction: column; overflow: hidden; border-radius: 18px; background: #faf8f2; box-shadow: 0 30px 80px -30px rgba(27, 35, 30, 0.55); animation: moving-rise .24s cubic-bezier(0.16, 1, 0.3, 1); outline: none; }
+.moving-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 20px; border-bottom: 1px solid #e0e1d5; background: #fff; }
+.moving-modal-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.moving-modal-icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 38px; height: 38px; border-radius: 10px; background: #e5efeb; color: #2f5d50; }
+.moving-modal-title p { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #486454; }
+.moving-modal-title h2 { margin-top: 2px; font-family: var(--font-bricolage), var(--font-jakarta), sans-serif; font-size: clamp(17px, 2vw, 22px); font-weight: 500; letter-spacing: -0.03em; line-height: 1.2; color: #202b25; }
+.moving-modal-close { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 40px; height: 40px; border-radius: 999px; border: 1px solid #e0e1d5; background: #fff; color: #202b25; cursor: pointer; transition: background .15s, border-color .15s; }
+.moving-modal-close:hover { background: #f3f0e7; border-color: #ccd3c3; }
+.moving-modal-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.moving-modal-inner { width: min(100% - 40px, 760px); margin-inline: auto; padding-block: 28px 48px; display: grid; gap: 28px; }
+.moving-modal-wide { width: min(100% - 40px, 1160px); }
+@keyframes moving-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes moving-rise { from { opacity: 0; transform: translateY(16px) scale(0.99); } to { opacity: 1; transform: none; } }
+
+/* Panel content */
+.moving-loading { padding-block: 24px; font-size: 14px; color: #626b60; }
+.moving-block { display: grid; gap: 14px; }
+.moving-block > h3 { font-family: var(--font-bricolage), var(--font-jakarta), sans-serif; font-size: 18px; font-weight: 500; letter-spacing: -0.025em; color: #202b25; padding-bottom: 10px; border-bottom: 1px solid #e0e1d5; }
+.moving-qa { display: grid; margin: 0; border: 1px solid #e0e1d5; border-radius: 14px; background: #fff; overflow: hidden; }
+.moving-qa > div { padding: 16px 20px; }
+.moving-qa > div + div { border-top: 1px solid #ebece3; }
+.moving-qa dt { font-size: 15px; font-weight: 600; line-height: 1.4; color: #202b25; }
+.moving-qa dd { margin: 6px 0 0; font-size: 14px; line-height: 1.65; color: #626b60; }
+.moving-accordion { border: 1px solid #e0e1d5; border-radius: 14px; background: #fff; overflow: hidden; }
+.moving-accordion details + details { border-top: 1px solid #ebece3; }
+.moving-accordion summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; cursor: pointer; list-style: none; font-size: 15px; font-weight: 600; line-height: 1.4; color: #202b25; }
+.moving-accordion summary::-webkit-details-marker { display: none; }
+.moving-accordion summary svg { flex-shrink: 0; color: #2f5d50; transition: transform .2s; }
+.moving-accordion details[open] summary svg { transform: rotate(180deg); }
+.moving-accordion summary:hover { background: #faf8f2; }
+.moving-accordion details p { padding: 0 20px 18px; font-size: 14px; line-height: 1.65; color: #626b60; }
+.moving-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; list-style: none; padding: 0; margin: 0; }
+.moving-steps li { display: grid; gap: 6px; padding: 18px; border: 1px solid #e0e1d5; border-radius: 14px; background: #fff; }
+.moving-steps span { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 999px; background: #e5efeb; color: #2f5d50; font-size: 13px; font-weight: 700; }
+.moving-steps strong { font-size: 15px; font-weight: 600; color: #202b25; }
+.moving-steps p { font-size: 14px; line-height: 1.55; color: #68715f; }
+.moving-areas { display: flex; flex-wrap: wrap; gap: 8px; }
+.moving-areas a { display: inline-flex; align-items: center; gap: 6px; padding: 9px 15px; border: 1px solid #e0e1d5; border-radius: 999px; background: #fff; font-size: 14px; font-weight: 600; color: #202b25; transition: border-color .15s, color .15s; }
+.moving-areas a svg { color: #2f5d50; }
+.moving-areas a:hover { border-color: #2f5d50; color: #2f5d50; }
+.moving-note { font-size: 14px; line-height: 1.65; color: #68715f; }
+.moving-note a { font-weight: 600; }
+.moving-tips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.moving-tips > div { padding: 18px; border: 1px solid #e0e1d5; border-radius: 14px; background: #fff; }
+.moving-tips strong { font-size: 15px; font-weight: 600; color: #202b25; }
+.moving-tips ol { margin-top: 10px; padding-left: 18px; list-style: decimal; display: grid; gap: 6px; font-size: 14px; line-height: 1.55; color: #626b60; }
+.moving-signin { padding: 20px; border: 1px solid #e0e1d5; border-radius: 14px; background: #fff; }
+.moving-signin p { font-size: 14px; line-height: 1.6; color: #626b60; }
+.moving-signin > div { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 14px; }
+/* The reviews list's empty state was written for a full page. */
+.moving-reviews h2 { margin: 0 0 6px; font-size: 17px; letter-spacing: -0.02em; }
+.moving-reviews p { font-size: 14px; }
+
+@media (max-width: 1024px) { .moving-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 720px) {
+  .moving-hero-inner { padding-block: 24px 22px; }
+  .moving-cards-wrap { padding-block: 20px 32px; }
+  .moving-card-tile { min-height: 116px; padding: 14px; }
+  .moving-modal { inset: 0; border-radius: 0; }
+  .moving-modal-head { padding: 12px 14px; }
+  .moving-modal-inner, .moving-modal-wide { width: calc(100% - 28px); padding-block: 20px 36px; }
+  .moving-steps, .moving-tips { grid-template-columns: minmax(0, 1fr); }
+}

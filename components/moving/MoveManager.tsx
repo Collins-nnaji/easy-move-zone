@@ -1,7 +1,7 @@
 "use client";
 import { MovePlanPanel } from "@/components/moving/MovePlanPanel";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/AppLink";
 import Image from "next/image";
 import {
   SERVICES,
@@ -10,8 +10,8 @@ import {
   type Move,
 } from "@/lib/moving/model";
 import type { Worker } from "@/lib/moving/workers";
-import shared from "@/components/produce/CommercePages.module.css";
-import styles from "@/components/produce/JourneyPages.module.css";
+import shared from "@/components/moving/CommercePages.module.css";
+import styles from "@/components/moving/JourneyPages.module.css";
 function MoveEditor({
   move,
   workers,

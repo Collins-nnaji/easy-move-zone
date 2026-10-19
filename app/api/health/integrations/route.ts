@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { chatJson, getAiProvider, getAzureOpenAiConfig } from "@/lib/ai/openai";
 import { isStripeConfigured } from "@/lib/payments/stripe";
 import { isTwilioConfigured } from "@/lib/notify/sms";
-import { isWebPushConfigured } from "@/lib/notify/push";
 import { isSentryConfigured } from "@/lib/monitoring/sentry";
 
 /**
@@ -90,7 +89,6 @@ export async function GET(req: Request) {
     email: { configured: Boolean(process.env.RESEND_API_KEY?.trim()) },
     sms: { configured: isTwilioConfigured() },
     localSms: { configured: localSmsConfigured },
-    push: { configured: isWebPushConfigured() },
     sentry: { configured: isSentryConfigured() },
     analytics: { configured: analyticsConfigured },
     kyc: { configured: kycConfigured },

@@ -34,25 +34,25 @@ Setup is idempotent, preserves existing records and prepares these application t
 
 `emz_moves_updated_idx` supports the operations queue. Setup also installs the contact indexes. The app ensures moving/support tables on first use, so its database role needs table creation permission.
 
-Authorize administrators through the existing `admin_users` allowlist. Authentication alone does not grant admin access. `/admin/users` uses the account/profile tables and Neon Auth records.
+Authorize administrators through the existing `admin_users` allowlist. Authentication alone does not grant admin access. The admin's Accounts section (`/admin?section=accounts`) uses the account/profile tables and Neon Auth records.
 
-## Booking and operations
+## Property site
 
-- `/book` submits quote requests to `/api/moves`. Database failures return an error rather than a booking confirmation.
-- `/admin` reviews inventories, photos and access; confirms quotes in naira; assigns crews; and records arrival updates.
-- `/track` uses a private move reference and omits customer contacts, addresses, inventories and photos. Anyone with the reference can see its tracking details.
-- `/admin/enquiries` manages customer support, damage reports and partner follow-up.
+The property site (`property/app`) and its API (`property/server`, served at `/api/property`) use the same database, Neon Auth and object storage. Their tables (`listings`, `management_requests`, `renovation_requests`, `passport_requests`, `consultations`, `leads`, `property_profiles` and related) are created on the first API request. The property admin is `/admin`, and the same `admin_users` allowlist grants it. See [docs/property-platform.md](docs/property-platform.md).
+
+## Moving: booking and operations
+
+- `/moving/book` submits quote requests to `/api/moves`. Database failures return an error rather than a booking confirmation.
+- `/admin?section=moves` reviews inventories, photos and access; confirms quotes in naira; assigns crews; and records arrival updates.
+- `/moving/track` uses a private move reference and omits customer contacts, addresses, inventories and photos. Anyone with the reference can see its tracking details.
+- `/admin?section=moving-enquiries` manages customer support, damage reports and partner follow-up.
 - Setting `NEXT_PUBLIC_WHATSAPP_NUMBER` enables the WhatsApp link on Contact. Email and the contact form remain available.
 
 Estimates are instant; final quotes and partner verification are reviewed by operations. Paystack checkout collects deposits and delivery balances. Customer accounts, condition records, reviews, claims, fleet listings, commission statements and payout records are available. Tracking refreshes recorded job stages every 15 seconds. Automated WhatsApp/SMS updates need provider credentials and a scheduler. See [marketplace setup and operations](docs/moving-marketplace.md) for payment webhooks, business information and messaging setup.
 
 ## Retired database products
 
-The 27 produce, driver, fleet, marketplace and relocation tables were backed up and removed for the moving-platform migration. Their APIs return HTTP 410. Both old setup script names now delegate to moving setup so they cannot recreate retired tables.
-
-The explicit drop list is in `db/migrations/20261003_retire_legacy_tables.sql`. Use `node --env-file=.env scripts/retire-legacy-tables.mjs` to create a private backup only, or append `--apply` to execute that retirement. The script saves records, table definitions, constraints, indexes, triggers, sequence metadata and restore SQL in `.local/database-backups/`, which is excluded from Git. It locks the target tables, rejects data changes since the backup and uses `RESTRICT` in one transaction. Keep the backup secure; it can contain personal data.
-
-Historical SQL files are archived migration history. Do not run historical driver or agricultural migrations against the current database.
+The old produce, driver, fleet, marketplace and relocation tables were backed up and removed in October 2026, and their code has since been deleted. `db/migrations/` keeps the SQL history; do not run historical driver or agricultural migrations against the current database.
 
 ## Validation
 

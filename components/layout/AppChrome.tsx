@@ -1,36 +1,24 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { PlatformNav } from "@/components/platform/PlatformNav";
-import { PlatformFooter } from "@/components/platform/PlatformFooter";
-import { SupportWidget } from "@/components/platform/SupportWidget";
 import { ClientErrorBoundary } from "@/components/monitoring/ClientErrorBoundary";
 
+/**
+ * /auth is a Next.js page with its own centred layout. Every other URL is the
+ * property site (app/property-app, moving included), which renders its own
+ * navbar, footer and phone tab bar.
+ */
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuth = pathname === "/auth" || pathname.startsWith("/auth/");
-  const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
-  const showFooter = pathname === "/";
-
-  if (isAuth) {
-    return (
-      <ClientErrorBoundary>
-        <main className="flex-1 min-w-0">
-          {children}
-          <SupportWidget />
-        </main>
-      </ClientErrorBoundary>
-    );
-  }
 
   return (
     <ClientErrorBoundary>
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        {!isAdmin && <PlatformNav />}
+      {isAuth ? (
         <main className="min-h-0 min-w-0 flex-1">{children}</main>
-        {showFooter && <PlatformFooter />}
-        {!isAdmin && <SupportWidget />}
-      </div>
+      ) : (
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
+      )}
     </ClientErrorBoundary>
   );
 }

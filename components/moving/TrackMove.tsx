@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import Link from "@/components/ui/AppLink";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
@@ -8,13 +8,15 @@ import {
   STATUS_LABELS,
   type Move,
 } from "@/lib/moving/model";
-import shared from "@/components/produce/CommercePages.module.css";
-import styles from "@/components/produce/JourneyPages.module.css";
+import shared from "@/components/moving/CommercePages.module.css";
+import styles from "@/components/moving/JourneyPages.module.css";
 type PublicMove = Pick<
   Move,
   "reference" | "service" | "status" | "quote" | "crew" | "arrival" | "date"
 >;
-export function TrackMove() {
+/** `embedded`: shown as a section of the /moving page — just the search and result. */
+export function TrackMove({ embedded = false }: { embedded?: boolean } = {}) {
+  const container = embedded ? "" : shared.container;
   const params = useSearchParams();
   const initial = params.get("reference") ?? params.get("ref") ?? "";
   const [query, setQuery] = useState(initial);
@@ -83,9 +85,10 @@ export function TrackMove() {
     }
   }
   return (
-    <div className={`${shared.page} ${styles.page}`}>
-      <section className={styles.trackingHero}>
-        <div className={shared.container}>
+    <div className={embedded ? styles.page : `${shared.page} ${styles.page}`}>
+      <section className={embedded ? undefined : styles.trackingHero}>
+        <div className={container}>
+          {!embedded && (<>
           <p className={shared.eyebrow}>FROM YOUR DOOR TO YOUR DESTINATION</p>
           <h1>
             Your move.
@@ -96,6 +99,7 @@ export function TrackMove() {
             Use the reference from your booking to see the confirmed price, the
             assigned crew and arrival updates.
           </p>
+          </>)}
           <form
             className={styles.trackingSearch}
             onSubmit={(e) => {
@@ -124,7 +128,7 @@ export function TrackMove() {
           )}
         </div>
       </section>
-      <section className={`${shared.container} logistics-section`}>
+      <section className={embedded ? "mt-5" : `${shared.container} logistics-section`}>
         {move ? (
           <article className={styles.shipmentOverview}>
             <div className={styles.shipmentTop}>
@@ -189,7 +193,7 @@ export function TrackMove() {
                 </dl>
                 {move.quote && move.status !== "cancelled" && (
                   <Link
-                    href={`/checkout?move=${move.reference}`}
+                    href={`/moving/checkout?move=${move.reference}`}
                     className="logistics-button"
                   >
                     Payments & receipts
@@ -215,7 +219,7 @@ export function TrackMove() {
               payment. Crew and vehicle assignments show here after your deposit
               is verified.
             </p>
-            <Link href="/book" className="logistics-text-link">
+            <Link href="/moving/book" className="logistics-text-link">
               Plan a move
             </Link>
           </div>

@@ -6,6 +6,6 @@ describe("authentication return URLs", () => {
     expect(safeAuthRedirect("/profile?tab=account#details")).toBe("/profile?tab=account#details");
   });
   it.each([null, "https://other.example", "//other.example", "/\\other.example", "/auth", "/auth/callback", "/api/auth/sign-out", "/profile\n", "/foo/../auth"])("rejects unsafe destinations and sign-in loops: %s", (value) => {
-    expect(safeAuthRedirect(value)).toBe("/book");
+    expect(safeAuthRedirect(value)).toBe("/listings");
   });
 });

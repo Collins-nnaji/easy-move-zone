@@ -1,7 +1,7 @@
 "use client";
 import { MovePlanPanel } from "@/components/moving/MovePlanPanel";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/AppLink";
 import { STATUSES, STATUS_LABELS, type Move } from "@/lib/moving/model";
 import {
   type Account,
@@ -101,16 +101,16 @@ function MoveCard({
         )}
       </p>
       <div className={s.row}>
-        <Link href={`/track?reference=${move.reference}`} className={s.link}>
+        <Link href={`/moving/track?reference=${move.reference}`} className={s.link}>
           Track move
         </Link>
         {move.quote && move.status !== "cancelled" && (
-          <Link href={`/checkout?move=${move.reference}`} className={s.link}>
+          <Link href={`/moving/checkout?move=${move.reference}`} className={s.link}>
             Payments & receipts
           </Link>
         )}
         <Link
-          href={`/book?repeat=${move.reference}&service=${move.service}`}
+          href={`/moving/book?repeat=${move.reference}&service=${move.service}`}
           className={s.link}
         >
           Book again
@@ -266,8 +266,11 @@ function MoveCard({
 }
 export function CustomerDashboard({
   businessOnly = false,
+  embedded = false,
 }: {
   businessOnly?: boolean;
+  /** Shown as a section of the /moving page — no page heading or page padding. */
+  embedded?: boolean;
 }) {
   const [data, setData] = useState<Data | null>(null),
     [error, setError] = useState(""),
@@ -320,7 +323,8 @@ export function CustomerDashboard({
     }
   }
   return (
-    <div className={s.page}>
+    <div className={s.page} style={embedded ? { padding: 0, maxWidth: "none" } : undefined}>
+      {!embedded && (<>
       <p className={s.eyebrow}>
         {businessOnly ? "BUSINESS ACCOUNTS" : "YOUR ACCOUNT"}
       </p>
@@ -334,13 +338,14 @@ export function CustomerDashboard({
         Book while signed in to save each move here.
       </p>
       <div className={s.row}>
-        <Link href="/book" className="logistics-button">
+        <Link href="/moving/book" className="logistics-button">
           Book a move
         </Link>
         <Link href="/contact" className={s.link}>
           Get help
         </Link>
       </div>
+      </>)}
       <div className={s.tabs}>
         {["My moves", "Addresses & business"].map((t) => (
           <button key={t} aria-pressed={tab === t} onClick={() => setTab(t)}>
@@ -350,7 +355,7 @@ export function CustomerDashboard({
       </div>
       {error && (
         <p role="alert" className={s.error}>
-          {error} <Link href="/auth?redirect=/profile">Sign in</Link>
+          {error} <Link href="/auth?redirect=%2Fmoving%2Ftrack%23my-moves">Sign in</Link>
         </p>
       )}
       {!data && !error && <p>Loading your account…</p>}

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import shared from "@/components/produce/CommercePages.module.css";
-import styles from "@/components/produce/JourneyPages.module.css";
+import shared from "@/components/moving/CommercePages.module.css";
+import styles from "@/components/moving/JourneyPages.module.css";
 type Enquiry = {
   id: string;
   name: string;

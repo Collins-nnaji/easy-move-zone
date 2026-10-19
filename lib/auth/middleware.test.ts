@@ -40,11 +40,26 @@ describe("authentication middleware", () => {
   });
   it("returns users to the protected destination after signing in", async () => {
     mocks.middleware.mockResolvedValue(NextResponse.redirect("https://example.com/auth"));
-    const response = await middleware(new NextRequest("https://example.com/profile?tab=account"));
-    expect(new URL(response.headers.get("location")!).searchParams.get("redirect")).toBe("/profile?tab=account");
+    const response = await middleware(new NextRequest("https://example.com/admin?section=crews"));
+    expect(new URL(response.headers.get("location")!).searchParams.get("redirect")).toBe("/admin?section=crews");
   });
   it("allows public pages without requiring a session", async () => {
-    await middleware(new NextRequest("https://example.com/book"));
+    await middleware(new NextRequest("https://example.com/listings"));
     expect(mocks.middleware).not.toHaveBeenCalled();
+  });
+  it("passes the visited path to the page", async () => {
+    const response = await middleware(new NextRequest("https://example.com/verify/photo-scan"));
+    expect(response.headers.get("x-middleware-request-x-emz-path")).toBe("/verify/photo-scan");
+  });
+  it.each([
+    ["/track?reference=EMZ-1", "https://example.com/moving/track?reference=EMZ-1"],
+    ["/book?service=office", "https://example.com/moving/book?service=office"],
+    ["/profile", "https://example.com/moving/track#my-moves"],
+    ["/checkout?move=EMZ-2", "https://example.com/moving/checkout?move=EMZ-2"],
+    ["/moving-tips/lagos-moving-checklist", "https://example.com/moving/help"],
+  ])("sends the old moving page %s to its section of /moving", async (path, target) => {
+    const response = await middleware(new NextRequest(`https://example.com${path}`));
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe(target);
   });
 });

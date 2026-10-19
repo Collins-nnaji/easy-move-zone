@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/AppLink";
 import { type Move, STATUSES, STATUS_LABELS } from "@/lib/moving/model";
 import type { Worker } from "@/lib/moving/workers";
 import {

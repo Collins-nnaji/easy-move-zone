@@ -12,7 +12,7 @@ export function SupportWidget() {
           target="_blank"
           rel="noreferrer"
           aria-label="Chat with EasyMoveZone on WhatsApp"
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-[#2f5d50] px-5 py-4 text-sm font-bold text-white shadow-lg"
+          className="fixed bottom-[calc(var(--mobile-tabbar-h,0px)+env(safe-area-inset-bottom,0px)+16px)] right-4 z-50 min-[961px]:bottom-6 min-[961px]:right-6 flex items-center gap-2 rounded-full bg-[#2f5d50] px-5 py-4 text-sm font-bold text-white shadow-lg"
         >
           <MessageCircle size={20} />
           WhatsApp

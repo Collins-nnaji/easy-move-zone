@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // The property site (property/app) is styled with styled-components.
+  compiler: { styledComponents: true },
+  // The property API (property/server) is an Express app run by
+  // app/api/property/[...path]/route.ts; keep its Node packages unbundled.
+  serverExternalPackages: ["express", "pg", "serverless-http"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
@@ -18,18 +23,14 @@ const nextConfig: NextConfig = {
   async redirects() {
     const toHome = [
       "/purchase",
-      "/properties",
       "/own",
       "/mortgage",
-      "/finance",
       "/build",
-      "/sell",
       "/search",
       "/vendor",
       "/landlord",
       "/individual",
       "/cities",
-      "/plan",
       "/onboarding",
       "/relocate",
       "/marketplace",
@@ -49,7 +50,6 @@ const nextConfig: NextConfig = {
       "/paths",
       "/destinations",
       "/connect",
-      "/portal",
       "/corporate",
       "/dashboard",
       "/index",
@@ -62,47 +62,58 @@ const nextConfig: NextConfig = {
 
     return [
       ...homeRedirects,
-      { source: "/profile/driver", destination: "/profile", permanent: true },
-      { source: "/profile/company", destination: "/profile", permanent: true },
+      { source: "/profile/driver", destination: "/moving#my-moves", permanent: true },
+      { source: "/profile/company", destination: "/moving#my-moves", permanent: true },
       {
         source: "/legal/independent-contractor",
-        destination: "/legal/terms",
+        destination: "/moving/terms",
         permanent: true,
       },
-      { source: "/privacy", destination: "/legal/privacy", permanent: true },
-      { source: "/terms", destination: "/legal/terms", permanent: true },
-      { source: "/cookies", destination: "/legal/cookies", permanent: true },
+      { source: "/cookies", destination: "/moving/cookies", permanent: true },
       // News is paused; temporary so it can come back without stale permanent redirects.
       { source: "/news", destination: "/", permanent: false },
       { source: "/news/:path*", destination: "/", permanent: false },
-      { source: "/admin/news", destination: "/admin/users", permanent: false },
-      { source: "/admin/jobs", destination: "/admin/users", permanent: true },
+      { source: "/admin/news", destination: "/admin?section=accounts", permanent: false },
+      // Property pages moved to /listings (Oct 2026); keep old links working.
+      { source: "/property", destination: "/listings", permanent: true },
+      { source: "/property/:path*", destination: "/listings/:path*", permanent: true },
+      // The moving admin is part of /admin now.
+      { source: "/admin/moving", destination: "/admin?section=moves", permanent: true },
+      { source: "/admin/moving/workers", destination: "/admin?section=crews", permanent: true },
+      { source: "/admin/moving/enquiries", destination: "/admin?section=moving-enquiries", permanent: true },
+      { source: "/admin/moving/operations", destination: "/admin?section=moving-ops", permanent: true },
+      { source: "/admin/moving/users", destination: "/admin?section=accounts", permanent: true },
+      { source: "/admin/workers", destination: "/admin?section=crews", permanent: true },
+      { source: "/admin/enquiries", destination: "/admin?section=moving-enquiries", permanent: true },
+      { source: "/admin/operations", destination: "/admin?section=moving-ops", permanent: true },
+      { source: "/admin/users", destination: "/admin?section=accounts", permanent: true },
+      { source: "/admin/jobs", destination: "/admin?section=accounts", permanent: true },
       {
         source: "/admin/jobs/:path*",
-        destination: "/admin/users",
+        destination: "/admin?section=accounts",
         permanent: true,
       },
       {
         source: "/admin/education",
-        destination: "/admin/users",
+        destination: "/admin?section=accounts",
         permanent: true,
       },
       {
         source: "/admin/education/:path*",
-        destination: "/admin/users",
+        destination: "/admin?section=accounts",
         permanent: true,
       },
       { source: "/app/:path*", destination: "/", permanent: true },
       { source: "/corp/:path*", destination: "/", permanent: true },
       { source: "/signup", destination: "/auth?mode=signup", permanent: false },
-      { source: "/admin/kyc", destination: "/admin", permanent: true },
-      { source: "/admin/cashouts", destination: "/admin", permanent: true },
-      { source: "/admin/disputes", destination: "/admin", permanent: true },
-      { source: "/admin/bookings", destination: "/admin", permanent: true },
-      { source: "/admin/catalog", destination: "/admin", permanent: true },
-      { source: "/admin/guides", destination: "/admin", permanent: true },
-      { source: "/admin/services", destination: "/admin", permanent: true },
-      { source: "/admin/requests", destination: "/admin", permanent: true },
+      { source: "/admin/kyc", destination: "/admin?section=moves", permanent: true },
+      { source: "/admin/cashouts", destination: "/admin?section=moves", permanent: true },
+      { source: "/admin/disputes", destination: "/admin?section=moves", permanent: true },
+      { source: "/admin/bookings", destination: "/admin?section=moves", permanent: true },
+      { source: "/admin/catalog", destination: "/admin?section=moves", permanent: true },
+      { source: "/admin/guides", destination: "/admin?section=moves", permanent: true },
+      { source: "/admin/services", destination: "/admin?section=moves", permanent: true },
+      { source: "/admin/requests", destination: "/admin?section=moves", permanent: true },
       ...[
         "/jobs",
         "/sponsors",
@@ -131,6 +142,16 @@ const nextConfig: NextConfig = {
         { source: `${source}/:path*`, destination: "/", permanent: true },
       ]),
     ];
+  },
+  async rewrites() {
+    return {
+      beforeFiles: [],
+      afterFiles: [],
+      // Any page URL that isn't a Next.js route (/, /listings/…, /verify/…,
+      // /manage/…, /admin, /contact…) is the property site, routed in the
+      // browser. Kept on one fixed route so navigation never remounts it.
+      fallback: [{ source: "/:path((?!api(?:/|$)|_next/).*)", destination: "/property-app" }],
+    };
   },
 };
 

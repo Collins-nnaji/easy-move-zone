@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/AppLink";
 import { formatMoney } from "@/lib/money";
 import s from "./Marketplace.module.css";
 type Summary = {
@@ -146,7 +146,7 @@ export function Checkout() {
               Balance payment opens after delivery. Booking is secured when the
               deposit is verified; crew details follow in tracking.
             </p>
-            <Link href={`/track?reference=${ref}`} className={s.link}>
+            <Link href={`/moving/track?reference=${ref}`} className={s.link}>
               Track this move
             </Link>
           </div>

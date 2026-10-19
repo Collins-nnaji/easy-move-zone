@@ -1,7 +1,7 @@
 "use client";
 import { MovePlanPanel } from "@/components/moving/MovePlanPanel";
 import { useEffect, useState, type FormEvent } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/AppLink";
 import {
   AREAS,
   SERVICES,
@@ -20,8 +20,8 @@ import { WorkerTools } from "@/components/marketplace/WorkerTools";
 import { JobChecklists } from "@/components/marketplace/JobChecklists";
 import { workerEarning } from "@/lib/marketplace/model";
 import { formatMoney } from "@/lib/money";
-import shared from "@/components/produce/CommercePages.module.css";
-import styles from "@/components/produce/JourneyPages.module.css";
+import shared from "@/components/moving/CommercePages.module.css";
+import styles from "@/components/moving/JourneyPages.module.css";
 
 type Draft = {
   kind: WorkerKind;
@@ -372,7 +372,8 @@ function JobCard({
   );
 }
 
-export function WorkerHub() {
+/** `embedded`: shown as a section of the /moving page — no page heading or page padding. */
+export function WorkerHub({ embedded = false }: { embedded?: boolean } = {}) {
   const [worker, setWorker] = useState<Worker | null>(null);
   const [jobs, setJobs] = useState<Move[]>([]);
   const [editing, setEditing] = useState(false);
@@ -403,7 +404,8 @@ export function WorkerHub() {
   }, []);
 
   return (
-    <div className={`${shared.page} ${styles.page}`}>
+    <div className={embedded ? styles.page : `${shared.page} ${styles.page}`}>
+      {!embedded && (
       <section className={styles.bookingHero}>
         <div className={shared.container}>
           <p className={shared.eyebrow}>CREW HUB</p>
@@ -419,11 +421,12 @@ export function WorkerHub() {
           </p>
         </div>
       </section>
-      <div className={`${shared.container} logistics-section`}>
+      )}
+      <div className={embedded ? undefined : `${shared.container} logistics-section`}>
         {loading && <p>Loading your hub…</p>}
         {error && (
           <p role="alert" className={styles.formError}>
-            {error} <Link href="/auth?redirect=/hub">Sign in</Link>
+            {error} <Link href="/auth?redirect=%2Fmoving%2Fcrew">Sign in</Link>
           </p>
         )}
         {!loading && !error && !worker && (

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/AppLink";
 import type { ReactNode } from "react";
 import { PublicShell } from "@/components/platform/PublicShell";
 import { PUBLIC_CONTACT_EMAIL } from "@/lib/contact/constants";

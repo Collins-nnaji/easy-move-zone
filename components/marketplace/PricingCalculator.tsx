@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/AppLink";
 import { SERVICES, SIZES } from "@/lib/moving/model";
 import {
   CITIES,
@@ -132,7 +132,7 @@ export function PricingCalculator() {
           Pay {rules.depositPercent}% after the quote is confirmed. Pay the
           remaining balance after delivery.
         </p>
-        <Link href={`/book?service=${service}`} className="logistics-button">
+        <Link href={`/moving/book?service=${service}`} className="logistics-button">
           Plan this move
         </Link>
         <p className={s.muted}>

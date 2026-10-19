@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/AppLink";
 import type { Review } from "@/lib/marketplace/model";
 import s from "./Marketplace.module.css";
 export function PublicReviews() {
@@ -53,7 +53,7 @@ export function PublicReviews() {
           </p>
         </div>
       )}
-      <Link href="/profile" className={s.link}>
+      <Link href="/moving/track#my-moves" className={s.link}>
         Review a completed move in your account
       </Link>
     </>

@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import Link from "@/components/ui/AppLink";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
@@ -16,9 +16,11 @@ import {
   type Account,
 } from "@/lib/marketplace/model";
 import type { Move } from "@/lib/moving/model";
-import shared from "@/components/produce/CommercePages.module.css";
-import styles from "@/components/produce/JourneyPages.module.css";
-export function BookMove() {
+import shared from "@/components/moving/CommercePages.module.css";
+import styles from "@/components/moving/JourneyPages.module.css";
+/** `embedded`: shown as a section of the /moving page — no page heading or page padding. */
+export function BookMove({ embedded = false }: { embedded?: boolean } = {}) {
+  const container = embedded ? "" : shared.container;
   const params = useSearchParams();
   const area = params.get("area");
   const initialService =
@@ -143,9 +145,9 @@ export function BookMove() {
   }
   if (booked)
     return (
-      <div className={`${shared.page} ${styles.page}`}>
+      <div className={embedded ? styles.page : `${shared.page} ${styles.page}`}>
         <section
-          className={`${shared.container} ${styles.bookingConfirmation}`}
+          className={`${container} ${styles.bookingConfirmation}`}
         >
           <CheckCircle2 size={40} color="#2f5d50" />
           <p className={shared.eyebrow}>YOUR REQUEST IS SAVED</p>
@@ -171,7 +173,7 @@ export function BookMove() {
             </strong>
           </div>
           <Link
-            href={`/track?ref=${booked.reference}`}
+            href={`/moving/track?reference=${booked.reference}`}
             className="logistics-button"
           >
             Track this move <ArrowRight size={18} />
@@ -180,7 +182,8 @@ export function BookMove() {
       </div>
     );
   return (
-    <div className={`${shared.page} ${styles.page}`}>
+    <div className={embedded ? styles.page : `${shared.page} ${styles.page}`}>
+      {!embedded && (
       <section className={styles.bookingHero}>
         <div className={shared.container}>
           <p className={shared.eyebrow}>YOUR MOVE, MADE EASY</p>
@@ -195,7 +198,8 @@ export function BookMove() {
           </p>
         </div>
       </section>
-      <div className={`${shared.container} ${styles.bookingLayout}`}>
+      )}
+      <div className={`${container} ${styles.bookingLayout}`}>
         <form
           onSubmit={submit}
           onChange={() => {
@@ -479,10 +483,10 @@ export function BookMove() {
             updates by WhatsApp and SMS. You can track online without opting in.
           </label>
           <p>
-            <Link href="/auth?redirect=/book">Sign in</Link> to save move
+            <Link href="/auth?redirect=%2Fmoving%2Fbook">Sign in</Link> to save move
             history, addresses and condition records. Submitting agrees to our{" "}
-            <Link href="/legal/terms">terms</Link> and{" "}
-            <Link href="/damage-policy">damage policy</Link>.
+            <Link href="/moving/terms">terms</Link> and{" "}
+            <Link href="/moving/help">damage policy</Link>.
           </p>
           {error && (
             <p role="alert" className={styles.formError}>

@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/AppLink";
 import {useState} from "react";
 import {MAX_MOVE_PHOTOS, ROOMS, planSummary, validDimensions, type InventoryPlan, type PlannedItem} from "@/lib/moving/planner";
 import styles from "./MovePlanner.module.css";

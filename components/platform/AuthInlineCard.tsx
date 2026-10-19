@@ -195,8 +195,8 @@ export function AuthInlineCard({
       </form>
       <p className="mt-4 text-center text-[11px] leading-relaxed text-[#7c827a]">
         By continuing, you agree to our{" "}
-        <Link href="/legal/terms" className="font-semibold text-[#4a5047] underline underline-offset-2">Terms of Service</Link> and{" "}
-        <Link href="/legal/privacy" className="font-semibold text-[#4a5047] underline underline-offset-2">Privacy Policy</Link>.
+        <Link href="/terms" className="font-semibold text-[#4a5047] underline underline-offset-2">Terms of Service</Link> and{" "}
+        <Link href="/privacy" className="font-semibold text-[#4a5047] underline underline-offset-2">Privacy Policy</Link>.
       </p>
     </div>
   )

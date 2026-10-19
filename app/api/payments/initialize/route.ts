@@ -64,7 +64,7 @@ export async function POST(request: Request) {
         amount: amount * 100,
         currency: "NGN",
         reference: id,
-        callback_url: `${origin}/checkout?move=${move.reference}`,
+        callback_url: `${origin}/moving/checkout?move=${move.reference}`,
         metadata: { moveReference: move.reference, purpose: b.purpose },
       });
       if (

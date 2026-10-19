@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { guardAdmin, adminError } from "@/lib/produce/admin-api";
+import { guardAdmin, adminError, AdminValidationError as ValidationError } from "@/lib/auth/assert-admin-api";
 import { database, ensureMovingStore } from "@/lib/database";
-import { ValidationError } from "@/lib/produce/validation";
 export const dynamic = "force-dynamic";
 export async function GET() {
   try {

@@ -1,9 +1,9 @@
 export const BRAND = {
   name: "EasyMoveZone",
   shortName: "EasyMoveZone",
-  tagline: "Your move, made easy.",
+  tagline: "Buy, sell, rent and manage property. With ease.",
   description:
-    "Book trusted movers for your home, office and heavy items in Nigeria. Trucks, loading crews and packing help with clear pricing, starting in Lagos.",
+    "Buy verified property, sell yours, have it let and managed for you — and book trusted movers for your home, office and heavy items in Nigeria.",
   logo: "/emz.svg",
   logoAlt: "EasyMoveZone",
   /** Intrinsic aspect ratio of emz.svg (1440×515) — keeps the mark undistorted. */

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, type FormEvent } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/AppLink";
 import { AREAS } from "@/lib/moving/model";
 import {
   VEHICLE_TYPES,
@@ -8,8 +8,8 @@ import {
   type Worker,
   type WorkerKind,
 } from "@/lib/moving/workers";
-import shared from "@/components/produce/CommercePages.module.css";
-import styles from "@/components/produce/JourneyPages.module.css";
+import shared from "@/components/moving/CommercePages.module.css";
+import styles from "@/components/moving/JourneyPages.module.css";
 
 export function WorkersManager() {
   const [workers, setWorkers] = useState<Worker[]>([]);
@@ -87,7 +87,7 @@ export function WorkersManager() {
           the same email, their jobs are waiting.
         </p>
         <div className={shared.actions}>
-          <Link href="/admin" className="logistics-text-link">
+          <Link href="/admin?section=moves" className="logistics-text-link">
             Back to moves
           </Link>
           <Link href="/hub" className="logistics-text-link">
