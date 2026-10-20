@@ -1,10 +1,10 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   FaChartPie, FaMoneyBillWave, FaTools, FaCog, FaHome, FaRegCompass, FaPlus, FaBars,
-  FaArrowLeft, FaSignOutAlt, FaQuestionCircle, FaKey, FaBuilding,
+  FaArrowLeft, FaSignOutAlt, FaQuestionCircle, FaKey, FaBuilding, FaChevronDown, FaCheck,
 } from 'react-icons/fa';
 import {
   MANAGE_URL, TENANT_URL, MARKETPLACE_URL, HELP_URL, rememberPortalRole,
@@ -23,7 +23,7 @@ import { springy } from './ui';
  *
  *   - a left sidebar with the portal's four sections — nothing deeper. Each
  *     section is one page, and its views are tabs in that page's header;
- *   - a workspace switch at the top of the sidebar ("Owner" / "Tenant"), so
+ *   - a workspace dropdown at the top of the sidebar (Owner / Tenant), so
  *     someone who both owns and rents always knows which hat they have on;
  *   - a sticky header with the section, the page title, any page-level
  *     control (the property scope) and the section's tabs.
@@ -112,46 +112,70 @@ const Workspace = styled.div`
   }
 `;
 
-const WsSwitch = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.2rem;
-  padding: 0.2rem;
-  border-radius: 10px;
-  background: #fff;
-  border: 1px solid var(--color-line);
+const WsDrop = styled.div`
+  position: relative;
 `;
 
-const WsOption = styled(Link)`
-  position: relative;
-  z-index: 0;
+/* The trigger and each menu row share one layout: icon, title over blurb, end mark. */
+const wsRow = `
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  min-height: 34px;
-  border-radius: 8px;
-  font-size: 0.84rem;
-  font-weight: 600;
-  color: var(--color-ink-muted);
-  svg { font-size: 0.72rem; }
-  &:hover { color: var(--color-ink); }
-  &[aria-current='page'] { color: #fff; }
-  &[aria-current='page']:hover { color: #fff; }
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border-radius: 10px;
+  text-align: left;
+  font-family: var(--font-sans);
+
+  .ic {
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    background: var(--color-green-soft);
+    color: var(--color-green-deep);
+    font-size: 0.78rem;
+  }
+  .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .t { font-size: 0.88rem; font-weight: 600; color: var(--color-ink); line-height: 1.25; }
+  .s { font-size: 0.74rem; color: var(--color-ink-muted); line-height: 1.3; }
+  .end { flex: 0 0 auto; font-size: 0.7rem; color: var(--color-ink-faint); transition: transform 0.15s ease; }
 `;
 
-const WsPill = styled(motion.span)`
+const WsTrigger = styled.button`
+  ${wsRow}
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid var(--color-line);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover { border-color: var(--color-line-strong); }
+  &:focus-visible { outline: none; border-color: var(--color-green); box-shadow: 0 0 0 3px var(--color-green-wash); }
+  &[aria-expanded='true'] { border-color: var(--color-green); }
+  &[aria-expanded='true'] .end { transform: rotate(180deg); }
+`;
+
+const WsMenu = styled(motion.div)`
   position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: 8px;
-  background: var(--color-green-deep);
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: 0.3rem;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-lift);
+  transform-origin: top center;
 `;
 
-const WsBlurb = styled.div`
-  font-size: 0.76rem;
-  color: var(--color-ink-muted);
-  padding: 0.45rem 0.2rem 0;
+const WsItem = styled(Link)`
+  ${wsRow}
+  &:hover, &:focus-visible { outline: none; background: var(--color-bg-sunken); }
+  &[aria-current='page'] { background: var(--color-green-wash); }
+  &[aria-current='page'] .end { color: var(--color-green-deep); }
 `;
 
 const Primary = styled(Link)`
@@ -532,6 +556,75 @@ function tabActive(tab, pathname) {
   return tab.end ? pathname === tab.to : within(pathname, tab.to);
 }
 
+/** "You are viewing as": a dropdown that moves between the owner and tenant sides. */
+function WorkspaceMenu({ workspace, onNavigate }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const ws = WORKSPACES[workspace];
+  const Icon = ws.icon;
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDown = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      setOpen(false);
+      ref.current?.querySelector('button')?.focus();
+    };
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <WsDrop ref={ref}>
+      <WsTrigger
+        type="button"
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-label={`Viewing as ${ws.label}. Switch portal`}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span className="ic"><Icon /></span>
+        <span className="txt"><span className="t">{ws.title}</span><span className="s">{ws.blurb}</span></span>
+        <FaChevronDown className="end" />
+      </WsTrigger>
+      <AnimatePresence>
+        {open && (
+          <WsMenu
+            role="navigation"
+            aria-label="Choose a portal"
+            initial={{ opacity: 0, y: -4, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.14 }}
+          >
+            {Object.entries(WORKSPACES).map(([key, w]) => {
+              const active = key === workspace;
+              const ItemIcon = w.icon;
+              return (
+                <WsItem
+                  key={key}
+                  to={w.to}
+                  aria-current={active ? 'page' : undefined}
+                  onClick={() => { rememberPortalRole(key); setOpen(false); onNavigate?.(); }}
+                >
+                  <span className="ic"><ItemIcon /></span>
+                  <span className="txt"><span className="t">{w.title}</span><span className="s">{w.blurb}</span></span>
+                  {active && <FaCheck className="end" />}
+                </WsItem>
+              );
+            })}
+          </WsMenu>
+        )}
+      </AnimatePresence>
+    </WsDrop>
+  );
+}
+
 /** The sidebar's contents — in the rail on desktop, in a sheet on phones. */
 function SidebarNav({
   workspace, nav, section, badges, primary, pinned, onNavigate, layoutId, inSheet,
@@ -550,24 +643,7 @@ function SidebarNav({
 
       <Workspace>
         <div className="cap">You are viewing as</div>
-        <WsSwitch role="navigation" aria-label="Choose a portal">
-          {Object.entries(WORKSPACES).map(([key, w]) => {
-            const active = key === workspace;
-            const Icon = w.icon;
-            return (
-              <WsOption
-                key={key}
-                to={w.to}
-                aria-current={active ? 'page' : undefined}
-                onClick={() => { rememberPortalRole(key); onNavigate?.(); }}
-              >
-                {active && <WsPill layoutId={`${layoutId}-ws`} transition={springy} />}
-                <Icon /> {w.label}
-              </WsOption>
-            );
-          })}
-        </WsSwitch>
-        <WsBlurb>{ws.blurb}</WsBlurb>
+        <WorkspaceMenu workspace={workspace} onNavigate={onNavigate} />
       </Workspace>
 
       {primary && <Primary to={primary.to} onClick={onNavigate}><FaPlus /> {primary.label}</Primary>}

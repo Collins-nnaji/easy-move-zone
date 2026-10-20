@@ -57,8 +57,9 @@ export function isConsolePath(pathname) {
 
 export const MARKETPLACE_URL = '/listings';
 /**
- * Signed in, this picks a portal: the owner console or the tenant portal.
- * It remembers the last one used and asks only when it cannot tell.
+ * Signed in, this opens the portal on the owner or tenant side: the one used
+ * last, else the tenant side for an account that only rents. It never asks —
+ * the sidebar dropdown switches sides.
  */
 export const PORTAL_URL = '/portal';
 /** Homes to rent: vacant properties we manage, let through the same grid. */
