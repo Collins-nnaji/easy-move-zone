@@ -676,7 +676,7 @@ function SidebarNav({
 
       <RailFoot>
         <FootLink to={HELP_URL} onClick={onNavigate}><FaQuestionCircle /> Help</FootLink>
-        <FootLink to={MARKETPLACE_URL} onClick={onNavigate}><FaArrowLeft /> Back to EasyMoveZone</FootLink>
+        <FootLink to={MARKETPLACE_URL} onClick={onNavigate}><FaArrowLeft /> Back to Property hub</FootLink>
         <FootLink as="button" type="button" onClick={() => { onNavigate?.(); signOut(); }}><FaSignOutAlt /> Sign out</FootLink>
         {user && (
           <Who>

@@ -6,6 +6,7 @@ import Footer from './Footer';
 import MobileTabBar from './MobileTabBar';
 import AdvisorChat from './AdvisorChat';
 import Seo from './Seo';
+import PortalEntryPrompt from './PortalEntryPrompt';
 import { useAuth } from '../AuthContext';
 import { isConsolePath } from '../config/platform';
 
@@ -66,6 +67,7 @@ export default function Layout({ children }) {
   return (
     <Wrap $console={inConsole} $footerLast={footerOnPhone || portal}>
       <Seo />
+      <PortalEntryPrompt />
       {!portal && <Navbar />}
       <Main>{children}</Main>
       {showFooter && <Footer />}
