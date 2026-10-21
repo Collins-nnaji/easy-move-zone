@@ -3,8 +3,10 @@ const assert = require('node:assert/strict');
 const h = require('./helpers');
 const { screenText } = require('../services/moderation');
 const {
-  areaFor, areaForPlace, annualRent, displayName,
+  matchPlace, slugify, annualRent, displayName,
 } = require('../areaCatalog');
+const { NIGERIAN_STATES } = require('../markets');
+const SEED = require('../data/areas.json');
 
 test('moderation refuses contact details and holds posts about people', () => {
   assert.ok(screenText('Call the caretaker on 0803 123 4567').refuse);
@@ -19,12 +21,37 @@ test('moderation refuses contact details and holds posts about people', () => {
 });
 
 test('places map to their area, and the city or state must agree', () => {
-  assert.equal(areaForPlace({ area: 'Yaba', city: 'Lagos', state: 'Lagos' }).slug, 'yaba-lagos');
-  assert.equal(areaForPlace({ city: 'Yaba', state: 'Lagos' }).slug, 'yaba-lagos');
-  assert.equal(areaForPlace({ area: 'GRA', city: 'Port Harcourt', state: 'Rivers' }).slug, 'gra-port-harcourt');
-  assert.equal(areaForPlace({ area: 'GRA', city: 'Kano', state: 'Kano' }), null);
-  assert.equal(areaForPlace({ area: 'Somewhere else', city: 'Lagos' }), null);
-  assert.equal(areaFor('nowhere'), null);
+  const at = (place) => matchPlace(SEED, place)?.slug || null;
+  assert.equal(at({ area: 'Yaba', city: 'Lagos', state: 'Lagos' }), 'yaba-lagos');
+  assert.equal(at({ city: 'Yaba', state: 'Lagos' }), 'yaba-lagos');
+  assert.equal(at({ area: 'GRA', city: 'Port Harcourt', state: 'Rivers' }), 'gra-port-harcourt');
+  assert.equal(at({ area: 'GRA', city: 'Enugu', state: 'Enugu' }), 'gra-enugu');
+  assert.equal(at({ area: 'GRA', city: 'Benin City', state: 'Edo' }), 'gra-benin');
+  assert.equal(at({ area: 'GRA', city: 'Kano', state: 'Kano' }), null);
+  assert.equal(at({ area: 'Mowe', city: 'Mowe', state: 'Ogun' }), 'mowe-ibafo-ogun');
+  assert.equal(at({ area: 'Somewhere else', city: 'Lagos' }), null);
+  assert.equal(slugify('Wuse 2', 'Abuja'), 'wuse-2-abuja');
+});
+
+test('the starter areas are all in Nigeria, with unique slugs and spellings', () => {
+  assert.ok(SEED.length >= 40);
+  assert.equal(new Set(SEED.map((a) => a.slug)).size, SEED.length, 'slugs are unique');
+  for (const a of SEED) {
+    assert.ok(NIGERIAN_STATES.includes(a.state), `${a.slug}: ${a.state} is a Nigerian state`);
+    const [lat, lng] = a.center;
+    assert.ok(lat >= 4 && lat <= 14 && lng >= 2.6 && lng <= 14.7, `${a.slug} is on the map of Nigeria`);
+    assert.equal(slugify(a.slug), a.slug);
+    assert.ok(a.match.every((m) => m === m.toLowerCase()), `${a.slug} spellings are lower case`);
+  }
+  // No spelling may point at two areas in the same state, or a listing could land in either.
+  const seen = new Map();
+  for (const a of SEED) {
+    for (const m of a.match) {
+      const key = `${a.state}|${m}`;
+      assert.ok(!seen.has(key), `"${m}" is used by both ${seen.get(key)} and ${a.slug}`);
+      seen.set(key, a.slug);
+    }
+  }
 });
 
 test('rents are compared as yearly figures and authors by first name and initial', () => {
@@ -152,13 +179,15 @@ test('Neighbourhoods API', { skip }, async (t) => {
     assert.equal((await h.call(`/areas/${slug}`, { user: tenant })).body.viewer.verifiedResident, true);
   });
 
-  await t.test('the rent snapshot uses live rentals in the area, as yearly rents', async () => {
+  await t.test('the rent snapshot uses live rentals in the area, as yearly rents; listings link to their area', async () => {
+    // Earlier runs against the same database leave their rentals behind.
+    await h.q(`DELETE FROM listings WHERE owner_email LIKE '%@test.easymovezone' AND listing_type = 'rent'`);
     const ref = `T-${id}`.toUpperCase();
     await h.q(
-      `INSERT INTO listings (ref, owner_email, title, area, city, state, beds, currency, list_price, listing_type, rent_frequency, status)
-       VALUES ($1,$2,'2-bed flat, Yaba','Yaba','Lagos','Lagos','2','NGN',150000,'rent','monthly','live'),
-              ($3,$2,'2-bed flat, Akoka','Akoka','Lagos','Lagos','2','NGN',2400000,'rent','annual','live')`,
-      [`${ref}A`, owner, `${ref}B`]
+      `INSERT INTO listings (ref, slug, owner_email, title, area, city, state, beds, currency, list_price, listing_type, rent_frequency, status)
+       VALUES ($1,$4,$2,'2-bed flat, Yaba','Yaba','Lagos','Lagos','2','NGN',150000,'rent','monthly','live'),
+              ($3,NULL,$2,'2-bed flat, Akoka','Akoka','Lagos','Lagos','2','NGN',2400000,'rent','annual','live')`,
+      [`${ref}A`, owner, `${ref}B`, `flat-${id}`]
     );
     const one = await h.call(`/areas/${slug}`);
     const twoBed = one.body.rents.find((r) => r.beds === '2');
@@ -166,5 +195,60 @@ test('Neighbourhoods API', { skip }, async (t) => {
     assert.equal(twoBed.low, 1800000);
     assert.equal(twoBed.high, 2400000);
     assert.equal(one.body.rentals, 2);
+    assert.equal((await h.call(`/listings/flat-${id}`)).body.listing.area_slug, slug);
+  });
+
+  await t.test('the moving link is offered only where we move homes', async () => {
+    assert.equal((await h.call(`/areas/${slug}`)).body.area.movingCity, 'Lagos');
+    assert.equal((await h.call('/areas/bodija-ibadan')).body.area.movingCity, null);
+  });
+
+  await t.test('authors are told about replies and about decisions on held posts', async () => {
+    const mine = await h.call(`/areas/${slug}/posts`, { method: 'POST', user: tenant, body: { category: 'transport', body: 'BRT from Yaba to CMS takes about 40 minutes off-peak.' } });
+    await h.call(`/areas/posts/${mine.body.post.id}/replies`, { method: 'POST', user: visitor, body: { body: 'Same for me, thanks.' } });
+    // Replying to your own post does not notify you.
+    await h.call(`/areas/posts/${mine.body.post.id}/replies`, { method: 'POST', user: tenant, body: { body: 'Evenings take longer.' } });
+    await require('../background').flush();
+    const link = `/areas/${slug}#post-${mine.body.post.id}`;
+    const { rows: replies } = await h.q(`SELECT title, audience FROM notifications WHERE recipient_email = $1 AND link = $2`, [tenant, link]);
+    assert.deepEqual(replies, [{ title: 'Someone replied to your post', audience: 'community' }]);
+
+    const held = await h.call(`/areas/${slug}/posts`, { method: 'POST', user: others[0], body: { category: 'building', body: 'Chief Adewale never returns the caution fee.' } });
+    assert.equal(held.body.post.status, 'held');
+    await h.call(`/areas/admin/posts/${held.body.post.id}`, { method: 'PATCH', admin: true, body: { status: 'removed', note: 'Names a person' } });
+    await require('../background').flush();
+    const { rows: removed } = await h.q(`SELECT title FROM notifications WHERE recipient_email = $1 AND kind = 'area_post'`, [others[0]]);
+    assert.deepEqual(removed.map((r) => r.title), ['We removed your post']);
+  });
+
+  await t.test('staff open, edit and hide areas; requests are answered by opening one', async () => {
+    const name = `Testville ${id}`;
+    assert.equal((await h.call('/areas/admin/areas', { method: 'POST', user: visitor, body: { name, city: 'Ibadan', state: 'Oyo' } })).status, 401);
+    await h.call('/leads', { method: 'POST', body: { type: 'general', name: 'Ada', email: visitor, service: 'Neighbourhood request', message: `Please open ${name}` } });
+    const listing = await h.call('/areas/admin/areas', { admin: true });
+    const request = listing.body.requests.find((r) => r.message.includes(name));
+    assert.ok(request, 'the request shows in the admin list');
+    assert.ok(listing.body.states.includes('FCT - Abuja'));
+
+    assert.equal((await h.call('/areas/admin/areas', { method: 'POST', admin: true, body: { name, city: 'Ibadan', state: 'Texas' } })).status, 400);
+    assert.equal((await h.call('/areas/admin/areas', { method: 'POST', admin: true, body: { name, city: 'Ibadan', state: 'Oyo', lat: 51.5, lng: -0.1 } })).status, 400, 'a map point outside Nigeria');
+    const made = await h.call('/areas/admin/areas', { method: 'POST', admin: true, body: { name, city: 'Ibadan', state: 'Oyo', lat: 7.4, lng: 3.9, match: 'testville east, Testville West', requestId: request.id } });
+    assert.equal(made.status, 200, made.text);
+    const newSlug = made.body.area.slug;
+    assert.equal(newSlug, `testville-${id}-ibadan`);
+    assert.deepEqual(made.body.area.match, [name.toLowerCase(), 'testville east', 'testville west']);
+    assert.equal((await h.call('/areas/admin/areas', { method: 'POST', admin: true, body: { name, city: 'Ibadan', state: 'Oyo' } })).status, 409);
+    const { rows: [lead] } = await h.q('SELECT status FROM leads WHERE id = $1', [request.id]);
+    assert.equal(lead.status, 'replied');
+
+    assert.equal((await h.call(`/areas/${newSlug}`)).status, 200, 'a new area is live at once');
+    assert.ok((await h.call('/areas')).body.areas.some((a) => a.slug === newSlug));
+    const edited = await h.call(`/areas/admin/areas/${newSlug}`, { method: 'PATCH', admin: true, body: { blurb: 'Quiet streets.', lat: '', lng: '' } });
+    assert.equal(edited.body.area.blurb, 'Quiet streets.');
+    assert.equal(edited.body.area.center, null);
+    await h.call(`/areas/admin/areas/${newSlug}`, { method: 'PATCH', admin: true, body: { status: 'hidden' } });
+    assert.equal((await h.call(`/areas/${newSlug}`)).status, 404, 'a hidden area has no page');
+    assert.ok(!(await h.call('/areas')).body.areas.some((a) => a.slug === newSlug));
+    assert.ok((await h.call('/areas/admin/areas', { admin: true })).body.areas.some((a) => a.slug === newSlug && a.status === 'hidden'));
   });
 });

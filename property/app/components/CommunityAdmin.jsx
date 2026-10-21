@@ -2,12 +2,14 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
+import AreasAdmin from './AreasAdmin';
 
 /**
  * Admin → Community: the neighbourhood boards' moderation queue. "Held" is
  * what the automatic checks or several reports took down and nobody has read
  * yet; "Reported" is still public but someone flagged it. Publishing clears a
- * post's reports; removing takes it down for good.
+ * post's reports; removing takes it down for good, and either way the author
+ * is told. The Areas tab (AreasAdmin.jsx) opens, edits and hides area pages.
  */
 
 const VIEWS = [
@@ -21,6 +23,11 @@ const REASON_LABEL = {
 };
 
 const Tabs = styled.div`display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem;`;
+const Modes = styled.div`
+  display: inline-flex; gap: 0.25rem; padding: 0.25rem; margin-bottom: 1rem; border-radius: 12px; background: var(--color-bg-sunken);
+  button { border: 0; background: transparent; border-radius: 9px; padding: 0.45rem 0.9rem; font-weight: 700; font-size: 0.85rem; cursor: pointer; color: var(--color-ink-muted); }
+  button[aria-pressed='true'] { background: #fff; color: var(--color-ink); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); }
+`;
 const Tab = styled.button`
   border: 1px solid ${(p) => (p.$active ? 'var(--color-green-deep)' : 'var(--color-line-strong)')};
   background: ${(p) => (p.$active ? 'var(--color-green-deep)' : '#fff')};
@@ -76,6 +83,22 @@ function Item({ item, type, onModerate }) {
 }
 
 export default function CommunityAdmin({ adminKey }) {
+  const [mode, setMode] = useState('posts');
+  const switcher = (
+    <Modes role="group" aria-label="Community">
+      <button type="button" aria-pressed={mode === 'posts'} onClick={() => setMode('posts')}>Posts to review</button>
+      <button type="button" aria-pressed={mode === 'areas'} onClick={() => setMode('areas')}>Areas</button>
+    </Modes>
+  );
+  return (
+    <>
+      {switcher}
+      {mode === 'areas' ? <AreasAdmin adminKey={adminKey} /> : <ModerationQueue adminKey={adminKey} />}
+    </>
+  );
+}
+
+function ModerationQueue({ adminKey }) {
   const [view, setView] = useState('held');
   const [data, setData] = useState({ posts: [], replies: [], counts: {} });
   const [error, setError] = useState('');

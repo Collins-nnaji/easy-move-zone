@@ -149,7 +149,7 @@ export function AreaRents({ data }) {
   return (
     <Panel>
       <h2>Rent in {area.name}</h2>
-      <p className="sub">Yearly rents on the homes we let here now. Prices are what owners ask; agency and legal fees are not included.</p>
+      <p className="sub">Yearly rents on the homes we let here now, as owners ask them. Each listing also shows any service charge and refundable caution deposit, and the tenancy agreement sets the final figures.</p>
       {rents.length ? (
         <RentTable>
           <thead><tr><th>Home</th><th style={{ textAlign: 'right' }}>Typical per year</th></tr></thead>
@@ -222,15 +222,21 @@ const NEARBY = [
 ];
 
 /**
- * No maps key needed: the map is an OpenStreetMap embed, and the commute
- * and "nearby" tools open Google Maps on the visitor's device, which uses
- * live traffic.
+ * No maps key needed: the map is an OpenStreetMap embed (or, for an area
+ * staff opened without a map point, a Google Maps search embed), and the
+ * commute and "nearby" tools open Google Maps on the visitor's device, which
+ * uses live traffic.
  */
+function mapSrc(area, where) {
+  if (!area.center) return `https://maps.google.com/maps?q=${encodeURIComponent(where)}&z=14&output=embed`;
+  const [lat, lng] = area.center;
+  const bbox = [lng - 0.025, lat - 0.018, lng + 0.025, lat + 0.018].map((n) => n.toFixed(4)).join(',');
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`;
+}
+
 export function AreaTools({ area }) {
   const [work, setWork] = useState('');
   const where = `${area.name}, ${area.city}, Nigeria`;
-  const [lat, lng] = area.center;
-  const bbox = [lng - 0.025, lat - 0.018, lng + 0.025, lat + 0.018].map((n) => n.toFixed(4)).join(',');
   const directions = (mode) => `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(where)}&destination=${encodeURIComponent(`${work}, ${area.city}, Nigeria`)}&travelmode=${mode}`;
   const open = (mode) => window.open(directions(mode), '_blank', 'noopener,noreferrer');
 
@@ -241,7 +247,7 @@ export function AreaTools({ area }) {
       <MapFrame
         title={`Map of ${area.name}`}
         loading="lazy"
-        src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`}
+        src={mapSrc(area, where)}
       />
 
       <ToolHead><FaRoute /> Commute check</ToolHead>
@@ -269,9 +275,15 @@ export function AreaTools({ area }) {
       <Next to={OFFER_VERIFY_URL}>
         <span className="ic"><FaClipboardCheck /></span><span>Verify a property before you pay<small>Title, owner and condition checks</small></span><FaArrowRight size={11} />
       </Next>
-      <Next to={`${MOVING_URL}/book?area=${encodeURIComponent(area.city)}`}>
-        <span className="ic"><FaTruck /></span><span>Plan your move to {area.name}<small>Get a moving price in minutes</small></span><FaArrowRight size={11} />
-      </Next>
+      {area.movingCity ? (
+        <Next to={`${MOVING_URL}/book?area=${encodeURIComponent(area.movingCity)}`}>
+          <span className="ic"><FaTruck /></span><span>Plan your move to {area.name}<small>Get a moving price in minutes</small></span><FaArrowRight size={11} />
+        </Next>
+      ) : (
+        <Next to={MOVING_URL}>
+          <span className="ic"><FaTruck /></span><span>Moving here from Lagos, Abuja or Port Harcourt?<small>See where our movers go</small></span><FaArrowRight size={11} />
+        </Next>
+      )}
     </Panel>
   );
 }
@@ -289,7 +301,7 @@ export function AreaRules() {
       <h2 id="area-rules">Board rules</h2>
       <Rules>
         <li>Talk about places: buildings, streets, utilities, flooding and safety. Not about named people.</li>
-        <li>Share what you saw yourself. Do not accuse anyone of a crime; report crime to the police.</li>
+        <li>Share what you saw yourself. Do not accuse anyone of a crime: in an emergency call 112, and report crime to the police.</li>
         <li>No phone numbers, emails or adverts. We remove them.</li>
         <li>Posts that may name or accuse someone wait for a person on our team to read them first.</li>
         <li>See something wrong? Use Report. Posts with several reports are hidden until we review them.</li>

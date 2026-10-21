@@ -12,7 +12,7 @@ import { useAuth } from '../AuthContext';
 import {
   PageShell, Section, Inner, Panel,
 } from '../components/page';
-import { BOOK_SESSION_URL, OFFER_URL, SAVED_URL, MARKETPLACE_URL, RENT_URL, PURCHASE_DAYS } from '../config/platform';
+import { BOOK_SESSION_URL, OFFER_URL, SAVED_URL, MARKETPLACE_URL, RENT_URL, PURCHASE_DAYS, AREAS_URL } from '../config/platform';
 import { perPeriod, INCOME_BANDS, ID_TYPES, VIEWING_WINDOWS } from '../config/rentals';
 import { SaveButton, ShareButtons } from '../components/ListingActions';
 import { shortlist, useSaved, useRecent } from '../utils/shortlist';
@@ -609,6 +609,11 @@ function Browse({ mode = 'sale' }) {
             ? 'Every home here is let and managed by EasyMoveZone. Apply once, and we arrange the viewing and the paperwork.'
             : 'Every listing is valued and approved by EasyMoveZone before it goes live.'}
         </motion.p>
+        {rent && (
+          <motion.div variants={staggerItem}>
+            <AreaLink to={AREAS_URL}>Not sure about an area? See what residents say about the light, water and flooding <FaArrowRight size={10} /></AreaLink>
+          </motion.div>
+        )}
         <SavedLink />
       </PropertyHeader>
 
@@ -1720,7 +1725,7 @@ function Detail() {
                 <h1>{listing.title}</h1>
                 <Where><FaMapMarkerAlt /> {where || listing.country || 'Location to confirm'}</Where>
                 {listing.area_slug && (
-                  <AreaLink to={`/areas/${listing.area_slug}`}>What residents say about {listing.area || 'this area'} <FaArrowRight size={10} /></AreaLink>
+                  <AreaLink to={`${AREAS_URL}/${listing.area_slug}`}>What residents say about {listing.area || 'this area'} <FaArrowRight size={10} /></AreaLink>
                 )}
                 <DetailActions>
                   <SaveButton listing={listing} />

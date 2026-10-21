@@ -208,6 +208,27 @@ export const api = {
           method: 'PATCH', headers: { 'x-admin-key': key }, body: JSON.stringify({ status, note }),
         });
       },
+      /** Every area (live and hidden) with activity, residents' requests and the list of states. */
+      areas(key) {
+        return request('/areas/admin/areas', { headers: { 'x-admin-key': key } });
+      },
+      /** { name, city, state, lat, lng, match, blurb, requestId? } → { area } */
+      createArea(key, payload) {
+        return request('/areas/admin/areas', {
+          method: 'POST', headers: { 'x-admin-key': key }, body: JSON.stringify(payload),
+        });
+      },
+      /** Any of { name, city, state, lat, lng, match, blurb, status: 'live' | 'hidden' } → { area } */
+      updateArea(key, slug, patch) {
+        return request(`/areas/admin/areas/${encodeURIComponent(slug)}`, {
+          method: 'PATCH', headers: { 'x-admin-key': key }, body: JSON.stringify(patch),
+        });
+      },
+      dismissRequest(key, id) {
+        return request(`/areas/admin/requests/${id}`, {
+          method: 'PATCH', headers: { 'x-admin-key': key }, body: '{}',
+        });
+      },
     },
   },
 

@@ -23,7 +23,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '..
 import { Tabs, TabsList, TabsTrigger } from '../components/shadcn/tabs';
 import { api } from '../api';
 import { ListingCard } from './MarketplacePage';
-import { MARKETPLACE_URL, OFFER_VERIFY_URL, PURCHASE_DAYS } from '../config/platform';
+import { MARKETPLACE_URL, OFFER_VERIFY_URL, PURCHASE_DAYS, AREAS_URL } from '../config/platform';
 import { MANAGEMENT_PLANS, estimateFees } from '../config/management';
 import { formatMoneyFull } from '../utils/format';
 import { CURRENCY } from '../config/markets';
@@ -660,6 +660,16 @@ const FlowStep = styled(StaggerItem)`
   }
 `;
 
+/** Under the journey: the neighbourhood pages, for anyone still choosing where to live. */
+const AreasCallout = styled(Link)`
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem;
+  padding: 0.95rem 1.15rem; border-radius: 16px; background: var(--color-green-soft); color: var(--color-ink);
+  b { display: block; font-size: 0.98rem; }
+  span { font-size: 0.86rem; color: var(--color-ink-muted); }
+  svg { flex-shrink: 0; color: var(--color-green-deep); }
+  &:hover { background: var(--color-green-chip); }
+`;
+
 export function JourneySection() {
   return (
     <Section $sm style={{ paddingTop: '1.75rem', paddingBottom: '2rem' }}>
@@ -680,6 +690,13 @@ export function JourneySection() {
             </FlowStep>
           ))}
         </FlowGrid>
+        <AreasCallout to={AREAS_URL}>
+          <div>
+            <b>Choosing where to live?</b>
+            <span>Residents rate the light, water, flooding and security in areas across Nigeria. Read them before you pay rent.</span>
+          </div>
+          <ArrowRight size={18} />
+        </AreasCallout>
       </Inner>
     </Section>
   );

@@ -18,6 +18,18 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
 });
 
+/**
+ * The starter neighbourhoods (data/areas.json) as VALUES rows. Inserted with
+ * ON CONFLICT DO NOTHING, so an area staff have edited or hidden keeps their
+ * changes; a new entry in the file is added on the next deploy.
+ */
+const sqlText = (v) => `'${String(v).replace(/'/g, "''")}'`;
+const AREA_SEED_SQL = require('./data/areas.json').map((a) => `(${[
+  sqlText(a.slug), sqlText(a.name), sqlText(a.city), sqlText(a.state),
+  Number(a.center[0]), Number(a.center[1]),
+  `ARRAY[${a.match.map(sqlText).join(',')}]::text[]`, sqlText(a.blurb),
+].join(', ')})`).join(',\n');
+
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -891,6 +903,32 @@ CREATE TABLE IF NOT EXISTS area_ratings (
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   PRIMARY KEY (area_slug, rater_email)
 );
+
+-- The neighbourhoods that have a page. Staff open, edit and hide them in
+-- Admin → Community; the starter set comes from data/areas.json.
+CREATE TABLE IF NOT EXISTS areas (
+  slug VARCHAR(80) PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  city VARCHAR(120) NOT NULL,
+  state VARCHAR(80) NOT NULL,
+  lat NUMERIC(9,6),
+  lng NUMERIC(9,6),
+  match TEXT[] NOT NULL DEFAULT '{}',
+  blurb VARCHAR(400),
+  status VARCHAR(10) NOT NULL DEFAULT 'live' CHECK (status IN ('live','hidden')),
+  created_by VARCHAR(255),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+INSERT INTO areas (slug, name, city, state, lat, lng, match, blurb) VALUES
+${AREA_SEED_SQL}
+ON CONFLICT (slug) DO NOTHING;
+
+-- Community notices (a reply to your post, a decision on a held one) go by
+-- email and are recorded here, outside both portals' inboxes.
+ALTER TABLE notifications DROP CONSTRAINT IF EXISTS notifications_audience_check;
+ALTER TABLE notifications ADD CONSTRAINT notifications_audience_check
+  CHECK (audience IN ('owner','tenant','staff','community'));
 `;
 
 /**
@@ -905,11 +943,13 @@ const SCHEMA_LOCK = 427001;
 async function initializeDatabase() {
   const client = await pool.connect();
   try {
-    await client.query('CREATE TABLE IF NOT EXISTS schema_meta (key VARCHAR(40) PRIMARY KEY, value TEXT NOT NULL, updated_at TIMESTAMPTZ DEFAULT NOW())');
-    const current = await client.query(`SELECT value FROM schema_meta WHERE key = 'schema_hash'`);
-    if (current.rows[0]?.value === SCHEMA_HASH && process.env.FORCE_SCHEMA !== '1') return;
+    // Fast path. On a brand-new database schema_meta does not exist yet; it is
+    // created under the lock, so two cold starts cannot both try to create it.
+    const current = await client.query(`SELECT value FROM schema_meta WHERE key = 'schema_hash'`).catch(() => null);
+    if (current?.rows[0]?.value === SCHEMA_HASH && process.env.FORCE_SCHEMA !== '1') return;
     await client.query('SELECT pg_advisory_lock($1)', [SCHEMA_LOCK]);
     try {
+      await client.query('CREATE TABLE IF NOT EXISTS schema_meta (key VARCHAR(40) PRIMARY KEY, value TEXT NOT NULL, updated_at TIMESTAMPTZ DEFAULT NOW())');
       const again = await client.query(`SELECT value FROM schema_meta WHERE key = 'schema_hash'`);
       if (again.rows[0]?.value !== SCHEMA_HASH || process.env.FORCE_SCHEMA === '1') {
         await client.query(SCHEMA);

@@ -12,7 +12,7 @@ import { formatMoneyFull } from '../utils/format';
 import { VERIFICATION_TYPES } from '../config/verification';
 import {
   CONTACT_URL, MARKETPLACE_URL, OFFER_URL, OFFER_VERIFY_URL, OFFER_ANALYZE_URL, BOOK_SESSION_URL, SAVED_URL, RENT_URL,
-  PURCHASE_DAYS,
+  PURCHASE_DAYS, AREAS_URL,
 } from '../config/platform';
 
 /**
@@ -42,6 +42,9 @@ const GROUPS = [
       ['Why is the street address not shown?', 'The home is often empty while it is advertised, so we give the exact address when we book your viewing.'],
       ['What will I pay?', 'The listing shows the rent and how often it is paid, plus any service charge and refundable caution deposit. Your tenancy agreement sets out the final figures before you pay anything.'],
       ['I rent a home from EasyMoveZone. Where do I report a repair?', 'Your manager sends you a link to your tenant portal; open it and sign in with any email. There you report repairs (with photos, if you like), message your manager, see your rent schedule, pay online or tell us you paid by transfer, and open your tenancy agreement. You get a notice when anything changes.'],
+      ['How do I find out what an area is really like?', <>Open its <Link to={AREAS_URL}>neighbourhood page</Link>. Residents score the light, water, flooding, roads, security, noise and network, and post about buildings, streets and the commute. Each page also shows typical rents on the homes we let there, a map, a commute check and what is nearby.</>],
+      ['Who can post on a neighbourhood page, and what can I say?', 'Anyone signed in can post, reply and add scores; reading is open to everyone. Talk about places and what you have seen yourself: a building, a street, the light or the traffic. Do not name or accuse people, and do not share phone numbers. Posts that may name someone wait for our team to read them first, and anything reported by several people is hidden until we review it.'],
+      ['What does “Verified resident” mean?', 'It marks posts and scores from someone who rents a home we manage in that area, so you know they live there.'],
       ['Can I pay rent online?', 'Yes, where it is switched on: open Rent in your tenant portal and tap Pay now beside any charge. You pay by card, bank transfer or USSD through Paystack, and the payment shows as received straight away.'],
       ['I own a property and rent another home. Which portal do I use?', 'Both, with the same sign-in. The switch at the top of the portal sidebar says which one you are in: Owner for the property we manage for you, Tenant for the home you rent.'],
     ],

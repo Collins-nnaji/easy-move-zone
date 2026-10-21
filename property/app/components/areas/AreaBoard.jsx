@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
-  FaCheckCircle, FaRegThumbsUp, FaThumbsUp, FaRegComment, FaRegFlag, FaTrashAlt, FaMapPin, FaClock,
+  FaCheckCircle, FaRegThumbsUp, FaThumbsUp, FaRegComment, FaRegFlag, FaTrashAlt, FaMapPin, FaClock, FaWhatsapp,
 } from 'react-icons/fa';
+import { useLocation } from 'react-router-dom';
 import { api } from '../../api';
 import {
-  Panel, Pill, PrimaryBtn, ErrorText, SignInLink, timeAgo,
+  Panel, Pill, PrimaryBtn, ErrorText, SignInLink, timeAgo, whatsappShare,
 } from './shared';
 
 /**
@@ -48,7 +49,8 @@ const SortRow = styled.div`
 `;
 const List = styled.div`display: flex; flex-direction: column; gap: 0.75rem;`;
 const Card = styled.article`
-  background: #fff; border: 1px solid var(--color-line); border-radius: 16px; padding: 1rem 1.1rem;
+  background: #fff; border: 1px solid var(--color-line); border-radius: 16px; padding: 1rem 1.1rem; scroll-margin-top: 90px;
+  ${(p) => p.$focus && 'box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.35);'}
   ${(p) => p.$held && 'border-style: dashed; background: #fffdf7;'}
   .meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; font-size: 0.78rem; color: var(--color-ink-faint); }
   .cat { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-green-deep); background: var(--color-green-soft); padding: 0.2rem 0.5rem; border-radius: 6px; }
@@ -65,6 +67,8 @@ const Actions = styled.div`
   button { display: inline-flex; align-items: center; gap: 0.35rem; border: 0; background: transparent; padding: 0.4rem 0.55rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: var(--color-ink-muted); cursor: pointer; }
   button:hover { background: var(--color-bg-sunken); color: var(--color-ink); }
   button[aria-pressed='true'] { color: var(--color-green-deep); }
+  a { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.55rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: var(--color-ink-muted); }
+  a:hover { background: var(--color-bg-sunken); color: var(--color-ink); }
 `;
 const Replies = styled.div`
   margin-top: 0.6rem; padding-left: 0.9rem; border-left: 2px solid var(--color-line); display: flex; flex-direction: column; gap: 0.55rem;
@@ -87,6 +91,8 @@ const Empty = styled.div`
   padding: 2rem 1rem; text-align: center; color: var(--color-ink-muted); background: #fff; border: 1px dashed var(--color-line-strong); border-radius: 16px;
   h3 { margin: 0 0 0.3rem; color: var(--color-ink); font-size: 1rem; }
   p { margin: 0; font-size: 0.88rem; }
+  .invite { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--color-green-deep); font-weight: 700; }
+  .invite svg { color: #25d366; }
 `;
 const More = styled.button`
   align-self: center; margin-top: 0.25rem; border: 1px solid var(--color-line-strong); background: #fff; border-radius: 999px;
@@ -121,7 +127,7 @@ function ReportForm({ onCancel, onSend }) {
   );
 }
 
-function Post({ post, categoryLabel, signedIn, onChange, onRemoved }) {
+function Post({ post, area, focused, categoryLabel, signedIn, onChange, onRemoved }) {
   const [replying, setReplying] = useState(false);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
@@ -165,7 +171,7 @@ function Post({ post, categoryLabel, signedIn, onChange, onRemoved }) {
   });
 
   return (
-    <Card $held={held}>
+    <Card $held={held} $focus={focused} id={`post-${post.id}`}>
       <div className="meta">
         <span className="cat">{categoryLabel}</span>
         {post.place && <span className="place"><FaMapPin size={10} /> {post.place}</span>}
@@ -187,6 +193,9 @@ function Post({ post, categoryLabel, signedIn, onChange, onRemoved }) {
           {signedIn && <button type="button" onClick={() => setReplying((v) => !v)}><FaRegComment /> Reply</button>}
           {signedIn && !post.mine && <button type="button" onClick={() => setReporting({ type: 'post', id: post.id })}><FaRegFlag /> Report</button>}
           {post.mine && <button type="button" onClick={() => remove('post', post.id)}><FaTrashAlt /> Delete</button>}
+          <a href={whatsappShare(`From the ${area.name} neighbourhood board on EasyMoveZone:`, `/areas/${area.slug}#post-${post.id}`)} target="_blank" rel="noopener noreferrer">
+            <FaWhatsapp /> Share
+          </a>
         </Actions>
       )}
       {held && post.mine && (
@@ -223,6 +232,8 @@ function Post({ post, categoryLabel, signedIn, onChange, onRemoved }) {
 }
 
 export default function AreaBoard({ area, categories, signedIn }) {
+  const { hash } = useLocation();
+  const focusId = /^#post-\d+$/.test(hash) ? Number(hash.slice(6)) : null;
   const [category, setCategory] = useState('');
   const [sort, setSort] = useState('recent');
   const [posts, setPosts] = useState([]);
@@ -253,6 +264,12 @@ export default function AreaBoard({ area, categories, signedIn }) {
 
   useEffect(() => { load(0); }, [load, signedIn]);
 
+  // A link to one post (from a notice or a WhatsApp share) scrolls to it once the board is in.
+  useEffect(() => {
+    if (!focusId || loading) return;
+    document.getElementById(`post-${focusId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [focusId, loading]);
+
   const submit = async (e) => {
     e.preventDefault();
     setPosting(true);
@@ -280,7 +297,7 @@ export default function AreaBoard({ area, categories, signedIn }) {
     <>
       <Panel>
         <h2>Share something about {area.name}</h2>
-        <p className="sub">Power, water, flooding, a building, the commute, or a question for people who live here.</p>
+        <p className="sub">Light, water, flooding, a building, the traffic, or a question for people who live here.</p>
         {signedIn ? (
           <Composer onSubmit={submit}>
             <div className="cats" role="group" aria-label="What is it about">
@@ -291,7 +308,9 @@ export default function AreaBoard({ area, categories, signedIn }) {
             <textarea
               value={draft.body}
               onChange={(e) => setDraft((d) => ({ ...d, body: e.target.value }))}
-              placeholder={draft.category === 'question' ? `Ask people who live in ${area.name}…` : 'What is it like? Stick to what you have seen yourself.'}
+              placeholder={draft.category === 'question'
+                ? `Ask people who live in ${area.name}, e.g. "How many hours of light do you get?"`
+                : 'What is it like? e.g. how many hours of light, whether the road floods, borehole or public water. Stick to what you have seen yourself.'}
               maxLength={1500}
               aria-label="Your post"
               required
@@ -339,12 +358,17 @@ export default function AreaBoard({ area, categories, signedIn }) {
         {error && <ErrorText>{error}</ErrorText>}
         <List>
           {posts.map((p) => (
-            <Post key={p.id} post={p} categoryLabel={labelOf(p.category)} signedIn={signedIn} onChange={update} onRemoved={removed} />
+            <Post key={p.id} post={p} area={area} focused={p.id === focusId} categoryLabel={labelOf(p.category)} signedIn={signedIn} onChange={update} onRemoved={removed} />
           ))}
           {!loading && posts.length === 0 && !error && (
             <Empty>
               <h3>{category ? 'Nothing on this topic yet' : `No posts about ${area.name} yet`}</h3>
-              <p>{signedIn ? 'Start the conversation above.' : 'Sign in and be the first to share what it is like here.'}</p>
+              <p>{signedIn ? 'Start the conversation above, or ask a neighbour to.' : 'Sign in and be the first to share what it is like here.'}</p>
+              <p style={{ marginTop: '0.6rem' }}>
+                <a className="invite" href={whatsappShare(`Do you live in ${area.name}? Help people who want to rent there: rate the light, water and flooding on EasyMoveZone.`, `/areas/${area.slug}`)} target="_blank" rel="noopener noreferrer">
+                  <FaWhatsapp /> Invite neighbours on WhatsApp
+                </a>
+              </p>
             </Empty>
           )}
           {posts.length < total && (

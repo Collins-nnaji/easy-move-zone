@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
 import { FaStar } from 'react-icons/fa';
+import { SITE_URL } from '../../config/seo';
 
 /** Pieces shared by the neighbourhood pages (pages/AreasPage.jsx). */
 
@@ -40,6 +41,16 @@ const ScoreChip = styled.span`
 export function Score({ value }) {
   if (value == null) return <ScoreChip $empty>New</ScoreChip>;
   return <ScoreChip aria-label={`${value.toFixed(1)} out of 5`}><FaStar />{value.toFixed(1)}</ScoreChip>;
+}
+
+/** A state as people say it: "FCT - Abuja" reads "Abuja (FCT)". */
+export function stateLabel(state) {
+  return state === 'FCT - Abuja' ? 'Abuja (FCT)' : state;
+}
+
+/** A WhatsApp link that shares `text` and a page of this site, the way most Nigerians pass a link on. */
+export function whatsappShare(text, path) {
+  return `https://wa.me/?text=${encodeURIComponent(`${text} ${SITE_URL}${path}`)}`;
 }
 
 /** "3h ago", "2d ago", else a date. */

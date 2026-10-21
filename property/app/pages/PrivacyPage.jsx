@@ -132,6 +132,7 @@ const PrivacyPage = () => (
         <li><strong>Property data:</strong> addresses, ownership and seller details, documents, photographs, videos, inspection evidence, verification results and service requests you submit.</li>
         <li><strong>Management data:</strong> your plan answers, managed properties, tenancy and rent records, expenses, approvals, payouts and consultation details.</li>
         <li><strong>Session state:</strong> advisor chat history tied to your session or account.</li>
+        <li><strong>Neighbourhood posts:</strong> the posts, replies, scores, votes and reports you add on area pages. Posts, replies and the average of everyone&rsquo;s scores are public, shown with your first name and last initial (or as &ldquo;A neighbour&rdquo;, if you choose). Your email is never shown, and staff see it only to moderate the board.</li>
         <li><strong>Technical data:</strong> browser type, device type, and IP address for security and diagnostics.</li>
       </UL>
 
@@ -146,7 +147,8 @@ const PrivacyPage = () => (
 
       <H2>4. AI features and third-party APIs</H2>
       <P>
-        EasyAdviser uses AI models via a third-party API provider. Queries you submit, and the plan
+        EasyAdviser uses AI models via a third-party API provider, and the text of a neighbourhood post
+        or reply may be sent to that provider to check it against the board rules. Queries you submit, and the plan
         and property or financial records needed to answer them, may be processed by that provider subject to their
         data-handling policies. We do not share your name, email or contact details with the AI
         provider, and AI output is educational commentary rather than personal financial advice.

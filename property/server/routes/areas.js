@@ -3,11 +3,15 @@ const router = express.Router();
 const { pool } = require('../db');
 const { sessionUser, requireUser, requireAdmin } = require('../auth');
 const {
-  AREAS, areaFor, areaForPlace, RATING_FACTORS, RATING_IDS, POST_CATEGORIES, POST_CATEGORY_IDS,
+  MOVING_CITIES, slugify, matchPlace, RATING_FACTORS, RATING_IDS, POST_CATEGORIES, POST_CATEGORY_IDS,
   annualRent, displayName,
 } = require('../areaCatalog');
+const {
+  allAreas, liveAreas, getArea, clearAreaCache, toArea,
+} = require('../areaStore');
+const { NIGERIAN_STATES } = require('../markets');
 const { screen } = require('../services/moderation');
-const { notifyStaff } = require('../services/notify');
+const { notify, notifyStaff } = require('../services/notify');
 const { later } = require('../background');
 
 /**
@@ -20,6 +24,10 @@ const { later } = require('../background');
  * never by email, and a tenant we manage in the area is marked as a verified
  * resident. Every post and reply goes through services/moderation.js, and
  * REPORTS_TO_HIDE reports from different people take one down for review.
+ *
+ * Authors hear (by email, audience 'community') when someone replies to them
+ * and when staff decide on a post that was held. Staff open, edit and hide
+ * areas under /admin/areas; the list is cached in areaStore.js.
  */
 
 const REPORTS_TO_HIDE = 3;
@@ -44,7 +52,8 @@ async function isVerifiedResident(email, area) {
       WHERE LOWER(t.tenant_email) = $1 AND t.status IN ('active','notice')`,
     [email]
   );
-  return rows.some((r) => areaForPlace(r)?.slug === area.slug);
+  const areas = await liveAreas();
+  return rows.some((r) => matchPlace(areas, r)?.slug === area.slug);
 }
 
 function median(values) {
@@ -67,9 +76,10 @@ async function listingsByArea(onlyArea) {
        FROM listings WHERE ${where}`,
     params
   );
+  const areas = await liveAreas();
   const out = {};
   for (const row of rows) {
-    const hit = areaForPlace(row);
+    const hit = matchPlace(areas, row);
     if (hit) (out[hit.slug] ||= []).push(row);
   }
   return out;
@@ -113,6 +123,15 @@ function publicArea(a) {
   };
 }
 
+/** Where a notice about a post sends its reader. */
+const postLink = (slug, id) => `/areas/${slug}#post-${id}`;
+
+/** Tell an author something about their post or reply (email + a record in notifications). */
+function tellAuthor(email, title, body, link) {
+  if (!email) return;
+  later(() => notify({ to: { email }, audience: 'community', kind: 'area_post', title, body, link }));
+}
+
 /* ── Admin: the moderation queue ─────────────────────────────────── */
 
 /* GET /api/areas/admin/queue?view=held|reported|removed|published — posts and replies to review. */
@@ -147,7 +166,8 @@ router.get('/admin/queue', requireAdmin, async (req, res) => {
              + (SELECT COUNT(*)::int FROM area_post_replies WHERE status = 'published' AND report_count > 0) AS reported`
       ),
     ]);
-    const name = (slug) => areaFor(slug)?.name || slug;
+    const names = Object.fromEntries((await allAreas()).map((a) => [a.slug, a.name]));
+    const name = (slug) => names[slug] || slug;
     return res.json({
       posts: posts.map((p) => ({ ...p, area_name: name(p.area_slug) })),
       replies: replies.map((r) => ({ ...r, area_name: name(r.area_slug) })),
@@ -168,16 +188,26 @@ function moderate(table) {
     try {
       // Publishing clears the reports that hid it, so it is not hidden again by the same people.
       const { rows } = await pool.query(
-        `UPDATE ${table} SET status = $1, moderation_note = COALESCE($2, moderation_note),
+        `WITH before AS (SELECT status FROM ${table} WHERE id = $4)
+         UPDATE ${table} SET status = $1, moderation_note = COALESCE($2, moderation_note),
                 reviewed_by = $3, reviewed_at = NOW()${status === 'published' ? ', report_count = 0' : ''}
-          WHERE id = $4 RETURNING id, status`,
+          WHERE id = $4
+          RETURNING id, status, author_email, (SELECT status FROM before) AS was,
+                    ${table === 'area_posts' ? 'id AS post_id, area_slug' : 'post_id, (SELECT area_slug FROM area_posts WHERE area_posts.id = post_id) AS area_slug'}`,
         [status, clip(req.body?.note, 500) || null, req.adminActor, id]
       );
       if (!rows.length) return res.status(404).json({ error: 'Not found.' });
+      const done = rows[0];
+      const what = table === 'area_posts' ? 'post' : 'reply';
+      if (done.was === 'held' && status === 'published') {
+        tellAuthor(done.author_email, `Your ${what} is now live`, 'Thanks for helping your neighbours. Our team has read it and it is now public.', postLink(done.area_slug, done.post_id));
+      } else if (done.was !== 'removed' && status === 'removed') {
+        tellAuthor(done.author_email, `We removed your ${what}`, 'It did not meet the board rules: posts are about places and first-hand experiences, not named people, accusations or contact details. You are welcome to post again.', `/areas/${done.area_slug}`);
+      }
       if (status === 'published') {
         await pool.query('DELETE FROM area_reports WHERE target_type = $1 AND target_id = $2', [table === 'area_posts' ? 'post' : 'reply', id]);
       }
-      return res.json(rows[0]);
+      return res.json({ id: done.id, status: done.status });
     } catch (err) {
       console.error(`PATCH /areas/admin ${table} error:`, err);
       return res.status(500).json({ error: 'Could not update.' });
@@ -186,6 +216,127 @@ function moderate(table) {
 }
 router.patch('/admin/posts/:id', requireAdmin, moderate('area_posts'));
 router.patch('/admin/replies/:id', requireAdmin, moderate('area_post_replies'));
+
+/* ── Admin: the areas themselves ─────────────────────────────────── */
+
+/** Lower-cased, de-duplicated spellings; the name itself is always one. */
+function matchList(name, value) {
+  const raw = Array.isArray(value) ? value : String(value || '').split(/[,\n]/);
+  return [...new Set([name, ...raw].map((v) => String(v || '').trim().toLowerCase()).filter(Boolean))].slice(0, 30);
+}
+
+/** A latitude/longitude pair inside Nigeria's bounding box, or null. */
+function centerOf(lat, lng) {
+  const la = Number(lat);
+  const ln = Number(lng);
+  if (lat === '' || lng === '' || lat == null || lng == null || !Number.isFinite(la) || !Number.isFinite(ln)) return null;
+  return la >= 4 && la <= 14 && ln >= 2.6 && ln <= 14.7 ? [la, ln] : undefined;
+}
+
+/* GET /api/areas/admin/areas — every area (live and hidden) with activity, and residents' requests for new ones. */
+router.get('/admin/areas', requireAdmin, async (req, res) => {
+  try {
+    const [areas, { rows: posts }, { rows: ratings }, { rows: requests }] = await Promise.all([
+      allAreas(),
+      pool.query(`SELECT area_slug, COUNT(*) FILTER (WHERE status = 'published')::int AS published, COUNT(*) FILTER (WHERE status = 'held')::int AS held FROM area_posts GROUP BY area_slug`),
+      pool.query('SELECT area_slug, COUNT(*)::int AS n FROM area_ratings GROUP BY area_slug'),
+      pool.query(
+        `SELECT id, name, email, message, created_at FROM leads
+          WHERE service = 'Neighbourhood request' AND status = 'new'
+          ORDER BY created_at DESC LIMIT 100`
+      ),
+    ]);
+    const postsBy = Object.fromEntries(posts.map((p) => [p.area_slug, p]));
+    const ratingsBy = Object.fromEntries(ratings.map((r) => [r.area_slug, r.n]));
+    return res.json({
+      areas: areas.map((a) => ({
+        ...a, posts: postsBy[a.slug]?.published || 0, held: postsBy[a.slug]?.held || 0, ratings: ratingsBy[a.slug] || 0,
+      })),
+      requests,
+      states: NIGERIAN_STATES,
+    });
+  } catch (err) {
+    console.error('GET /areas/admin/areas error:', err);
+    return res.status(500).json({ error: 'Could not load areas.' });
+  }
+});
+
+/* POST /api/areas/admin/areas — open a new area: { name, city, state, lat, lng, match, blurb, requestId? } */
+router.post('/admin/areas', requireAdmin, async (req, res) => {
+  const name = clip(req.body?.name, 120);
+  const city = clip(req.body?.city, 120);
+  const state = NIGERIAN_STATES.includes(req.body?.state) ? req.body.state : null;
+  const center = centerOf(req.body?.lat, req.body?.lng);
+  if (!name || !city || !state) return res.status(400).json({ error: 'Name, city and a Nigerian state are required.' });
+  if (center === undefined) return res.status(400).json({ error: 'That map point is not in Nigeria. Check the latitude and longitude.' });
+  const slug = slugify(name, city);
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO areas (slug, name, city, state, lat, lng, match, blurb, created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+       ON CONFLICT (slug) DO NOTHING RETURNING *`,
+      [slug, name, city, state, center?.[0] ?? null, center?.[1] ?? null, matchList(name, req.body?.match), clip(req.body?.blurb, 400) || null, req.adminActor]
+    );
+    if (!rows.length) return res.status(409).json({ error: `There is already an area at /areas/${slug}.` });
+    clearAreaCache();
+    // Opening an area answers the request that asked for it.
+    const requestId = idOf(req.body?.requestId);
+    if (requestId) await pool.query(`UPDATE leads SET status = 'replied' WHERE id = $1 AND service = 'Neighbourhood request'`, [requestId]);
+    return res.json({ area: toArea(rows[0]) });
+  } catch (err) {
+    console.error('POST /areas/admin/areas error:', err);
+    return res.status(500).json({ error: 'Could not open that area.' });
+  }
+});
+
+/* PATCH /api/areas/admin/areas/:slug — edit an area, or hide/show it with { status }. The slug never changes. */
+router.patch('/admin/areas/:slug', requireAdmin, async (req, res) => {
+  const body = req.body || {};
+  const sets = [];
+  const params = [];
+  const set = (col, value) => { params.push(value); sets.push(`${col} = $${params.length}`); };
+  if ('name' in body) { if (!clip(body.name, 120)) return res.status(400).json({ error: 'The name cannot be empty.' }); set('name', clip(body.name, 120)); }
+  if ('city' in body) { if (!clip(body.city, 120)) return res.status(400).json({ error: 'The city cannot be empty.' }); set('city', clip(body.city, 120)); }
+  if ('state' in body) { if (!NIGERIAN_STATES.includes(body.state)) return res.status(400).json({ error: 'Choose a Nigerian state.' }); set('state', body.state); }
+  if ('blurb' in body) set('blurb', clip(body.blurb, 400) || null);
+  if ('status' in body) { if (!['live', 'hidden'].includes(body.status)) return res.status(400).json({ error: 'Status is live or hidden.' }); set('status', body.status); }
+  if ('lat' in body || 'lng' in body) {
+    const center = centerOf(body.lat, body.lng);
+    if (center === undefined) return res.status(400).json({ error: 'That map point is not in Nigeria. Check the latitude and longitude.' });
+    set('lat', center?.[0] ?? null);
+    set('lng', center?.[1] ?? null);
+  }
+  if (!sets.length && !('match' in body)) return res.status(400).json({ error: 'Nothing to change.' });
+  try {
+    const { rows: [current] } = await pool.query('SELECT name FROM areas WHERE slug = $1', [req.params.slug]);
+    if (!current) return res.status(404).json({ error: 'Area not found.' });
+    if ('match' in body) set('match', matchList(clip(body.name, 120) || current.name, body.match));
+    params.push(req.params.slug);
+    const { rows } = await pool.query(
+      `UPDATE areas SET ${sets.join(', ')}, updated_at = NOW() WHERE slug = $${params.length} RETURNING *`,
+      params
+    );
+    clearAreaCache();
+    return res.json({ area: toArea(rows[0]) });
+  } catch (err) {
+    console.error('PATCH /areas/admin/areas error:', err);
+    return res.status(500).json({ error: 'Could not update that area.' });
+  }
+});
+
+/* PATCH /api/areas/admin/requests/:id — dismiss a request without opening an area. */
+router.patch('/admin/requests/:id', requireAdmin, async (req, res) => {
+  const id = idOf(req.params.id);
+  if (!id) return res.status(404).json({ error: 'Not found.' });
+  try {
+    const { rowCount } = await pool.query(`UPDATE leads SET status = 'closed' WHERE id = $1 AND service = 'Neighbourhood request'`, [id]);
+    if (!rowCount) return res.status(404).json({ error: 'Not found.' });
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('PATCH /areas/admin/requests error:', err);
+    return res.status(500).json({ error: 'Could not update.' });
+  }
+});
 
 /* ── Posts and replies by id ─────────────────────────────────────── */
 
@@ -210,7 +361,7 @@ router.post('/posts/:id/replies', requireUser, async (req, res) => {
     if (recent.n >= REPLIES_PER_DAY) return res.status(429).json({ error: 'You have replied a lot today. Please try again tomorrow.' });
     const verdict = await screen(body);
     if (verdict.refuse) return res.status(400).json({ error: verdict.refuse });
-    const verified = await isVerifiedResident(req.user.email, areaFor(post.area_slug));
+    const verified = await isVerifiedResident(req.user.email, await getArea(post.area_slug));
     const { rows: [reply] } = await pool.query(
       `INSERT INTO area_post_replies (post_id, body, author_email, author_name, verified_resident, status, moderation_note)
        VALUES ($1,$2,$3,$4,$5,$6,$7)
@@ -219,6 +370,8 @@ router.post('/posts/:id/replies', requireUser, async (req, res) => {
     );
     if (verdict.status === 'held') {
       later(() => notifyStaff({ kind: 'area_held', title: 'A neighbourhood reply is waiting for review', body: verdict.reasons.join('; '), link: '/admin?section=community' }));
+    } else if (post.author_email !== req.user.email) {
+      tellAuthor(post.author_email, 'Someone replied to your post', `${reply.author_name || 'A neighbour'} wrote: "${body.slice(0, 200)}"`, postLink(post.area_slug, post.id));
     }
     return res.json({ reply: { ...reply, mine: true, helpful: false } });
   } catch (err) {
@@ -326,7 +479,8 @@ router.delete('/replies/:id', requireUser, removeOwn('area_post_replies'));
 /* GET /api/areas — every area with its headline numbers. */
 router.get('/', async (req, res) => {
   try {
-    const [{ rows: posts }, { rows: ratings }, listings] = await Promise.all([
+    const [areas, { rows: posts }, { rows: ratings }, listings] = await Promise.all([
+      liveAreas(),
       pool.query(`SELECT area_slug, COUNT(*)::int AS n, MAX(created_at) AS latest FROM area_posts WHERE status = 'published' GROUP BY area_slug`),
       pool.query(`SELECT area_slug, COUNT(*)::int AS count, COUNT(*) FILTER (WHERE verified_resident)::int AS verified, ${RATING_AVERAGES} FROM area_ratings GROUP BY area_slug`),
       listingsByArea(),
@@ -334,7 +488,7 @@ router.get('/', async (req, res) => {
     const postsBy = Object.fromEntries(posts.map((p) => [p.area_slug, p]));
     const ratingsBy = Object.fromEntries(ratings.map((r) => [r.area_slug, r]));
     return res.json({
-      areas: AREAS.map((a) => {
+      areas: areas.map((a) => {
         const rated = summariseRatings(ratingsBy[a.slug]);
         return {
           ...publicArea(a),
@@ -354,7 +508,7 @@ router.get('/', async (req, res) => {
 
 /* GET /api/areas/:slug — the area, its scores, rents and the viewer's own rating. */
 router.get('/:slug', async (req, res) => {
-  const area = areaFor(req.params.slug);
+  const area = await getArea(req.params.slug);
   if (!area) return res.status(404).json({ error: 'We do not cover that area yet.' });
   try {
     const user = await sessionUser(req);
@@ -370,7 +524,7 @@ router.get('/:slug', async (req, res) => {
     ]);
     const rows = listings[area.slug] || [];
     return res.json({
-      area: { ...publicArea(area), movingCity: area.city },
+      area: { ...publicArea(area), movingCity: MOVING_CITIES.includes(area.city) ? area.city : null },
       factors: RATING_FACTORS,
       categories: POST_CATEGORIES,
       ratings: summariseRatings(ratingRow),
@@ -388,7 +542,7 @@ router.get('/:slug', async (req, res) => {
 
 /* GET /api/areas/:slug/posts?category=&sort=recent|helpful&offset= — the board. */
 router.get('/:slug/posts', async (req, res) => {
-  const area = areaFor(req.params.slug);
+  const area = await getArea(req.params.slug);
   if (!area) return res.status(404).json({ error: 'We do not cover that area yet.' });
   const category = POST_CATEGORY_IDS.includes(req.query.category) ? req.query.category : null;
   const order = req.query.sort === 'helpful' ? 'p.helpful_count DESC, p.created_at DESC' : 'p.created_at DESC';
@@ -435,7 +589,7 @@ router.get('/:slug/posts', async (req, res) => {
 
 /* POST /api/areas/:slug/posts — { category, place, body, showName } */
 router.post('/:slug/posts', requireUser, async (req, res) => {
-  const area = areaFor(req.params.slug);
+  const area = await getArea(req.params.slug);
   if (!area) return res.status(404).json({ error: 'We do not cover that area yet.' });
   const category = POST_CATEGORY_IDS.includes(req.body?.category) ? req.body.category : null;
   const body = clip(req.body?.body, 1500);
@@ -470,7 +624,7 @@ router.post('/:slug/posts', requireUser, async (req, res) => {
 
 /* PUT /api/areas/:slug/rating — { power: 1-5, water: 1-5, ... }; any factor may be left out. */
 router.put('/:slug/rating', requireUser, async (req, res) => {
-  const area = areaFor(req.params.slug);
+  const area = await getArea(req.params.slug);
   if (!area) return res.status(404).json({ error: 'We do not cover that area yet.' });
   const scores = RATING_IDS.map((id) => {
     const n = Number.parseInt(req.body?.[id], 10);

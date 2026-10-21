@@ -1,4 +1,5 @@
 import { PURCHASE_DAYS } from './platform';
+import STARTER_AREAS from '../../server/data/areas.json';
 
 /*
  * Page titles and descriptions, by path. Used client-side by Seo.jsx as you
@@ -17,6 +18,11 @@ export const PUBLIC_META = [
   { match: (p) => p === '/listings/rent', title: 'Homes to rent, let and managed by EasyMoveZone', description: 'Rent a home managed by EasyMoveZone. Apply once — we arrange the viewing, check references and handle rent and repairs for the whole tenancy.' },
   { match: (p) => p === '/listings/saved', title: 'Saved properties | EasyMoveZone', description: 'The properties you have saved on EasyMoveZone.' },
   { match: (p) => p === '/areas', title: 'Neighbourhoods: what it is like to live there | EasyMoveZone', description: 'Residents rate power, water, flooding, roads and safety in Lagos, Abuja and Port Harcourt areas. See typical rents, the commute and what is nearby before you rent.' },
+  ...STARTER_AREAS.map((a) => ({
+    match: (p) => p === `/areas/${a.slug}`,
+    title: `Living in ${a.name}, ${a.city}: what residents say | EasyMoveZone`,
+    description: `${a.blurb} Residents rate the light, water, flooding, roads and security in ${a.name}, with typical rents and the commute.`,
+  })),
   { match: (p) => p.startsWith('/areas/'), title: 'Neighbourhood guide from residents | EasyMoveZone', description: 'What residents say about this area: power, water, flooding, safety and transport, with typical rents and location tools.' },
   { match: (p) => p === '/contact', title: 'Contact EasyMoveZone', description: 'Send EasyMoveZone a message about buying, selling, verifying, letting or renovating property.' },
   { match: (p) => p === '/help', title: 'Help and FAQs | EasyMoveZone', description: 'Answers to common questions about buying, verifying, selling and letting property with EasyMoveZone.' },

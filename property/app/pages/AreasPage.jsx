@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Link, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  FaCheckCircle, FaChevronLeft, FaSearch, FaMapMarkerAlt, FaStar,
+  FaCheckCircle, FaChevronLeft, FaSearch, FaMapMarkerAlt, FaStar, FaWhatsapp,
 } from 'react-icons/fa';
 import { api } from '../api';
 import { useAuth } from '../AuthContext';
@@ -14,7 +14,9 @@ import { SpotArt } from '../components/graphics';
 import { useIsMobile } from '../utils/useMediaQuery';
 import AreaBoard from '../components/areas/AreaBoard';
 import { AreaScores, AreaRents, AreaTools, AreaRules } from '../components/areas/AreaPanels';
-import { Pill, Score } from '../components/areas/shared';
+import {
+  Pill, Score, stateLabel, whatsappShare,
+} from '../components/areas/shared';
 
 /**
  * Neighbourhoods. `/areas` lists the areas we cover; `/areas/:slug` is one
@@ -23,8 +25,6 @@ import { Pill, Score } from '../components/areas/shared';
  * (map, commute, what is nearby, a move quote, a property check).
  * The API is property/server/routes/areas.js.
  */
-
-const CITIES = ['All', 'Lagos', 'Abuja', 'Port Harcourt'];
 
 const Page = styled.div`background: var(--color-bg-panel); min-height: 70vh;`;
 const Body = styled.section`
@@ -43,7 +43,14 @@ const Search = styled.label`
   input { flex: 1; min-width: 0; border: 0; outline: none; font: inherit; color: var(--color-ink); background: transparent; }
   &:focus-within { border-color: var(--color-green); box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.1); }
 `;
-const Pills = styled.div`display: flex; gap: 0.4rem; flex-wrap: wrap;`;
+const Pills = styled.div`
+  display: flex; gap: 0.4rem; overflow-x: auto; max-width: 100%; padding-bottom: 0.2rem; flex: 1 1 100%;
+`;
+const StateHead = styled.h2`
+  margin: 1.75rem 0 0.75rem; font-size: 1.05rem; display: flex; align-items: baseline; gap: 0.5rem;
+  &:first-of-type { margin-top: 0.5rem; }
+  span { font-size: 0.8rem; font-weight: 500; color: var(--color-ink-muted); }
+`;
 const Grid = styled.div`
   display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 1rem;
 `;
@@ -123,17 +130,25 @@ function AreasIndex() {
   const [areas, setAreas] = useState(null);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
-  const [city, setCity] = useState('All');
+  const [state, setState] = useState('All');
 
   useEffect(() => {
     api.areas.list().then(setAreas).catch((e) => setError(e.message || 'Could not load neighbourhoods.'));
   }, []);
 
-  const shown = useMemo(() => {
+  // States with the most areas first: Lagos, then Abuja, then the rest.
+  const states = useMemo(() => {
+    const counts = {};
+    for (const a of areas || []) counts[a.state] = (counts[a.state] || 0) + 1;
+    return Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
+  }, [areas]);
+
+  const groups = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return (areas || []).filter((a) => (city === 'All' || a.city === city)
-      && (!q || `${a.name} ${a.city} ${a.state}`.toLowerCase().includes(q)));
-  }, [areas, query, city]);
+    const hits = (areas || []).filter((a) => (state === 'All' || a.state === state)
+      && (!q || `${a.name} ${a.city} ${a.state} ${a.blurb}`.toLowerCase().includes(q)));
+    return states.map((st) => ({ state: st, areas: hits.filter((a) => a.state === st) })).filter((g) => g.areas.length);
+  }, [areas, query, state, states]);
 
   return (
     <Page>
@@ -142,9 +157,9 @@ function AreasIndex() {
           {mobile && <SpotArt className="spot" kind="move" />}
           <div>
             <StaggerItem className="eyebrow">Neighbourhoods</StaggerItem>
-            <motion.h1 variants={staggerItem}>Know the area before you rent</motion.h1>
+            <motion.h1 variants={staggerItem}>Know the area before you pay rent</motion.h1>
             <motion.p variants={staggerItem}>
-              Residents rate the light, water, flooding, roads and safety, and share what living there is really like.
+              Residents across Nigeria rate the light, water, flooding, roads and security, and share what living there is really like.
               Check the rents, the commute and what is nearby, all on one page.
             </motion.p>
           </div>
@@ -157,22 +172,26 @@ function AreasIndex() {
             <FaSearch />
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search an area, e.g. Yaba or Gwarinpa" aria-label="Search areas" />
           </Search>
-          <Pills role="group" aria-label="City">
-            {CITIES.map((c) => <Pill key={c} type="button" $active={city === c} onClick={() => setCity(c)}>{c}</Pill>)}
+          <Pills role="group" aria-label="State">
+            {['All', ...states].map((st) => (
+              <Pill key={st} type="button" $active={state === st} onClick={() => setState(st)}>{st === 'All' ? 'All of Nigeria' : stateLabel(st)}</Pill>
+            ))}
           </Pills>
         </Toolbar>
 
         {error && <Err>{error}</Err>}
-        {!areas && !error ? <Loader /> : shown.length === 0 ? (
+        {!areas && !error ? <Loader /> : groups.length === 0 ? (
           <Muted>No area matches that yet. Suggest it below.</Muted>
-        ) : (
-          <Grid>
-            {shown.map((a) => (
+        ) : groups.map((g) => (
+          <React.Fragment key={g.state}>
+            <StateHead>{stateLabel(g.state)} <span>{g.areas.length} {g.areas.length === 1 ? 'area' : 'areas'}</span></StateHead>
+            <Grid>
+            {g.areas.map((a) => (
               <AreaCard key={a.slug} to={`/areas/${a.slug}`}>
                 <div className="top">
                   <div>
                     <h3>{a.name}</h3>
-                    <div className="city"><FaMapMarkerAlt /> {a.city}</div>
+                    <div className="city"><FaMapMarkerAlt /> {a.city === a.name ? stateLabel(a.state) : a.city}</div>
                   </div>
                   <Score value={a.overall} />
                 </div>
@@ -184,8 +203,9 @@ function AreasIndex() {
                 </div>
               </AreaCard>
             ))}
-          </Grid>
-        )}
+            </Grid>
+          </React.Fragment>
+        ))}
 
         <SuggestArea />
       </Body>
@@ -206,6 +226,12 @@ const Head = styled.header`
   h1 { margin: 0.25rem 0 0.4rem; font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.1; }
   p { margin: 0; max-width: 620px; color: var(--color-ink-soft); line-height: 1.55; }
   .badge { display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.7rem; padding: 0.3rem 0.7rem; border-radius: 999px; background: var(--color-green-soft); color: var(--color-green-deep); font-size: 0.78rem; font-weight: 700; }
+`;
+const Share = styled.a`
+  display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.7rem; margin-left: 0.4rem; padding: 0.3rem 0.75rem; border-radius: 999px;
+  background: #fff; border: 1px solid var(--color-line); color: var(--color-ink); font-size: 0.78rem; font-weight: 700;
+  svg { color: #25d366; }
+  &:hover { border-color: #25d366; }
 `;
 const Headline = styled.div`
   display: flex; gap: 0.6rem; flex-wrap: wrap;
@@ -265,10 +291,13 @@ function AreaDetail() {
         <Back to="/areas"><FaChevronLeft size={11} /> All neighbourhoods</Back>
         <Head>
           <div>
-            <div className="eyebrow">{area.city === area.state ? area.city : `${area.city} · ${area.state}`}</div>
+            <div className="eyebrow">{area.city === area.state ? area.city : `${area.city} · ${stateLabel(area.state)}`}</div>
             <h1>{area.name}</h1>
             <p>{area.blurb}</p>
             {viewer.verifiedResident && <span className="badge"><FaCheckCircle /> You are a verified resident here</span>}
+            <Share href={whatsappShare(`What is it like to live in ${area.name}, ${area.city}? See what residents say about light, water, flooding and rent:`, `/areas/${area.slug}`)} target="_blank" rel="noopener noreferrer">
+              <FaWhatsapp /> Share on WhatsApp
+            </Share>
           </div>
           <Headline>
             <div><b><FaStar />{ratings.overall != null ? ratings.overall.toFixed(1) : '—'}</b><span>{ratings.count} {ratings.count === 1 ? 'rating' : 'ratings'}</span></div>
