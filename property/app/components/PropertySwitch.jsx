@@ -6,9 +6,9 @@ import { PROPERTY_MODES, isNavItemActive } from '../config/platform';
 import { springy } from './ui';
 
 /**
- * Buy / Rent / Sell inside the one Property section. It sits in the page header (on
- * the grey band), not as a second bar under the navbar, so Property reads as
- * a single page with three modes.
+ * Buy / Rent / Sell / Verify inside the one Listings section. It sits in the
+ * page header (on the grey band), not as a second bar under the navbar, so
+ * Listings reads as a single page with four modes.
  */
 const Wrap = styled.div`
   display: inline-flex;
@@ -40,7 +40,7 @@ const Mode = styled(Link)`
   &:hover { color: var(--color-ink); }
   &[aria-current='page'] { color: #fff; }
 
-  @media (max-width: 720px) { flex: 1; }
+  @media (max-width: 720px) { flex: 1; min-width: 0; padding: 0 0.5rem; }
 `;
 
 const Pill = styled(motion.span)`
@@ -54,7 +54,7 @@ const Pill = styled(motion.span)`
 export default function PropertySwitch() {
   const { pathname } = useLocation();
   return (
-    <Wrap role="navigation" aria-label="Buy, rent or sell">
+    <Wrap role="navigation" aria-label="Buy, rent, sell or verify">
       {PROPERTY_MODES.map((m) => {
         const active = isNavItemActive(m, pathname);
         return (

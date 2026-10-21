@@ -68,11 +68,13 @@ export const RENT_URL = '/listings/rent';
 export const AREAS_URL = '/areas';
 
 /**
- * The navbar follows the app's flow, one row: Listings (buy, rent and sell),
- * Verify a property (Property Passport), Moving (the /moving page) and Manage
- * (letting and running a property on the owner's behalf, renovation included
- * — so `/renovate` lights Manage; "My portal" once signed in). The phone tab
- * bar carries the same four, in the same order.
+ * The navbar follows the app's flow, one row: Listings (buy, rent, sell and
+ * verify — the Property Passport is the fourth tab of the property switch, so
+ * `/verify` lights Listings), Neighbourhoods (residents' area pages), Moving
+ * (the /moving page) and Manage (letting and running a property on the
+ * owner's behalf, renovation included — so `/renovate` lights Manage; "My
+ * portal" once signed in). The phone tab bar carries the same four, in the
+ * same order.
  */
 const MANAGE_PATHS = ['/manage', '/renovate', '/consult', '/portal', '/tenant'];
 
@@ -80,29 +82,30 @@ const MANAGE_PATHS = ['/manage', '/renovate', '/consult', '/portal', '/tenant'];
 export const MOVING_URL = '/moving';
 
 export const REAL_ESTATE_NAV_ITEMS = [
-  { to: MARKETPLACE_URL, label: 'Listings', match: ['/listings'] },
-  { to: '/verify', label: 'Verify a property', match: ['/verify'] },
+  { to: MARKETPLACE_URL, label: 'Listings', match: ['/listings', '/verify'] },
+  { to: AREAS_URL, label: 'Neighbourhoods', match: [AREAS_URL] },
   { to: MOVING_URL, label: 'Moving', match: [MOVING_URL] },
   { to: '/manage', label: 'Manage', signedInLabel: 'My portal', match: MANAGE_PATHS },
 ];
 
 /**
- * The phone tab bar is the navbar, nothing more: Listings, Verify, Moving, Manage.
+ * The phone tab bar is the navbar, nothing more: Listings, Areas, Moving, Manage.
  * The logo is home and Sign in sits in the top bar, so there is no Home tab
  * and no Menu tab — every sub-page is linked from the page it belongs to.
  */
 export const REAL_ESTATE_BOTTOM_NAV = [
-  { to: MARKETPLACE_URL, label: 'Listings', icon: 'buy', match: ['/listings'] },
-  { to: '/verify', label: 'Verify', icon: 'shield', match: ['/verify'] },
+  { to: MARKETPLACE_URL, label: 'Listings', icon: 'buy', match: ['/listings', '/verify'] },
+  { to: AREAS_URL, label: 'Areas', icon: 'area', match: [AREAS_URL] },
   { to: MOVING_URL, label: 'Moving', icon: 'truck', match: [MOVING_URL] },
   { to: '/manage', label: 'Manage', signedInLabel: 'Portal', icon: 'manage', match: MANAGE_PATHS },
 ];
 
-/** The Buy / Rent / Sell switch at the top of the Property pages. */
+/** The Buy / Rent / Sell / Verify switch at the top of the Listings pages. */
 export const PROPERTY_MODES = [
   { to: MARKETPLACE_URL, label: 'Buy', match: ['/listings'], exclude: ['/listings/sell', '/listings/build', RENT_URL] },
   { to: RENT_URL, label: 'Rent', match: [RENT_URL] },
   { to: '/listings/sell', label: 'Sell', match: ['/listings/sell'] },
+  { to: '/verify', label: 'Verify', match: ['/verify'] },
 ];
 
 /** Where a nav item goes for this visitor: signed in, Manage opens your portal. */

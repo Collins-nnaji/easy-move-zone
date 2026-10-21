@@ -5,7 +5,7 @@ import {
   Routes, Route, Navigate, Link, useSearchParams, useNavigate, useLocation,
 } from 'react-router-dom';
 import {
-  FaArrowRight, FaArrowLeft, FaCheckCircle, FaCloudUploadAlt, FaTimes, FaVideo,
+  FaArrowRight, FaCheckCircle, FaCloudUploadAlt, FaTimes, FaVideo,
   FaStar, FaRegStar, FaClock, FaFileSignature, FaMagic, FaCamera,
   FaHandHoldingUsd, FaCoins, FaShieldAlt,
 } from 'react-icons/fa';
@@ -16,6 +16,7 @@ import {
 } from '../config/platform';
 import { COUNTRY_SUGGESTIONS, CURRENCY, CURRENCY_LABEL, DEFAULT_COUNTRY } from '../config/markets';
 import PhotoAnalyzer from '../components/PhotoAnalyzer';
+import PropertySwitch from '../components/PropertySwitch';
 import { FormSections, FormSection } from '../components/FormSection';
 import TitleDocuments, { titleDocumentsPayload } from '../components/TitleDocuments';
 import { Stagger, staggerItem } from '../components/motion';
@@ -137,24 +138,6 @@ const OnlyDesktop = styled.span`
 const OnlyMobile = styled.span`
   display: none;
   @media (max-width: 720px) { display: inline; }
-`;
-
-/* ── Back: where you came from, or home if you landed here directly ── */
-const BackBtn = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin: 0 0 0.8rem;
-  padding: 0;
-  border: 0;
-  background: none;
-  font-family: var(--font-sans);
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--color-ink-muted);
-  cursor: pointer;
-
-  &:hover { color: var(--color-green-deep); }
 `;
 
 /* ── The other tool, as one quiet link (it used to be a two-tab switch) ── */
@@ -1677,10 +1660,6 @@ const PAGE_COPY = {
 
 export default function OfferPage() {
   const location = useLocation();
-  const navigate = useNavigate();
-  // `key === 'default'` means this is the first page of the visit (opened
-  // from a link or typed in), so there is nothing in the app to go back to.
-  const goBack = () => (location.key !== 'default' ? navigate(-1) : navigate('/'));
   const scan = location.pathname.startsWith(OFFER_ANALYZE_URL);
   const copy = scan ? PAGE_COPY.analyse : PAGE_COPY.verify;
   const mobile = useIsMobile();
@@ -1690,7 +1669,7 @@ export default function OfferPage() {
         <HeroInner as={Stagger}>
           {mobile && <SpotArt className="spot" kind={scan ? 'scan' : 'verify'} />}
           <motion.div variants={staggerItem}>
-            <BackBtn type="button" onClick={goBack}><FaArrowLeft /> Back</BackBtn>
+            <PropertySwitch />
           </motion.div>
           <StatusPill as={motion.div} variants={staggerItem}>
             <LiveDot />

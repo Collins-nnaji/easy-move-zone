@@ -87,13 +87,14 @@ test('puts both seller routes on the Sell page', () => {
   expect(screen.getByRole('button', { name: /sell it to easymovezone/i })).toBeInTheDocument();
 });
 
-test('Buy, Rent and Sell are three modes of one Property page', () => {
+test('Buy, Rent, Sell and Verify are four modes of one Listings page', () => {
   renderProperties('/listings/sell');
 
-  const modes = screen.getByRole('navigation', { name: /buy, rent or sell/i });
+  const modes = screen.getByRole('navigation', { name: /buy, rent, sell or verify/i });
   expect(within(modes).getByRole('link', { name: /^sell$/i })).toHaveAttribute('aria-current', 'page');
   expect(within(modes).getByRole('link', { name: /^buy$/i })).toHaveAttribute('href', '/listings');
   expect(within(modes).getByRole('link', { name: /^rent$/i })).toHaveAttribute('href', '/listings/rent');
+  expect(within(modes).getByRole('link', { name: /^verify$/i })).toHaveAttribute('href', '/verify');
 });
 
 const RENTAL = {
@@ -113,7 +114,7 @@ test('the Rent page asks the API for rentals and prices them per year', async ()
   expect(mockBrowse).toHaveBeenLastCalledWith(expect.objectContaining({ mode: 'rent' }));
   expect(screen.getByText(/to rent · managed by easymovezone/i)).toBeInTheDocument();
   expect(screen.getByText(/\/ year$/)).toBeInTheDocument();
-  const modes = screen.getByRole('navigation', { name: /buy, rent or sell/i });
+  const modes = screen.getByRole('navigation', { name: /buy, rent, sell or verify/i });
   expect(within(modes).getByRole('link', { name: /^rent$/i })).toHaveAttribute('aria-current', 'page');
   expect(within(modes).getByRole('link', { name: /^buy$/i })).not.toHaveAttribute('aria-current');
 });

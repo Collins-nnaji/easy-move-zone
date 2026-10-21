@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Home, Building2, ShieldCheck, KeyRound, LayoutGrid, Truck } from 'lucide-react';
+import { Home, Building2, ShieldCheck, KeyRound, LayoutGrid, Truck, MapPinned } from 'lucide-react';
 import {
   REAL_ESTATE_BOTTOM_NAV, isNavItemActive, navItemTarget, navItemLabel,
 } from '../config/platform';
@@ -20,6 +20,7 @@ const ICONS = {
   manage: KeyRound,
   menu: LayoutGrid,
   truck: Truck,
+  area: MapPinned,
 };
 
 /**
