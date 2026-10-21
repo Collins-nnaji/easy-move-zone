@@ -4,6 +4,7 @@ const router = express.Router();
 const { pool } = require('../db');
 const { createReadSas, isConfigured: storageConfigured } = require('../services/blobStorage');
 const { normalizeTitleDocuments } = require('../titleDocuments');
+const { areaForPlace } = require('../areaCatalog');
 
 /**
  * The marketplace.
@@ -1152,7 +1153,8 @@ router.get('/:idOrSlug', async (req, res) => {
       asId ? [key, asId] : [key]
     );
     if (!rows.length) return res.status(404).json({ error: 'That property is not available.' });
-    return res.json({ listing: rows[0] });
+    // The neighbourhood page for where it is, when we have one (/areas/:slug).
+    return res.json({ listing: { ...rows[0], area_slug: areaForPlace(rows[0])?.slug || null } });
   } catch (err) {
     console.error('GET /listings/:idOrSlug error:', err);
     return res.status(500).json({ error: 'Could not load that property.' });

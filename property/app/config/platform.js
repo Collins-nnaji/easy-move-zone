@@ -64,6 +64,8 @@ export const MARKETPLACE_URL = '/listings';
 export const PORTAL_URL = '/portal';
 /** Homes to rent: vacant properties we manage, let through the same grid. */
 export const RENT_URL = '/listings/rent';
+/** Neighbourhood pages: residents' scores and board, rents and location tools. */
+export const AREAS_URL = '/areas';
 
 /**
  * The navbar follows the app's flow, one row: Listings (buy, rent and sell),
@@ -153,6 +155,7 @@ export const SITE_MENU = [
     items: [
       { to: MARKETPLACE_URL, label: 'Properties for sale', icon: 'buy', desc: 'Valued and approved', primary: true },
       { to: RENT_URL, label: 'Homes to rent', icon: 'manage', desc: 'Let and managed by us' },
+      { to: AREAS_URL, label: 'Neighbourhoods', icon: 'area', desc: 'What residents say, rents and commute' },
       { to: OFFER_URL, label: 'Sell a property', icon: 'sell', desc: 'List it or get an offer' },
       { to: OFFER_ANALYZE_URL, label: 'Quick photo scan', icon: 'analyze', desc: 'Free first read' },
     ],

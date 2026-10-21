@@ -373,6 +373,17 @@ const Where = styled.div`
   svg { color: var(--color-green); font-size: 0.75rem; flex-shrink: 0; }
 `;
 
+const AreaLink = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-green-deep);
+  &:hover { color: var(--color-green-forest); text-decoration: underline; }
+`;
+
 const Specs = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -1708,6 +1719,9 @@ function Detail() {
                 <DetailPrice>{priceOf(listing)}</DetailPrice>
                 <h1>{listing.title}</h1>
                 <Where><FaMapMarkerAlt /> {where || listing.country || 'Location to confirm'}</Where>
+                {listing.area_slug && (
+                  <AreaLink to={`/areas/${listing.area_slug}`}>What residents say about {listing.area || 'this area'} <FaArrowRight size={10} /></AreaLink>
+                )}
                 <DetailActions>
                   <SaveButton listing={listing} />
                   <ShareButtons listing={listing} />

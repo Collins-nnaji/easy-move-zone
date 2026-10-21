@@ -184,14 +184,26 @@ const TermsPage = () => (
         store, process and display them as needed to provide the requested service.
       </P>
 
-      <H2>7. Third-party data and AI</H2>
+      <H2>7. Neighbourhood boards</H2>
+      <P>
+        Area pages let signed-in users rate an area and post about it. Posts are public and are about
+        places and first-hand experiences, not people. You agree not to post anything that names or
+        identifies a private individual, accuses anyone of a crime or fraud, shares phone numbers or
+        email addresses, advertises, or is untrue, abusive or hateful. Posts are screened
+        automatically; some wait for review, and anything reported may be hidden while we look at it.
+        We may remove any post or reply, and suspend posting, at our discretion. Posts are your own
+        views, not EasyMoveZone's, and we do not verify them. If a post is about you or your property
+        and you think it is wrong, report it on the page or contact us.
+      </P>
+
+      <H2>8. Third-party data and AI</H2>
       <P>
         The Service may use public records, market comparables, mapping services, payment providers,
         storage providers and third-party AI APIs. Availability and coverage vary by country. We do not
         guarantee the accuracy, completeness or timeliness of third-party data or automated output.
       </P>
 
-      <H2>8. Disclaimers and limitation of liability</H2>
+      <H2>9. Disclaimers and limitation of liability</H2>
       <P>
         The Service is provided "as is" without warranties of any kind. To the maximum extent permitted
         by law, EasyMoveZone shall not be liable for any direct, indirect, incidental, or consequential
@@ -199,19 +211,19 @@ const TermsPage = () => (
         that cannot lawfully be excluded.
       </P>
 
-      <H2>9. Termination</H2>
+      <H2>10. Termination</H2>
       <P>
         We reserve the right to suspend or terminate your access at any time for breach of these Terms.
         You may stop using the Service at any time; contact us to request account deletion.
       </P>
 
-      <H2>10. Governing law</H2>
+      <H2>11. Governing law</H2>
       <P>
         These Terms are governed by {MARKET.law.governing}. Any disputes will be subject to the
         exclusive jurisdiction of {MARKET.law.courts}.
       </P>
 
-      <H2>11. Changes to these terms</H2>
+      <H2>12. Changes to these terms</H2>
       <P>
         We may update these Terms at any time. Continued use after changes are posted constitutes
         acceptance. Material changes will be flagged by updating the effective date above.

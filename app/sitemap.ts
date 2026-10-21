@@ -25,6 +25,7 @@ const pages: Entry[] = [
   { path: "/moving/track", priority: 0.7, changeFrequency: "monthly" },
   { path: "/moving/crew", priority: 0.7, changeFrequency: "monthly" },
   { path: "/moving/help", priority: 0.7, changeFrequency: "monthly" },
+  { path: "/areas", priority: 0.8, changeFrequency: "daily" },
   { path: "/consult", priority: 0.6, changeFrequency: "monthly" },
   { path: "/help", priority: 0.6, changeFrequency: "monthly" },
   { path: "/contact", priority: 0.5, changeFrequency: "yearly" },

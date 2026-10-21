@@ -27,6 +27,7 @@ const AdminPage = lazy(() => import('./pages/AdminPage'));
 const PublicConsultPage = lazy(() => import('./pages/PublicConsultPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const HelpPage = lazy(() => import('./pages/HelpPage'));
+const AreasPage = lazy(() => import('./pages/AreasPage'));
 
 /**
  * The landing page and the Manage sales page are for visitors. Signed in,
@@ -75,6 +76,7 @@ function App() {
                 <Route path="/consult" element={<PublicConsultPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/help" element={<HelpPage />} />
+                <Route path="/areas/*" element={<AreasPage />} />
                 <Route path="/faq" element={<Navigate to="/help" replace />} />
                 <Route path="/saved" element={<Navigate to="/listings/saved" replace />} />
                 <Route path="/manage/*" element={<ManageConsolePage />} />

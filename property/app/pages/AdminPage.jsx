@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {
   FaLock, FaSignOutAlt, FaRegComments, FaBuilding, FaTools, FaKey,
   FaCheck, FaTimes, FaExternalLinkAlt, FaShieldAlt, FaChartPie, FaEnvelope, FaPlus, FaHome, FaUserFriends,
-  FaTruck, FaHardHat, FaUsersCog, FaStore, FaInbox,
+  FaTruck, FaHardHat, FaUsersCog, FaStore, FaInbox, FaMapMarkedAlt,
 } from 'react-icons/fa';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../api';
@@ -15,6 +15,7 @@ import RenovationAdmin from '../components/RenovationAdmin';
 import ManagementAdmin from '../components/ManagementAdmin';
 import RentalsAdmin from '../components/RentalsAdmin';
 import MessagesAdmin from '../components/MessagesAdmin';
+import CommunityAdmin from '../components/CommunityAdmin';
 import TenantsAdmin from '../components/TenantsAdmin';
 import AdminMedia, { AdminDocuments } from '../components/AdminMedia';
 import AdminOverview from '../components/AdminOverview';
@@ -26,7 +27,8 @@ import { PURCHASE_DAYS } from '../config/platform';
 
 /**
  * The one EasyMoveZone admin: property (Passports, consultations, marketplace
- * approvals, rentals, management, tenants, renovations, messages) and moving
+ * approvals, rentals, management, tenants, renovations, messages, neighbourhood
+ * boards) and moving
  * (moves, crews and vehicles, enquiries, marketplace operations, accounts). Access is EasyMoveZone's admin allowlist (`admin_users`):
  * sign in with an admin account and every admin call is authorised by the
  * server (app/api/property/[...path]/route.ts). Nobody types a key — `key`
@@ -45,6 +47,7 @@ const SECTION_TITLES = {
   management: 'Managed property operations',
   renovations: 'Renovation requests',
   messages: 'Messages and alerts',
+  community: 'Neighbourhood boards',
   tenants: 'Tenants',
   ...Object.fromEntries(Object.entries(MOVING_SECTIONS).map(([id, v]) => [id, v.title])),
 };
@@ -481,6 +484,9 @@ export default function AdminPage() {
           <SectionTab type="button" $active={section === 'messages'} onClick={() => setSection('messages')}>
             <FaEnvelope size={12} /> Messages
           </SectionTab>
+          <SectionTab type="button" $active={section === 'community'} onClick={() => setSection('community')}>
+            <FaMapMarkedAlt size={12} /> Community
+          </SectionTab>
         </SectionTabs>
         <TabGroupLabel>Moving</TabGroupLabel>
         <SectionTabs>
@@ -576,6 +582,8 @@ export default function AdminPage() {
           </>
         ) : section === 'messages' ? (
           <MessagesAdmin adminKey={key} />
+        ) : section === 'community' ? (
+          <CommunityAdmin adminKey={key} />
         ) : section === 'management' ? (
           <ManagementAdmin adminKey={key} />
         ) : section === 'rentals' ? (

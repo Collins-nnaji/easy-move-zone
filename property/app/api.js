@@ -157,6 +157,60 @@ export const api = {
     },
   },
 
+  /* ── Neighbourhoods: area pages, residents' board and ratings ── */
+  areas: {
+    async list() {
+      const { areas } = await request('/areas');
+      return areas;
+    },
+    /** { area, factors, categories, ratings, myRating, viewer, rents, rentals, forSale } */
+    get(slug) {
+      return request(`/areas/${encodeURIComponent(slug)}`);
+    },
+    /** { posts, total, offset, limit } — `category` and `sort` ('recent' | 'helpful') are optional. */
+    posts(slug, { category, sort, offset } = {}) {
+      const qs = new URLSearchParams(Object.entries({ category, sort, offset }).filter(([, v]) => v)).toString();
+      return request(`/areas/${encodeURIComponent(slug)}/posts${qs ? `?${qs}` : ''}`);
+    },
+    async createPost(slug, payload) {
+      const { post } = await request(`/areas/${encodeURIComponent(slug)}/posts`, { method: 'POST', body: JSON.stringify(payload) });
+      return post;
+    },
+    async reply(postId, payload) {
+      const { reply } = await request(`/areas/posts/${postId}/replies`, { method: 'POST', body: JSON.stringify(payload) });
+      return reply;
+    },
+    /** Toggles; returns { helpful, helpful_count }. */
+    helpful(postId) {
+      return request(`/areas/posts/${postId}/helpful`, { method: 'POST', body: '{}' });
+    },
+    /** `type` is 'post' or 'reply'. */
+    report(type, id, reason, detail) {
+      return request(`/areas/${type === 'reply' ? 'replies' : 'posts'}/${id}/report`, {
+        method: 'POST', body: JSON.stringify({ reason, detail }),
+      });
+    },
+    remove(type, id) {
+      return request(`/areas/${type === 'reply' ? 'replies' : 'posts'}/${id}`, { method: 'DELETE' });
+    },
+    /** Returns { ratings, myRating }. */
+    rate(slug, scores) {
+      return request(`/areas/${encodeURIComponent(slug)}/rating`, { method: 'PUT', body: JSON.stringify(scores) });
+    },
+    admin: {
+      /** `view` is 'held' (default), 'reported', 'removed' or 'published'. Returns { posts, replies, counts }. */
+      queue(key, view) {
+        return request(`/areas/admin/queue${view ? `?view=${view}` : ''}`, { headers: { 'x-admin-key': key } });
+      },
+      /** `type` is 'post' or 'reply'; `status` is 'published', 'held' or 'removed'. */
+      moderate(key, type, id, status, note) {
+        return request(`/areas/admin/${type === 'reply' ? 'replies' : 'posts'}/${id}`, {
+          method: 'PATCH', headers: { 'x-admin-key': key }, body: JSON.stringify({ status, note }),
+        });
+      },
+    },
+  },
+
   /* ── Admin ── */
   admin: {
     async summary(key) {

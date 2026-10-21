@@ -812,6 +812,85 @@ CREATE TABLE IF NOT EXISTS tenant_request_messages (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_tenant_request_messages_req ON tenant_request_messages(request_id);
+
+-- ── Neighbourhoods (2026-10) ───────────────────────────────────────────
+-- Residents' posts on an area's board (areas are in areaCatalog.js). Posts
+-- are about places, never people: contact details are refused, and anything
+-- that may name or accuse someone is 'held' until the desk reads it.
+CREATE TABLE IF NOT EXISTS area_posts (
+  id SERIAL PRIMARY KEY,
+  area_slug VARCHAR(80) NOT NULL,
+  category VARCHAR(20) NOT NULL,
+  place VARCHAR(160),
+  body TEXT NOT NULL,
+  author_email VARCHAR(255) NOT NULL,
+  author_name VARCHAR(80),
+  verified_resident BOOLEAN NOT NULL DEFAULT false,
+  status VARCHAR(12) NOT NULL DEFAULT 'published'
+    CHECK (status IN ('published','held','removed')),
+  moderation_note TEXT,
+  reviewed_by VARCHAR(255),
+  reviewed_at TIMESTAMPTZ,
+  report_count INT NOT NULL DEFAULT 0,
+  helpful_count INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_area_posts_area ON area_posts(area_slug, status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_area_posts_author ON area_posts(author_email, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS area_post_replies (
+  id SERIAL PRIMARY KEY,
+  post_id INT NOT NULL REFERENCES area_posts(id) ON DELETE CASCADE,
+  body TEXT NOT NULL,
+  author_email VARCHAR(255) NOT NULL,
+  author_name VARCHAR(80),
+  verified_resident BOOLEAN NOT NULL DEFAULT false,
+  status VARCHAR(12) NOT NULL DEFAULT 'published'
+    CHECK (status IN ('published','held','removed')),
+  moderation_note TEXT,
+  reviewed_by VARCHAR(255),
+  reviewed_at TIMESTAMPTZ,
+  report_count INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_area_post_replies_post ON area_post_replies(post_id, created_at);
+
+-- One "helpful" per person per post.
+CREATE TABLE IF NOT EXISTS area_post_votes (
+  post_id INT NOT NULL REFERENCES area_posts(id) ON DELETE CASCADE,
+  voter_email VARCHAR(255) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (post_id, voter_email)
+);
+
+-- One report per person per post or reply; enough of them hides it for review.
+CREATE TABLE IF NOT EXISTS area_reports (
+  id SERIAL PRIMARY KEY,
+  target_type VARCHAR(8) NOT NULL CHECK (target_type IN ('post','reply')),
+  target_id INT NOT NULL,
+  reporter_email VARCHAR(255) NOT NULL,
+  reason VARCHAR(40) NOT NULL,
+  detail VARCHAR(500),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (target_type, target_id, reporter_email)
+);
+
+-- A resident's scores for an area (1-5, 5 is good), one row per person, kept up to date.
+CREATE TABLE IF NOT EXISTS area_ratings (
+  area_slug VARCHAR(80) NOT NULL,
+  rater_email VARCHAR(255) NOT NULL,
+  power SMALLINT CHECK (power BETWEEN 1 AND 5),
+  water SMALLINT CHECK (water BETWEEN 1 AND 5),
+  flooding SMALLINT CHECK (flooding BETWEEN 1 AND 5),
+  security SMALLINT CHECK (security BETWEEN 1 AND 5),
+  roads SMALLINT CHECK (roads BETWEEN 1 AND 5),
+  noise SMALLINT CHECK (noise BETWEEN 1 AND 5),
+  network SMALLINT CHECK (network BETWEEN 1 AND 5),
+  verified_resident BOOLEAN NOT NULL DEFAULT false,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (area_slug, rater_email)
+);
 `;
 
 /**

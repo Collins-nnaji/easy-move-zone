@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Home, Tag, HardHat, Paintbrush, ShieldCheck, ScanSearch, KeyRound, PlusCircle,
-  MessagesSquare, ArrowRight, LayoutDashboard, LogIn, UserRound,
+  MessagesSquare, ArrowRight, LayoutDashboard, LogIn, UserRound, MapPinned,
 } from 'lucide-react';
 import { SITE_MENU, MANAGE_URL, OFFER_VERIFY_URL } from '../config/platform';
 import { useAuth } from '../AuthContext';
@@ -21,6 +21,7 @@ const ICONS = {
   manage: KeyRound,
   add: PlusCircle,
   consult: MessagesSquare,
+  area: MapPinned,
 };
 
 const list = { hidden: {}, show: { transition: { staggerChildren: 0.035, delayChildren: 0.05 } } };

@@ -1,5 +1,6 @@
 /**
- * The property API (listings, verification, management, renovations, admin).
+ * The property API (listings, verification, management, renovations,
+ * neighbourhoods, admin).
  * In the app it is served by app/api/property/[...path]/route.ts, which hands
  * each request to this Express app with the `/api/property` prefix mapped to
  * `/api`. Sign-in is EasyMoveZone's own Neon Auth at /api/auth — this server
@@ -22,6 +23,7 @@ const mediaRoutes = require('./routes/media');
 const passportRequestsRoutes = require('./routes/passportRequests');
 const tenantRoutes = require('./routes/tenant');
 const notificationsRoutes = require('./routes/notifications');
+const areasRoutes = require('./routes/areas');
 const { logAiConfigSummary } = require('./openai-client');
 const { pool } = require('./db');
 const { startRentJobs } = require('./services/rent');
@@ -71,6 +73,7 @@ app.use('/api/media', mediaRoutes);
 app.use('/api/passport-requests', passportRequestsRoutes);
 app.use('/api/tenant', tenantRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/areas', areasRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
