@@ -29,6 +29,13 @@ vi.mock('../api', () => ({
       listBookings: () => Promise.resolve([]),
       updateBooking: () => Promise.resolve({}),
     },
+    agent: {
+      admin: {
+        applications: () => Promise.resolve({ applications: [] }),
+        agencies: () => Promise.resolve({ agencies: [] }),
+        listings: () => Promise.resolve({ listings: [] }),
+      },
+    },
     listings: {
       admin: {
         list: () => Promise.resolve([{

@@ -24,7 +24,6 @@ const nextConfig: NextConfig = {
     const toHome = [
       "/purchase",
       "/own",
-      "/mortgage",
       "/build",
       "/search",
       "/vendor",

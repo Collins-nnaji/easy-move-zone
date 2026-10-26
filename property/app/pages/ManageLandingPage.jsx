@@ -7,7 +7,7 @@ import {
 } from 'react-icons/fa';
 import { ArrowRight, MessagesSquare } from 'lucide-react';
 import { useAuth } from '../AuthContext';
-import { MANAGE_URL, BOOK_SESSION_URL } from '../config/platform';
+import { MANAGE_URL, BOOK_SESSION_URL, LIST_URL } from '../config/platform';
 import {
   PageShell, Section, Inner, SectionHead, Kicker, SectionTitle, SectionSub, CheckGrid, CheckItem, Callout, CalloutAction, enterContainer, enterItem,
 } from '../components/page';
@@ -229,6 +229,13 @@ const BuildVisual = styled.div`
 
 /* ── Remote control ── */
 
+const Other = styled(motion.p)`
+  margin: 0.9rem 0 0;
+  font-size: 0.9rem;
+  color: var(--color-on-black-muted);
+  a { font-weight: 700; color: var(--color-green-deep); }
+`;
+
 const StoryGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -294,6 +301,9 @@ export default function ManageLandingPage() {
                 <Link to={BOOK_SESSION_URL}><MessagesSquare className="h-4 w-4" /> Talk to an adviser</Link>
               </Button>
             </HeroActions>
+            <Other variants={enterItem}>
+              Listing it yourself, or looking for an agent? <Link to={LIST_URL}>That is a different page.</Link>
+            </Other>
           </HeroCopy>
 
           {mobile ? (

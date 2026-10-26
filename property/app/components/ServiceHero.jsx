@@ -10,25 +10,27 @@ import { Stagger } from './motion';
  */
 export const ServiceHero = styled.section`
   position: relative;
-  min-height: 330px;
+  min-height: ${(p) => (p.$image ? '330px' : '0')};
   display: flex;
   align-items: center;
   overflow: hidden;
-  background: var(--color-band) url(${(p) => p.$image}) center / cover no-repeat;
+  background: ${(p) => (p.$image ? `var(--color-band) url(${p.$image}) center / cover no-repeat` : 'var(--color-bg)')};
   border-bottom: 1px solid var(--color-line);
 
   /* A light shade, not a dark one: the words sit on grey, the photo shows
-     through on the right. Phones get the plain grey band. */
+     through on the right. No photo means no shade and no empty right-hand band. */
   &::before {
     content: '';
     position: absolute;
     inset: 0;
     background: linear-gradient(90deg, rgba(243, 240, 231, 0.97), rgba(243, 240, 231, 0.9) 52%, rgba(243, 240, 231, 0.25));
+    display: ${(p) => (p.$image ? 'block' : 'none')};
   }
 
   @media (max-width: 720px) {
     min-height: 0;
     background-image: none;
+    &::before { display: none; }
   }
 `;
 
@@ -47,18 +49,37 @@ export const ServiceHeroInner = styled(Stagger)`
 
   .art { width: min(100%, 380px); justify-self: end; filter: drop-shadow(var(--shadow-lift)); }
   .spot { display: none; }
-  @media (max-width: 960px) { grid-template-columns: minmax(0, 1fr); .art { display: none; } }
+  @media (max-width: 960px) { &:has(.art) { grid-template-columns: minmax(0, 1fr); } .art { display: none; } }
 
-  .eyebrow { color: var(--color-green-deep); font-size: .75rem; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; }
+  .eyebrow, .kicker { color: var(--color-green-deep); font-size: .75rem; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; margin: 0; }
   .aside { margin-top: .9rem; font-size: .9rem; color: var(--color-ink-muted); }
   .aside a { display: inline-flex; align-items: center; gap: .35rem; color: var(--color-green-deep); font-weight: 700; }
   .aside a:hover { color: var(--color-green-forest); }
   h1 { color: var(--color-ink); max-width: 720px; margin: .65rem 0 .8rem; font-size: clamp(2rem, 4vw, 3.1rem); font-weight: 520; letter-spacing: -.035em; line-height: 1.06; }
   p { color: var(--color-ink-muted); max-width: 650px; font-size: 1rem; line-height: 1.6; }
 
+  /* No illustration: title and intro share the row. A loose heading was
+     landing in the empty right column and leaving a blank band under it. */
+  &:not(:has(.art)):has(> :nth-child(2)) {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    column-gap: 2.5rem;
+    row-gap: 0.35rem;
+    align-items: end;
+    padding: 1.35rem 1.5rem 1.25rem;
+    > :first-child { grid-column: 1 / -1; }
+    h1 { max-width: none; margin: 0; font-size: clamp(1.7rem, 2.6vw, 2.35rem); }
+    > p { max-width: none; margin: 0; }
+  }
+
   @media (max-width: 720px) {
     padding: 1.2rem 1rem 1.3rem;
-    .eyebrow { font-size: .63rem; }
+    &:not(:has(.art)):has(> :nth-child(2)) {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 1.1rem 1rem 1.15rem;
+      > :first-child { grid-column: auto; }
+      h1 { font-size: 1.5rem; }
+    }
+    .eyebrow, .kicker { font-size: .63rem; }
     h1 { margin: .4rem 0 .2rem; font-size: 1.5rem; line-height: 1.1; }
     p { font-size: .88rem; line-height: 1.45; }
     .aside { margin-top: .6rem; }

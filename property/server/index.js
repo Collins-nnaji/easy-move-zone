@@ -24,6 +24,10 @@ const passportRequestsRoutes = require('./routes/passportRequests');
 const tenantRoutes = require('./routes/tenant');
 const notificationsRoutes = require('./routes/notifications');
 const areasRoutes = require('./routes/areas');
+const agentRoutes = require('./routes/agent');
+const agentsRoutes = require('./routes/agents');
+const accountRoutes = require('./routes/account');
+const mortgageRoutes = require('./routes/mortgages');
 const { logAiConfigSummary } = require('./openai-client');
 const { pool } = require('./db');
 const { startRentJobs } = require('./services/rent');
@@ -37,7 +41,11 @@ app.post('/api/billing/webhook', express.raw({ type: 'application/json' }), bill
 // Paystack signs the raw body of its webhook, so keep a copy of it.
 app.use(express.json({
   limit: '2mb',
-  verify: (req, _res, buf) => { if (req.originalUrl.startsWith('/api/tenant/pay/webhook')) req.rawBody = buf; },
+  verify: (req, _res, buf) => {
+    if (req.originalUrl.startsWith('/api/tenant/pay/webhook') || req.originalUrl.startsWith('/api/agent/billing/webhook')) {
+      req.rawBody = buf;
+    }
+  },
 }));
 
 /*
@@ -74,6 +82,10 @@ app.use('/api/passport-requests', passportRequestsRoutes);
 app.use('/api/tenant', tenantRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/areas', areasRoutes);
+app.use('/api/agent', agentRoutes);
+app.use('/api/agents', agentsRoutes);
+app.use('/api/account', accountRoutes);
+app.use('/api/mortgages', mortgageRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

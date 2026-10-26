@@ -26,6 +26,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: res.ok }, { status: res.ok ? 200 : 503 });
     }
     if (
+      typeof event.data?.reference === "string" &&
+      event.data.reference.startsWith("EMZAGENT-")
+    ) {
+      const res = await fetch(new URL("/api/property/agent/billing/webhook", request.url), {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-paystack-signature": request.headers.get("x-paystack-signature") ?? "",
+        },
+        body: raw,
+      });
+      return NextResponse.json({ received: res.ok }, { status: res.ok ? 200 : 503 });
+    }
+    if (
       event.event === "charge.success" &&
       typeof event.data?.reference === "string" &&
       event.data.reference.startsWith("EMZPAY-")

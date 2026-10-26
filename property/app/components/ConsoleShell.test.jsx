@@ -29,6 +29,9 @@ test('both portals are chrome-free, and signed in Manage becomes My portal', () 
   expect(isConsolePath('/tenant')).toBe(true);
   expect(isConsolePath('/tenants-guide')).toBe(false);
   expect(isConsolePath('/manage')).toBe(false);
+  expect(isConsolePath('/agent')).toBe(true);
+  expect(isConsolePath('/agent/listings')).toBe(true);
+  expect(isConsolePath('/agent/apply')).toBe(false);
   const manage = REAL_ESTATE_NAV_ITEMS.find((i) => i.to === '/manage');
   expect(navItemTarget(manage, true)).toBe('/portal');
   expect(navItemTarget(manage, false)).toBe('/manage');

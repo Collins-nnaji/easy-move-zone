@@ -1,16 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Link, Route, Routes, useLocation, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   FaCheckCircle, FaChevronLeft, FaSearch, FaMapMarkerAlt, FaStar, FaWhatsapp,
 } from 'react-icons/fa';
 import { api } from '../api';
 import { useAuth } from '../AuthContext';
 import Loader from '../components/Loader';
-import { ServiceHero, ServiceHeroInner } from '../components/ServiceHero';
-import { StaggerItem, staggerItem } from '../components/motion';
-import { SpotArt } from '../components/graphics';
 import { useIsMobile } from '../utils/useMediaQuery';
 import AreaBoard from '../components/areas/AreaBoard';
 import { AreaScores, AreaRents, AreaTools, AreaRules } from '../components/areas/AreaPanels';
@@ -26,25 +22,40 @@ import {
  * The API is property/server/routes/areas.js.
  */
 
-const Page = styled.div`background: var(--color-bg-panel); min-height: 70vh;`;
+const Page = styled.div`background: var(--color-bg-panel); min-height: 70vh; overflow-x: clip;`;
+const Intro = styled.header`
+  max-width: 1180px; margin: 0 auto; padding: 1.35rem 1.5rem 0;
+  .k { margin: 0; font-size: 0.75rem; font-weight: 750; letter-spacing: 0.07em; text-transform: uppercase; color: var(--color-green-deep); }
+  h1 { margin: 0.3rem 0 0.45rem; max-width: 16ch; font-size: clamp(1.7rem, 2.6vw, 2.35rem); letter-spacing: -0.03em; line-height: 1.08; }
+  p { margin: 0; max-width: 62ch; color: var(--color-ink-muted); line-height: 1.55; }
+  @media (max-width: 720px) {
+    padding: 1.05rem 1rem 0;
+    h1 { font-size: 1.55rem; max-width: none; }
+    p { font-size: 0.92rem; }
+  }
+`;
 const Body = styled.section`
-  max-width: 1180px; margin: 0 auto; padding: 1.75rem 1.5rem 5rem;
-  @media (max-width: 880px) { padding: 1.25rem 1rem 3.5rem; }
+  max-width: 1180px; margin: 0 auto; padding: 1.1rem 1.5rem 5rem;
+  @media (max-width: 880px) { padding: 1rem 1rem 3.5rem; }
 `;
 
 /* ── /areas ──────────────────────────────────────────────────────── */
 
 const Toolbar = styled.div`
-  display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.25rem;
+  display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.25rem; min-width: 0;
 `;
 const Search = styled.label`
-  flex: 1 1 260px; display: flex; align-items: center; gap: 0.55rem; min-height: 46px; padding: 0 0.9rem;
+  flex: 1 1 100%; min-width: 0; display: flex; align-items: center; gap: 0.55rem; min-height: 46px; padding: 0 0.9rem;
   background: #fff; border: 1px solid var(--color-line-strong); border-radius: 12px; color: var(--color-ink-faint);
-  input { flex: 1; min-width: 0; border: 0; outline: none; font: inherit; color: var(--color-ink); background: transparent; }
+  input { flex: 1; min-width: 0; width: 100%; border: 0; outline: none; font: inherit; color: var(--color-ink); background: transparent; }
   &:focus-within { border-color: var(--color-green); box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.1); }
 `;
 const Pills = styled.div`
-  display: flex; gap: 0.4rem; overflow-x: auto; max-width: 100%; padding-bottom: 0.2rem; flex: 1 1 100%;
+  display: flex; gap: 0.4rem; flex-wrap: wrap; width: 100%; min-width: 0;
+  @media (max-width: 720px) {
+    flex-wrap: nowrap; overflow-x: auto; max-width: 100%;
+    padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch;
+  }
 `;
 const StateHead = styled.h2`
   margin: 1.75rem 0 0.75rem; font-size: 1.05rem; display: flex; align-items: baseline; gap: 0.5rem;
@@ -55,10 +66,12 @@ const Grid = styled.div`
   display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 1rem;
 `;
 const AreaCard = styled(Link)`
-  display: flex; flex-direction: column; gap: 0.6rem; padding: 1.25rem; border-radius: 18px;
+  display: flex; flex-direction: column; gap: 0.6rem; min-width: 0; padding: 1.15rem; border-radius: 18px;
   background: #fff; border: 1px solid var(--color-line); color: var(--color-ink); box-shadow: var(--shadow-soft);
   transition: border-color 0.15s, transform 0.15s;
+  h3, p { overflow-wrap: break-word; }
   &:hover { border-color: rgba(47, 93, 80, 0.4); transform: translateY(-2px); }
+  @media (max-width: 720px) { &:hover { transform: none; } }
   .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
   h3 { margin: 0; font-size: 1.15rem; }
   .city { font-size: 0.8rem; color: var(--color-ink-muted); display: flex; align-items: center; gap: 0.3rem; margin-top: 0.15rem; }
@@ -126,7 +139,6 @@ function SuggestArea() {
 }
 
 function AreasIndex() {
-  const mobile = useIsMobile();
   const [areas, setAreas] = useState(null);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
@@ -152,19 +164,14 @@ function AreasIndex() {
 
   return (
     <Page>
-      <ServiceHero $image="/media/building.jpg">
-        <ServiceHeroInner $spot={mobile}>
-          {mobile && <SpotArt className="spot" kind="move" />}
-          <div>
-            <StaggerItem className="eyebrow">Neighbourhoods</StaggerItem>
-            <motion.h1 variants={staggerItem}>Know the area before you pay rent</motion.h1>
-            <motion.p variants={staggerItem}>
-              Residents across Nigeria rate the light, water, flooding, roads and security, and share what living there is really like.
-              Check the rents, the commute and what is nearby, all on one page.
-            </motion.p>
-          </div>
-        </ServiceHeroInner>
-      </ServiceHero>
+      <Intro>
+        <p className="k">Neighbourhoods</p>
+        <h1>Know the area before you pay rent</h1>
+        <p>
+          Residents across Nigeria rate the light, water, flooding, roads and security, and share what living there is really like.
+          Check the rents, the commute and what is nearby, all on one page.
+        </p>
+      </Intro>
 
       <Body>
         <Toolbar>
@@ -221,21 +228,22 @@ const Back = styled(Link)`
   &:hover { color: var(--color-ink); }
 `;
 const Head = styled.header`
-  display: flex; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1.25rem;
+  display: flex; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1.25rem; min-width: 0;
+  > div { min-width: 0; }
   .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-eyebrow); }
-  h1 { margin: 0.25rem 0 0.4rem; font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.1; }
+  h1 { margin: 0.25rem 0 0.4rem; font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.1; overflow-wrap: break-word; }
   p { margin: 0; max-width: 620px; color: var(--color-ink-soft); line-height: 1.55; }
   .badge { display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.7rem; padding: 0.3rem 0.7rem; border-radius: 999px; background: var(--color-green-soft); color: var(--color-green-deep); font-size: 0.78rem; font-weight: 700; }
 `;
 const Share = styled.a`
-  display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.7rem; margin-left: 0.4rem; padding: 0.3rem 0.75rem; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.7rem; padding: 0.3rem 0.75rem; border-radius: 999px;
   background: #fff; border: 1px solid var(--color-line); color: var(--color-ink); font-size: 0.78rem; font-weight: 700;
   svg { color: #25d366; }
   &:hover { border-color: #25d366; }
 `;
 const Headline = styled.div`
   display: flex; gap: 0.6rem; flex-wrap: wrap;
-  > div { background: #fff; border: 1px solid var(--color-line); border-radius: 14px; padding: 0.7rem 1rem; min-width: 96px; }
+  > div { background: #fff; border: 1px solid var(--color-line); border-radius: 14px; padding: 0.7rem 0.9rem; min-width: 0; flex: 1 1 120px; }
   b { display: flex; align-items: center; gap: 0.3rem; font-size: 1.35rem; }
   b svg { color: #d4a017; font-size: 1rem; }
   span { font-size: 0.75rem; color: var(--color-ink-muted); }

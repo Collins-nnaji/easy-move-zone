@@ -262,6 +262,15 @@ export const api = {
         method: 'PATCH', headers: { 'x-admin-key': key }, body: JSON.stringify({ status }),
       });
     },
+    async mortgageLeads(key) {
+      const { leads } = await request('/mortgages/admin', { headers: { 'x-admin-key': key } });
+      return leads;
+    },
+    async updateMortgageLead(id, key, status) {
+      return request(`/mortgages/admin/${id}`, {
+        method: 'PATCH', headers: { 'x-admin-key': key }, body: JSON.stringify({ status }),
+      });
+    },
     async listPassportRequests(key) {
       const { requests } = await request('/passport-requests/admin', { headers: { 'x-admin-key': key } });
       return requests;
@@ -871,6 +880,139 @@ export const api = {
           method: 'DELETE', headers: { 'x-admin-key': adminKey },
         });
       },
+    },
+  },
+
+  /* ── Agent marketplace ── */
+  agent: {
+    me() {
+      return request('/agent/me');
+    },
+    apply(payload) {
+      return request('/agent/apply', { method: 'POST', body: JSON.stringify(payload) });
+    },
+    listings(status) {
+      return request(`/agent/listings${status ? `?status=${encodeURIComponent(status)}` : ''}`);
+    },
+    createListing(payload) {
+      return request('/agent/listings', { method: 'POST', body: JSON.stringify(payload) });
+    },
+    updateListing(id, payload) {
+      return request(`/agent/listings/${id}`, { method: 'PATCH', body: JSON.stringify(payload) });
+    },
+    submitListing(id) {
+      return request(`/agent/listings/${id}/submit`, { method: 'POST', body: '{}' });
+    },
+    setListingStatus(id, status) {
+      return request(`/agent/listings/${id}/status`, { method: 'POST', body: JSON.stringify({ status }) });
+    },
+    inbox() {
+      return request('/agent/inbox');
+    },
+    updateEnquiry(id, status) {
+      return request(`/agent/inbox/enquiries/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) });
+    },
+    updateViewing(id, patch) {
+      return request(`/agent/inbox/viewings/${id}`, { method: 'PATCH', body: JSON.stringify(patch) });
+    },
+    branches() {
+      return request('/agent/branches');
+    },
+    addBranch(payload) {
+      return request('/agent/branches', { method: 'POST', body: JSON.stringify(payload) });
+    },
+    updateBranch(id, payload) {
+      return request(`/agent/branches/${id}`, { method: 'PATCH', body: JSON.stringify(payload) });
+    },
+    removeBranch(id) {
+      return request(`/agent/branches/${id}`, { method: 'DELETE' });
+    },
+    updateProfile(payload) {
+      return request('/agent/profile', { method: 'PATCH', body: JSON.stringify(payload) });
+    },
+    billing() {
+      return request('/agent/billing');
+    },
+    plans() {
+      return request('/agent/plans');
+    },
+    checkout(plan) {
+      return request('/agent/billing/checkout', { method: 'POST', body: JSON.stringify({ plan }) });
+    },
+    verifyPayment(reference) {
+      return request(`/agent/billing/verify?reference=${encodeURIComponent(reference)}`);
+    },
+    admin: {
+      applications(key, status) {
+        return request(`/agent/admin/applications${status ? `?status=${encodeURIComponent(status)}` : ''}`, {
+          headers: { 'x-admin-key': key },
+        });
+      },
+      reviewApplication(id, key, patch) {
+        return request(`/agent/admin/applications/${id}`, {
+          method: 'PATCH', headers: { 'x-admin-key': key }, body: JSON.stringify(patch),
+        });
+      },
+      agencies(key) {
+        return request('/agent/admin/agencies', { headers: { 'x-admin-key': key } });
+      },
+      updateAgency(id, key, patch) {
+        return request(`/agent/admin/agencies/${id}`, {
+          method: 'PATCH', headers: { 'x-admin-key': key }, body: JSON.stringify(patch),
+        });
+      },
+      listings(key, status) {
+        return request(`/agent/admin/listings${status ? `?status=${encodeURIComponent(status)}` : ''}`, {
+          headers: { 'x-admin-key': key },
+        });
+      },
+      reviewListing(id, key, patch) {
+        return request(`/agent/admin/listings/${id}/review`, {
+          method: 'POST', headers: { 'x-admin-key': key }, body: JSON.stringify(patch),
+        });
+      },
+    },
+  },
+
+  agents: {
+    browse(params = {}) {
+      const qs = new URLSearchParams(
+        Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
+      ).toString();
+      return request(`/agents${qs ? `?${qs}` : ''}`);
+    },
+    get(slug) {
+      return request(`/agents/${encodeURIComponent(slug)}`);
+    },
+  },
+
+  account: {
+    saved() {
+      return request('/account/saved');
+    },
+    save(listingId) {
+      return request('/account/saved', { method: 'POST', body: JSON.stringify({ listingId }) });
+    },
+    unsave(listingId) {
+      return request(`/account/saved/${listingId}`, { method: 'DELETE' });
+    },
+    searches() {
+      return request('/account/searches');
+    },
+    saveSearch(payload) {
+      return request('/account/searches', { method: 'POST', body: JSON.stringify(payload) });
+    },
+    updateSearch(id, patch) {
+      return request(`/account/searches/${id}`, { method: 'PATCH', body: JSON.stringify(patch) });
+    },
+    deleteSearch(id) {
+      return request(`/account/searches/${id}`, { method: 'DELETE' });
+    },
+  },
+
+  mortgages: {
+    enquire(payload) {
+      return request('/mortgages/leads', { method: 'POST', body: JSON.stringify(payload) });
     },
   },
 };

@@ -38,7 +38,7 @@ Authorize administrators through the existing `admin_users` allowlist. Authentic
 
 ## Property site
 
-The property site (`property/app`) and its API (`property/server`, served at `/api/property`) use the same database, Neon Auth and object storage. Their tables (`listings`, `management_requests`, `renovation_requests`, `passport_requests`, `consultations`, `leads`, `property_profiles` and related) are created on the first API request. The property admin is `/admin`, and the same `admin_users` allowlist grants it. See [docs/property-platform.md](docs/property-platform.md).
+The property site (`property/app`) and its API (`property/server`, served at `/api/property`) use the same database, Neon Auth and object storage. Their tables (`listings`, `agencies`, `management_requests`, `renovation_requests`, `passport_requests`, `consultations`, `leads`, `property_profiles` and related) are created on the first API request. The property admin is `/admin`, and the same `admin_users` allowlist grants it. Production media uploads need `MEDIA_TOKEN_SECRET`. Agent listing alerts run from `POST /api/property-jobs/listing-alerts` with `Authorization: Bearer <CRON_SECRET>`. See [docs/property-platform.md](docs/property-platform.md).
 
 ## Moving: booking and operations
 

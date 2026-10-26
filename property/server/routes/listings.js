@@ -9,12 +9,12 @@ const { areaForPlace } = require('../areaStore');
 /**
  * The marketplace.
  *
- * EasyMoveZone is not a classifieds site: every public listing is stock we have
- * already valued. A property gets here one of two ways, and both pass through
- * an admin before anything is visible:
+ * EasyMoveZone is not only a classifieds site. A property gets here in three
+ * ways, and all of them pass through an admin before anything is visible:
  *
  *   1. The owner accepts our offer, we buy it, and we resell it   → company_owned
  *   2. The owner declines the offer and asks us to sell it for them → owner_listed
+ *   3. A verified agency posts it from their console              → agent_listed
  *
  * A third way in is assisted intake: an admin types the listing in for the
  * owner (or a developer's whole project), and it waits at `draft` until the
@@ -84,8 +84,12 @@ const PUBLIC_COLUMNS = `
   valuation_low, valuation_high, condition_score, route, featured,
   listing_type, rent_frequency, service_charge, caution_deposit,
   to_char(available_from, 'YYYY-MM-DD') AS available_from, furnished,
-  project_id, units_available,
+  project_id, units_available, lat, lng,
   (SELECT p.name FROM listing_projects p WHERE p.id = listings.project_id) AS project_name,
+  (SELECT a.name FROM agencies a WHERE a.id = listings.agency_id) AS agency_name,
+  (SELECT a.slug FROM agencies a WHERE a.id = listings.agency_id) AS agency_slug,
+  (SELECT a.phone FROM agencies a WHERE a.id = listings.agency_id) AS agency_phone,
+  (SELECT a.logo FROM agencies a WHERE a.id = listings.agency_id) AS agency_logo,
   published_at, created_at
 `;
 
@@ -118,7 +122,10 @@ router.get('/', async (req, res) => {
   if (clean(beds)) add('beds = $?', clean(beds));
   if (num(minPrice) !== null) add('COALESCE(list_price, guide_price) >= $?', num(minPrice));
   if (num(maxPrice) !== null) add('COALESCE(list_price, guide_price) <= $?', num(maxPrice));
-  if (routeFilter === 'company_owned' || routeFilter === 'owner_listed') add('route = $?', routeFilter);
+  if (routeFilter === 'emz') where.push(`route <> 'agent_listed'`);
+  else if (routeFilter === 'company_owned' || routeFilter === 'owner_listed' || routeFilter === 'agent_listed') {
+    add('route = $?', routeFilter);
+  }
   if (Number.parseInt(project, 10) > 0) add('project_id = $?', Number.parseInt(project, 10));
   if (clean(q)) {
     params.push(`%${clean(q).toLowerCase()}%`);
@@ -194,7 +201,8 @@ router.get('/mine', async (req, res) => {
               CASE WHEN status IN ('offer_made', 'bought') THEN offer_amount ELSE NULL END AS offer_amount,
               CASE WHEN status IN ('offer_made', 'bought') THEN purchase_by ELSE NULL END AS purchase_by,
               publish_consent, customer_note, created_at, offer_issued_at, published_at
-         FROM listings WHERE owner_email = $1 AND listing_type = 'sale' AND status <> 'draft' ORDER BY created_at DESC`,
+         FROM listings WHERE owner_email = $1 AND listing_type = 'sale' AND status <> 'draft'
+           AND route <> 'agent_listed' ORDER BY created_at DESC`,
       [email]
     );
     return res.json({ listings: rows });
@@ -293,7 +301,7 @@ const EDITABLE = {
   features: (v) => JSON.stringify(Array.isArray(v) ? v.map((x) => clean(String(x), 120)).filter(Boolean).slice(0, 30) : []),
 };
 
-const STATUSES = ['draft', 'submitted', 'reviewing', 'offer_made', 'bought', 'live', 'sold', 'let', 'withdrawn', 'rejected'];
+const STATUSES = ['draft', 'submitted', 'reviewing', 'pending_review', 'offer_made', 'bought', 'live', 'sold', 'let', 'withdrawn', 'rejected'];
 
 /* PATCH /api/listings/admin/:id — edit the listing and/or move it along the pipeline. */
 router.patch('/admin/:id', requireAdmin, async (req, res) => {
@@ -308,7 +316,7 @@ router.patch('/admin/:id', requireAdmin, async (req, res) => {
     if ('currency' in body && !/^[A-Z]{3}$/.test(String(body.currency || '').toUpperCase())) {
       return res.status(400).json({ error: 'Choose a valid three-letter currency.' });
     }
-    if ('route' in body && !['private', 'owner_listed', 'company_owned'].includes(body.route)) {
+    if ('route' in body && !['private', 'owner_listed', 'company_owned', 'agent_listed'].includes(body.route)) {
       return res.status(400).json({ error: 'Choose a valid route to market.' });
     }
     if ('condition_score' in body) {
@@ -375,13 +383,21 @@ router.patch('/admin/:id', requireAdmin, async (req, res) => {
       }
 
       const isRent = current.listing_type === 'rent';
+      const isAgent = (body.route || current.route) === 'agent_listed';
       if (next === 'sold' && isRent) return res.status(400).json({ error: 'A rental is marked let, not sold.' });
       if (next === 'let' && !isRent) return res.status(400).json({ error: 'Only a rental can be marked let.' });
       if (['offer_made', 'bought'].includes(next) && isRent) {
         return res.status(400).json({ error: 'Purchase offers do not apply to a rental.' });
       }
 
-      if (next === 'live' && isRent) {
+      if (next === 'live' && isAgent) {
+        const listPrice = 'list_price' in body ? num(body.list_price) : num(current.list_price || current.guide_price);
+        if (!listPrice || listPrice <= 0) {
+          return res.status(400).json({ error: 'Enter a positive list price before publishing.' });
+        }
+        sets.push('publish_consent = true');
+        sets.push('published_at = COALESCE(published_at, NOW())');
+      } else if (next === 'live' && isRent) {
         // A rental's consent lives on the managed property, and the owner can
         // switch it off at any time from their console — so read it now.
         // "Owned by EasyMoveZone" needs the purchase on record (bought_at), as for sales.
@@ -1164,24 +1180,59 @@ router.get('/:idOrSlug', async (req, res) => {
 /* POST /api/listings/:id/enquiry — a buyer asks about a live listing. */
 router.post('/:id/enquiry', async (req, res) => {
   const id = Number.parseInt(req.params.id, 10);
-  const { name, email, phone, message } = req.body || {};
+  const { name, email, phone, message, viewing, preferredAt, preferredWindow } = req.body || {};
   if (!clean(name) || !EMAIL_RE.test(String(email || '').trim())) {
     return res.status(400).json({ error: 'Your name and a valid email are required.' });
   }
   try {
+    const { rateLimit } = require('../services/rateLimit');
+    await rateLimit('listing-enquiry', String(email).trim().toLowerCase(), 8, 60 * 60 * 1000);
     const { rows: live } = await pool.query(
-      `SELECT id FROM listings WHERE id = $1 AND status = 'live'`, [id]
+      `SELECT id, title, slug, route, agency_id FROM listings WHERE id = $1 AND status = 'live'`, [id]
     );
     if (!live.length) return res.status(404).json({ error: 'That property is not available.' });
+    const listing = live[0];
+    const agencyId = listing.route === 'agent_listed' ? listing.agency_id : null;
+    const kind = viewing ? 'viewing' : 'enquiry';
 
     const { rows } = await pool.query(
-      `INSERT INTO listing_enquiries (listing_id, name, email, phone, message)
-       VALUES ($1, $2, $3, $4, $5) RETURNING id, created_at`,
-      [id, clean(name), String(email).trim().toLowerCase(), clean(phone, 100),
-       typeof message === 'string' ? message.trim().slice(0, 4000) : null]
+      `INSERT INTO listing_enquiries (listing_id, name, email, phone, message, kind, agency_id, preferred_at, preferred_window)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, created_at`,
+      [
+        id, clean(name), String(email).trim().toLowerCase(), clean(phone, 100),
+        typeof message === 'string' ? message.trim().slice(0, 4000) : null,
+        kind, agencyId, preferredAt ? new Date(preferredAt) : null, clean(preferredWindow, 40),
+      ]
     );
-    return res.json({ success: true, id: rows[0].id });
+
+    if (viewing && agencyId) {
+      await pool.query(
+        `INSERT INTO listing_viewings (listing_id, agency_id, name, email, phone, preferred_at, preferred_window, message)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+        [
+          id, agencyId, clean(name), String(email).trim().toLowerCase(), clean(phone, 100),
+          preferredAt ? new Date(preferredAt) : null, clean(preferredWindow, 40),
+          typeof message === 'string' ? message.trim().slice(0, 4000) : null,
+        ]
+      );
+    }
+
+    if (agencyId) {
+      const { later } = require('../services/notify');
+      const { notifyAgency } = require('../services/agent');
+      later(() => notifyAgency({
+        agencyId,
+        kind: viewing ? 'viewing' : 'enquiry',
+        title: viewing ? `Viewing request: ${listing.title}` : `New enquiry: ${listing.title}`,
+        body: `${clean(name)} asked about ${listing.title}.`,
+        link: '/agent/inbox',
+      }));
+    }
+
+    const ref = `ENQ-${String(rows[0].id).padStart(5, '0')}`;
+    return res.json({ success: true, id: rows[0].id, ref });
   } catch (err) {
+    if (err.status === 429) return res.status(429).json({ error: err.message });
     console.error('POST /listings/:id/enquiry error:', err);
     return res.status(500).json({ error: 'Could not send your enquiry. Please try again.' });
   }
@@ -1203,10 +1254,13 @@ router.post('/:id/apply', async (req, res) => {
   }
   const household = Number.parseInt(b.householdSize, 10);
   try {
+    const { rateLimit } = require('../services/rateLimit');
+    await rateLimit('listing-apply', email, 6, 60 * 60 * 1000);
     const { rows: live } = await pool.query(
-      `SELECT id FROM listings WHERE id = $1 AND status = 'live' AND listing_type = 'rent'`, [id]
+      `SELECT id, title, route, agency_id FROM listings WHERE id = $1 AND status = 'live' AND listing_type = 'rent'`, [id]
     );
     if (!live.length) return res.status(404).json({ error: 'That home is no longer available to rent.' });
+    const listing = live[0];
 
     const ref = `BVR-${Date.now().toString(36).toUpperCase().slice(-5)}${Math.floor(Math.random() * 900) + 100}`;
     const { rows } = await pool.query(
@@ -1225,8 +1279,38 @@ router.post('/:id/apply', async (req, res) => {
         typeof b.message === 'string' ? b.message.trim().slice(0, 4000) : null,
       ]
     );
+
+    if (listing.route === 'agent_listed' && listing.agency_id) {
+      const summary = [
+        `Rental application ${ref}.`,
+        clean(b.occupation) ? `Occupation: ${clean(b.occupation)}.` : '',
+        clean(b.incomeBand, 40) ? `Income: ${clean(b.incomeBand, 40)}.` : '',
+        dateOrNull(b.moveInDate) ? `Move-in: ${dateOrNull(b.moveInDate)}.` : '',
+        typeof b.message === 'string' && b.message.trim() ? b.message.trim().slice(0, 1500) : '',
+      ].filter(Boolean).join(' ');
+      await pool.query(
+        `INSERT INTO listing_enquiries (listing_id, name, email, phone, message, kind, agency_id, preferred_at, preferred_window)
+         VALUES ($1,$2,$3,$4,$5,'application',$6,$7,$8)`,
+        [
+          id, clean(b.fullName), email, clean(b.phone, 100), summary, listing.agency_id,
+          dateOrNull(b.viewingDate) ? new Date(`${dateOrNull(b.viewingDate)}T12:00:00Z`) : null,
+          clean(b.viewingWindow, 40),
+        ]
+      );
+      const { later } = require('../services/notify');
+      const { notifyAgency } = require('../services/agent');
+      later(() => notifyAgency({
+        agencyId: listing.agency_id,
+        kind: 'application',
+        title: `Rental application: ${listing.title}`,
+        body: `${clean(b.fullName)} applied for ${listing.title}.`,
+        link: '/agent/inbox',
+      }));
+    }
+
     return res.json({ success: true, ...rows[0] });
   } catch (err) {
+    if (err.status === 429) return res.status(429).json({ error: err.message });
     console.error('POST /listings/:id/apply error:', err);
     return res.status(500).json({ error: 'Could not send your application. Please try again.' });
   }

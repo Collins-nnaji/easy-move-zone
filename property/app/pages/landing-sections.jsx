@@ -115,6 +115,7 @@ function DesktopHero() {
             <span><FaCheck /> Every listing verified</span>
             <span><FaBolt /> Sold to us within {PURCHASE_DAYS} days</span>
             <span><FaKey /> Let and managed for you</span>
+            <span><Link to="/list" style={{ color: 'inherit', textDecoration: 'underline' }}>List a property</Link></span>
           </TrustRow>
         </HeroCopy>
 
@@ -201,7 +202,7 @@ function MobileHero() {
           </Button>
           <div className="grid grid-cols-2">
             <HeroTextLink to="/listings/sell">Get an offer</HeroTextLink>
-            <HeroTextLink to="/manage">Let it for me</HeroTextLink>
+            <HeroTextLink to="/list">List a property</HeroTextLink>
           </div>
         </motion.div>
       </motion.div>

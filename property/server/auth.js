@@ -82,7 +82,38 @@ async function requireAdmin(req, res, next) {
   return next();
 }
 
+/**
+ * Signed in and a member of a verified agency. Sets req.user and req.agent
+ * (membership + agency). Pending / suspended agencies get 403 with a reason.
+ */
+async function requireVerifiedAgent(req, res, next) {
+  const user = await sessionUser(req);
+  if (!user?.email) return res.status(401).json({ error: 'Please sign in again to continue.' });
+  req.user = user;
+  try {
+    const { loadMembership } = require('./services/agent');
+    const membership = await loadMembership(user);
+    if (!membership) {
+      return res.status(403).json({ error: 'Apply for an agency account first.', code: 'no_agency' });
+    }
+    if (membership.verification_status === 'suspended') {
+      return res.status(403).json({ error: 'This agency is suspended. Contact EasyMoveZone.', code: 'suspended' });
+    }
+    if (membership.verification_status !== 'verified') {
+      return res.status(403).json({
+        error: 'Your agency is still being reviewed. You can post listings once it is verified.',
+        code: 'unverified',
+      });
+    }
+    req.agent = membership;
+    return next();
+  } catch (err) {
+    console.error('requireVerifiedAgent:', err);
+    return res.status(500).json({ error: 'Could not check your agency account.' });
+  }
+}
+
 module.exports = {
-  sessionUser, sessionEmail, requireUser, adminActor, isAdmin, requireAdmin, safeEqual,
+  sessionUser, sessionEmail, requireUser, adminActor, isAdmin, requireAdmin, requireVerifiedAgent, safeEqual,
   ADMIN_KEY, ADMIN_EMAILS: [], authConfigured: Boolean(process.env.NEON_AUTH_BASE_URL),
 };

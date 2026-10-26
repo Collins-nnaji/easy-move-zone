@@ -57,7 +57,7 @@ export default function ChipPhoto({
         src={src}
         alt={alt}
         loading={priority ? 'eager' : 'lazy'}
-        fetchpriority={priority ? 'high' : undefined}
+        fetchPriority={priority ? 'high' : undefined}
         initial={{ scale: 1.12 }}
         animate={{ scale: 1 }}
         transition={{ duration: 2.4, ease: EASE }}

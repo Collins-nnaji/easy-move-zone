@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { auth } from './auth';
-import { setAuthSession } from './api';
+import { setAuthSession, api } from './api';
+import { shortlist } from './utils/shortlist';
 
 const AuthContext = createContext(null);
 
@@ -15,6 +16,7 @@ export function AuthProvider({ children }) {
       if (session && session.user) {
         setUser(session.user);
         setAuthSession(session.user);
+        api.account.saved().then((r) => shortlist.merge(r.listings)).catch(() => {});
         // Subscriptions removed — all features are free
         setIsPro(true);
       } else {

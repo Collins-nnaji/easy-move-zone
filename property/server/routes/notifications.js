@@ -8,7 +8,7 @@ const { requireUser } = require('../auth');
  * user's own notices; `audience` keeps the owner and tenant portals apart for
  * someone who is both.
  */
-const AUDIENCES = ['owner', 'tenant'];
+const AUDIENCES = ['owner', 'tenant', 'agent'];
 
 router.use(requireUser);
 

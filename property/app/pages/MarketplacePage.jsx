@@ -12,7 +12,8 @@ import { useAuth } from '../AuthContext';
 import {
   PageShell, Section, Inner, Panel,
 } from '../components/page';
-import { BOOK_SESSION_URL, OFFER_URL, SAVED_URL, MARKETPLACE_URL, RENT_URL, PURCHASE_DAYS, AREAS_URL } from '../config/platform';
+import { BOOK_SESSION_URL, OFFER_URL, SAVED_URL, MARKETPLACE_URL, RENT_URL, PURCHASE_DAYS, AREAS_URL, MORTGAGE_URL, LIST_URL } from '../config/platform';
+import ListingMap from '../components/ListingMap';
 import { perPeriod, INCOME_BANDS, ID_TYPES, VIEWING_WINDOWS } from '../config/rentals';
 import { SaveButton, ShareButtons } from '../components/ListingActions';
 import { shortlist, useSaved, useRecent } from '../utils/shortlist';
@@ -60,6 +61,7 @@ const unitsLeft = (n) => (Number(n) === 1 ? '1 unit left' : `${n} units availabl
 const ROUTE_LABEL = {
   company_owned: 'Owned by EasyMoveZone',
   owner_listed: 'Sold via EasyMoveZone',
+  agent_listed: 'Listed by agent',
 };
 
 const isRental = (l) => l?.listing_type === 'rent';
@@ -70,7 +72,12 @@ const priceOf = (l) => {
   return isRental(l) && Number(l.price) > 0 ? `${base} / ${perPeriod(l.rent_frequency)}` : base;
 };
 
-const flagOf = (l) => (isRental(l) ? 'To rent · Managed by EasyMoveZone' : (ROUTE_LABEL[l.route] || 'Verified by EasyMoveZone'));
+const flagOf = (l) => {
+  if (l.route === 'agent_listed') {
+    return l.agency_name ? `Listed by ${l.agency_name}` : 'Listed by agent';
+  }
+  return isRental(l) ? 'To rent · Managed by EasyMoveZone' : (ROUTE_LABEL[l.route] || 'Verified by EasyMoveZone');
+};
 
 /** "1 Nov 2026", or "now" once the date has passed. */
 const availableLabel = (date) => {
@@ -192,7 +199,27 @@ const Toolbar = styled.div`
   font-size: 0.88rem;
   color: var(--color-ink-muted);
 
-  .right { display: flex; align-items: center; gap: 1rem; }
+  .right { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+`;
+
+const ViewSwitch = styled.div`
+  display: inline-flex;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 999px;
+  overflow: hidden;
+  background: #fff;
+
+  button {
+    border: 0;
+    background: transparent;
+    padding: 0.35rem 0.8rem;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-ink-muted);
+    cursor: pointer;
+  }
+  button[aria-pressed='true'] { background: var(--color-green-deep); color: #fff; }
 `;
 
 const SortSelect = styled.label`
@@ -438,7 +465,7 @@ const MoreBtn = styled.button`
 
 export function ListingCard({ listing }) {
   const [shotFailed, setShotFailed] = useState(false);
-  const cover = (listing.media || []).find((m) => m.kind !== 'video');
+  const cover = (listing.media || []).find((m) => m.kind !== 'video' && m.kind !== 'floorplan');
   const owned = listing.route === 'company_owned' && !isRental(listing);
 
   return (
@@ -514,7 +541,7 @@ function Browse({ mode = 'sale' }) {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      setData(await api.listings.browse({ ...filters, route: rent ? '' : filters.route, mode, limit: shown }));
+      setData(await api.listings.browse({ ...filters, mode, limit: shown }));
       setError('');
     } catch (err) {
       setError(err?.message || 'Could not load properties.');
@@ -527,14 +554,16 @@ function Browse({ mode = 'sale' }) {
 
   const listings = data?.listings || [];
   const total = data?.total || 0;
-  const filterKeys = ['country', 'currency', 'state', 'type', 'beds', 'q', ...(rent ? [] : ['route'])];
+  const filterKeys = ['country', 'currency', 'state', 'type', 'beds', 'q', 'route'];
   const anyFilter = filterKeys.some((k) => filters[k]);
   const activeCount = filterKeys.filter((k) => filters[k]).length;
 
   const clearFilters = () => { setParams({}, { replace: true }); setShown(PAGE_SIZE); };
   // Nigeria-first: the country field only appears once listings span more than one.
   const manyCountries = (facets?.countries || []).length > 1;
-  const filterCols = (rent ? 3 : 4) + (manyCountries ? 1 : 0);
+  const filterCols = 4 + (manyCountries ? 1 : 0);
+  const mapView = params.get('view') === 'map';
+  const mapped = listings.filter((l) => Number.isFinite(Number(l.lat)) && Number.isFinite(Number(l.lng)));
 
   const sortField = (
     <Field value={filters.sort} onChange={(e) => setFilter('sort', e.target.value)} aria-label="Sort">
@@ -577,16 +606,22 @@ function Browse({ mode = 'sale' }) {
           {(facets?.beds || []).map((x) => <option key={x} value={x}>{x} bed</option>)}
         </Field>
       </FilterCell>
-      {!rent && (
-        <FilterCell $on={Boolean(filters.route)}>
-          <span className="k">Seller</span>
-          <Field value={filters.route} onChange={(e) => setFilter('route', e.target.value)} aria-label="Seller">
-            <option value="">Anyone</option>
-            <option value="company_owned">Owned by EasyMoveZone</option>
-            <option value="owner_listed">Sold via EasyMoveZone</option>
-          </Field>
-        </FilterCell>
-      )}
+      <FilterCell $on={Boolean(filters.route)}>
+        <span className="k">Source</span>
+        <Field value={filters.route} onChange={(e) => setFilter('route', e.target.value)} aria-label="Source">
+          <option value="">Anyone</option>
+          {rent
+            ? <option value="emz">Managed by EasyMoveZone</option>
+            : (
+              <>
+                <option value="company_owned">Owned by EasyMoveZone</option>
+                <option value="owner_listed">Sold via EasyMoveZone</option>
+                <option value="emz">EasyMoveZone</option>
+              </>
+            )}
+          <option value="agent_listed">Listed by an agent</option>
+        </Field>
+      </FilterCell>
       {manyCountries && (
         <FilterCell $on={Boolean(filters.country)}>
           <span className="k">Country</span>
@@ -606,9 +641,12 @@ function Browse({ mode = 'sale' }) {
         <motion.h1 variants={staggerItem}>{rent ? 'Homes to rent.' : 'Properties for sale.'}</motion.h1>
         <motion.p variants={staggerItem} className="intro">
           {rent
-            ? 'Every home here is let and managed by EasyMoveZone. Apply once, and we arrange the viewing and the paperwork.'
-            : 'Every listing is valued and approved by EasyMoveZone before it goes live.'}
+            ? 'Homes we manage, and homes listed by verified agents. Apply once, and we arrange the viewing and the paperwork for ours.'
+            : 'EasyMoveZone stock and verified agent listings, approved before they go live.'}
         </motion.p>
+        <motion.div variants={staggerItem}>
+          <AreaLink to={LIST_URL}>{rent ? 'An agent with homes to let?' : 'An agent, or selling your own?'} List on the portal <FaArrowRight size={10} /></AreaLink>
+        </motion.div>
         {rent && (
           <motion.div variants={staggerItem}>
             <AreaLink to={AREAS_URL}>Not sure about an area? See what residents say about the light, water and flooding <FaArrowRight size={10} /></AreaLink>
@@ -669,39 +707,50 @@ function Browse({ mode = 'sale' }) {
               <h3>{anyFilter ? 'Nothing matches those filters' : 'No homes to rent right now'}</h3>
               <p>
                 {anyFilter
-                  ? 'Try widening the search. Homes come up as the properties we manage fall vacant.'
-                  : 'Homes appear here as the properties we manage fall vacant. Leave your email below and we will tell you when one does.'}
+                  ? 'Try widening the search. Homes come up when an agent lists one, or when a home we manage falls vacant.'
+                  : 'Homes appear when a verified agent posts one, or when a home we manage falls vacant. Leave your email below and we will tell you when one does.'}
               </p>
               {anyFilter
                 ? <ClearBtn type="button" onClick={() => setParams({}, { replace: true })}>Clear filters</ClearBtn>
-                : <SubNote>Own a home to let? <Link to="/manage">We find the tenant and manage it</Link></SubNote>}
+                : <GreenBtn to={LIST_URL}>List a property <FaArrowRight size={12} /></GreenBtn>}
             </EmptyState>
           ) : listings.length === 0 ? (
             <EmptyState>
               <h3>{anyFilter ? 'Nothing matches those filters' : 'No properties on the market right now'}</h3>
               <p>
                 {anyFilter
-                  ? 'Try widening the search. We only ever list what we have valued, so the grid moves slowly.'
-                  : 'Every listing is a property we have valued and approved, so the grid fills as deals complete. Selling? Start with a free valuation.'}
+                  ? 'Try widening the search. Listings appear after we approve them.'
+                  : 'Verified agents post their own stock here, and we approve every listing before it goes live. The grid fills as those homes are submitted.'}
               </p>
               {anyFilter
                 ? <ClearBtn type="button" onClick={() => setParams({}, { replace: true })}>Clear filters</ClearBtn>
-                : <GreenBtn to={OFFER_URL}>Value my property <FaArrowRight size={12} /></GreenBtn>}
+                : <GreenBtn to={LIST_URL}>List a property <FaArrowRight size={12} /></GreenBtn>}
             </EmptyState>
           ) : (
             <>
               <Toolbar>
                 <span>{total} {rent ? `home${total === 1 ? '' : 's'} to rent` : `propert${total === 1 ? 'y' : 'ies'} available`}</span>
-                {!mobile && (
-                  <span className="right">
-                    {anyFilter && <ClearBtn type="button" onClick={clearFilters}>Clear filters</ClearBtn>}
-                    <SortSelect>Sort by {sortField}</SortSelect>
-                  </span>
-                )}
+                <span className="right">
+                  <ViewSwitch role="group" aria-label="List or map">
+                    <button type="button" aria-pressed={!mapView} onClick={() => setFilter('view', '')}>List</button>
+                    <button type="button" aria-pressed={mapView} onClick={() => setFilter('view', 'map')}>Map</button>
+                  </ViewSwitch>
+                  {!mobile && (
+                    <>
+                      {anyFilter && <ClearBtn type="button" onClick={clearFilters}>Clear filters</ClearBtn>}
+                      <SortSelect>Sort by {sortField}</SortSelect>
+                    </>
+                  )}
+                </span>
               </Toolbar>
+              {mapView && (
+                mapped[0]
+                  ? <div style={{ marginBottom: '1.25rem' }}><ListingMap lat={mapped[0].lat} lng={mapped[0].lng} title="Listings on the map" /></div>
+                  : <EmptyState><h3>No map pins yet</h3><p>None of these listings have a location pin. The list is below.</p></EmptyState>
+              )}
               <Stagger>
                 <Grid>
-                  {listings.map((l) => <StaggerItem key={l.id}><ListingCard listing={l} /></StaggerItem>)}
+                  {(mapView ? mapped : listings).map((l) => <StaggerItem key={l.id}><ListingCard listing={l} /></StaggerItem>)}
                 </Grid>
               </Stagger>
               {listings.length < total && (
@@ -864,6 +913,13 @@ function AlertSignup({ filters, rent = false }) {
     setState('sending');
     setError('');
     try {
+      if (user) {
+        await api.account.saveSearch({
+          name: describe || (rent ? 'Homes to rent' : 'Properties for sale'),
+          filters: { ...filters, mode },
+          alert: true,
+        });
+      }
       await api.submitLead({
         type: 'general',
         name: name || email.split('@')[0],
@@ -922,7 +978,7 @@ function Saved() {
       <PropertyHeader kind="saved">
         <StaggerItem><PropertySwitch /></StaggerItem>
         <motion.h1 variants={staggerItem}>Saved properties.</motion.h1>
-        <motion.p variants={staggerItem} className="intro">Kept on this device. Tap the heart on any property to add or remove it.</motion.p>
+        <motion.p variants={staggerItem} className="intro">Saved on this device, and on your account when you are signed in.</motion.p>
       </PropertyHeader>
       <Section $sm>
         <Inner>
@@ -993,6 +1049,7 @@ function Sell() {
         <StaggerItem><PropertySwitch /></StaggerItem>
         <motion.h1 variants={staggerItem}>Sell your property.</motion.h1>
         <motion.p variants={staggerItem}>We inspect it, verify the title and make you a firm offer. Accept it and we complete within {PURCHASE_DAYS} days. Or list it with us.</motion.p>
+        <StaggerItem className="aside">An agent listing stock? <Link to={LIST_URL}>List on the portal <FaArrowRight size={10} /></Link> A letting we run is <Link to="/manage">Manage</Link>.</StaggerItem>
         <StaggerItem className="aside">Want more for it? <Link to="/renovate">Renovate before you sell <FaArrowRight size={10} /></Link></StaggerItem>
       </PropertyHeader>
       <OfferForm />
@@ -1306,7 +1363,7 @@ function EnquiryForm({ listing }) {
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [viewing, setViewing] = useState({ want: true, date: '', time: 'Any time' });
   const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -1326,8 +1383,14 @@ function EnquiryForm({ listing }) {
       const ask = viewing.want
         ? `Viewing request: ${viewing.date ? new Date(`${viewing.date}T12:00:00`).toDateString() : 'any day'}, ${viewing.time.toLowerCase()}.\n`
         : '';
-      await api.listings.enquire(listing.id, { ...form, message: `${ask}${form.message}`.trim() });
-      setSent(true);
+      const res = await api.listings.enquire(listing.id, {
+        ...form,
+        message: `${ask}${form.message}`.trim(),
+        viewing: viewing.want,
+        preferredAt: viewing.date || null,
+        preferredWindow: viewing.time,
+      });
+      setSent(res);
     } catch (err) {
       setError(err?.message || 'Could not send your enquiry.');
     } finally {
@@ -1338,10 +1401,13 @@ function EnquiryForm({ listing }) {
   if (sent) {
     return (
       <Panel>
-        <h3 style={{ marginBottom: '0.5rem' }}>Enquiry sent</h3>
+        <h3 style={{ marginBottom: '0.5rem' }}>Enquiry sent{sent.ref ? ` · ${sent.ref}` : ''}</h3>
         <p style={{ fontSize: '0.92rem', lineHeight: 1.6 }}>
-          Thanks{form.name ? `, ${form.name.split(' ')[0]}` : ''}. Someone from the {isRental(listing) ? 'lettings ' : ''}desk will call you
-          about {listing.title}{viewing.want ? ' to confirm a viewing' : ''}, usually within one business day.
+          Thanks{form.name ? `, ${form.name.split(' ')[0]}` : ''}. {listing.route === 'agent_listed'
+            ? `${listing.agency_name || 'The listing agent'} has this in their inbox`
+            : `Someone from the ${isRental(listing) ? 'lettings ' : ''}desk will call you`}
+          {' '}about {listing.title}{viewing.want ? ' to confirm a viewing' : ''}, usually within one business day.
+          Your name, email and phone are not shown on the listing.
         </p>
       </Panel>
     );
@@ -1351,9 +1417,11 @@ function EnquiryForm({ listing }) {
     <Panel as="form" onSubmit={submit}>
       <h3 style={{ marginBottom: '0.3rem' }}>{isRental(listing) ? 'Ask about this home' : 'Enquire about this property'}</h3>
       <p style={{ fontSize: '0.88rem', lineHeight: 1.55, marginBottom: '1rem' }}>
-        {isRental(listing)
-          ? 'Not ready to apply? Ask a question or book a viewing first. You are talking to EasyMoveZone, not an agent chain.'
-          : 'Book a viewing or ask a question. You are talking to EasyMoveZone, not an agent chain.'}
+        {listing.route === 'agent_listed'
+          ? `This goes only to ${listing.agency_name || 'the listing agency'}. It is not published, and you are not given the owner’s private number.`
+          : isRental(listing)
+            ? 'This goes only to the EasyMoveZone lettings desk. It is not published. You are talking to EasyMoveZone, not an agent chain.'
+            : 'This goes only to the EasyMoveZone desk. It is not published. You are talking to EasyMoveZone, not an agent chain.'}
       </p>
       <FormRow>
         <Label>Your name</Label>
@@ -1470,8 +1538,12 @@ function RentalApplicationForm({ listing }) {
         <h3 style={{ marginBottom: '0.5rem' }}>Application sent</h3>
         <p style={{ fontSize: '0.92rem', lineHeight: 1.6 }}>
           Thanks{form.fullName ? `, ${form.fullName.split(' ')[0]}` : ''}. Your reference is <strong>{sent.ref}</strong>.
-          {' '}Someone from the lettings desk will call you about {listing.title}
+          {' '}{listing.route === 'agent_listed'
+            ? `${listing.agency_name || 'The listing agency'} has this in their inbox`
+            : 'Someone from the lettings desk will call you'}
+          {' '}about {listing.title}
           {viewing.want ? ' to confirm a viewing' : ''}, usually within one business day.
+          Your details are not shown on the listing.
         </p>
       </Panel>
     );
@@ -1481,7 +1553,9 @@ function RentalApplicationForm({ listing }) {
     <Panel as="form" onSubmit={submit}>
       <h3 style={{ marginBottom: '0.3rem' }}>Apply to rent this home</h3>
       <p className="hidden md:block" style={{ fontSize: '0.88rem', lineHeight: 1.55, marginBottom: '1rem' }}>
-        One short form. We call you, show you round, and check references before anything is signed.
+        {listing.route === 'agent_listed'
+          ? `One short form, sent only to ${listing.agency_name || 'the listing agency'}. They arrange the viewing. EasyMoveZone does not publish what you send.`
+          : 'One short form, sent only to the EasyMoveZone lettings desk. We call you, show you round, and check references before anything is signed.'}
       </p>
       <FormRow>
         <Label>Full name</Label>
@@ -1563,7 +1637,11 @@ function RentalApplicationForm({ listing }) {
       </FormRow>
       <ConsentRow>
         <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-        <span>I agree to EasyMoveZone checking my identity, employment and references for this application.</span>
+        <span>
+          {listing.route === 'agent_listed'
+            ? `I agree to ${listing.agency_name || 'the listing agency'} receiving these details so they can consider my application. EasyMoveZone does not publish them.`
+            : 'I agree to EasyMoveZone checking my identity, employment and references for this application. These details are not published.'}
+        </span>
       </ConsentRow>
       <SubmitBtn type="submit" disabled={sending || !consent}>
         {sending ? 'Sending…' : 'Send application'}
@@ -1622,6 +1700,7 @@ function Detail() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [enquireOpen, setEnquireOpen] = useState(false);
+  const [showPhone, setShowPhone] = useState(false);
   const mobile = useIsMobile();
 
   useEffect(() => {
@@ -1668,9 +1747,11 @@ function Detail() {
     );
   }
 
-  const media = listing.media || [];
+  const media = (listing.media || []).filter((m) => m.kind !== 'floorplan');
+  const floorplans = (listing.media || []).filter((m) => m.kind === 'floorplan');
   const rental = isRental(listing);
   const owned = listing.route === 'company_owned' && !rental;
+  const agentListed = listing.route === 'agent_listed';
   const where = [listing.area, listing.city, listing.state, listing.country].filter(Boolean).join(', ');
   const ActionForm = rental ? RentalActions : EnquiryForm;
   const actionTitle = rental ? 'Apply or ask about this home' : 'Enquire about this property';
@@ -1683,7 +1764,7 @@ function Detail() {
       {mobile && (
         <StickyEnquire>
           <div className="min-w-0">
-            <div className="truncate text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-on-black-muted)]">{rental ? 'To rent' : owned ? 'Owned by EasyMoveZone' : 'Sold via EasyMoveZone'}</div>
+            <div className="truncate text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-on-black-muted)]">{agentListed ? (listing.agency_name || 'Listed by agent') : rental ? 'To rent' : owned ? 'Owned by EasyMoveZone' : 'Sold via EasyMoveZone'}</div>
             <div className="truncate font-display text-[1.05rem] font-bold text-brand-ink">{priceOf(listing)}</div>
           </div>
           <Button variant="bright" size="lg" className="shrink-0" onClick={() => setEnquireOpen(true)}>{rental ? 'Apply' : 'Enquire'} <FaArrowRight size={12} /></Button>
@@ -1760,27 +1841,60 @@ function Detail() {
                 </FeatureList>
               )}
 
+              {floorplans.length > 0 && (
+                <div style={{ marginTop: '1.5rem' }}>
+                  <h2 style={{ fontSize: '1.1rem', marginBottom: '0.7rem' }}>Floorplan</h2>
+                  {floorplans.map((m, i) => (
+                    <img key={m.url || i} src={publicMediaUrl(m.url)} alt={`Floorplan ${i + 1}`} style={{ width: '100%', borderRadius: 12, marginBottom: 8 }} />
+                  ))}
+                </div>
+              )}
+
+              {listing.lat && listing.lng && (
+                <div style={{ marginTop: '1.5rem' }}>
+                  <h2 style={{ fontSize: '1.1rem', marginBottom: '0.7rem' }}>On the map</h2>
+                  <ListingMap lat={listing.lat} lng={listing.lng} title={listing.title} />
+                </div>
+              )}
+
               {listing.project_id && <ProjectSiblings listing={listing} />}
             </div>
 
             <Aside>
               {!mobile && <ActionForm listing={listing} />}
 
-              <DarkNote>
-                <h3>{rental ? 'Let and managed by EasyMoveZone' : owned ? 'We own this one' : 'We are selling this for the owner'}</h3>
-                <p>
-                  {rental
-                    ? 'You deal with EasyMoveZone from the viewing to the keys. We manage the home for its owner, so rent, repairs and questions all come to one place.'
-                    : owned
-                      ? 'EasyMoveZone bought this property outright, so you are buying from us directly. One owner, one chain, no surprises.'
-                      : 'EasyMoveZone valued this property and is handling the sale on the owner’s behalf. Title and paperwork are checked before exchange.'}
-                </p>
-              </DarkNote>
+              {agentListed ? (
+                <Panel>
+                  <Label>Listed by</Label>
+                  <h3 style={{ margin: '0.2rem 0 0.4rem' }}>{listing.agency_name || 'Verified agency'}</h3>
+                  <p style={{ fontSize: '0.9rem', lineHeight: 1.55 }}>
+                    Enquiries go to this agency. EasyMoveZone verified them before the listing went live.
+                  </p>
+                  {listing.agency_slug && <p style={{ marginTop: '0.6rem' }}><Link to={`/agents/${listing.agency_slug}`}>View agency profile</Link></p>}
+                  {listing.agency_phone && (
+                    showPhone
+                      ? <p style={{ marginTop: '0.55rem' }}><a href={`tel:${listing.agency_phone}`}>{listing.agency_phone}</a><br /><span style={{ fontSize: '0.82rem' }}>Office line. This is not the owner’s private number.</span></p>
+                      : <p style={{ marginTop: '0.55rem' }}><button type="button" onClick={() => setShowPhone(true)} style={{ background: 'none', border: 0, padding: 0, font: 'inherit', fontWeight: 650, color: 'var(--color-green-deep)', cursor: 'pointer', textDecoration: 'underline' }}>Show office number</button></p>
+                  )}
+                </Panel>
+              ) : (
+                <DarkNote>
+                  <h3>{rental ? 'Let and managed by EasyMoveZone' : owned ? 'We own this one' : 'We are selling this for the owner'}</h3>
+                  <p>
+                    {rental
+                      ? 'You deal with EasyMoveZone from the viewing to the keys. We manage the home for its owner, so rent, repairs and questions all come to one place.'
+                      : owned
+                        ? 'EasyMoveZone bought this property outright, so you are buying from us directly. One owner, one chain, no surprises.'
+                        : 'EasyMoveZone valued this property and is handling the sale on the owner’s behalf. Title and paperwork are checked before exchange.'}
+                  </p>
+                </DarkNote>
+              )}
 
-              {/* Financing is a footnote to buying, never a headline of its own. */}
               {!rental && (
                 <SubNote>
-                  Paying over time? <Link to={BOOK_SESSION_URL}>Ask about instalments and financing</Link>
+                  Paying over time? <Link to={MORTGAGE_URL}>Mortgages and NHF</Link>
+                  {' · '}
+                  <Link to={BOOK_SESSION_URL}>Ask about instalments</Link>
                 </SubNote>
               )}
 
@@ -1846,6 +1960,7 @@ export default function MarketplacePage({ page }) {
         <Route path="for-sale" element={<LegacyForSaleRedirect />} />
         <Route path="buy" element={<LegacyForSaleRedirect />} />
         <Route path="sell" element={<Sell />} />
+        <Route path="list" element={<Navigate to="/list" replace />} />
         <Route path="saved" element={<Saved />} />
         <Route path="build" element={<Build />} />
         <Route path="confirm/:token" element={<ConfirmListingPage />} />

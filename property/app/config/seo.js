@@ -13,6 +13,7 @@ export const PUBLIC_META = [
   { match: (p) => p === '/', title: 'EasyMoveZone | Buy, sell, rent and manage property with ease', description: 'Buy verified property, sell yours, and have it let and managed for you — tenants, rent, repairs and renovation.' },
   { match: (p) => p === '/listings', title: 'Verified properties for sale | EasyMoveZone', description: 'Browse property valued, condition-checked and approved by EasyMoveZone. Every live listing has evidence behind it.' },
   { match: (p) => p === '/listings/sell', title: `Sell your property to EasyMoveZone in ${PURCHASE_DAYS} days | EasyMoveZone`, description: `We inspect your property, verify the title and make a firm offer. Accept it and we complete the purchase within ${PURCHASE_DAYS} days of verification. Or list it with us.` },
+  { match: (p) => p === '/list' || p === '/listings/list', title: 'List a property | EasyMoveZone', description: 'Post a home on the EasyMoveZone portal. Agents list their own stock. Owners can sell. Letting that we run for you is a separate page.' },
   { match: (p) => p === '/listings/build', title: 'Manage your building process | EasyMoveZone', description: 'Control contractors, budgets, inspections and stage payments while EasyMoveZone manages your building project.' },
   { match: (p) => p === '/renovate', title: 'Request a managed property renovation | EasyMoveZone', description: 'Request an inspection and manage renovation scope, costs, milestones and progress evidence through EasyMoveZone.' },
   { match: (p) => p === '/listings/rent', title: 'Homes to rent, let and managed by EasyMoveZone', description: 'Rent a home managed by EasyMoveZone. Apply once — we arrange the viewing, check references and handle rent and repairs for the whole tenancy.' },
@@ -26,6 +27,10 @@ export const PUBLIC_META = [
   { match: (p) => p.startsWith('/areas/'), title: 'Neighbourhood guide from residents | EasyMoveZone', description: 'What residents say about this area: power, water, flooding, safety and transport, with typical rents and location tools.' },
   { match: (p) => p === '/contact', title: 'Contact EasyMoveZone', description: 'Send EasyMoveZone a message about buying, selling, verifying, letting or renovating property.' },
   { match: (p) => p === '/help', title: 'Help and FAQs | EasyMoveZone', description: 'Answers to common questions about buying, verifying, selling and letting property with EasyMoveZone.' },
+  { match: (p) => p === '/agents', title: 'Find an agent | EasyMoveZone', description: 'Browse verified estate agencies listing sale and rental properties on EasyMoveZone.' },
+  { match: (p) => p.startsWith('/agents/'), title: 'Estate agency | EasyMoveZone', description: 'Live listings and office details for a verified agency on EasyMoveZone.' },
+  { match: (p) => p === '/agent/apply', title: 'List as an agent | EasyMoveZone', description: 'Apply to post sale and rental properties on EasyMoveZone as a verified agency.' },
+  { match: (p) => p === '/mortgage' || p.startsWith('/mortgage/'), title: 'Mortgages and the National Housing Fund | EasyMoveZone', description: 'Compare the National Housing Fund, Stanbic IBTC MREIF and an Access Bank mortgage, check what you could pay, then ask EasyMoveZone to make an introduction. Not a loan offer.' },
   { match: (p) => p.startsWith('/listings/confirm/'), title: 'Confirm your listing | EasyMoveZone', description: 'Check the listing EasyMoveZone prepared for you and sign the owner authorization.' },
   { match: (p) => p.startsWith('/listings/'), title: 'Approved property | EasyMoveZone', description: 'View an approved EasyMoveZone property with verified condition, valuation evidence and a clear route to enquire.' },
   { match: (p) => p === '/verify/photo-scan', title: 'Quick property photo scan | EasyMoveZone', description: 'Upload property photos for a fast condition analysis and visible risk flags before arranging a full verification.' },
@@ -46,7 +51,7 @@ export const PUBLIC_META = [
 ];
 
 export function isPrivatePath(pathname) {
-  return pathname.startsWith('/manage/') || pathname === '/tenant' || pathname.startsWith('/tenant/') || pathname === '/portal' || pathname === '/my-hub' || pathname === '/profile' || pathname === '/admin' || pathname.startsWith('/auth') || pathname.startsWith('/listings/confirm/') || pathname === '/moving/checkout';
+  return pathname.startsWith('/manage/') || pathname === '/tenant' || pathname.startsWith('/tenant/') || pathname === '/agent' || (pathname.startsWith('/agent/') && !pathname.startsWith('/agent/apply')) || pathname === '/portal' || pathname === '/my-hub' || pathname === '/profile' || pathname === '/admin' || pathname.startsWith('/auth') || pathname.startsWith('/listings/confirm/') || pathname === '/moving/checkout';
 }
 
 export function metaForPath(pathname) {

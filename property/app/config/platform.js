@@ -20,7 +20,7 @@ export const SECTIONS = {
     id: 'real-estate',
     label: 'Real Estate',
     home: '/',
-    paths: ['/', '/listings', '/verify', '/renovate', '/consult', '/contact', '/help'],
+    paths: ['/', '/listings', '/list', '/verify', '/renovate', '/consult', '/contact', '/help', '/areas', '/agents', '/mortgage', '/agent/apply'],
   },
   manage: {
     id: 'manage',
@@ -52,7 +52,9 @@ export function getSection(pathname) {
  * footer, and ConsoleShell supplies its own sidebar.
  */
 export function isConsolePath(pathname) {
-  return pathname.startsWith('/manage/') || pathname === '/tenant' || pathname.startsWith('/tenant/');
+  return pathname.startsWith('/manage/')
+    || pathname === '/tenant' || pathname.startsWith('/tenant/')
+    || pathname === '/agent' || (pathname.startsWith('/agent/') && !pathname.startsWith('/agent/apply'));
 }
 
 export const MARKETPLACE_URL = '/listings';
@@ -70,22 +72,31 @@ export const AREAS_URL = '/areas';
 /**
  * The navbar follows the app's flow, one row: Listings (buy, rent, sell and
  * verify — the Property Passport is the fourth tab of the property switch, so
- * `/verify` lights Listings), Neighbourhoods (residents' area pages), Moving
- * (the /moving page) and Manage (letting and running a property on the
- * owner's behalf, renovation included — so `/renovate` lights Manage; "My
- * portal" once signed in). The phone tab bar carries the same four, in the
- * same order.
+ * `/verify` lights Listings), Neighbourhoods (residents' area pages),
+ * Mortgages (bank loans and NHF), Moving (the /moving page) and Manage.
+ * Manage is only "we let and run it". Listing a home yourself, and finding
+ * an agent, live on `/list`. Renovation is part of Manage. Signed in, the
+ * label is "My portal". The phone tab bar stays at four: Listings, Areas,
+ * Moving, Manage. Mortgages are in the site menu on a phone.
  */
-const MANAGE_PATHS = ['/manage', '/renovate', '/consult', '/portal', '/tenant'];
+const MANAGE_PATHS = ['/manage', '/renovate', '/consult', '/portal', '/tenant', '/agent'];
 
 /** Moving logistics is its own Next.js page (/moving), linked from the nav. */
 export const MOVING_URL = '/moving';
 
+export const AGENTS_URL = '/agents';
+export const AGENT_URL = '/agent';
+export const AGENT_APPLY_URL = '/agent/apply';
+export const MORTGAGE_URL = '/mortgage';
+/** Listing on the portal: agents post their own stock, owners can sell. Not Manage. */
+export const LIST_URL = '/list';
+
 export const REAL_ESTATE_NAV_ITEMS = [
   { to: MARKETPLACE_URL, label: 'Listings', match: ['/listings', '/verify'] },
   { to: AREAS_URL, label: 'Neighbourhoods', match: [AREAS_URL] },
+  { to: MORTGAGE_URL, label: 'Mortgages', match: [MORTGAGE_URL] },
   { to: MOVING_URL, label: 'Moving', match: [MOVING_URL] },
-  { to: '/manage', label: 'Manage', signedInLabel: 'My portal', match: MANAGE_PATHS },
+  { to: '/manage', label: 'Manage', signedInLabel: 'My portal', match: MANAGE_PATHS, exclude: [AGENT_APPLY_URL] },
 ];
 
 /**
@@ -97,7 +108,7 @@ export const REAL_ESTATE_BOTTOM_NAV = [
   { to: MARKETPLACE_URL, label: 'Listings', icon: 'buy', match: ['/listings', '/verify'] },
   { to: AREAS_URL, label: 'Areas', icon: 'area', match: [AREAS_URL] },
   { to: MOVING_URL, label: 'Moving', icon: 'truck', match: [MOVING_URL] },
-  { to: '/manage', label: 'Manage', signedInLabel: 'Portal', icon: 'manage', match: MANAGE_PATHS },
+  { to: '/manage', label: 'Manage', signedInLabel: 'Portal', icon: 'manage', match: MANAGE_PATHS, exclude: [AGENT_APPLY_URL] },
 ];
 
 /** The Buy / Rent / Sell / Verify switch at the top of the Listings pages. */
@@ -161,12 +172,15 @@ export const SITE_MENU = [
       { to: AREAS_URL, label: 'Neighbourhoods', icon: 'area', desc: 'What residents say, rents and commute' },
       { to: OFFER_URL, label: 'Sell a property', icon: 'sell', desc: 'List it or get an offer' },
       { to: OFFER_ANALYZE_URL, label: 'Quick photo scan', icon: 'analyze', desc: 'Free first read' },
+      { to: '/mortgage', label: 'Mortgages', icon: 'analyze', desc: 'Bank loan, NHF, or a broker' },
+      { to: '/list', label: 'List a property', icon: 'add', desc: 'Post it on the portal' },
+      { to: '/list#agents', label: 'Find an agent', icon: 'buy', desc: 'Verified agencies' },
     ],
   },
   {
     id: 'manage',
     label: 'Manage',
-    blurb: 'Letting, rent, repairs and renovation',
+    blurb: 'We let it and run it for you',
     items: [
       { to: '/manage', label: 'How we manage', icon: 'manage', desc: 'We run it, you collect' },
       { to: OFFER_RENOVATE_URL, label: 'Renovate a property', icon: 'renovate', desc: 'Scoped and approved' },
@@ -214,8 +228,9 @@ export const MANAGE_SETTINGS_URL = MANAGE_ACCOUNT_URL;
 
 /**
  * The owner portal's four sections. The sidebar (and the phone bottom bar)
- * lists only these; each section's `tabs` are the views inside its page,
- * shown in the page header. `icon` keys map to icons in ConsoleShell.
+ * lists only these. Header tabs stay short on a phone: Home, Properties and
+ * Deals on Overview; documents live under Tenancies; plan and the manager
+ * conversation share one Account tab. `icon` keys map to icons in ConsoleShell.
  *
  * `match` lists every path that should light this section up. Overview's
  * tabs do not share a path prefix (the dashboard is the console root), so
@@ -231,11 +246,13 @@ export const CONSOLE_NAV = [
     // offers (selling) sit beside the properties we manage. Adding a property
     // and onboarding are actions reached from these pages, not tabs.
     tabs: [
-      { to: MANAGE_URL, label: 'Dashboard', end: true },
-      { to: MANAGE_JOURNEYS_URL, label: 'Journeys' },
-      { to: MANAGE_VERIFICATIONS_URL, label: 'Verifications' },
-      { to: MANAGE_OFFERS_URL, label: 'Sales & offers' },
+      { to: MANAGE_URL, label: 'Home', end: true },
       { to: MANAGE_PROPERTIES_URL, label: 'Properties' },
+      {
+        to: MANAGE_JOURNEYS_URL,
+        label: 'Deals',
+        match: [MANAGE_JOURNEYS_URL, MANAGE_VERIFICATIONS_URL, MANAGE_OFFERS_URL],
+      },
     ],
   },
   {
@@ -256,8 +273,7 @@ export const CONSOLE_NAV = [
     match: [MANAGE_OPS_URL],
     tabs: [
       { to: MANAGE_OPS_URL, label: 'Tenancies', end: true },
-      { to: MANAGE_MAINTENANCE_URL, label: 'Maintenance', badge: 'maintenance' },
-      { to: MANAGE_DOCUMENTS_URL, label: 'Documents' },
+      { to: MANAGE_MAINTENANCE_URL, label: 'Repairs', badge: 'maintenance' },
     ],
   },
   {
@@ -266,9 +282,8 @@ export const CONSOLE_NAV = [
     icon: 'account',
     match: [MANAGE_ACCOUNT_URL],
     tabs: [
-      { to: MANAGE_ACCOUNT_URL, label: 'Payment details', end: true },
-      { to: MANAGE_PLAN_URL, label: 'My plan' },
-      { to: MANAGE_CONSULT_URL, label: 'Talk to a manager' },
+      { to: MANAGE_ACCOUNT_URL, label: 'Payments', end: true },
+      { to: MANAGE_PLAN_URL, label: 'Plan & help', match: [MANAGE_PLAN_URL, MANAGE_CONSULT_URL] },
     ],
   },
 ];
@@ -335,7 +350,52 @@ export const TENANT_NAV = [
   },
 ];
 
-/** Which portal this device last used — 'owner' or 'tenant'. */
+export const AGENT_LISTINGS_URL = '/agent/listings';
+export const AGENT_NEW_URL = '/agent/listings/new';
+export const AGENT_INBOX_URL = '/agent/inbox';
+export const AGENT_OFFICES_URL = '/agent/offices';
+export const AGENT_ACCOUNT_URL = '/agent/account';
+
+export const AGENT_NAV = [
+  {
+    to: AGENT_URL,
+    label: 'Overview',
+    icon: 'overview',
+    match: [AGENT_URL],
+    exclude: [AGENT_LISTINGS_URL, AGENT_INBOX_URL, AGENT_OFFICES_URL, AGENT_ACCOUNT_URL],
+    tabs: [{ to: AGENT_URL, label: 'Overview', end: true }],
+  },
+  {
+    to: AGENT_LISTINGS_URL,
+    label: 'Listings',
+    icon: 'home',
+    match: [AGENT_LISTINGS_URL],
+    tabs: [
+      { to: AGENT_LISTINGS_URL, label: 'My listings', end: true },
+      { to: AGENT_NEW_URL, label: 'Post' },
+    ],
+  },
+  {
+    to: AGENT_INBOX_URL,
+    label: 'Inbox',
+    icon: 'inbox',
+    badge: 'leads',
+    match: [AGENT_INBOX_URL],
+    tabs: [{ to: AGENT_INBOX_URL, label: 'Enquiries & viewings', end: true }],
+  },
+  {
+    to: AGENT_ACCOUNT_URL,
+    label: 'Account',
+    icon: 'account',
+    match: [AGENT_ACCOUNT_URL, AGENT_OFFICES_URL],
+    tabs: [
+      { to: AGENT_ACCOUNT_URL, label: 'Profile & plan', end: true },
+      { to: AGENT_OFFICES_URL, label: 'Offices' },
+    ],
+  },
+];
+
+/** Which portal this device last used — 'owner', 'tenant' or 'agent'. */
 const PORTAL_ROLE_KEY = 'bv.portal.v1';
 export function rememberPortalRole(role) {
   try { window.localStorage.setItem(PORTAL_ROLE_KEY, role); } catch { /* private mode */ }
@@ -343,7 +403,7 @@ export function rememberPortalRole(role) {
 export function rememberedPortalRole() {
   try {
     const v = window.localStorage.getItem(PORTAL_ROLE_KEY);
-    return v === 'owner' || v === 'tenant' ? v : null;
+    return v === 'owner' || v === 'tenant' || v === 'agent' ? v : null;
   } catch {
     return null;
   }

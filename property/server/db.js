@@ -924,11 +924,220 @@ INSERT INTO areas (slug, name, city, state, lat, lng, match, blurb) VALUES
 ${AREA_SEED_SQL}
 ON CONFLICT (slug) DO NOTHING;
 
--- Community notices (a reply to your post, a decision on a held one) go by
--- email and are recorded here, outside both portals' inboxes.
-ALTER TABLE notifications DROP CONSTRAINT IF EXISTS notifications_audience_check;
-ALTER TABLE notifications ADD CONSTRAINT notifications_audience_check
-  CHECK (audience IN ('owner','tenant','staff','community'));
+-- ── Agent marketplace (Rightmove-style classifieds beside EasyOffer) ──
+CREATE TABLE IF NOT EXISTS agencies (
+  id SERIAL PRIMARY KEY,
+  ref VARCHAR(24) UNIQUE NOT NULL,
+  slug VARCHAR(255) UNIQUE NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  legal_name VARCHAR(255),
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(100),
+  website VARCHAR(500),
+  bio TEXT,
+  logo TEXT,
+  address VARCHAR(500),
+  area VARCHAR(255),
+  city VARCHAR(120),
+  state VARCHAR(80),
+  country VARCHAR(120) DEFAULT 'Nigeria',
+  license_number VARCHAR(120),
+  license_docs JSONB NOT NULL DEFAULT '[]'::jsonb,
+  verification_status VARCHAR(20) NOT NULL DEFAULT 'pending'
+    CHECK (verification_status IN ('pending','verified','rejected','suspended')),
+  verified_at TIMESTAMPTZ,
+  verified_by VARCHAR(255),
+  plan VARCHAR(20) NOT NULL DEFAULT 'none'
+    CHECK (plan IN ('none','starter','pro','premium')),
+  listing_quota INT NOT NULL DEFAULT 0,
+  admin_note TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_agencies_slug ON agencies(slug);
+CREATE INDEX IF NOT EXISTS idx_agencies_status ON agencies(verification_status);
+CREATE INDEX IF NOT EXISTS idx_agencies_city ON agencies(city);
+
+CREATE TABLE IF NOT EXISTS agency_members (
+  id SERIAL PRIMARY KEY,
+  agency_id INT NOT NULL REFERENCES agencies(id) ON DELETE CASCADE,
+  user_id VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  role VARCHAR(20) NOT NULL DEFAULT 'owner'
+    CHECK (role IN ('owner','admin','negotiator')),
+  status VARCHAR(20) NOT NULL DEFAULT 'active'
+    CHECK (status IN ('active','invited','removed')),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (agency_id, email)
+);
+CREATE INDEX IF NOT EXISTS idx_agency_members_email ON agency_members(email);
+CREATE INDEX IF NOT EXISTS idx_agency_members_user ON agency_members(user_id);
+
+CREATE TABLE IF NOT EXISTS agency_branches (
+  id SERIAL PRIMARY KEY,
+  agency_id INT NOT NULL REFERENCES agencies(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL,
+  address VARCHAR(500),
+  city VARCHAR(120),
+  state VARCHAR(80),
+  country VARCHAR(120),
+  phone VARCHAR(100),
+  lat DOUBLE PRECISION,
+  lng DOUBLE PRECISION,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_agency_branches_agency ON agency_branches(agency_id);
+
+CREATE TABLE IF NOT EXISTS agent_applications (
+  id SERIAL PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  contact_name VARCHAR(255) NOT NULL,
+  company VARCHAR(255) NOT NULL,
+  phone VARCHAR(100),
+  website VARCHAR(500),
+  license_number VARCHAR(120),
+  city VARCHAR(120),
+  state VARCHAR(80),
+  country VARCHAR(120),
+  bio TEXT,
+  docs JSONB NOT NULL DEFAULT '[]'::jsonb,
+  status VARCHAR(20) NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending','approved','rejected','needs_more')),
+  agency_id INT REFERENCES agencies(id) ON DELETE SET NULL,
+  admin_note TEXT,
+  reviewed_by VARCHAR(255),
+  reviewed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_agent_applications_email ON agent_applications(email);
+CREATE INDEX IF NOT EXISTS idx_agent_applications_status ON agent_applications(status);
+
+CREATE TABLE IF NOT EXISTS agency_subscriptions (
+  id SERIAL PRIMARY KEY,
+  agency_id INT NOT NULL REFERENCES agencies(id) ON DELETE CASCADE,
+  plan VARCHAR(20) NOT NULL,
+  quota INT NOT NULL,
+  amount NUMERIC(15,2) NOT NULL,
+  currency VARCHAR(8) NOT NULL DEFAULT 'NGN',
+  reference VARCHAR(80) UNIQUE NOT NULL,
+  provider VARCHAR(20) NOT NULL DEFAULT 'paystack',
+  status VARCHAR(20) NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending','active','failed','cancelled','comped')),
+  credited BOOLEAN NOT NULL DEFAULT false,
+  period_start TIMESTAMPTZ,
+  period_end TIMESTAMPTZ,
+  paid_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_agency_subscriptions_agency ON agency_subscriptions(agency_id);
+CREATE INDEX IF NOT EXISTS idx_agency_subscriptions_ref ON agency_subscriptions(reference);
+
+CREATE TABLE IF NOT EXISTS user_saved_listings (
+  id SERIAL PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  listing_id INT NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (email, listing_id)
+);
+CREATE INDEX IF NOT EXISTS idx_user_saved_listings_email ON user_saved_listings(email);
+
+CREATE TABLE IF NOT EXISTS user_saved_searches (
+  id SERIAL PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  name VARCHAR(255),
+  filters JSONB NOT NULL DEFAULT '{}'::jsonb,
+  alert_enabled BOOLEAN NOT NULL DEFAULT true,
+  last_notified_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_user_saved_searches_email ON user_saved_searches(email);
+
+CREATE TABLE IF NOT EXISTS listing_viewings (
+  id SERIAL PRIMARY KEY,
+  listing_id INT NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
+  agency_id INT REFERENCES agencies(id) ON DELETE SET NULL,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(100),
+  preferred_at TIMESTAMPTZ,
+  preferred_window VARCHAR(40),
+  message TEXT,
+  status VARCHAR(20) NOT NULL DEFAULT 'requested'
+    CHECK (status IN ('requested','offered','confirmed','cancelled')),
+  admin_note TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_listing_viewings_listing ON listing_viewings(listing_id);
+CREATE INDEX IF NOT EXISTS idx_listing_viewings_agency ON listing_viewings(agency_id);
+
+CREATE TABLE IF NOT EXISTS rate_limit_events (
+  id BIGSERIAL PRIMARY KEY,
+  bucket VARCHAR(80) NOT NULL,
+  actor VARCHAR(255) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_rate_limit_events_bucket ON rate_limit_events(bucket, actor, created_at DESC);
+
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS agency_id INT REFERENCES agencies(id) ON DELETE SET NULL;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS branch_id INT REFERENCES agency_branches(id) ON DELETE SET NULL;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS listed_by_user_id VARCHAR(255);
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION;
+CREATE INDEX IF NOT EXISTS idx_listings_agency ON listings(agency_id);
+
+ALTER TABLE listing_enquiries ADD COLUMN IF NOT EXISTS kind VARCHAR(20) NOT NULL DEFAULT 'enquiry';
+ALTER TABLE listing_enquiries ADD COLUMN IF NOT EXISTS agency_id INT REFERENCES agencies(id) ON DELETE SET NULL;
+ALTER TABLE listing_enquiries ADD COLUMN IF NOT EXISTS preferred_at TIMESTAMPTZ;
+ALTER TABLE listing_enquiries ADD COLUMN IF NOT EXISTS preferred_window VARCHAR(40);
+
+DO $$ BEGIN
+  ALTER TABLE listings DROP CONSTRAINT IF EXISTS listings_route_check;
+  ALTER TABLE listings ADD CONSTRAINT listings_route_check
+    CHECK (route IN ('private','owner_listed','company_owned','agent_listed'));
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+     WHERE conname = 'listings_status_check'
+       AND pg_get_constraintdef(oid) LIKE '%''pending_review''%'
+  ) THEN
+    ALTER TABLE listings DROP CONSTRAINT IF EXISTS listings_status_check;
+    ALTER TABLE listings ADD CONSTRAINT listings_status_check
+      CHECK (status IN ('draft','submitted','reviewing','pending_review','offer_made','bought','live','sold','let','withdrawn','rejected'));
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE notifications DROP CONSTRAINT IF EXISTS notifications_audience_check;
+  ALTER TABLE notifications ADD CONSTRAINT notifications_audience_check
+    CHECK (audience IN ('owner','tenant','staff','community','agent'));
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+-- A buyer asking the mortgage desk for a bank loan or an NHF introduction.
+-- Not a credit decision: staff contact them, a lender decides.
+CREATE TABLE IF NOT EXISTS mortgage_leads (
+  id SERIAL PRIMARY KEY,
+  ref VARCHAR(24) UNIQUE NOT NULL,
+  product VARCHAR(20) NOT NULL CHECK (product IN ('bank','nhf','unsure')),
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(100),
+  city VARCHAR(120),
+  price NUMERIC(15,2),
+  employment VARCHAR(40),
+  income_band VARCHAR(60),
+  notes TEXT,
+  status VARCHAR(20) NOT NULL DEFAULT 'new' CHECK (status IN ('new','contacted','closed')),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_mortgage_leads_status ON mortgage_leads(status, created_at DESC);
 `;
 
 /**

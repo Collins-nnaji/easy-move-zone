@@ -18,7 +18,7 @@ Upstream Bloomvest changes were merged in October 2026 with a three-way merge pe
 
 ## Portals, rentals and rent
 
-- **Owner portal** (`/manage/*`, `ConsoleShell` with a left sidebar) and **tenant portal** (`/tenant/*`, `TenantConsolePage`). `/portal` ("My portal" in the navbar once signed in) picks between them. Tenants join through a single-use invite at `/tenant/join/:token`.
+- **Owner portal** (`/manage/*`, `ConsoleShell` with a left sidebar), **tenant portal** (`/tenant/*`, `TenantConsolePage`) and **agent portal** (`/agent/*`). `/portal` ("My portal" in the navbar once signed in) picks between them. Tenants join through a single-use invite at `/tenant/join/:token`. Agencies apply at `/agent/apply`; staff verify them in Admin → Agents.
 - **Rentals:** vacant managed homes are let through the public `/listings/rent` grid. Applications land in the admin's Rentals tab.
 - **Rent:** charges are raised from each tenancy (`property/server/services/rent.js`) and can be paid online with Paystack. Paystack has one webhook URL per account, so it stays `/api/payments/webhook`. That route passes rent references (`EMZRENT-…`) on to `/api/property/tenant/pay/webhook` with the signed body intact. Overdue marking and reminders run from `POST /api/property-jobs/rent-reminders` (Bearer `CRON_SECRET`). Schedule it every few hours.
 - **Notices** (`services/notify.js`) always land in the in-app bell, and also go by email (Resend) and SMS (Termii) when those keys are set. Notices and the staff audit row are written after the reply. The API route finishes them with Next's `after()`.
@@ -27,11 +27,12 @@ Upstream Bloomvest changes were merged in October 2026 with a three-way merge pe
 
 - Sign-in is EasyMoveZone's `/auth` page and `lib/auth/client`. `property/app/auth.js` wraps that client. In-app links to `/auth` hand over to it with `?redirect=`.
 - **Who is calling** is decided in one place, `app/api/property/[...path]/route.ts`. It drops every identity header a browser sends (`x-admin-key`, `x-emz-user-*`, `x-emz-admin-email`, `x-dev-user`), then verifies the Neon Auth session and passes the user as `x-emz-user-id` / `x-emz-user-email` / `x-emz-user-name`. For a user on the `admin_users` allowlist, it adds the internal admin key (`property/server/adminKey.js`) and `x-emz-admin-email`. `property/server/auth.js` reads only those (`sessionUser`, `requireUser`, `adminActor`, `requireAdmin`). Owner and tenant routes use the session email, never an email from the query or body.
-- **One admin** (`/admin`): property sections (Overview, Passports, Consultations, Marketplace, Rentals, Management, Tenants, Renovations, Messages) and moving sections (Moves, Crew & vehicles, Enquiries, Marketplace ops, Accounts — EasyMoveZone's moving admin components, via `property/app/components/MovingAdminSections.jsx`). The section is in the URL (`/admin?section=moves`). Old `/admin/moving/*` URLs redirect there. Staff changes are written to `admin_audit`.
+- **One admin** (`/admin`): property sections (Overview, Passports, Consultations, Marketplace, Rentals, Management, Tenants, Renovations, Messages, Agents) and moving sections (Moves, Crew & vehicles, Enquiries, Marketplace ops, Accounts — EasyMoveZone's moving admin components, via `property/app/components/MovingAdminSections.jsx`). The section is in the URL (`/admin?section=moves`). Old `/admin/moving/*` URLs redirect there. Staff changes are written to `admin_audit`.
+- **`requireVerifiedAgent`** (`property/server/auth.js`) is signed-in plus an active member of a `verified` agency. Agency membership is the real permission; `user_profiles.is_agent` is kept in sync for Accounts.
 
 ## Files and photos
 
-- Uploads go straight from the browser to object storage with a presigned PUT URL from `POST /api/property/media/sas` (the bucket allows cross-origin PUT). Files are stored under `property/` in `AWS_S3_VAULT_BUCKET` (or `PROPERTY_MEDIA_BUCKET`) and referenced in the database as `s3://<bucket>/<key>`.
+- Uploads go straight from the browser to object storage with a presigned PUT URL from `POST /api/property/media/sas` (the bucket allows cross-origin PUT). The caller must be signed in. Prefix `agent` also needs a verified agency. Production requires `MEDIA_TOKEN_SECRET` (fail closed). Files are stored under `property/` in `AWS_S3_VAULT_BUCKET` (or `PROPERTY_MEDIA_BUCKET`) and referenced in the database as `s3://<bucket>/<key>`.
 - The bucket is private. A live listing's photo loads through `GET /api/property/media/public?u=…` (client: `publicMediaUrl()`). It checks the listing is `live` and redirects to a short-lived signed URL. Admin screens get 15-minute signed URLs (`/media/read`, `/media/read-many`). Never render a raw storage URL.
 - `DELETE /api/property/media` needs the uploader's delete token or an admin session.
 - Title documents never go in a listing's `media`. Keeping them apart is what keeps them out of the public photo route.
@@ -39,8 +40,10 @@ Upstream Bloomvest changes were merged in October 2026 with a three-way merge pe
 
 ## Marketplace rules (carried over — keep them)
 
-- Only `status = 'live'` listings are public, and public responses use the `PUBLIC_COLUMNS` allowlist in `property/server/routes/listings.js`. Owner contact details, the signed consent name and `offer_amount` never appear publicly.
-- Publishing needs the owner's `publish_consent` or `route = 'company_owned'`. The consent box is unticked by default. Do not default it or bypass the check.
+- Only `status = 'live'` listings are public, and public responses use the `PUBLIC_COLUMNS` allowlist in `property/server/routes/listings.js`. Owner contact details, the signed consent name and `offer_amount` never appear publicly. Agent listings may show public agency name, slug, phone and logo only.
+- Publishing needs the owner's `publish_consent` or `route = 'company_owned'`, except `agent_listed` rows which a verified agency submits to `pending_review` and staff approve. The consent box is unticked by default on EasyOffer. Do not default it or bypass the check.
+- Agent listing packages (Starter 5 / Pro 25 / Premium 100) live in `property/server/agentPlans.js` and `property/app/config/agentPlans.js`. Paystack references start `EMZAGENT-` and fan out from `/api/payments/webhook`. Staff can grant a plan. Quota counts `live` + `pending_review`.
+- Find an Agent is `/agents` and `/agents/:slug`. Mortgage calculator is `/mortgage`. Saved-search emails run from `POST /api/property-jobs/listing-alerts` (Bearer `CRON_SECRET`).
 - "Owned by EasyMoveZone" (`company_owned`) needs the purchase on record (`bought_at`, set only by the `bought` step from `offer_made`).
 - `PURCHASE_DAYS` (14) lives in both `property/app/config/platform.js` and `property/server/routes/listings.js`. Change both. Plan, verification and title-document catalogues are likewise duplicated between `property/app/config/*` and `property/server/*Catalog.js` / `titleDocuments.js`.
 - Assisted intake drafts (`status = 'draft'`) are never public. The owner confirms through a single-use `/listings/confirm/:token` link.

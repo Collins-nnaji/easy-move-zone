@@ -23,11 +23,16 @@ const TenantConsolePage = lazy(() => import('./pages/TenantConsolePage'));
 const PortalPage = lazy(() => import('./pages/PortalPage'));
 const TenantJoinPage = lazy(() => import('./pages/TenantJoinPage'));
 const ManageLandingPage = lazy(() => import('./pages/ManageLandingPage'));
+const ListLandingPage = lazy(() => import('./pages/ListLandingPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const PublicConsultPage = lazy(() => import('./pages/PublicConsultPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const HelpPage = lazy(() => import('./pages/HelpPage'));
 const AreasPage = lazy(() => import('./pages/AreasPage'));
+const AgentsDirectoryPage = lazy(() => import('./pages/AgentsDirectoryPage'));
+const AgentApplyPage = lazy(() => import('./pages/AgentApplyPage'));
+const AgentConsolePage = lazy(() => import('./pages/AgentConsolePage'));
+const MortgagePage = lazy(() => import('./pages/MortgagePage'));
 
 /**
  * The landing page and the Manage sales page are for visitors. Signed in,
@@ -73,10 +78,16 @@ function App() {
 
                 {/* Manage has a public service page before the signed-in console. */}
                 <Route path="/manage" element={<VisitorOnly signedIn={MANAGE_URL}><ManageLandingPage /></VisitorOnly>} />
+                <Route path="/list" element={<ListLandingPage />} />
                 <Route path="/consult" element={<PublicConsultPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/help" element={<HelpPage />} />
                 <Route path="/areas/*" element={<AreasPage />} />
+                <Route path="/agents/:slug" element={<AgentsDirectoryPage />} />
+                <Route path="/agents" element={<AgentsDirectoryPage />} />
+                <Route path="/agent/apply" element={<AgentApplyPage />} />
+                <Route path="/agent/*" element={<AgentConsolePage />} />
+                <Route path="/mortgage/*" element={<MortgagePage />} />
                 <Route path="/faq" element={<Navigate to="/help" replace />} />
                 <Route path="/saved" element={<Navigate to="/listings/saved" replace />} />
                 <Route path="/manage/*" element={<ManageConsolePage />} />

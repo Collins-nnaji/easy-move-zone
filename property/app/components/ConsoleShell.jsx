@@ -1,13 +1,14 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   FaChartPie, FaMoneyBillWave, FaTools, FaCog, FaHome, FaRegCompass, FaPlus, FaBars,
-  FaArrowLeft, FaSignOutAlt, FaQuestionCircle, FaKey, FaBuilding, FaChevronDown, FaCheck,
+  FaArrowLeft, FaSignOutAlt, FaQuestionCircle, FaKey, FaBuilding, FaCheck,
+  FaBriefcase, FaInbox,
 } from 'react-icons/fa';
 import {
-  MANAGE_URL, TENANT_URL, MARKETPLACE_URL, HELP_URL, rememberPortalRole,
+  MANAGE_URL, TENANT_URL, AGENT_URL, MARKETPLACE_URL, HELP_URL, rememberPortalRole,
 } from '../config/platform';
 import { useAuth } from '../AuthContext';
 import { Sheet, SheetContent, SheetTitle } from './shadcn/sheet';
@@ -23,8 +24,8 @@ import { springy } from './ui';
  *
  *   - a left sidebar with the portal's four sections — nothing deeper. Each
  *     section is one page, and its views are tabs in that page's header;
- *   - a workspace dropdown at the top of the sidebar (Owner / Tenant), so
- *     someone who both owns and rents always knows which hat they have on;
+ *   - the three portals listed at the top of the sidebar (My listings /
+ *     Managed for me / Tenant), with a tick on the one open now;
  *   - a sticky header with the section, the page title, any page-level
  *     control (the property scope) and the section's tabs.
  *
@@ -40,11 +41,14 @@ const ICONS = {
   account: FaCog,
   home: FaHome,
   onboarding: FaRegCompass,
+  inbox: FaInbox,
+  offices: FaBuilding,
 };
 
 const WORKSPACES = {
-  owner: { label: 'Owner', title: 'Owner portal', to: MANAGE_URL, icon: FaBuilding, blurb: 'Properties you own' },
-  tenant: { label: 'Tenant', title: 'Tenant portal', to: TENANT_URL, icon: FaKey, blurb: 'The home you rent' },
+  owner: { label: 'Managed', title: 'Managed for me', to: MANAGE_URL, icon: FaBuilding, blurb: 'We find tenants and run it' },
+  tenant: { label: 'Tenant', title: 'Tenant portal', to: TENANT_URL, icon: FaKey, blurb: 'A home you rent from us' },
+  agent: { label: 'Listings', title: 'My listings', to: AGENT_URL, icon: FaBriefcase, blurb: 'Homes you advertise yourself' },
 };
 
 const SIDEBAR_W = '248px';
@@ -110,13 +114,15 @@ const Workspace = styled.div`
     color: var(--color-ink-faint);
     padding: 0 0.2rem 0.45rem;
   }
+  .hint {
+    margin: 0.45rem 0.2rem 0;
+    font-size: 0.74rem;
+    line-height: 1.4;
+    color: var(--color-ink-muted);
+  }
 `;
 
-const WsDrop = styled.div`
-  position: relative;
-`;
-
-/* The trigger and each menu row share one layout: icon, title over blurb, end mark. */
+/* Each portal row: icon, title over blurb, a tick on the one you are in. */
 const wsRow = `
   display: flex;
   align-items: center;
@@ -142,33 +148,6 @@ const wsRow = `
   .t { font-size: 0.88rem; font-weight: 600; color: var(--color-ink); line-height: 1.25; }
   .s { font-size: 0.74rem; color: var(--color-ink-muted); line-height: 1.3; }
   .end { flex: 0 0 auto; font-size: 0.7rem; color: var(--color-ink-faint); transition: transform 0.15s ease; }
-`;
-
-const WsTrigger = styled.button`
-  ${wsRow}
-  cursor: pointer;
-  background: #fff;
-  border: 1px solid var(--color-line);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-
-  &:hover { border-color: var(--color-line-strong); }
-  &:focus-visible { outline: none; border-color: var(--color-green); box-shadow: 0 0 0 3px var(--color-green-wash); }
-  &[aria-expanded='true'] { border-color: var(--color-green); }
-  &[aria-expanded='true'] .end { transform: rotate(180deg); }
-`;
-
-const WsMenu = styled(motion.div)`
-  position: absolute;
-  top: calc(100% + 0.35rem);
-  left: 0;
-  right: 0;
-  z-index: 20;
-  padding: 0.3rem;
-  border-radius: 12px;
-  background: #fff;
-  border: 1px solid var(--color-line);
-  box-shadow: var(--shadow-lift);
-  transform-origin: top center;
 `;
 
 const WsItem = styled(Link)`
@@ -553,75 +532,31 @@ export function currentSection(nav, pathname) {
 }
 
 function tabActive(tab, pathname) {
+  if (tab.match) return tab.match.some((p) => within(pathname, p));
   return tab.end ? pathname === tab.to : within(pathname, tab.to);
 }
 
-/** "You are viewing as": a dropdown that moves between the owner and tenant sides. */
+/** The three portals, always listed, so the one you are in is not a hidden menu. */
 function WorkspaceMenu({ workspace, onNavigate }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-  const ws = WORKSPACES[workspace];
-  const Icon = ws.icon;
-
-  useEffect(() => {
-    if (!open) return undefined;
-    const onDown = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
-    const onKey = (e) => {
-      if (e.key !== 'Escape') return;
-      setOpen(false);
-      ref.current?.querySelector('button')?.focus();
-    };
-    document.addEventListener('pointerdown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('pointerdown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
-
   return (
-    <WsDrop ref={ref}>
-      <WsTrigger
-        type="button"
-        aria-haspopup="true"
-        aria-expanded={open}
-        aria-label={`Viewing as ${ws.label}. Switch portal`}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span className="ic"><Icon /></span>
-        <span className="txt"><span className="t">{ws.title}</span><span className="s">{ws.blurb}</span></span>
-        <FaChevronDown className="end" />
-      </WsTrigger>
-      <AnimatePresence>
-        {open && (
-          <WsMenu
-            role="navigation"
-            aria-label="Choose a portal"
-            initial={{ opacity: 0, y: -4, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.98 }}
-            transition={{ duration: 0.14 }}
+    <nav aria-label="Choose a portal">
+      {Object.entries(WORKSPACES).map(([key, w]) => {
+        const active = key === workspace;
+        const ItemIcon = w.icon;
+        return (
+          <WsItem
+            key={key}
+            to={w.to}
+            aria-current={active ? 'page' : undefined}
+            onClick={() => { rememberPortalRole(key); onNavigate?.(); }}
           >
-            {Object.entries(WORKSPACES).map(([key, w]) => {
-              const active = key === workspace;
-              const ItemIcon = w.icon;
-              return (
-                <WsItem
-                  key={key}
-                  to={w.to}
-                  aria-current={active ? 'page' : undefined}
-                  onClick={() => { rememberPortalRole(key); setOpen(false); onNavigate?.(); }}
-                >
-                  <span className="ic"><ItemIcon /></span>
-                  <span className="txt"><span className="t">{w.title}</span><span className="s">{w.blurb}</span></span>
-                  {active && <FaCheck className="end" />}
-                </WsItem>
-              );
-            })}
-          </WsMenu>
-        )}
-      </AnimatePresence>
-    </WsDrop>
+            <span className="ic"><ItemIcon /></span>
+            <span className="txt"><span className="t">{w.title}</span><span className="s">{w.blurb}</span></span>
+            {active && <FaCheck className="end" />}
+          </WsItem>
+        );
+      })}
+    </nav>
   );
 }
 
@@ -642,14 +577,15 @@ function SidebarNav({
       </Brand>
 
       <Workspace>
-        <div className="cap">You are viewing as</div>
+        <div className="cap">Three different jobs</div>
         <WorkspaceMenu workspace={workspace} onNavigate={onNavigate} />
+        <p className="hint">The tick is the one open now. The other two are different work, not more pages of this one.</p>
       </Workspace>
 
       {primary && <Primary to={primary.to} onClick={onNavigate}><FaPlus /> {primary.label}</Primary>}
 
       <nav aria-label={ws.title}>
-        <GroupLabel>{ws.title}</GroupLabel>
+        <GroupLabel>Pages</GroupLabel>
         {nav.map((item) => {
           const Icon = ICONS[item.icon] || FaChartPie;
           const badge = item.badge ? badges[item.badge] : 0;

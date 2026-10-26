@@ -20,6 +20,8 @@ import TenantsAdmin from '../components/TenantsAdmin';
 import AdminMedia, { AdminDocuments } from '../components/AdminMedia';
 import AdminOverview from '../components/AdminOverview';
 import MovingAdminSection, { MOVING_SECTIONS } from '../components/MovingAdminSections';
+import AdminAgents from './AdminAgents';
+import AdminMortgages from './AdminMortgages';
 import { IntakeForm, ProjectsAdmin, OwnerLink } from '../components/ListingIntakeAdmin';
 import { CURRENCY_OPTIONS, LOCALE } from '../config/markets';
 import { formatMoneyFull } from '../utils/format';
@@ -49,6 +51,8 @@ const SECTION_TITLES = {
   messages: 'Messages and alerts',
   community: 'Neighbourhood boards',
   tenants: 'Tenants',
+  agents: 'Agents and agencies',
+  mortgages: 'Mortgage leads',
   ...Object.fromEntries(Object.entries(MOVING_SECTIONS).map(([id, v]) => [id, v.title])),
 };
 
@@ -58,10 +62,11 @@ const SECTION_TITLES = {
  * EasyMoveZone bought it or the owner consented to a public listing. A `draft` is
  * one we typed in for the owner; only their own signed confirmation moves it on.
  */
-const LISTING_STATUSES = ['draft', 'submitted', 'reviewing', 'offer_made', 'bought', 'live', 'sold', 'withdrawn', 'rejected'];
+const LISTING_STATUSES = ['draft', 'submitted', 'reviewing', 'pending_review', 'offer_made', 'bought', 'live', 'sold', 'withdrawn', 'rejected'];
 
 const LISTING_STATUS_LABEL = {
   draft: 'Awaiting owner',
+  pending_review: 'Agent review',
   submitted: 'New submission',
   reviewing: 'Under review',
   offer_made: 'Offer made',
@@ -487,6 +492,12 @@ export default function AdminPage() {
           <SectionTab type="button" $active={section === 'community'} onClick={() => setSection('community')}>
             <FaMapMarkedAlt size={12} /> Community
           </SectionTab>
+          <SectionTab type="button" $active={section === 'agents'} onClick={() => setSection('agents')}>
+            <FaUserFriends size={12} /> Agents
+          </SectionTab>
+          <SectionTab type="button" $active={section === 'mortgages'} onClick={() => setSection('mortgages')}>
+            <FaChartPie size={12} /> Mortgages
+          </SectionTab>
         </SectionTabs>
         <TabGroupLabel>Moving</TabGroupLabel>
         <SectionTabs>
@@ -588,6 +599,10 @@ export default function AdminPage() {
           <ManagementAdmin adminKey={key} />
         ) : section === 'rentals' ? (
           <RentalsAdmin adminKey={key} />
+        ) : section === 'agents' ? (
+          <AdminAgents adminKey={key} />
+        ) : section === 'mortgages' ? (
+          <AdminMortgages adminKey={key} />
         ) : section === 'tenants' ? (
           <TenantsAdmin adminKey={key} />
         ) : (

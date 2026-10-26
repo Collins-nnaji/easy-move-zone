@@ -26,6 +26,11 @@ vi.mock('../api', () => ({
       mine: () => Promise.resolve([]),
       estimate: () => Promise.resolve(null),
     },
+    submitLead: () => Promise.resolve({}),
+    account: {
+      saveSearch: () => Promise.resolve({}),
+      saved: () => Promise.resolve({ listings: [] }),
+    },
   },
 }));
 

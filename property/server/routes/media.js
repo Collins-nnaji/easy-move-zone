@@ -6,7 +6,7 @@ const {
   createUploadSas, createReadSas, deleteBlob, resolveBlobName, isConfigured, ALLOWED, MAX_BYTES,
 } = require('../services/blobStorage');
 
-const { isAdmin, ADMIN_KEY } = require('../auth');
+const { isAdmin, ADMIN_KEY, sessionUser } = require('../auth');
 
 /*
  * The container is private. Three ways a file is read back:
@@ -16,9 +16,10 @@ const { isAdmin, ADMIN_KEY } = require('../auth');
  * And one way it is deleted: by whoever uploaded it (the delete token handed
  * out with the upload URL) or by an admin. Nothing else can reach a blob.
  */
-// Signs the per-upload delete tokens. Without MEDIA_TOKEN_SECRET or ADMIN_KEY
-// a per-process secret is used, so tokens stop working after a restart.
-const TOKEN_SECRET = process.env.MEDIA_TOKEN_SECRET || ADMIN_KEY || crypto.randomBytes(32).toString('hex');
+// Signs the per-upload delete tokens. Production refuses to mint tokens
+// without MEDIA_TOKEN_SECRET so a restart cannot silently invalidate deletes.
+const isProd = process.env.NODE_ENV === 'production';
+const TOKEN_SECRET = process.env.MEDIA_TOKEN_SECRET || (!isProd && (ADMIN_KEY || crypto.randomBytes(32).toString('hex')));
 const deleteToken = (blobName) => crypto.createHmac('sha256', TOKEN_SECRET).update(`delete:${blobName}`).digest('hex');
 const safeEqual = (a, b) => {
   const left = Buffer.from(a);
@@ -39,8 +40,16 @@ router.get('/config', (req, res) => {
    Body: { contentType, fileName, size?, prefix? } */
 router.post('/sas', async (req, res) => {
   try {
+    if (!TOKEN_SECRET) {
+      return res.status(503).json({ error: 'Media upload is not configured.' });
+    }
     if (!isConfigured()) {
       return res.status(503).json({ error: 'Media upload is not configured.' });
+    }
+    const user = await sessionUser(req);
+    const admin = await isAdmin(req);
+    if (!user && !admin) {
+      return res.status(401).json({ error: 'Please sign in to upload files.' });
     }
     const { contentType, fileName, size, prefix } = req.body || {};
     if (!contentType) return res.status(400).json({ error: 'contentType is required' });
@@ -49,6 +58,16 @@ router.post('/sas', async (req, res) => {
     }
 
     const safePrefix = /^[a-z0-9_-]{1,20}$/i.test(prefix || '') ? prefix : 'sell';
+    if (safePrefix === 'agent' && !admin) {
+      const { loadMembership } = require('../services/agent');
+      const membership = user ? await loadMembership(user) : null;
+      if (!membership || membership.verification_status !== 'verified') {
+        return res.status(403).json({ error: 'A verified agency account is required to upload listing photos.' });
+      }
+    }
+    const { rateLimit } = require('../services/rateLimit');
+    await rateLimit('media-sas', user?.email || 'admin', 40, 60 * 60 * 1000);
+
     const out = await createUploadSas({ contentType, fileName, prefix: safePrefix });
     res.json({ ...out, deleteToken: deleteToken(out.blobName) });
   } catch (err) {

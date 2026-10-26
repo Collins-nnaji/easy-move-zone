@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { Heart, Share2, Check } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { shortlist, useSaved } from '../utils/shortlist';
+import { api } from '../api';
+import { useAuth } from '../AuthContext';
 
 /* Save (heart) and Share for a listing — on cards and on the detail page. */
 
@@ -44,6 +46,7 @@ const Pill = styled.button`
 
 /** Heart toggle. `round` floats on a card photo; otherwise a labelled pill. */
 export function SaveButton({ listing, round = false, className }) {
+  const { user } = useAuth();
   const saved = useSaved();
   const on = saved.some((x) => x.id === listing.id);
   const toggle = (e) => {
@@ -51,6 +54,10 @@ export function SaveButton({ listing, round = false, className }) {
     e.preventDefault();
     e.stopPropagation();
     shortlist.toggle(listing);
+    if (user && listing.id) {
+      const nextOn = !on;
+      (nextOn ? api.account.save(listing.id) : api.account.unsave(listing.id)).catch(() => {});
+    }
   };
   const label = on ? 'Remove from saved' : 'Save property';
   const heart = <Heart fill={on ? 'currentColor' : 'none'} />;

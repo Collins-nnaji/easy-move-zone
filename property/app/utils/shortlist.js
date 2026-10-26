@@ -41,6 +41,11 @@ export function snapshot(l) {
 
 export const shortlist = {
   isSaved: (id) => read('saved').some((x) => x.id === id),
+  merge(listings) {
+    const have = new Set(read('saved').map((x) => x.id));
+    const extra = (listings || []).filter((l) => l?.id && !have.has(l.id)).map(snapshot);
+    if (extra.length) write('saved', [...extra, ...read('saved')]);
+  },
   toggle(listing) {
     const list = read('saved');
     write('saved', list.some((x) => x.id === listing.id)

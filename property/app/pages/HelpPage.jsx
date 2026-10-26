@@ -81,9 +81,19 @@ const GROUPS = [
     ],
   },
   {
+    title: 'Agents',
+    items: [
+      ['How does a home get onto the listings?', <>Two different pages. <Link to="/list">List a property</Link> is for an agent posting their own stock, or an owner selling. <Link to="/manage">Manage</Link> is for a landlord who wants us to find the tenant and run the home.</>],
+      ['Can an estate agent list properties here?', <>Yes. <Link to="/agent/apply">Apply as an agency</Link>, wait for staff to verify you, choose a listing plan, then post sale and rental stock from the agent portal. Listings go live after a short review.</>],
+      ['Can you help me get a mortgage?', <>The <Link to="/mortgage">mortgages page</Link> estimates a bank loan or a National Housing Fund loan, and you can ask the desk to broker an introduction. That request is not an offer of credit.</>],
+      ['How do I find an agent?', <>Open <Link to="/list#agents">Find an agent</Link> on the listing page. Every agency there has been verified before they can post.</>],
+      ['How do I estimate a mortgage payment?', <>Use the <Link to="/mortgage">mortgage calculator</Link>. It is an estimate, not a quote or an offer of credit.</>],
+    ],
+  },
+  {
     title: 'Your account',
     items: [
-      ['Do I need an account?', 'Not to browse, save properties, verify a property or talk to an adviser. You need one to have us manage a property, so you can follow rent, repairs and statements, and as a tenant to use the tenant portal.'],
+      ['Do I need an account?', 'Not to browse, save properties, verify a property or talk to an adviser. You need one to have us manage a property, so you can follow rent, repairs and statements, as a tenant to use the tenant portal, and as an agent to post listings.'],
       ['How do I sign out?', 'Tap your initials at the top right, then Sign out.'],
       ['How is my data used?', <>See our <Link to="/privacy">privacy policy</Link>. We do not sell your data.</>],
     ],

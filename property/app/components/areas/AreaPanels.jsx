@@ -36,12 +36,12 @@ const RateForm = styled.form`
   .hint { margin: 0 0 0.8rem; font-size: 0.8rem; color: var(--color-ink-muted); }
   fieldset { border: 0; padding: 0; margin: 0 0 0.7rem; }
   legend { font-size: 0.82rem; font-weight: 600; margin-bottom: 0.3rem; padding: 0; }
-  .scale { display: flex; gap: 0.3rem; align-items: center; }
+  .scale { display: flex; gap: 0.3rem; align-items: center; flex-wrap: wrap; max-width: 100%; }
   .ends { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--color-ink-faint); margin-top: 0.2rem; max-width: 222px; }
   .done { display: flex; align-items: center; gap: 0.4rem; color: var(--color-green-deep); font-weight: 600; font-size: 0.85rem; margin-top: 0.6rem; }
 `;
 const Dot = styled.button`
-  width: 40px; height: 36px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.85rem;
+  flex: 1 1 36px; max-width: 44px; min-width: 32px; height: 36px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.85rem;
   border: 1px solid ${(p) => (p.$on ? 'var(--color-green-deep)' : 'var(--color-line-strong)')};
   background: ${(p) => (p.$on ? 'var(--color-green-deep)' : '#fff')};
   color: ${(p) => (p.$on ? '#fff' : 'var(--color-ink)')};
@@ -190,6 +190,7 @@ const Commute = styled.form`
 `;
 const Nearby = styled.div`
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem;
+  @media (max-width: 380px) { grid-template-columns: minmax(0, 1fr); }
   a { display: flex; align-items: center; gap: 0.45rem; padding: 0.55rem 0.65rem; border-radius: 10px; border: 1px solid var(--color-line); font-size: 0.82rem; font-weight: 600; color: var(--color-ink); }
   a:hover { border-color: rgba(47, 93, 80, 0.4); color: var(--color-green-deep); }
   svg { color: var(--color-green); flex-shrink: 0; }
