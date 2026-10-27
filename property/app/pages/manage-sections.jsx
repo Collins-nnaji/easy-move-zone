@@ -1441,7 +1441,7 @@ export function Settings({ data, email, propertyId, onRefresh }) {
           </table>
         </Table>
         <Actions>
-          <Btn $ghost as={Link} to={`/manage/properties?ref=${encodeURIComponent(target.ref)}`}>
+          <Btn $ghost as={Link} to={`${MANAGE_PROPERTIES_URL}?ref=${encodeURIComponent(target.ref)}`}>
             Message your manager <FaArrowRight size={11} />
           </Btn>
         </Actions>

@@ -4,7 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { KeyRound } from 'lucide-react';
 import { useAuth } from '../AuthContext';
-import { isConsolePath, PORTAL_URL } from '../config/platform';
+import { isConsolePath, PORTAL_URL, TENANT_URL } from '../config/platform';
 
 /**
  * Signed in, the portal (/portal, /manage/…, /tenant/…) replaces the site's
@@ -18,9 +18,9 @@ import { isConsolePath, PORTAL_URL } from '../config/platform';
  * through, and so does code that navigates on purpose (after a form submits).
  */
 
-/** True for a portal URL. A tenant invite link (/tenant/join/…) is how you get in, so it never asks. */
+/** True for a portal URL. A tenant invite link (/portal/tenant/join/…) is how you get in, so it never asks. */
 export function isPortalPath(pathname) {
-  if (pathname.startsWith('/tenant/join/')) return false;
+  if (pathname.startsWith(`${TENANT_URL}/join/`)) return false;
   return pathname === PORTAL_URL || isConsolePath(pathname);
 }
 

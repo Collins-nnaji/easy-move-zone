@@ -7,7 +7,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+        // The agent application is the one portal page meant for search.
+        allow: ["/", "/portal/agent/apply"],
         disallow: [
           "/admin",
           "/admin/",
@@ -15,6 +16,7 @@ export default function robots(): MetadataRoute.Robots {
           "/auth",
           "/manage/",
           "/tenant",
+          "/agent/",
           "/portal",
           "/listings/confirm/",
           "/moving/checkout",

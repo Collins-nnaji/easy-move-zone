@@ -151,7 +151,7 @@ async function creditCharge({ chargeId, amount, receivedOn = null, source = 'des
         kind: 'rent_received',
         title: `Payment received: ${money(credit, charge.currency)}`,
         body: `${charge.period_label || 'Rent'} for ${ctx.property_title} is now ${status === 'received' ? 'paid in full' : `part paid (${money(left, charge.currency)} left)`}.${source === 'paystack' ? ' Paid online.' : ''}`,
-        link: '/tenant/rent',
+        link: '/portal/tenant/rent',
       });
     }
   });
@@ -169,7 +169,7 @@ function announceCharge(charge) {
       kind: 'rent_charge',
       title: `${ctx.period_label || 'Rent'}: ${money(ctx.amount, ctx.currency)} due ${dayLabel(ctx.due_date)}`,
       body: `This is now on your rent schedule for ${ctx.property_title}.`,
-      link: '/tenant/rent',
+      link: '/portal/tenant/rent',
     });
   });
 }
@@ -214,7 +214,7 @@ async function runRentReminders(now = new Date()) {
       kind: 'rent_due_soon',
       title: `Rent due ${dayLabel(ctx.due_date)}: ${money(left, ctx.currency)}`,
       body: `${ctx.period_label || 'Rent'} for ${ctx.property_title}. Pay online or tell us once you have paid by transfer.`,
-      link: '/tenant/rent',
+      link: '/portal/tenant/rent',
       sms: true,
     });
     // eslint-disable-next-line no-await-in-loop
@@ -232,7 +232,7 @@ async function runRentReminders(now = new Date()) {
       kind: 'rent_overdue',
       title: `Overdue: ${money(left, ctx.currency)} for ${ctx.period_label || 'rent'}`,
       body: `This was due on ${dayLabel(ctx.due_date)}. If you have already paid, tell us in your portal so we can match it.`,
-      link: '/tenant/rent',
+      link: '/portal/tenant/rent',
       sms: true,
     });
     // eslint-disable-next-line no-await-in-loop

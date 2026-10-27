@@ -280,7 +280,7 @@ router.post('/requests/:id/messages', async (req, res) => {
         kind: 'manager_message',
         title: `New message about ${row.title}`,
         body: body.slice(0, 500),
-        link: '/manage/account/support',
+        link: '/portal/landlord/account/support',
       })
       : notifyStaff({ kind: 'owner_message', title: `Owner message on ${row.ref}`, body: body.slice(0, 500) })));
     return res.json({ success: true, message: rows[0] });
@@ -1106,7 +1106,7 @@ router.post('/requests/:id/expenses', requireAdmin, async (req, res) => {
         kind: 'approval_needed',
         title: `Approval needed: ${moneyLabel(amount, property.currency)} for ${property.title}`,
         body: `${category}${b.vendor ? ` · ${b.vendor}` : ''}${b.description ? ` — ${String(b.description).slice(0, 300)}` : ''}`,
-        link: '/manage/operations/maintenance',
+        link: '/portal/landlord/operations/maintenance',
         sms: true,
       }));
     }
@@ -1246,7 +1246,7 @@ router.post('/payouts/:id/status', requireAdmin, async (req, res) => {
           kind: 'payout_paid',
           title: `${moneyLabel(payout.net_amount, payout.currency)} paid to you`,
           body: `Remittance ${payout.ref} for ${property.title}${payout.bank_ref ? `, bank reference ${payout.bank_ref}` : ''}.`,
-          link: '/manage/money',
+          link: '/portal/landlord/money',
           sms: true,
         });
       });

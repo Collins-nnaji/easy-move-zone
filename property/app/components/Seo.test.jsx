@@ -18,11 +18,11 @@ test('publishes route-specific metadata and a canonical URL', async () => {
 });
 
 test('keeps signed-in and admin routes out of search indexes', async () => {
-  renderAt('/manage/dashboard');
+  renderAt('/portal/landlord/dashboard');
   await waitFor(() => expect(document.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow'));
 });
 
 test('keeps the tenant portal and the portal chooser out of search indexes', async () => {
-  renderAt('/tenant/rent');
+  renderAt('/portal/tenant/rent');
   await waitFor(() => expect(document.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow'));
 });

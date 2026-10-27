@@ -9,7 +9,9 @@ export const BOOK_SESSION_URL = '/consult';
  *   Verify (`/verify`) — Property Passport verification, and `/verify/photo-scan`.
  *   Renovate (`/renovate`) — a public service page that belongs to Manage.
  *   Manage (`/manage`)  — a public service page leading into the signed-in
- *                          console at `/manage/dashboard` and its sub-pages.
+ *                          portal. Every signed-in page lives under `/portal`:
+ *                          `/portal/landlord/*`, `/portal/tenant/*` and
+ *                          `/portal/agent/*` (the agent application included).
  *
  * `SECTIONS` maps a section id to the paths that belong to it, so shared
  * chrome (Navbar, MobileTabBar, Footer, Layout) can tell which one a given
@@ -20,13 +22,13 @@ export const SECTIONS = {
     id: 'real-estate',
     label: 'Real Estate',
     home: '/',
-    paths: ['/', '/listings', '/list', '/verify', '/renovate', '/consult', '/contact', '/help', '/areas', '/agents', '/mortgage', '/agent/apply'],
+    paths: ['/', '/listings', '/list', '/verify', '/renovate', '/consult', '/contact', '/help', '/areas', '/agents', '/mortgage'],
   },
   manage: {
     id: 'manage',
     label: 'Manage',
     home: '/manage',
-    paths: ['/manage', '/tenant', '/portal'],
+    paths: ['/manage', '/portal'],
   },
 };
 
@@ -46,15 +48,27 @@ export function getSection(pathname) {
 }
 
 /**
- * True for any route rendered inside a portal shell — the owner console
- * (`/manage/*`) or the tenant portal (`/tenant`, `/tenant/*`). Signed in,
- * these are separate portals: Layout drops the site navbar, tab bar and
- * footer, and ConsoleShell supplies its own sidebar.
+ * True for any route rendered inside a portal shell — everything under
+ * `/portal/`: the landlord, tenant and agent portals, and the agent
+ * application. Signed in, Layout drops the site navbar, tab bar and footer,
+ * and ConsoleShell supplies its own sidebar. `/portal` itself only redirects.
  */
 export function isConsolePath(pathname) {
-  return pathname.startsWith('/manage/')
-    || pathname === '/tenant' || pathname.startsWith('/tenant/')
-    || pathname === '/agent' || (pathname.startsWith('/agent/') && !pathname.startsWith('/agent/apply'));
+  return pathname.startsWith('/portal/');
+}
+
+/**
+ * Where an address from before everything moved under `/portal` lives now:
+ * `/manage/…` (not the public `/manage` page), `/tenant…` and `/agent…`
+ * (not the public `/agents` directory). Null for anything else. Emails,
+ * notifications and bookmarks still carry the old addresses.
+ */
+export function legacyPortalPath(pathname) {
+  const under = (root) => pathname === root || pathname.startsWith(`${root}/`);
+  if (pathname.startsWith('/manage/')) return `/portal/landlord/${pathname.slice('/manage/'.length)}`;
+  if (under('/tenant')) return `/portal${pathname}`;
+  if (under('/agent')) return `/portal${pathname}`;
+  return null;
 }
 
 export const MARKETPLACE_URL = '/listings';
@@ -64,6 +78,8 @@ export const MARKETPLACE_URL = '/listings';
  * the sidebar dropdown switches sides.
  */
 export const PORTAL_URL = '/portal';
+/** The landlord portal ("Managed for me"): we let and run your property. */
+export const LANDLORD_URL = `${PORTAL_URL}/landlord`;
 /** Homes to rent: vacant properties we manage, let through the same grid. */
 export const RENT_URL = '/listings/rent';
 /** Neighbourhood pages: residents' scores and board, rents and location tools. */
@@ -79,14 +95,14 @@ export const AREAS_URL = '/areas';
  * label is "My portal". The phone tab bar stays at four: Listings, Areas,
  * Moving, Manage. Mortgages are in the site menu on a phone.
  */
-const MANAGE_PATHS = ['/manage', '/renovate', '/consult', '/portal', '/tenant', '/agent'];
+const MANAGE_PATHS = ['/manage', '/renovate', '/consult', '/portal'];
 
 /** Moving logistics is its own Next.js page (/moving), linked from the nav. */
 export const MOVING_URL = '/moving';
 
 export const AGENTS_URL = '/agents';
-export const AGENT_URL = '/agent';
-export const AGENT_APPLY_URL = '/agent/apply';
+export const AGENT_URL = `${PORTAL_URL}/agent`;
+export const AGENT_APPLY_URL = `${AGENT_URL}/apply`;
 export const MORTGAGE_URL = '/mortgage';
 /** Listing on the portal: agents post their own stock, owners can sell. Not Manage. */
 export const LIST_URL = '/list';
@@ -154,7 +170,7 @@ export const OFFER_ANALYZE_URL = '/verify/photo-scan';
 export const OFFER_VERIFY_URL = '/verify';
 export const OFFER_RENOVATE_URL = '/renovate';
 /** Declared here so SITE_MENU (above the console block) can reference it. */
-const MANAGE_ADD_URL_PUBLIC = '/manage/add';
+const MANAGE_ADD_URL_PUBLIC = `${LANDLORD_URL}/add`;
 
 
 /**
@@ -200,24 +216,24 @@ export const SITE_MENU = [
  * actually thinks about, and the tabs handle the rest.
  */
 
-export const MANAGE_URL = '/manage/dashboard';
-export const MANAGE_PROPERTIES_URL = '/manage/properties';
-export const MANAGE_ADD_URL = '/manage/add';
-export const MANAGE_ONBOARDING_URL = '/manage/onboarding';
-export const MANAGE_JOURNEYS_URL = '/manage/journeys';
-export const MANAGE_VERIFICATIONS_URL = '/manage/verifications';
-export const MANAGE_OFFERS_URL = '/manage/offers';
+export const MANAGE_URL = `${LANDLORD_URL}/dashboard`;
+export const MANAGE_PROPERTIES_URL = `${LANDLORD_URL}/properties`;
+export const MANAGE_ADD_URL = `${LANDLORD_URL}/add`;
+export const MANAGE_ONBOARDING_URL = `${LANDLORD_URL}/onboarding`;
+export const MANAGE_JOURNEYS_URL = `${LANDLORD_URL}/journeys`;
+export const MANAGE_VERIFICATIONS_URL = `${LANDLORD_URL}/verifications`;
+export const MANAGE_OFFERS_URL = `${LANDLORD_URL}/offers`;
 
-export const MANAGE_MONEY_URL = '/manage/money';
-export const MANAGE_FINANCE_URL = '/manage/money/finance';
+export const MANAGE_MONEY_URL = `${LANDLORD_URL}/money`;
+export const MANAGE_FINANCE_URL = `${LANDLORD_URL}/money/finance`;
 
-export const MANAGE_OPS_URL = '/manage/operations';
-export const MANAGE_MAINTENANCE_URL = '/manage/operations/maintenance';
-export const MANAGE_DOCUMENTS_URL = '/manage/operations/documents';
+export const MANAGE_OPS_URL = `${LANDLORD_URL}/operations`;
+export const MANAGE_MAINTENANCE_URL = `${LANDLORD_URL}/operations/maintenance`;
+export const MANAGE_DOCUMENTS_URL = `${LANDLORD_URL}/operations/documents`;
 
-export const MANAGE_ACCOUNT_URL = '/manage/account';
-export const MANAGE_PLAN_URL = '/manage/account/plan';
-export const MANAGE_CONSULT_URL = '/manage/account/support';
+export const MANAGE_ACCOUNT_URL = `${LANDLORD_URL}/account`;
+export const MANAGE_PLAN_URL = `${LANDLORD_URL}/account/plan`;
+export const MANAGE_CONSULT_URL = `${LANDLORD_URL}/account/support`;
 
 /** Collections is the Money section's default tab. */
 export const MANAGE_COLLECTIONS_URL = MANAGE_MONEY_URL;
@@ -300,14 +316,14 @@ export const CONSOLE_NAV = [
  * Four sections again, each a page with tabs. A tenant only ever sees their
  * own tenancy: never the owner, the owner's money or other units.
  */
-export const TENANT_URL = '/tenant';
-export const TENANT_APPLICATIONS_URL = '/tenant/applications';
-export const TENANT_RENT_URL = '/tenant/rent';
-export const TENANT_PAID_URL = '/tenant/rent/paid';
-export const TENANT_REQUESTS_URL = '/tenant/requests';
-export const TENANT_NEW_REQUEST_URL = '/tenant/requests/new';
-export const TENANT_HOME_URL = '/tenant/home';
-export const TENANT_DOCUMENTS_URL = '/tenant/home/documents';
+export const TENANT_URL = `${PORTAL_URL}/tenant`;
+export const TENANT_APPLICATIONS_URL = `${TENANT_URL}/applications`;
+export const TENANT_RENT_URL = `${TENANT_URL}/rent`;
+export const TENANT_PAID_URL = `${TENANT_URL}/rent/paid`;
+export const TENANT_REQUESTS_URL = `${TENANT_URL}/requests`;
+export const TENANT_NEW_REQUEST_URL = `${TENANT_URL}/requests/new`;
+export const TENANT_HOME_URL = `${TENANT_URL}/home`;
+export const TENANT_DOCUMENTS_URL = `${TENANT_URL}/home/documents`;
 
 export const TENANT_NAV = [
   {
@@ -359,11 +375,11 @@ export const TENANT_NAV = [
   },
 ];
 
-export const AGENT_LISTINGS_URL = '/agent/listings';
-export const AGENT_NEW_URL = '/agent/listings/new';
-export const AGENT_INBOX_URL = '/agent/inbox';
-export const AGENT_OFFICES_URL = '/agent/offices';
-export const AGENT_ACCOUNT_URL = '/agent/account';
+export const AGENT_LISTINGS_URL = `${AGENT_URL}/listings`;
+export const AGENT_NEW_URL = `${AGENT_URL}/listings/new`;
+export const AGENT_INBOX_URL = `${AGENT_URL}/inbox`;
+export const AGENT_OFFICES_URL = `${AGENT_URL}/offices`;
+export const AGENT_ACCOUNT_URL = `${AGENT_URL}/account`;
 
 export const AGENT_NAV = [
   {
@@ -405,6 +421,22 @@ export const AGENT_NAV = [
       { to: AGENT_ACCOUNT_URL, label: 'Profile & plan', end: true },
       { to: AGENT_OFFICES_URL, label: 'Offices' },
     ],
+  },
+];
+
+/**
+ * Before an agency is verified, the agent portal is one page: the
+ * application. It still sits in the portal shell, so the switcher and the
+ * way back to the other portals stay in reach.
+ */
+export const AGENT_APPLY_NAV = [
+  {
+    to: AGENT_APPLY_URL,
+    label: 'Apply',
+    hint: 'Get verified to list homes',
+    icon: 'onboarding',
+    match: [AGENT_APPLY_URL],
+    tabs: [{ to: AGENT_APPLY_URL, label: 'Application', end: true }],
   },
 ];
 

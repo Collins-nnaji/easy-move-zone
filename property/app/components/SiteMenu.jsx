@@ -117,7 +117,7 @@ export default function SiteMenu({ onNavigate, compact = false }) {
         {user && (
           <div className="mt-2 flex gap-2">
             <Button asChild size="sm" variant="ghost" className="flex-1">
-              <Link to="/manage/dashboard" onClick={onNavigate}>Open Manage</Link>
+              <Link to={MANAGE_URL} onClick={onNavigate}>Open Manage</Link>
             </Button>
             <Button size="sm" variant="ghost" className="flex-1" onClick={() => { signOut(); onNavigate?.(); }}>Sign out</Button>
           </div>

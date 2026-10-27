@@ -27,9 +27,10 @@ beforeEach(() => { mockUser = { email: 'ada@example.com' }; });
 
 test('portal paths are the portal, the owner and tenant consoles, but not an invite link', () => {
   expect(isPortalPath('/portal')).toBe(true);
-  expect(isPortalPath('/manage/dashboard')).toBe(true);
-  expect(isPortalPath('/tenant/rent')).toBe(true);
-  expect(isPortalPath('/tenant/join/abc')).toBe(false);
+  expect(isPortalPath('/portal/landlord/dashboard')).toBe(true);
+  expect(isPortalPath('/portal/tenant/rent')).toBe(true);
+  expect(isPortalPath('/portal/agent/apply')).toBe(true);
+  expect(isPortalPath('/portal/tenant/join/abc')).toBe(false);
   expect(isPortalPath('/manage')).toBe(false);
   expect(isPortalPath('/listings')).toBe(false);
 });
@@ -64,7 +65,7 @@ test('other links, signed-out visitors and moves inside the portal never ask', (
   signedOut.unmount();
 
   mockUser = { email: 'ada@example.com' };
-  renderAt('/manage/dashboard');
+  renderAt('/portal/landlord/dashboard');
   fireEvent.click(screen.getByRole('link', { name: 'My portal' }));
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 });

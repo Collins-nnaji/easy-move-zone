@@ -1,4 +1,4 @@
-import { PURCHASE_DAYS } from './platform';
+import { PURCHASE_DAYS, AGENT_APPLY_URL, legacyPortalPath } from './platform';
 import STARTER_AREAS from '../../server/data/areas.json';
 
 /*
@@ -29,7 +29,7 @@ export const PUBLIC_META = [
   { match: (p) => p === '/help', title: 'Help and FAQs | EasyMoveZone', description: 'Answers to common questions about buying, verifying, selling and letting property with EasyMoveZone.' },
   { match: (p) => p === '/agents', title: 'Find an agent | EasyMoveZone', description: 'Browse verified estate agencies listing sale and rental properties on EasyMoveZone.' },
   { match: (p) => p.startsWith('/agents/'), title: 'Estate agency | EasyMoveZone', description: 'Live listings and office details for a verified agency on EasyMoveZone.' },
-  { match: (p) => p === '/agent/apply', title: 'List as an agent | EasyMoveZone', description: 'Apply to post sale and rental properties on EasyMoveZone as a verified agency.' },
+  { match: (p) => p === AGENT_APPLY_URL, title: 'List as an agent | EasyMoveZone', description: 'Apply to post sale and rental properties on EasyMoveZone as a verified agency.' },
   { match: (p) => p === '/mortgage' || p.startsWith('/mortgage/'), title: 'Mortgages and the National Housing Fund | EasyMoveZone', description: 'Compare the National Housing Fund, Stanbic IBTC MREIF and an Access Bank mortgage, check what you could pay, then ask EasyMoveZone to make an introduction. Not a loan offer.' },
   { match: (p) => p.startsWith('/listings/confirm/'), title: 'Confirm your listing | EasyMoveZone', description: 'Check the listing EasyMoveZone prepared for you and sign the owner authorization.' },
   { match: (p) => p.startsWith('/listings/'), title: 'Approved property | EasyMoveZone', description: 'View an approved EasyMoveZone property with verified condition, valuation evidence and a clear route to enquire.' },
@@ -51,7 +51,9 @@ export const PUBLIC_META = [
 ];
 
 export function isPrivatePath(pathname) {
-  return pathname.startsWith('/manage/') || pathname === '/tenant' || pathname.startsWith('/tenant/') || pathname === '/agent' || (pathname.startsWith('/agent/') && !pathname.startsWith('/agent/apply')) || pathname === '/portal' || pathname === '/my-hub' || pathname === '/profile' || pathname === '/admin' || pathname.startsWith('/auth') || pathname.startsWith('/listings/confirm/') || pathname === '/moving/checkout';
+  // The agent application is the one portal page meant to be found by search.
+  if (pathname === AGENT_APPLY_URL) return false;
+  return pathname === '/portal' || pathname.startsWith('/portal/') || legacyPortalPath(pathname) !== null || pathname === '/my-hub' || pathname === '/profile' || pathname === '/admin' || pathname.startsWith('/auth') || pathname.startsWith('/listings/confirm/') || pathname === '/moving/checkout';
 }
 
 export function metaForPath(pathname) {

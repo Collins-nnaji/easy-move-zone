@@ -578,7 +578,7 @@ router.post('/billing/checkout', requireVerifiedAgent, async (req, res) => {
       amount: Math.round(plan.amount * 100),
       currency: plan.currency,
       reference,
-      callback_url: `${APP_URL}/agent/account?paid=${encodeURIComponent(reference)}`,
+      callback_url: `${APP_URL}/portal/agent/account?paid=${encodeURIComponent(reference)}`,
       metadata: { agency_id: req.agent.agency_id, plan: plan.id },
     });
     return res.json({ authorization_url: tx.authorization_url, reference });
@@ -728,7 +728,7 @@ router.patch('/admin/applications/:id', requireAdmin, async (req, res) => {
         kind: 'agent_verified',
         title: `${app.company} is verified`,
         body: 'You can now choose a plan and post listings on EasyMoveZone.',
-        link: '/agent',
+        link: '/portal/agent',
         sms: Boolean(app.phone),
       }));
     } else if (next === 'rejected' || next === 'needs_more') {
@@ -740,7 +740,7 @@ router.patch('/admin/applications/:id', requireAdmin, async (req, res) => {
         body: clean(req.body?.note, 500) || (next === 'rejected'
           ? 'Staff reviewed your application and could not verify the agency.'
           : 'Please update your licence or contact details and we will look again.'),
-        link: '/agent/apply',
+        link: '/portal/agent/apply',
       }));
     }
 
@@ -800,7 +800,7 @@ router.patch('/admin/agencies/:id', requireAdmin, async (req, res) => {
         kind: 'agent_suspended',
         title: `${current.name} has been suspended`,
         body: 'Your live listings have been taken down. Contact EasyMoveZone if this is a mistake.',
-        link: '/agent',
+        link: '/portal/agent',
       }));
     } else if (b.verification_status === 'verified') {
       await pool.query(
@@ -899,7 +899,7 @@ router.post('/admin/listings/:id/review', requireAdmin, async (req, res) => {
       kind: 'listing_rejected',
       title: `${current.title} was not approved`,
       body: clean(req.body?.note, 500) || 'Please edit and submit it again.',
-      link: '/agent/listings',
+      link: '/portal/agent/listings',
     }));
     return res.json({ listing: rows[0] });
   } catch (err) {

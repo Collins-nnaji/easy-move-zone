@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
+import { AGENT_APPLY_URL } from '../config/platform';
 
 /**
  * A slim, one-row footer: the logo, Contact and Privacy, and the copyright.
@@ -65,7 +66,7 @@ const Footer = () => {
         <Links aria-label="Footer">
           <Link to="/list">List a property</Link>
           <Link to="/list#agents">Find an agent</Link>
-          <Link to="/agent/apply">For agents</Link>
+          <Link to={AGENT_APPLY_URL}>For agents</Link>
           <Link to="/mortgage">Mortgages</Link>
           <Link to="/contact">Contact us</Link>
           <Link to="/privacy">Privacy</Link>

@@ -9,6 +9,7 @@ import Loader from './components/Loader';
 import { AuthProvider, useAuth } from './AuthContext';
 import {
   MARKETPLACE_URL, MANAGE_URL, MANAGE_VERIFICATIONS_URL, MANAGE_OFFERS_URL, MANAGE_PLAN_URL, MANAGE_CONSULT_URL,
+  legacyPortalPath,
 } from './config/platform';
 
 const SiteAuthRedirect = lazy(() => import('./components/SiteAuthRedirect'));
@@ -60,6 +61,16 @@ function LegacyMyHubRedirect() {
   return <Navigate to={HUB_TABS[tab] || MANAGE_URL} replace />;
 }
 
+/**
+ * Every signed-in page moved under `/portal`. Old `/manage/…`, `/tenant…` and
+ * `/agent…` links (emails, notifications, bookmarks) land on the same page.
+ * The middleware does this on a full page load; this covers in-app clicks.
+ */
+function LegacyPortalRedirect() {
+  const { pathname, search, hash } = useLocation();
+  return <Navigate to={`${legacyPortalPath(pathname) || '/portal'}${search}${hash}`} replace />;
+}
+
 function App() {
   return (
     // reducedMotion="user": every animation in the app honours the OS setting.
@@ -85,16 +96,21 @@ function App() {
                 <Route path="/areas/*" element={<AreasPage />} />
                 <Route path="/agents/:slug" element={<AgentsDirectoryPage />} />
                 <Route path="/agents" element={<AgentsDirectoryPage />} />
-                <Route path="/agent/apply" element={<AgentApplyPage />} />
-                <Route path="/agent/*" element={<AgentConsolePage />} />
                 <Route path="/mortgage/*" element={<MortgagePage />} />
                 <Route path="/faq" element={<Navigate to="/help" replace />} />
                 <Route path="/saved" element={<Navigate to="/listings/saved" replace />} />
-                <Route path="/manage/*" element={<ManageConsolePage />} />
                 {/* Signed in, "My portal" picks the owner console or the tenant portal. */}
+                {/* The portal: one address for everything signed in. */}
                 <Route path="/portal" element={<PortalPage />} />
-                <Route path="/tenant/join/:token" element={<TenantJoinPage />} />
-                <Route path="/tenant/*" element={<TenantConsolePage />} />
+                <Route path="/portal/landlord/*" element={<ManageConsolePage />} />
+                <Route path="/portal/tenant/join/:token" element={<TenantJoinPage />} />
+                <Route path="/portal/tenant/*" element={<TenantConsolePage />} />
+                <Route path="/portal/agent/apply" element={<AgentApplyPage />} />
+                <Route path="/portal/agent/*" element={<AgentConsolePage />} />
+                <Route path="/portal/*" element={<Navigate to="/portal" replace />} />
+                <Route path="/manage/*" element={<LegacyPortalRedirect />} />
+                <Route path="/tenant/*" element={<LegacyPortalRedirect />} />
+                <Route path="/agent/*" element={<LegacyPortalRedirect />} />
 
                 <Route path="/my-hub" element={<LegacyMyHubRedirect />} />
                 <Route path="/profile" element={<LegacyMyHubRedirect />} />

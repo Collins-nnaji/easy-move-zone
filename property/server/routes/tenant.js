@@ -248,7 +248,7 @@ router.post('/requests', async (req, res) => {
           body: category === 'notice'
             ? 'Your manager will confirm dates and start finding the next tenant.'
             : `Your manager is handling it. Anything that costs more than your approval limit comes to you first.`,
-          link: '/manage/operations/maintenance',
+          link: '/portal/landlord/operations/maintenance',
           sms: urgent || category === 'notice',
         });
       }
@@ -395,7 +395,7 @@ function tellTenant(q, reply) {
       kind: 'request_update',
       title: reply ? `Reply on "${q.title}"` : `"${q.title}" is ${STATUS_WORDS[q.status] || q.status}`,
       body: reply || '',
-      link: '/tenant/requests',
+      link: '/portal/tenant/requests',
       sms: q.status === 'scheduled',
     });
   });
@@ -494,7 +494,7 @@ router.post('/admin/tenancies/:id/invite', requireAdmin, async (req, res) => {
       [id, hashToken(token), sendTo, String(INVITE_DAYS)]
     );
     const base = (req.get('origin') || APP_URL).replace(/\/$/, '');
-    const url = `${base}/tenant/join/${token}`;
+    const url = `${base}/portal/tenant/join/${token}`;
     if (sendTo && req.body?.send !== false) {
       later(() => notify({
         to: { email: sendTo, phone: t.tenant_phone },
@@ -502,7 +502,7 @@ router.post('/admin/tenancies/:id/invite', requireAdmin, async (req, res) => {
         kind: 'tenant_invite',
         title: `Your tenant portal for ${t.property_title}`,
         body: `Open your EasyMoveZone tenant portal to see your rent, report repairs and read your tenancy agreement. The link works once, for ${INVITE_DAYS} days.`,
-        link: `/tenant/join/${token}`,
+        link: `/portal/tenant/join/${token}`,
         sms: true,
       }));
     }
@@ -689,7 +689,7 @@ router.post('/pay', requireUser, async (req, res) => {
       amount: Math.round(owing * 100), // kobo (or the currency's minor unit)
       currency,
       reference,
-      callback_url: `${base}/tenant/rent?paid=${encodeURIComponent(reference)}`,
+      callback_url: `${base}/portal/tenant/rent?paid=${encodeURIComponent(reference)}`,
       metadata: { charge_id: c.id, tenancy_id: c.tenancy_id, period: c.period_label, property: c.property_title },
     });
     return res.json({ url: tx.authorization_url, reference });

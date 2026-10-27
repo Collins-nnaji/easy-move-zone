@@ -7,7 +7,7 @@ import SignInGate from '../components/SignInGate';
 import ConsoleShell from '../components/ConsoleShell';
 import { Card, Empty, Notice, Btn, Field, Label, Input, Select, TwoCol } from './manage-sections';
 import {
-  AGENT_NAV, AGENT_URL, AGENT_APPLY_URL, AGENT_LISTINGS_URL, AGENT_NEW_URL,
+  AGENT_NAV, AGENT_URL, AGENT_APPLY_URL, AGENT_LISTINGS_URL, AGENT_NEW_URL, AGENT_INBOX_URL, AGENT_ACCOUNT_URL,
 } from '../config/platform';
 import { AGENT_PLANS } from '../config/agentPlans';
 import { formatMoneyFull } from '../utils/format';
@@ -80,9 +80,9 @@ function Overview({ me }) {
   const verified = me.agency?.verification_status === 'verified';
   const steps = [
     { ok: Boolean(me.application) || verified, title: 'Apply', body: verified ? 'The agency is verified.' : (me.application ? `Application is ${me.application.status.replace('_', ' ')}.` : 'Tell us who the agency is and send the licence.'), to: AGENT_APPLY_URL, cta: 'Application' },
-    { ok: plan !== 'none', title: 'Choose a plan', body: plan !== 'none' ? `${plan} · ${me.quota || 0} listings` : 'A plan is what lets a draft leave your account.', to: '/agent/account', cta: 'Plans' },
+    { ok: plan !== 'none', title: 'Choose a plan', body: plan !== 'none' ? `${plan} · ${me.quota || 0} listings` : 'A plan is what lets a draft leave your account.', to: AGENT_ACCOUNT_URL, cta: 'Plans' },
     { ok: listings.length > 0, title: 'Post a property', body: listings.length ? `${listings.length} in this account.` : 'Sale or rent, with photos and a floorplan. We approve it before it is public.', to: AGENT_NEW_URL, cta: 'Post' },
-    { ok: leads > 0 || (inbox.enquiries || []).length > 0, title: 'Answer leads', body: 'Enquiries, applications and viewing requests arrive here. The buyer’s details are not published.', to: '/agent/inbox', cta: 'Inbox' },
+    { ok: leads > 0 || (inbox.enquiries || []).length > 0, title: 'Answer leads', body: 'Enquiries, applications and viewing requests arrive here. The buyer’s details are not published.', to: AGENT_INBOX_URL, cta: 'Inbox' },
   ];
   return (
     <>
@@ -134,7 +134,7 @@ function ListingsList() {
           <div style={{ textAlign: 'right' }}>
             <Pill>{l.status.replace('_', ' ')}</Pill>
             <Actions style={{ marginTop: '0.45rem' }}>
-              <Btn type="button" onClick={() => navigate(`/agent/listings/${l.id}`)}>Edit</Btn>
+              <Btn type="button" onClick={() => navigate(`${AGENT_LISTINGS_URL}/${l.id}`)}>Edit</Btn>
               {['draft', 'rejected', 'withdrawn'].includes(l.status) && (
                 <Btn type="button" $primary onClick={() => act(l.id, () => api.agent.submitListing(l.id))}>Submit</Btn>
               )}
@@ -217,7 +217,7 @@ function ListingEditor({ existing }) {
       if (existing) await api.agent.updateListing(existing.id, payload);
       else {
         const { listing } = await api.agent.createListing(payload);
-        navigate(`/agent/listings/${listing.id}`, { replace: true });
+        navigate(`${AGENT_LISTINGS_URL}/${listing.id}`, { replace: true });
         return;
       }
       navigate(AGENT_LISTINGS_URL);

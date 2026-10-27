@@ -23,7 +23,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '..
 import { Tabs, TabsList, TabsTrigger } from '../components/shadcn/tabs';
 import { api } from '../api';
 import { ListingCard } from './MarketplacePage';
-import { MARKETPLACE_URL, OFFER_VERIFY_URL, PURCHASE_DAYS, AREAS_URL } from '../config/platform';
+import { MARKETPLACE_URL, OFFER_VERIFY_URL, PURCHASE_DAYS, AREAS_URL, MANAGE_ADD_URL } from '../config/platform';
 import { MANAGEMENT_PLANS, estimateFees } from '../config/management';
 import { formatMoneyFull } from '../utils/format';
 import { CURRENCY } from '../config/markets';
@@ -583,7 +583,7 @@ export function RentCalculator({
                 <div className="m">About {formatMoneyFull(quote.netMonthly, currency)} a month, on a fixed cycle.</div>
               </CalcHeadline>
               <ActionRow style={{ marginTop: '1.6rem' }}>
-                <CalloutAction to="/manage/add">Let us manage it <FaArrowRight size={13} /></CalloutAction>
+                <CalloutAction to={MANAGE_ADD_URL}>Let us manage it <FaArrowRight size={13} /></CalloutAction>
               </ActionRow>
             </CalcResult>
           </Reveal>

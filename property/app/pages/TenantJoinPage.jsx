@@ -8,7 +8,7 @@ import Loader from '../components/Loader';
 import { TENANT_URL, CONTACT_URL, rememberPortalRole } from '../config/platform';
 
 /**
- * `/tenant/join/:token` — the link the desk sends a tenant (Admin →
+ * `/portal/tenant/join/:token` — the link the desk sends a tenant (Admin →
  * Management → Invite tenant). It shows which home it is for, asks the tenant
  * to sign in (or create an account), then attaches the tenancy to that
  * account. Single use, 14 days; a newer link replaces an older one.
@@ -102,7 +102,7 @@ export default function TenantJoinPage() {
 
   if (loading || (!invite && !error)) return <Loader />;
 
-  const here = `/tenant/join/${token}`;
+  const here = `${TENANT_URL}/join/${token}`;
   return (
     <Wrap>
       <Card>

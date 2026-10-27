@@ -2,6 +2,7 @@ import { forwardAuthRequest } from "@/lib/auth/proxy"
 import { safeAuthRedirect } from "@/lib/auth/redirect"
 import { NextResponse, type NextRequest } from "next/server"
 import { neonAuthMiddleware } from "@neondatabase/auth/next/server"
+import { legacyPortalPath } from "@/property/app/config/platform"
 
 const authMiddleware = neonAuthMiddleware({ loginUrl: "/auth" })
 
@@ -74,6 +75,14 @@ export default async function middleware(request: NextRequest) {
   if (!searchParams.has(VERIFIER_PARAM)) {
     const legacy = legacyMovingTarget(request)
     if (legacy) return NextResponse.redirect(legacy, 308)
+    // Signed-in pages all live under /portal now; old /manage/…, /tenant…
+    // and /agent… links from emails and bookmarks follow them there.
+    const moved = legacyPortalPath(pathname)
+    if (moved) {
+      const url = new URL(moved, request.url)
+      url.search = request.nextUrl.search
+      return NextResponse.redirect(url, 308)
+    }
   }
   const guarded = isProtected(pathname)
 

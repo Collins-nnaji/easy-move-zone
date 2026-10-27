@@ -1225,7 +1225,7 @@ router.post('/:id/enquiry', async (req, res) => {
         kind: viewing ? 'viewing' : 'enquiry',
         title: viewing ? `Viewing request: ${listing.title}` : `New enquiry: ${listing.title}`,
         body: `${clean(name)} asked about ${listing.title}.`,
-        link: '/agent/inbox',
+        link: '/portal/agent/inbox',
       }));
     }
 
@@ -1304,7 +1304,7 @@ router.post('/:id/apply', async (req, res) => {
         kind: 'application',
         title: `Rental application: ${listing.title}`,
         body: `${clean(b.fullName)} applied for ${listing.title}.`,
-        link: '/agent/inbox',
+        link: '/portal/agent/inbox',
       }));
     }
 

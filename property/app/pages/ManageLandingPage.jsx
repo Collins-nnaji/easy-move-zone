@@ -7,7 +7,7 @@ import {
 } from 'react-icons/fa';
 import { ArrowRight, MessagesSquare } from 'lucide-react';
 import { useAuth } from '../AuthContext';
-import { MANAGE_URL, BOOK_SESSION_URL, LIST_URL } from '../config/platform';
+import { MANAGE_URL, MANAGE_ADD_URL, BOOK_SESSION_URL, LIST_URL } from '../config/platform';
 import {
   PageShell, Section, Inner, SectionHead, Kicker, SectionTitle, SectionSub, CheckGrid, CheckItem, Callout, CalloutAction, enterContainer, enterItem,
 } from '../components/page';
@@ -98,9 +98,9 @@ const HeroArt = styled(motion.div)`
 /* Manage is property management on the owner's behalf: letting it, running
    it, and renovating it. Buying and building live elsewhere on the site. */
 const SERVICES = [
-  { title: 'Find and vet tenants', body: 'Viewings, referencing and a signed tenancy — we choose who moves in, with your say-so.', icon: FaUserCheck, art: 'tenants', to: '/manage/add?service=rental', action: 'Let my property' },
-  { title: 'Collect the rent', body: 'Rent collected on time, arrears chased, and the balance paid to you with a statement.', icon: FaFileInvoiceDollar, art: 'rent', to: '/manage/add?service=rental', action: 'Add my property' },
-  { title: 'Repairs and upkeep', body: 'Issues logged, quotes approved by you, work evidenced before anyone is paid.', icon: FaTools, art: 'repairs', to: '/manage/add?service=rental', action: 'Hand it over' },
+  { title: 'Find and vet tenants', body: 'Viewings, referencing and a signed tenancy — we choose who moves in, with your say-so.', icon: FaUserCheck, art: 'tenants', to: `${MANAGE_ADD_URL}?service=rental`, action: 'Let my property' },
+  { title: 'Collect the rent', body: 'Rent collected on time, arrears chased, and the balance paid to you with a statement.', icon: FaFileInvoiceDollar, art: 'rent', to: `${MANAGE_ADD_URL}?service=rental`, action: 'Add my property' },
+  { title: 'Repairs and upkeep', body: 'Issues logged, quotes approved by you, work evidenced before anyone is paid.', icon: FaTools, art: 'repairs', to: `${MANAGE_ADD_URL}?service=rental`, action: 'Hand it over' },
   { title: 'Renovate', body: 'Upgrade to let faster or for more — scoped, quoted and approved stage by stage.', icon: FaPaintRoller, art: 'renovate', to: '/renovate', action: 'Request a renovation' },
 ];
 
@@ -295,7 +295,7 @@ export default function ManageLandingPage() {
             </motion.p>
             <HeroActions variants={enterItem}>
               <Button asChild size="xl" variant="bright" block={mobile}>
-                <Link to={user ? '/manage/add?service=rental' : { pathname: '/auth', search: '?mode=signup', state: { from: { pathname: '/manage/add', search: '?service=rental' } } }}>Hand over my property <ArrowRight className="h-4 w-4" /></Link>
+                <Link to={user ? `${MANAGE_ADD_URL}?service=rental` : { pathname: '/auth', search: '?mode=signup', state: { from: { pathname: MANAGE_ADD_URL, search: '?service=rental' } } }}>Hand over my property <ArrowRight className="h-4 w-4" /></Link>
               </Button>
               <Button asChild size="xl" variant="link" block={mobile}>
                 <Link to={BOOK_SESSION_URL}><MessagesSquare className="h-4 w-4" /> Talk to an adviser</Link>

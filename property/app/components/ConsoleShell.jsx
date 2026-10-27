@@ -17,8 +17,8 @@ import NotificationBell from './NotificationBell';
 import { springy } from './ui';
 
 /**
- * The portal chrome, shared by the owner console (`/manage/*`) and the tenant
- * portal (`/tenant/*`).
+ * The portal chrome, shared by every portal under `/portal`: landlord
+ * (`/portal/landlord/*`), tenant (`/portal/tenant/*`) and agent (`/portal/agent/*`).
  *
  * Signed in, a portal leaves the public site behind (Layout drops the navbar,
  * phone tab bar and footer) and this shell takes the screen:
@@ -614,7 +614,7 @@ function within(pathname, p) {
 /**
  * A section owns several paths that do not all share a prefix, so matching
  * runs off its own `match` list (minus `exclude`). The score is the length of
- * the path that matched, so `/manage/account` is never claimed by Overview.
+ * the path that matched, so `/portal/landlord/account` is never claimed by Overview.
  */
 export function currentSection(nav, pathname) {
   const score = (item) => {
