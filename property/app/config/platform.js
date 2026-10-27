@@ -228,8 +228,9 @@ export const MANAGE_SETTINGS_URL = MANAGE_ACCOUNT_URL;
 
 /**
  * The owner portal's four sections. The sidebar (and the phone bottom bar)
- * lists only these. Header tabs stay short on a phone: Home, Properties and
- * Deals on Overview; documents live under Tenancies; plan and the manager
+ * lists only these. Each carries a `hint`, the line under its name in the sidebar, so
+ * an owner can tell where something lives before clicking. Header tabs stay
+ * short on a phone: Home, Properties and Deals on Overview; documents live under Tenancies; plan and the manager
  * conversation share one Account tab. `icon` keys map to icons in ConsoleShell.
  *
  * `match` lists every path that should light this section up. Overview's
@@ -240,6 +241,7 @@ export const CONSOLE_NAV = [
   {
     to: MANAGE_URL,
     label: 'Overview',
+    hint: 'Dashboard, properties, deals',
     icon: 'overview',
     match: [MANAGE_URL, MANAGE_PROPERTIES_URL, MANAGE_ADD_URL, MANAGE_ONBOARDING_URL, MANAGE_JOURNEYS_URL, MANAGE_VERIFICATIONS_URL, MANAGE_OFFERS_URL],
     // What used to be My Hub lives here: verifications (buying) and sales &
@@ -258,6 +260,7 @@ export const CONSOLE_NAV = [
   {
     to: MANAGE_MONEY_URL,
     label: 'Money',
+    hint: 'Rent collected, statements',
     icon: 'money',
     match: [MANAGE_MONEY_URL],
     tabs: [
@@ -268,6 +271,7 @@ export const CONSOLE_NAV = [
   {
     to: MANAGE_OPS_URL,
     label: 'Operations',
+    hint: 'Tenancies, repairs',
     icon: 'operations',
     badge: 'maintenance',
     match: [MANAGE_OPS_URL],
@@ -279,6 +283,7 @@ export const CONSOLE_NAV = [
   {
     to: MANAGE_ACCOUNT_URL,
     label: 'Account',
+    hint: 'Payout details, plan, help',
     icon: 'account',
     match: [MANAGE_ACCOUNT_URL],
     tabs: [
@@ -308,6 +313,7 @@ export const TENANT_NAV = [
   {
     to: TENANT_URL,
     label: 'Overview',
+    hint: 'Your home, applications',
     icon: 'overview',
     match: [TENANT_URL],
     exclude: [TENANT_RENT_URL, TENANT_REQUESTS_URL, TENANT_HOME_URL],
@@ -319,6 +325,7 @@ export const TENANT_NAV = [
   {
     to: TENANT_RENT_URL,
     label: 'Rent',
+    hint: 'What is due, tell us you paid',
     icon: 'money',
     badge: 'arrears',
     match: [TENANT_RENT_URL],
@@ -330,6 +337,7 @@ export const TENANT_NAV = [
   {
     to: TENANT_REQUESTS_URL,
     label: 'Requests',
+    hint: 'Repairs and questions',
     icon: 'operations',
     badge: 'requests',
     match: [TENANT_REQUESTS_URL],
@@ -341,6 +349,7 @@ export const TENANT_NAV = [
   {
     to: TENANT_HOME_URL,
     label: 'My home',
+    hint: 'Tenancy, documents',
     icon: 'home',
     match: [TENANT_HOME_URL],
     tabs: [
@@ -360,6 +369,7 @@ export const AGENT_NAV = [
   {
     to: AGENT_URL,
     label: 'Overview',
+    hint: 'Stock, reviews, next steps',
     icon: 'overview',
     match: [AGENT_URL],
     exclude: [AGENT_LISTINGS_URL, AGENT_INBOX_URL, AGENT_OFFICES_URL, AGENT_ACCOUNT_URL],
@@ -368,6 +378,7 @@ export const AGENT_NAV = [
   {
     to: AGENT_LISTINGS_URL,
     label: 'Listings',
+    hint: 'Post and edit homes',
     icon: 'home',
     match: [AGENT_LISTINGS_URL],
     tabs: [
@@ -378,6 +389,7 @@ export const AGENT_NAV = [
   {
     to: AGENT_INBOX_URL,
     label: 'Inbox',
+    hint: 'Enquiries, viewings',
     icon: 'inbox',
     badge: 'leads',
     match: [AGENT_INBOX_URL],
@@ -386,6 +398,7 @@ export const AGENT_NAV = [
   {
     to: AGENT_ACCOUNT_URL,
     label: 'Account',
+    hint: 'Profile, plan, offices',
     icon: 'account',
     match: [AGENT_ACCOUNT_URL, AGENT_OFFICES_URL],
     tabs: [

@@ -1,16 +1,17 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   FaChartPie, FaMoneyBillWave, FaTools, FaCog, FaHome, FaRegCompass, FaPlus, FaBars,
   FaArrowLeft, FaSignOutAlt, FaQuestionCircle, FaKey, FaBuilding, FaCheck,
-  FaBriefcase, FaInbox,
+  FaBriefcase, FaInbox, FaChevronDown, FaArrowRight,
 } from 'react-icons/fa';
 import {
-  MANAGE_URL, TENANT_URL, AGENT_URL, MARKETPLACE_URL, HELP_URL, rememberPortalRole,
+  MANAGE_URL, TENANT_URL, AGENT_URL, AGENT_APPLY_URL, MARKETPLACE_URL, HELP_URL, rememberPortalRole,
 } from '../config/platform';
 import { useAuth } from '../AuthContext';
+import usePortalAccess from './usePortalAccess';
 import { Sheet, SheetContent, SheetTitle } from './shadcn/sheet';
 import NotificationBell from './NotificationBell';
 import { springy } from './ui';
@@ -23,15 +24,19 @@ import { springy } from './ui';
  * phone tab bar and footer) and this shell takes the screen:
  *
  *   - a left sidebar with the portal's four sections — nothing deeper. Each
- *     section is one page, and its views are tabs in that page's header;
- *   - the three portals listed at the top of the sidebar (My listings /
- *     Managed for me / Tenant), with a tick on the one open now;
+ *     section is one page, and its views are tabs in that page's header, and
+ *     each carries a one-line hint of what is inside;
+ *   - one portal switcher at the top of the sidebar. Closed, it names the
+ *     portal you are in (Landlord, Tenant or Agent). Open, it lists the
+ *     portals this account uses first, then the ones it could start, each
+ *     saying what it is for;
  *   - a sticky header with the section, the page title, any page-level
  *     control (the property scope) and the section's tabs.
  *
  * On phones and tablets the sidebar becomes a bottom bar of the same four
- * sections, and the menu button opens the rest (workspace switch, back to the
- * main site, sign out) as a sheet.
+ * sections, and the menu button opens the rest (portal switch, back to the
+ * main site, sign out) as a sheet. The portal name in the header opens that
+ * sheet with the switcher already open.
  */
 
 const ICONS = {
@@ -45,10 +50,32 @@ const ICONS = {
   offices: FaBuilding,
 };
 
+/**
+ * The three portals, named for who you are rather than what the product is
+ * called. `start` is where someone who has not used a portal begins.
+ */
 const WORKSPACES = {
-  owner: { label: 'Managed', title: 'Managed for me', to: MANAGE_URL, icon: FaBuilding, blurb: 'We find tenants and run it' },
-  tenant: { label: 'Tenant', title: 'Tenant portal', to: TENANT_URL, icon: FaKey, blurb: 'A home you rent from us' },
-  agent: { label: 'Listings', title: 'My listings', to: AGENT_URL, icon: FaBriefcase, blurb: 'Homes you advertise yourself' },
+  owner: {
+    title: 'Landlord', to: MANAGE_URL, icon: FaBuilding,
+    blurb: 'We let and manage your property',
+    start: { to: MANAGE_URL, label: 'Hand over a property' },
+  },
+  tenant: {
+    title: 'Tenant', to: TENANT_URL, icon: FaKey,
+    blurb: 'Rent and repairs for the home you rent',
+    start: { to: TENANT_URL, label: 'Get started' },
+  },
+  agent: {
+    title: 'Agent', to: AGENT_URL, icon: FaBriefcase,
+    blurb: 'Advertise homes and answer leads',
+    start: { to: AGENT_APPLY_URL, label: 'Apply to list homes' },
+  },
+};
+
+/** What the switcher says about a portal this account has not fully opened. */
+const ACCESS_NOTE = {
+  applied: 'Your rental applications',
+  pending: 'Application in review',
 };
 
 const SIDEBAR_W = '248px';
@@ -98,63 +125,110 @@ const Brand = styled(Link)`
   img { flex: 0 1 auto; width: 124px; max-width: 100%; height: auto; }
 `;
 
-/* The "which hat am I wearing" switch. */
-const Workspace = styled.div`
-  margin: 0 0.2rem 1rem;
-  padding: 0.6rem;
-  border-radius: 14px;
-  background: var(--color-bg-panel);
-  border: 1px solid var(--color-line);
+/* ── Portal switcher ──────────────────────────────────────────────── */
 
-  .cap {
+const Switch = styled.div`
+  position: relative;
+  margin: 0 0.2rem 1rem;
+`;
+
+const SwitchBtn = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-line-strong);
+  background: #fff;
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover { border-color: var(--color-green); }
+  &:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-green-soft); border-color: var(--color-green); }
+  &[aria-expanded='true'] { border-color: var(--color-green); box-shadow: 0 0 0 3px var(--color-green-soft); }
+
+  .ic {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    background: var(--color-green-deep);
+    color: #fff;
+    font-size: 0.85rem;
+  }
+  .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .cap { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-ink-faint); }
+  .t { font-size: 0.95rem; font-weight: 650; color: var(--color-ink); line-height: 1.25; }
+  .chev { flex: 0 0 auto; font-size: 0.7rem; color: var(--color-ink-muted); transition: transform 0.15s ease; }
+  &[aria-expanded='true'] .chev { transform: rotate(180deg); }
+`;
+
+const SwitchMenu = styled.div`
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  padding: 0.4rem;
+  border-radius: 14px;
+  border: 1px solid var(--color-line);
+  background: #fff;
+  box-shadow: 0 18px 40px -12px rgba(20, 30, 25, 0.28);
+
+  .group {
+    padding: 0.5rem 0.55rem 0.3rem;
     font-size: 0.64rem;
     font-weight: 700;
     letter-spacing: 0.09em;
     text-transform: uppercase;
     color: var(--color-ink-faint);
-    padding: 0 0.2rem 0.45rem;
   }
-  .hint {
-    margin: 0.45rem 0.2rem 0;
-    font-size: 0.74rem;
+  .group + a, a + .group { margin-top: 0.15rem; }
+  .help {
+    margin: 0.35rem 0.15rem 0.1rem;
+    padding: 0.55rem 0.4rem 0.2rem;
+    border-top: 1px solid var(--color-line);
+    font-size: 0.76rem;
     line-height: 1.4;
     color: var(--color-ink-muted);
+    a { color: var(--color-green-deep); font-weight: 600; }
   }
 `;
 
-/* Each portal row: icon, title over blurb, a tick on the one you are in. */
-const wsRow = `
+/* One portal in the open switcher: icon, name over what it is for, and a status. */
+const SwitchItem = styled(Link)`
   display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  width: 100%;
-  padding: 0.5rem 0.6rem;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.5rem 0.55rem;
   border-radius: 10px;
-  text-align: left;
-  font-family: var(--font-sans);
+
+  &:hover, &:focus-visible { outline: none; background: var(--color-bg-sunken); }
+  &[aria-current='page'] { background: var(--color-green-wash); }
 
   .ic {
     flex: 0 0 auto;
     width: 30px;
     height: 30px;
+    margin-top: 0.05rem;
     border-radius: 9px;
     display: grid;
     place-items: center;
-    background: var(--color-green-soft);
-    color: var(--color-green-deep);
+    background: ${(p) => (p.$muted ? 'var(--color-bg-sunken)' : 'var(--color-green-soft)')};
+    color: ${(p) => (p.$muted ? 'var(--color-ink-faint)' : 'var(--color-green-deep)')};
     font-size: 0.78rem;
   }
-  .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .t { font-size: 0.88rem; font-weight: 600; color: var(--color-ink); line-height: 1.25; }
-  .s { font-size: 0.74rem; color: var(--color-ink-muted); line-height: 1.3; }
-  .end { flex: 0 0 auto; font-size: 0.7rem; color: var(--color-ink-faint); transition: transform 0.15s ease; }
-`;
-
-const WsItem = styled(Link)`
-  ${wsRow}
-  &:hover, &:focus-visible { outline: none; background: var(--color-bg-sunken); }
-  &[aria-current='page'] { background: var(--color-green-wash); }
-  &[aria-current='page'] .end { color: var(--color-green-deep); }
+  .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
+  .t { display: flex; align-items: center; gap: 0.4rem; font-size: 0.88rem; font-weight: 600; color: var(--color-ink); line-height: 1.25; }
+  .s { font-size: 0.75rem; color: var(--color-ink-muted); line-height: 1.35; }
+  .go { font-size: 0.76rem; font-weight: 600; color: var(--color-green-deep); display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.15rem; }
+  .go svg { font-size: 0.6rem; }
+  .tick { flex: 0 0 auto; margin-top: 0.4rem; font-size: 0.72rem; color: var(--color-green-deep); }
 `;
 
 const Primary = styled(Link)`
@@ -198,6 +272,9 @@ const Item = styled(Link)`
 
   & + & { margin-top: 0.15rem; }
   svg { flex: 0 0 auto; font-size: 0.9rem; width: 17px; color: var(--color-ink-faint); transition: color 0.15s ease; }
+  .lbl { min-width: 0; display: flex; flex-direction: column; padding: 0.4rem 0; }
+  .h { font-size: 0.74rem; font-weight: 400; line-height: 1.3; color: var(--color-ink-faint); }
+  &[aria-current='page'] .h { color: var(--color-green-ink, var(--color-green-deep)); opacity: 0.8; }
   &:hover { color: var(--color-ink); background: var(--color-bg-sunken); }
   &[aria-current='page'] { color: var(--color-green-deep); font-weight: 600; background: transparent; }
   &[aria-current='page'] svg { color: var(--color-green-deep); }
@@ -355,6 +432,26 @@ const Crumb = styled.div`
   white-space: nowrap;
   overflow: hidden;
   .ws { color: var(--color-green-deep); }
+
+  @media (max-width: 960px) { .ws { display: none; } }
+`;
+
+/* On phones the portal name in the crumb opens the menu with the switcher open. */
+const CrumbSwitch = styled.button`
+  display: none;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--color-green-deep);
+  cursor: pointer;
+  svg { font-size: 0.55rem; }
+
+  @media (max-width: 960px) { display: inline-flex; }
 `;
 
 const Title = styled.h1`
@@ -536,33 +633,104 @@ function tabActive(tab, pathname) {
   return tab.end ? pathname === tab.to : within(pathname, tab.to);
 }
 
-/** The three portals, always listed, so the one you are in is not a hidden menu. */
-function WorkspaceMenu({ workspace, onNavigate }) {
+/**
+ * The portal switcher. Closed, it says which portal you are in. Open, it puts
+ * the one you are in first, then the others you use, then any you could
+ * start — so a portal you have never set up reads as a next step, not as
+ * a page that is broken or empty.
+ */
+export function PortalSwitcher({ workspace, onNavigate, defaultOpen = false }) {
+  const { user } = useAuth();
+  const access = usePortalAccess(user?.email);
+  const [open, setOpen] = useState(defaultOpen);
+  const ref = useRef(null);
+  const menuId = useId();
+  const ws = WORKSPACES[workspace];
+  const Icon = ws.icon;
+
+  useEffect(() => { setOpen(defaultOpen); }, [defaultOpen]);
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDown = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const others = Object.keys(WORKSPACES).filter((k) => k !== workspace);
+  // Until access is known, every other portal is listed as one you can open.
+  const yours = others.filter((k) => !access || access[k] !== 'none');
+  const unused = access ? others.filter((k) => access[k] === 'none') : [];
+
+  const pick = (key) => {
+    rememberPortalRole(key);
+    setOpen(false);
+    onNavigate?.();
+  };
+
+  const row = (key, { current = false, start = false } = {}) => {
+    const w = WORKSPACES[key];
+    const RowIcon = w.icon;
+    const note = !current && ACCESS_NOTE[access?.[key]];
+    return (
+      <SwitchItem
+        key={key}
+        to={start ? w.start.to : w.to}
+        aria-current={current ? 'page' : undefined}
+        $muted={start}
+        onClick={() => pick(key)}
+      >
+        <span className="ic"><RowIcon /></span>
+        <span className="txt">
+          <span className="t">{w.title}{current && <span className="sr-only">(open now)</span>}</span>
+          <span className="s">{w.blurb}</span>
+          {note && <span className="s">{note}</span>}
+          {start && <span className="go">{w.start.label} <FaArrowRight /></span>}
+        </span>
+        {current && <FaCheck className="tick" aria-hidden="true" />}
+      </SwitchItem>
+    );
+  };
+
   return (
-    <nav aria-label="Choose a portal">
-      {Object.entries(WORKSPACES).map(([key, w]) => {
-        const active = key === workspace;
-        const ItemIcon = w.icon;
-        return (
-          <WsItem
-            key={key}
-            to={w.to}
-            aria-current={active ? 'page' : undefined}
-            onClick={() => { rememberPortalRole(key); onNavigate?.(); }}
-          >
-            <span className="ic"><ItemIcon /></span>
-            <span className="txt"><span className="t">{w.title}</span><span className="s">{w.blurb}</span></span>
-            {active && <FaCheck className="end" />}
-          </WsItem>
-        );
-      })}
-    </nav>
+    <Switch ref={ref}>
+      <SwitchBtn
+        type="button"
+        aria-expanded={open}
+        aria-controls={menuId}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span className="ic"><Icon /></span>
+        <span className="txt">
+          <span className="cap">Your portal</span>
+          <span className="t">{ws.title}</span>
+        </span>
+        <FaChevronDown className="chev" aria-hidden="true" />
+      </SwitchBtn>
+      {open && (
+        <SwitchMenu as="nav" id={menuId} aria-label="Switch portal">
+          {row(workspace, { current: true })}
+          {yours.length > 0 && <div className="group">Switch to</div>}
+          {yours.map((k) => row(k))}
+          {unused.length > 0 && <div className="group">Not set up yet</div>}
+          {unused.map((k) => row(k, { start: true }))}
+          <p className="help">
+            Each portal is a separate job, with its own menu.{' '}
+            <Link to={HELP_URL} onClick={() => { setOpen(false); onNavigate?.(); }}>Which one do I need?</Link>
+          </p>
+        </SwitchMenu>
+      )}
+    </Switch>
   );
 }
 
 /** The sidebar's contents — in the rail on desktop, in a sheet on phones. */
 function SidebarNav({
-  workspace, nav, section, badges, primary, pinned, onNavigate, layoutId, inSheet,
+  workspace, nav, section, badges, primary, pinned, onNavigate, layoutId, inSheet, switcherOpen,
 }) {
   const { user, signOut } = useAuth();
   const { pathname } = useLocation();
@@ -576,16 +744,12 @@ function SidebarNav({
         <img src="/emz.svg" alt="EasyMoveZone" />
       </Brand>
 
-      <Workspace>
-        <div className="cap">Three different jobs</div>
-        <WorkspaceMenu workspace={workspace} onNavigate={onNavigate} />
-        <p className="hint">The tick is the one open now. The other two are different work, not more pages of this one.</p>
-      </Workspace>
+      <PortalSwitcher workspace={workspace} onNavigate={onNavigate} defaultOpen={Boolean(switcherOpen)} />
 
       {primary && <Primary to={primary.to} onClick={onNavigate}><FaPlus /> {primary.label}</Primary>}
 
       <nav aria-label={ws.title}>
-        <GroupLabel>Pages</GroupLabel>
+        <GroupLabel>{ws.title} menu</GroupLabel>
         {nav.map((item) => {
           const Icon = ICONS[item.icon] || FaChartPie;
           const badge = item.badge ? badges[item.badge] : 0;
@@ -593,7 +757,11 @@ function SidebarNav({
           return (
             <Item key={item.to} to={item.to} onClick={onNavigate} aria-current={active ? 'page' : undefined}>
               {active && <ItemPill layoutId={layoutId} transition={springy} />}
-              <Icon /> {item.label}
+              <Icon />
+              <span className="lbl">
+                <span>{item.label}</span>
+                {item.hint && <span className="h">{item.hint}</span>}
+              </span>
               {badge > 0 && <Badge>{badge}</Badge>}
             </Item>
           );
@@ -633,11 +801,13 @@ export default function ConsoleShell({
 }) {
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [switcherOpen, setSwitcherOpen] = useState(false);
   const section = currentSection(nav, pathname);
   const tabs = section?.tabs || [];
   const ws = WORKSPACES[workspace];
 
   useEffect(() => { setMenuOpen(false); }, [pathname]);
+  useEffect(() => { if (!menuOpen) setSwitcherOpen(false); }, [menuOpen]);
   // Coming back to the portal later should land in the one used last.
   useEffect(() => { rememberPortalRole(workspace); }, [workspace]);
 
@@ -666,7 +836,7 @@ export default function ConsoleShell({
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
         <SheetContent side="left" className="p-0 w-[min(84vw,300px)]">
           <SheetTitle className="sr-only">{ws.title} menu</SheetTitle>
-          <SidebarNav {...shared} inSheet onNavigate={() => setMenuOpen(false)} layoutId="console-sheet-item" />
+          <SidebarNav {...shared} inSheet switcherOpen={switcherOpen} onNavigate={() => setMenuOpen(false)} layoutId="console-sheet-item" />
         </SheetContent>
       </Sheet>
 
@@ -677,7 +847,14 @@ export default function ConsoleShell({
               <MenuBtn type="button" aria-label="Open menu" onClick={() => setMenuOpen(true)}><FaBars /></MenuBtn>
               <Heading>
                 <Crumb>
-                  <span className="ws">{ws.title}</span>
+                  <span className="ws">{ws.title} portal</span>
+                  <CrumbSwitch
+                    type="button"
+                    aria-label={`${ws.title} portal. Switch portal`}
+                    onClick={() => { setSwitcherOpen(true); setMenuOpen(true); }}
+                  >
+                    {ws.title} portal <FaChevronDown aria-hidden="true" />
+                  </CrumbSwitch>
                   {section && <><span aria-hidden="true">/</span><span>{section.label}</span></>}
                 </Crumb>
                 <Title>{title}</Title>

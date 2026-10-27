@@ -5,7 +5,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, Legend,
 } from 'recharts';
 import {
-  FaArrowRight, FaCheckCircle, FaTimes, FaChartPie, FaMoneyBillWave, FaKey, FaTools,
+  FaArrowRight, FaCheck, FaCheckCircle, FaTimes, FaChartPie, FaMoneyBillWave, FaKey, FaTools,
   FaFileAlt, FaCog, FaHome, FaExclamationTriangle, FaRegClock, FaUniversity, FaTable,
   FaChevronLeft, FaDownload, FaBuilding, FaRegCompass, FaBullhorn, FaExternalLinkAlt,
 } from 'react-icons/fa';
@@ -15,12 +15,12 @@ import {
   PLAN_BY_ID, STATUS_LABEL, STATUS_TONE, EXPENSE_CATEGORY_LABEL, EXPENSE_STATUS_LABEL,
   EXPENSE_STATUS_TONE, PAYOUT_STATUS_LABEL, PAYOUT_STATUS_TONE, RENT_STATUS_LABEL,
   RENT_STATUS_TONE, TENANCY_STATUS_LABEL, TENANCY_STATUS_TONE, RENT_FREQUENCY_LABEL,
-  PAYOUT_CYCLES, annualiseRent,
+  PAYOUT_CYCLES, annualiseRent, MANAGEMENT_STEPS,
 } from '../config/management';
 import { formatMoneyFull } from '../utils/format';
 import {
   MANAGE_ADD_URL, MANAGE_ONBOARDING_URL, MANAGE_MAINTENANCE_URL, MANAGE_COLLECTIONS_URL, MANAGE_JOURNEYS_URL,
-  RENT_URL,
+  MANAGE_PROPERTIES_URL, RENT_URL,
 } from '../config/platform';
 import { perPeriod, RENTAL_STATUS_LABEL } from '../config/rentals';
 import {
@@ -516,6 +516,113 @@ const EMPTY_SUMMARY = {
   unreadMessages: 0, nextPayout: null, lastPayout: null,
 };
 
+const Steps = styled.ol`
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+`;
+
+/* One step: a numbered dot on a line that runs down to the next step. */
+const Step = styled.li`
+  position: relative;
+  display: flex;
+  gap: 0.85rem;
+  padding-bottom: 1rem;
+
+  &:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 13px;
+    top: 30px;
+    bottom: 2px;
+    width: 2px;
+    background: ${(p) => (p.$state === 'done' ? 'var(--color-green)' : 'var(--color-line)')};
+  }
+  &:last-child { padding-bottom: 0; }
+
+  .dot {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border: 2px solid ${(p) => (p.$state === 'todo' ? 'var(--color-line-strong)' : 'var(--color-green)')};
+    background: ${(p) => (p.$state === 'todo' ? '#fff' : p.$state === 'done' ? 'var(--color-green)' : 'var(--color-green-deep)')};
+    color: ${(p) => (p.$state === 'todo' ? 'var(--color-ink-faint)' : '#fff')};
+  }
+  .body { flex: 1; min-width: 0; padding-top: 0.2rem; }
+  .t { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-weight: 600; color: ${(p) => (p.$state === 'todo' ? 'var(--color-ink-muted)' : 'var(--color-ink)')}; }
+  .tag { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.12rem 0.45rem; border-radius: 999px; background: var(--color-green-soft); color: var(--color-green-deep); }
+  .b { margin: 0.2rem 0 0; font-size: 0.9rem; line-height: 1.5; color: var(--color-ink-muted); }
+`;
+
+const Aside = styled.p`
+  margin: 1.1rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-line);
+  font-size: 0.88rem;
+  color: var(--color-ink-muted);
+  a { color: var(--color-green-deep); font-weight: 600; }
+`;
+
+/**
+ * Until a property is under management, the dashboard leads with the road
+ * there, in order: the one thing to do now (hand it over) is the only big
+ * button, and the steps after it say what EasyMoveZone does next and when.
+ */
+export function GetStarted({ handedOver, onStartOnboarding }) {
+  const current = handedOver ? 1 : 0;
+  return (
+    <Card>
+      <CardHead>
+        <CardTitle><FaRegCompass /> {handedOver ? 'Your property is with us' : 'Get started in 5 steps'}</CardTitle>
+      </CardHead>
+      <p style={{ color: 'var(--color-ink-muted)', lineHeight: 1.55, margin: 0 }}>
+        {handedOver
+          ? 'We have your handover. Here is what happens next. The figures below fill in once rent starts moving.'
+          : 'Hand your property to EasyMoveZone and we let it, run it and pay you. Only the first step is yours.'}
+      </p>
+      <Steps>
+        {MANAGEMENT_STEPS.map((step, i) => {
+          const state = i < current ? 'done' : i === current ? 'now' : 'todo';
+          return (
+            <Step key={step.title} $state={state} aria-current={state === 'now' ? 'step' : undefined}>
+              <span className="dot" aria-hidden="true">{state === 'done' ? <FaCheck size={11} /> : i + 1}</span>
+              <div className="body">
+                <div className="t">
+                  {step.title}
+                  {state === 'now' && <span className="tag">{i === 0 ? 'Your next step' : 'In progress'}</span>}
+                  {state === 'done' && <span className="sr-only">(done)</span>}
+                </div>
+                <p className="b">{step.body}</p>
+                {state === 'now' && i === 0 && (
+                  <Actions>
+                    <Btn as={Link} to={MANAGE_ADD_URL}>Add your property <FaArrowRight size={11} /></Btn>
+                    <Btn $ghost onClick={onStartOnboarding}>Help me pick a plan</Btn>
+                  </Actions>
+                )}
+                {state === 'now' && i > 0 && (
+                  <Actions>
+                    <Btn $ghost as={Link} to={MANAGE_PROPERTIES_URL}>See my property <FaArrowRight size={11} /></Btn>
+                  </Actions>
+                )}
+              </div>
+            </Step>
+          );
+        })}
+      </Steps>
+      <Aside>
+        Buying, building or renovating instead? Those live under <Link to={MANAGE_JOURNEYS_URL}>Deals</Link>.
+      </Aside>
+    </Card>
+  );
+}
+
 export function Overview({ data, onGo, onStartOnboarding }) {
   // `onGo` takes a console path — the shell routes, it no longer swaps local state.
   const s = data?.summary || EMPTY_SUMMARY;
@@ -528,20 +635,7 @@ export function Overview({ data, onGo, onStartOnboarding }) {
 
   return (
     <>
-      {!live && (
-        <Card>
-          <CardHead><CardTitle><FaHome /> Nothing under management yet</CardTitle></CardHead>
-          <p style={{ color: 'var(--color-ink-muted)', lineHeight: 1.55, margin: '0 0 0.25rem' }}>
-            These figures stay at zero until a property is with us. Buying, building or renovating
-            instead? Every journey you have with EasyMoveZone lives under Journeys.
-          </p>
-          <Actions>
-            <Btn onClick={onStartOnboarding}>Start onboarding <FaArrowRight size={11} /></Btn>
-            <Btn $ghost as={Link} to={MANAGE_ADD_URL}>Add a property</Btn>
-            <Btn $ghost as={Link} to={MANAGE_JOURNEYS_URL}>See my journeys</Btn>
-          </Actions>
-        </Card>
-      )}
+      {!live && <GetStarted handedOver={(data?.properties || []).length > 0} onStartOnboarding={onStartOnboarding} />}
 
       <Kpis>
         <Kpi>
