@@ -9,7 +9,9 @@ import { useAuth } from '../AuthContext';
 import Loader from '../components/Loader';
 import { useIsMobile } from '../utils/useMediaQuery';
 import AreaBoard from '../components/areas/AreaBoard';
-import { AreaScores, AreaRents, AreaTools, AreaRules } from '../components/areas/AreaPanels';
+import {
+  AreaScores, AreaRents, AreaTools, AreaRules, AreaNextSteps,
+} from '../components/areas/AreaPanels';
 import {
   Pill, Score, stateLabel, whatsappShare,
 } from '../components/areas/shared';
@@ -253,12 +255,27 @@ const Jump = styled.nav`
   a { flex-shrink: 0; padding: 0.4rem 0.85rem; border-radius: 999px; background: #fff; border: 1px solid var(--color-line); font-size: 0.82rem; font-weight: 600; color: var(--color-ink); }
   @media (min-width: 981px) { display: none; }
 `;
-const Layout = styled.div`
-  display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 1.25rem; align-items: start;
+/*
+ * The page reads in three bands, each using the full width:
+ *   1. at a glance — residents' scores beside rent and next steps;
+ *   2. location tools — the map beside commute and nearby;
+ *   3. the board — posts beside its rules, which stay in view while you scroll.
+ * Each band stacks to one column on phones and small tablets.
+ */
+const Sections = styled.div`display: flex; flex-direction: column; gap: 1.25rem; min-width: 0;`;
+const Band = styled.div`
+  display: grid; grid-template-columns: ${(p) => p.$cols || 'minmax(0, 1fr) minmax(0, 1fr)'}; gap: 1.25rem; align-items: start;
   @media (max-width: 980px) { grid-template-columns: minmax(0, 1fr); }
 `;
-const Rail = styled.aside`display: flex; flex-direction: column; gap: 1rem; min-width: 0;`;
-const Stack = styled.div`display: flex; flex-direction: column; gap: 1rem; min-width: 0;`;
+const Stack = styled.div`display: flex; flex-direction: column; gap: 1.25rem; min-width: 0;`;
+const Sticky = styled.div`
+  min-width: 0;
+  @media (min-width: 981px) { position: sticky; top: calc(var(--nav-h) + 1rem); }
+`;
+const BandTitle = styled.h2`
+  margin: 0.5rem 0 -0.35rem; font-size: 1.2rem;
+  span { display: block; margin-top: 0.2rem; font-size: 0.86rem; font-weight: 400; color: var(--color-ink-muted); }
+`;
 
 function AreaDetail() {
   const { slug } = useParams();
@@ -290,8 +307,6 @@ function AreaDetail() {
   if (!data) return <Loader />;
 
   const { area, ratings, viewer } = data;
-  // Phones read top to bottom: scores first, then the board, then the rest.
-  const scores = <div id="scores"><AreaScores data={data} onRated={(next) => setData((d) => ({ ...d, ...next }))} /></div>;
 
   return (
     <Page>
@@ -315,22 +330,30 @@ function AreaDetail() {
 
         {mobile && (
           <Jump aria-label="On this page">
-            <a href="#board">Board</a><a href="#scores">Scores</a><a href="#rents">Rents</a><a href="#tools">Location tools</a>
+            <a href="#scores">Scores</a><a href="#rents">Rents</a><a href="#tools">Location tools</a><a href="#board">Board</a>
           </Jump>
         )}
 
-        <Layout>
-          <Stack>
-            {mobile && scores}
-            <div id="board"><AreaBoard area={area} categories={data.categories} signedIn={Boolean(user)} /></div>
-          </Stack>
-          <Rail>
-            {!mobile && scores}
-            <div id="rents"><AreaRents data={data} /></div>
-            <div id="tools"><AreaTools area={area} /></div>
-            <AreaRules />
-          </Rail>
-        </Layout>
+        <Sections>
+          <Band>
+            <div id="scores"><AreaScores data={data} onRated={(next) => setData((d) => ({ ...d, ...next }))} /></div>
+            <Stack>
+              <div id="rents"><AreaRents data={data} /></div>
+              <AreaNextSteps area={area} />
+            </Stack>
+          </Band>
+
+          <div id="tools"><AreaTools area={area} /></div>
+
+          <BandTitle id="board">
+            Residents&rsquo; board
+            <span>What people who live in {area.name} say about light, water, roads and the streets they know.</span>
+          </BandTitle>
+          <Band $cols="minmax(0, 2fr) minmax(0, 1fr)">
+            <Stack><AreaBoard area={area} categories={data.categories} signedIn={Boolean(user)} /></Stack>
+            <Sticky><AreaRules /></Sticky>
+          </Band>
+        </Sections>
       </Body>
     </Page>
   );

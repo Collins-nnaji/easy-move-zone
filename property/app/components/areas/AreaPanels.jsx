@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import {
   FaArrowRight, FaCheckCircle, FaHospital, FaSchool, FaShoppingBasket, FaShieldAlt, FaUniversity,
-  FaPrescriptionBottleAlt, FaGasPump, FaBus, FaRoute, FaTruck, FaHome, FaClipboardCheck,
+  FaPrescriptionBottleAlt, FaGasPump, FaBus, FaRoute, FaTruck, FaHome, FaClipboardCheck, FaChevronDown,
 } from 'react-icons/fa';
 import { api } from '../../api';
 import { formatMoney } from '../../utils/format';
@@ -13,8 +13,9 @@ import {
 } from './shared';
 
 /**
- * The side of an area page: residents' scores (and the form to add yours),
- * typical rents on our own listings, location tools and the board's rules.
+ * The panels of an area page: residents' scores (and the form to add yours,
+ * folded away until asked for), typical rents on our own listings, next
+ * steps, location tools and the board's rules.
  */
 
 /* ── Scores ───────────────────────────────────────────────────────── */
@@ -30,8 +31,16 @@ const Bars = styled.ul`
   .val { font-weight: 700; text-align: right; color: var(--color-ink); }
   .none { color: var(--color-ink-faint); font-weight: 500; }
 `;
+const RateToggle = styled.button`
+  display: inline-flex; align-items: center; gap: 0.45rem; margin-top: 1.1rem; min-height: 40px; padding: 0 1rem;
+  border-radius: 10px; border: 1px solid var(--color-green-deep); background: #fff; color: var(--color-green-deep);
+  font-weight: 700; font-size: 0.85rem; cursor: pointer;
+  &:hover, &[aria-expanded='true'] { background: var(--color-green-soft); }
+  svg { font-size: 0.65rem; transition: transform 0.15s ease; }
+  &[aria-expanded='true'] svg { transform: rotate(180deg); }
+`;
 const RateForm = styled.form`
-  margin-top: 1.1rem; padding-top: 1rem; border-top: 1px solid var(--color-line);
+  margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--color-line);
   h3 { margin: 0 0 0.2rem; font-size: 0.95rem; }
   .hint { margin: 0 0 0.8rem; font-size: 0.8rem; color: var(--color-ink-muted); }
   fieldset { border: 0; padding: 0; margin: 0 0 0.7rem; }
@@ -55,6 +64,8 @@ export function AreaScores({ data, onRated }) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  // The seven-question form is long; it opens on request, not by default.
+  const [rating, setRating] = useState(false);
 
   useEffect(() => { setScores(myRating || {}); }, [myRating]);
 
@@ -100,9 +111,14 @@ export function AreaScores({ data, onRated }) {
         })}
       </Bars>
 
-      {viewer.signedIn ? (
-        <RateForm onSubmit={save}>
-          <h3>{myRating ? 'Your scores' : `Live in ${area.name}? Score it`}</h3>
+      {viewer.signedIn && (
+        <RateToggle type="button" aria-expanded={rating} aria-controls="area-rate" onClick={() => setRating((v) => !v)}>
+          {myRating ? 'Update my scores' : `Live here? Score ${area.name}`} <FaChevronDown aria-hidden />
+        </RateToggle>
+      )}
+      {viewer.signedIn ? rating && (
+        <RateForm id="area-rate" onSubmit={save}>
+          <h3>{myRating ? 'Your scores' : `Score ${area.name}`}</h3>
           <p className="hint">Score what you know. Leave anything else blank.</p>
           {factors.map((f) => (
             <fieldset key={f.id}>
@@ -178,7 +194,13 @@ export function AreaRents({ data }) {
 /* ── Location tools ───────────────────────────────────────────────── */
 
 const MapFrame = styled.iframe`
-  display: block; width: 100%; height: 220px; border: 0; border-radius: 12px; background: var(--color-bg-sunken);
+  display: block; width: 100%; height: 100%; min-height: 240px; border: 0; border-radius: 12px; background: var(--color-bg-sunken);
+`;
+/* Map on the left, commute and nearby on the right; stacked on narrow screens. */
+const ToolsGrid = styled.div`
+  display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 1.25rem; align-items: stretch;
+  > div > h3:first-child { margin-top: 0; }
+  @media (max-width: 860px) { grid-template-columns: minmax(0, 1fr); gap: 0; > div > h3:first-child { margin-top: 1.1rem; } }
 `;
 const ToolHead = styled.h3`margin: 1.1rem 0 0.5rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem; svg { color: var(--color-green); }`;
 const Commute = styled.form`
@@ -190,6 +212,7 @@ const Commute = styled.form`
 `;
 const Nearby = styled.div`
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem;
+  @media (min-width: 861px) and (max-width: 1100px) { grid-template-columns: minmax(0, 1fr); }
   @media (max-width: 380px) { grid-template-columns: minmax(0, 1fr); }
   a { display: flex; align-items: center; gap: 0.45rem; padding: 0.55rem 0.65rem; border-radius: 10px; border: 1px solid var(--color-line); font-size: 0.82rem; font-weight: 600; color: var(--color-ink); }
   a:hover { border-color: rgba(47, 93, 80, 0.4); color: var(--color-green-deep); }
@@ -245,31 +268,43 @@ export function AreaTools({ area }) {
     <Panel>
       <h2>Location tools</h2>
       <p className="sub">Check the area from where you are.</p>
-      <MapFrame
-        title={`Map of ${area.name}`}
-        loading="lazy"
-        src={mapSrc(area, where)}
-      />
+      <ToolsGrid>
+        <MapFrame
+          title={`Map of ${area.name}`}
+          loading="lazy"
+          src={mapSrc(area, where)}
+        />
+        <div>
+          <ToolHead><FaRoute /> Commute check</ToolHead>
+          <Commute onSubmit={(e) => { e.preventDefault(); if (work.trim()) open('driving'); }}>
+            <input value={work} onChange={(e) => setWork(e.target.value)} placeholder="Where do you work or study?" aria-label="Where do you work or study" />
+            <div className="modes">
+              <SmallBtn type="submit" $primary disabled={!work.trim()}>By car</SmallBtn>
+              <SmallBtn type="button" disabled={!work.trim()} onClick={() => open('transit')}>By bus</SmallBtn>
+            </div>
+          </Commute>
 
-      <ToolHead><FaRoute /> Commute check</ToolHead>
-      <Commute onSubmit={(e) => { e.preventDefault(); if (work.trim()) open('driving'); }}>
-        <input value={work} onChange={(e) => setWork(e.target.value)} placeholder="Where do you work or study?" aria-label="Where do you work or study" />
-        <div className="modes">
-          <SmallBtn type="submit" $primary disabled={!work.trim()}>By car</SmallBtn>
-          <SmallBtn type="button" disabled={!work.trim()} onClick={() => open('transit')}>By bus</SmallBtn>
+          <ToolHead><FaHospital /> What&rsquo;s nearby</ToolHead>
+          <Nearby>
+            {NEARBY.map(({ label, q, icon: Icon }) => (
+              <a key={label} href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${q} near ${where}`)}`} target="_blank" rel="noopener noreferrer">
+                <Icon /> {label}
+              </a>
+            ))}
+          </Nearby>
         </div>
-      </Commute>
+      </ToolsGrid>
+    </Panel>
+  );
+}
 
-      <ToolHead><FaHospital /> What&rsquo;s nearby</ToolHead>
-      <Nearby>
-        {NEARBY.map(({ label, q, icon: Icon }) => (
-          <a key={label} href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${q} near ${where}`)}`} target="_blank" rel="noopener noreferrer">
-            <Icon /> {label}
-          </a>
-        ))}
-      </Nearby>
+/* ── Next steps ───────────────────────────────────────────────────── */
 
-      <ToolHead>Next steps</ToolHead>
+export function AreaNextSteps({ area }) {
+  return (
+    <Panel>
+      <h2>Thinking of moving to {area.name}?</h2>
+      <p className="sub">Where to go from here.</p>
       <Next to={`${RENT_URL}?q=${encodeURIComponent(area.name)}`}>
         <span className="ic"><FaHome /></span><span>Homes to rent here<small>Let and managed by us</small></span><FaArrowRight size={11} />
       </Next>
