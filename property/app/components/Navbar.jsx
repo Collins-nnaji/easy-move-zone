@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaRegCalendarAlt, FaKey, FaShieldAlt } from 'react-icons/fa';
+import {
+  FaRegCalendarAlt, FaKey, FaShieldAlt, FaThLarge,
+} from 'react-icons/fa';
 import { NavLink as RouterLink, useLocation } from 'react-router-dom';
 import {
-  REAL_ESTATE_NAV_ITEMS, MARKETPLACE_URL, isNavItemActive, navItemTarget, navItemLabel,
+  REAL_ESTATE_NAV_ITEMS, MARKETPLACE_URL, PORTAL_URL, isNavItemActive, navItemTarget, navItemLabel,
 } from '../config/platform';
 import { useAuth } from '../AuthContext';
 import AccountMenu from './AccountMenu';
@@ -151,6 +153,30 @@ const Cta = styled.a`
   @media (max-width: 420px) { display: none; }
 `;
 
+/*
+ * Signed in, "My portal" sits beside the avatar instead of in the middle
+ * nav: both are about your account, so they read as one group. Below 960px
+ * the bottom tab bar has Portal, so this steps aside with the middle nav.
+ */
+const PortalBtn = styled(RouterLink)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 36px;
+  padding: 0 0.95rem;
+  border-radius: var(--radius-pill);
+  background: #1b231e;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background 0.15s;
+
+  svg { font-size: 0.75rem; }
+  &:hover { color: #fff; background: var(--color-green-deep); }
+
+  @media (max-width: 960px) { display: none; }
+`;
+
 /* Hamburger — only where the desktop nav is hidden. */
 const CTA_ICONS = { calendar: FaRegCalendarAlt, manage: FaKey, shield: FaShieldAlt };
 
@@ -166,8 +192,11 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // The same navigation everywhere, Manage included: it is part of the site.
-  const navItems = REAL_ESTATE_NAV_ITEMS;
+  // The same navigation everywhere. Signed out, Manage is part of the site;
+  // signed in it becomes "My portal" and moves beside the avatar.
+  const signedIn = Boolean(user);
+  const portalItem = REAL_ESTATE_NAV_ITEMS.find((i) => navItemTarget(i, true) === PORTAL_URL);
+  const navItems = signedIn ? REAL_ESTATE_NAV_ITEMS.filter((i) => i !== portalItem) : REAL_ESTATE_NAV_ITEMS;
   return (
     <Bar $scrolled={scrolled}>
       <Inner>
@@ -180,8 +209,8 @@ export default function Navbar() {
           {navItems.filter((i) => !i.cta).map((item) => {
             const active = isNavItemActive(item, location.pathname);
             return (
-              <Link key={item.to} to={navItemTarget(item, Boolean(user))} className={active ? 'active' : ''}>
-                {navItemLabel(item, Boolean(user))}
+              <Link key={item.to} to={navItemTarget(item, signedIn)} className={active ? 'active' : ''}>
+                {navItemLabel(item, signedIn)}
                 {item.badge ? <Badge>{item.badge}</Badge> : null}
                 {active && <Underline layoutId="nav-underline" transition={springy} />}
               </Link>
@@ -203,6 +232,11 @@ export default function Navbar() {
               </Cta>
             );
           })}
+          {signedIn && portalItem && (
+            <PortalBtn to={PORTAL_URL}>
+              <FaThLarge aria-hidden="true" /> {navItemLabel(portalItem, true)}
+            </PortalBtn>
+          )}
           <AccountMenu />
         </Right>
       </Inner>
