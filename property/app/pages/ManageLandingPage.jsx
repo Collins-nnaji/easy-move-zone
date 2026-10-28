@@ -49,14 +49,14 @@ const HeroInner = styled.div`
   z-index: 1;
   max-width: var(--container);
   margin: 0 auto;
-  padding: 3.25rem 2.5rem 3rem;
+  padding: 1.75rem 2.5rem 3rem;
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
   gap: 3rem;
   align-items: center;
 
-  @media (max-width: 960px) { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding: 2.5rem 1.5rem 2.25rem; }
-  @media (max-width: 720px) { padding: 1.6rem 1.25rem 1.75rem; gap: 1.35rem; }
+  @media (max-width: 960px) { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding: 1.5rem 1.5rem 2.25rem; }
+  @media (max-width: 720px) { padding: 1.15rem 1.25rem 1.75rem; gap: 1.35rem; }
 `;
 
 const HeroCopy = styled.div`
@@ -264,37 +264,50 @@ const BuildVisual = styled.div`
 
 /* ── Remote control ── */
 
+const ChoicesWrap = styled.div`
+  position: relative;
+  z-index: 1;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 2.25rem 2.5rem 0;
+
+  @media (max-width: 720px) { padding: 1.35rem 1.25rem 0; }
+`;
+
 const Choices = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.65rem;
-  margin-bottom: 0.35rem;
+  gap: 1rem;
 
-  @media (max-width: 640px) { grid-template-columns: 1fr; }
+  @media (max-width: 720px) { grid-template-columns: 1fr; gap: 0.7rem; }
 `;
 
 const Choice = styled.button`
   text-align: left;
-  border-radius: 16px;
+  min-height: 148px;
+  border-radius: 22px;
   border: 1px solid var(--color-line);
   background: #fff;
-  padding: 0.85rem 0.95rem;
+  padding: 1.45rem 1.6rem;
   cursor: pointer;
   font: inherit;
 
   strong {
     display: block;
-    margin-bottom: 0.25rem;
-    font-size: 0.98rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    margin-bottom: 0.45rem;
+    font-family: var(--font-bricolage), Georgia, serif;
+    font-size: clamp(1.45rem, 2vw, 1.85rem);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
     color: var(--color-ink);
   }
   span {
     display: block;
-    font-size: 0.82rem;
+    max-width: 36rem;
+    font-size: 1.05rem;
     font-weight: 500;
-    line-height: 1.4;
+    line-height: 1.45;
     color: var(--color-ink-muted);
   }
 
@@ -302,6 +315,13 @@ const Choice = styled.button`
     border-color: #111;
     background: #111;
     strong, span { color: #fff; }
+  }
+
+  @media (max-width: 720px) {
+    min-height: 0;
+    padding: 1.05rem 1.1rem;
+    strong { font-size: 1.25rem; }
+    span { font-size: 0.95rem; }
   }
 `;
 
@@ -369,18 +389,20 @@ export default function ManageLandingPage() {
   return (
     <PageShell>
       <Hero id="hero">
+        <ChoicesWrap>
+          <Choices role="group" aria-label="How the home is let">
+            <Choice type="button" aria-pressed={!listing} onClick={() => setMode('manage')}>
+              <strong>We run the property</strong>
+              <span>We find the tenant, collect the rent and handle repairs. You get paid.</span>
+            </Choice>
+            <Choice type="button" aria-pressed={listing} onClick={() => setMode('list')}>
+              <strong>List the home yourself</strong>
+              <span>It goes on EasyMoveZone. Enquiries come to you, in your portal.</span>
+            </Choice>
+          </Choices>
+        </ChoicesWrap>
         <HeroInner>
           <HeroCopy>
-            <Choices role="group" aria-label="How the home is let">
-              <Choice type="button" aria-pressed={!listing} onClick={() => setMode('manage')}>
-                <strong>We run the property</strong>
-                <span>We find the tenant, collect the rent and handle repairs. You get paid.</span>
-              </Choice>
-              <Choice type="button" aria-pressed={listing} onClick={() => setMode('list')}>
-                <strong>List the home yourself</strong>
-                <span>It goes on EasyMoveZone. Enquiries come to you, in your portal.</span>
-              </Choice>
-            </Choices>
             {listing ? (
               <>
                 <h1>
