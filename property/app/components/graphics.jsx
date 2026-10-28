@@ -431,20 +431,20 @@ const PassportArtWrap = styled.div`
 `;
 
 const PASSPORT_CHECKS = [
-  'Seller & ownership',
-  'Title documents',
-  'Survey & location',
-  'Price position',
-  'Physical inspection',
+  'Landlord identity',
+  'Right to let the home',
+  'Home matches the advert',
+  'Water, power & condition',
+  'Tenancy agreement',
 ];
 
 /**
- * The Property Passport as a living card: five checks tick in one after
+ * A rental check as a living card: five checks tick in one after
  * another and the ring counts them up. It stands in for the hero video on
  * phones and for the static proof card beside the video on desktop.
  * `dark` draws it for a black/photo background; `inView` waits for scroll.
  */
-export function PassportChecksArt({ dark = true, inView = false, total = 8, done = 5, caseId = 'BV-1042' }) {
+export function PassportChecksArt({ dark = true, inView = false, total = 6, done = 5, caseId = 'BV-1042' }) {
   const reduce = useReducedMotion();
   const count = useCountUp(done, { duration: 1400 });
   const w = 360;
@@ -467,7 +467,7 @@ export function PassportChecksArt({ dark = true, inView = false, total = 8, done
 
   return (
     <PassportArtWrap ref={wrapRef}>
-      <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={`Property Passport: ${done} of ${total} checks complete`}>
+      <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={`Rental check: ${done} of ${total} checks complete`}>
         <defs>
           <linearGradient id="pp-sheen" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stopColor="#ffffff" stopOpacity={dark ? 0.08 : 0} />
@@ -479,9 +479,9 @@ export function PassportChecksArt({ dark = true, inView = false, total = 8, done
         <rect x="1" y="1" width={w - 2} height={h - 2} rx="20" fill="url(#pp-sheen)" />
 
         {/* header */}
-        <text x="24" y="34" fontFamily="var(--font-sans)" fontSize="11" fontWeight="700" letterSpacing="1.4" fill={green}>PROPERTY PASSPORT</text>
-        <text x="24" y="58" fontFamily="var(--font-display)" fontSize="17" fontWeight="700" fill={ink}>4-bed home · Case {caseId}</text>
-        <text x="24" y="76" fontFamily="var(--font-sans)" fontSize="11" fill={faint}>Evidence recorded for every check</text>
+        <text x="24" y="34" fontFamily="var(--font-sans)" fontSize="11" fontWeight="700" letterSpacing="1.4" fill={green}>RENTAL CHECK</text>
+        <text x="24" y="58" fontFamily="var(--font-display)" fontSize="17" fontWeight="700" fill={ink}>2-bed flat · Case {caseId}</text>
+        <text x="24" y="76" fontFamily="var(--font-sans)" fontSize="11" fill={faint}>Checked before you pay rent</text>
 
         {/* ring */}
         <g transform={`translate(${w - 56}, 52)`}>
@@ -539,7 +539,7 @@ export function PassportChecksArt({ dark = true, inView = false, total = 8, done
         <g transform={`translate(30, ${h - 14})`}>
           <Pulse><circle r="4" fill={green} /></Pulse>
         </g>
-        <text x="42" y={h - 10} fontFamily="var(--font-sans)" fontSize="11" fontWeight="600" fill={faint}>Live Property Timeline</text>
+        <text x="42" y={h - 10} fontFamily="var(--font-sans)" fontSize="11" fontWeight="600" fill={faint}>Checked by EasyMoveZone</text>
       </svg>
     </PassportArtWrap>
   );
@@ -548,16 +548,16 @@ export function PassportChecksArt({ dark = true, inView = false, total = 8, done
 /* ── How verification flows ───────────────────────────── */
 
 const FLOW_STEPS = [
-  { title: 'You send it', sub: 'Any listing, any source' },
-  { title: 'We check it', sub: 'Seller · title · price · site' },
-  { title: 'Passport issued', sub: 'One report, with proof' },
+  { title: 'You send it', sub: 'Any home, any advert' },
+  { title: 'We check it', sub: 'Landlord · home · agreement' },
+  { title: 'You decide', sub: 'Before any money moves' },
 ];
 
 /**
  * Three nodes joined by a path that draws in as it scrolls into view.
  * Replaces a paragraph explaining the process. Stacks vertically on phones.
  */
-export function VerifyFlowArt({ vertical = false, steps = FLOW_STEPS, label = 'How verification works: you send a property, we check it, a Property Passport is issued' }) {
+export function VerifyFlowArt({ vertical = false, steps = FLOW_STEPS, label = 'How a rental check works: you send the home, we check it, you decide before paying' }) {
   const w = vertical ? 320 : 900;
   const h = vertical ? 300 : 150;
   const n = steps.length;

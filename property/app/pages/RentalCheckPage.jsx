@@ -5,8 +5,8 @@ import { api } from '../api';
 import { useAuth } from '../AuthContext';
 import TrustIcon from '../components/TrustIcon';
 import VerificationPanel from '../components/profile/VerificationPanel';
-import { BOOK_SESSION_URL, MANAGE_VERIFICATIONS_URL } from '../config/platform';
-import { COUNTRY_SUGGESTIONS, CURRENCY, CURRENCY_LABEL, DEFAULT_COUNTRY } from '../config/markets';
+import { BOOK_SESSION_URL, TENANT_CHECKS_URL } from '../config/platform';
+import { CURRENCY, DEFAULT_COUNTRY } from '../config/markets';
 import { MobileFold } from '../components/MobileFold';
 import { useIsMobile } from '../utils/useMediaQuery';
 import { formatMoneyFull } from '../utils/format';
@@ -15,12 +15,15 @@ import {
 } from '../config/verification';
 
 /*
- * Verifications belong to an account: you can fill the form signed out, but
- * you sign in to submit, so every request (and its checks, fee and Passport)
- * is listed above the form and in your portal. While you sign in, the form is
- * kept in sessionStorage and restored on the way back.
+ * `/check` — check a rental before you pay. Rental scams (a "landlord" who
+ * does not own the flat, an agent collecting for someone else's home) are
+ * the risk, so a check starts with the person and their right to let, then
+ * the home itself. Checks belong to an account: you can fill the form signed
+ * out, but you sign in to submit, so every request (and its checks, fee and
+ * report) is listed above the form and in your tenant portal. While you sign
+ * in, the form is kept in sessionStorage and restored on the way back.
  */
-const DRAFT_KEY = 'bv.verify.draft.v1';
+const DRAFT_KEY = 'bv.check.draft.v1';
 function saveDraft(draft) {
   try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch { /* private mode */ }
 }
@@ -57,7 +60,6 @@ const Field = styled.div``;
 const Label = styled.label`display:block; font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; font-family:var(--font-mono); color:#59645e; margin-bottom:.45rem;`;
 const inputCss = `width:100%; border:1px solid #d9dedb; border-radius:12px; background:#f8f9f7; padding:.92rem 1rem; font-size:1rem; color:var(--color-ink); outline:none; transition:.15s; &:focus{background:#fff;border-color:#2f5d50;box-shadow:0 0 0 3px rgba(47, 93, 80,.09);}`;
 const Input = styled.input`${inputCss}`;
-const Select = styled.select`${inputCss}`;
 const Textarea = styled.textarea`${inputCss} min-height:105px; resize:vertical; line-height:1.5;`;
 const ChoiceRow = styled.div`display:grid; grid-template-columns:1fr 1fr; gap:.7rem;`;
 const Choice = styled.button`display:flex; gap:.7rem; align-items:center; text-align:left; padding:.9rem; border-radius:12px; cursor:pointer; font-weight:700; border:1px solid ${p=>p.$active?'#2f5d50':'#d9dedb'}; background:${p=>p.$active?'#e9f7ef':'#fff'}; color:${p=>p.$active?'#2f5d50':'#4a525b'};`;
@@ -121,7 +123,7 @@ const Account = styled.div`padding:.8rem .95rem;border-radius:11px;background:#f
 const SuccessActions = styled.div`display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;a{display:inline-flex;align-items:center;gap:.45rem;padding:.85rem 1rem;border-radius:11px;background:#2f5d50;color:#fff;font-weight:700;&:last-child{background:#eeefe5;color:#172019;}}`;
 
 
-export function PropertyVerificationForm({ embedded = false }) {
+export function RentalCheckForm({ embedded = false }) {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -130,6 +132,7 @@ export function PropertyVerificationForm({ embedded = false }) {
   const [historyKey, setHistoryKey] = useState(0);
   const [step, setStep] = useState(1);
   const [source, setSource] = useState('elsewhere');
+  // Rentals are checked in the default market; the form no longer asks.
   const [form, setForm] = useState({ propertyLabel:'', country:DEFAULT_COUNTRY, currency:CURRENCY, address:'', propertyUrl:'', askingPrice:'', sellerName:'', contactName:'', contactEmail:user?.email||'', contactPhone:'', concerns:'' });
   const [files, setFiles] = useState([]);
   const [uploadEnabled, setUploadEnabled] = useState(false);
@@ -157,15 +160,15 @@ export function PropertyVerificationForm({ embedded = false }) {
     setTimeout(()=>formRef.current?.scrollIntoView({behavior:'smooth',block:'start'}),200);
   },[authLoading,user]);
 
-  const signInNote = !user && !authLoading ? <SignInNote><TrustIcon name="lock" size={16}/><span>You can fill this in now. <Link to="/auth" state={{from:{pathname:location.pathname}}}>Sign in</Link> before you submit, so your request, its checks and your Passport stay in your account.</span></SignInNote> : null;
+  const signInNote = !user && !authLoading ? <SignInNote><TrustIcon name="lock" size={16}/><span>You can fill this in now. <Link to="/auth" state={{from:{pathname:location.pathname}}}>Sign in</Link> before you submit, so your check and its report stay in your account.</span></SignInNote> : null;
 
   const goSignIn = () => {
     saveDraft({ form, source, vType, extras, consent, step, hadFiles: files.length>0 });
-    navigate('/auth', { state: { from: { pathname: location.pathname, hash: '#verify-form' } } });
+    navigate('/auth', { state: { from: { pathname: location.pathname, hash: '#check-form' } } });
   };
   const update = e => setForm(v=>({...v,[e.target.name]:e.target.value}));
   // Step 4 needs a name and consent; the email is the signed-in account's.
-  const canNext = useMemo(()=>step===1 ? Boolean(form.propertyLabel.trim() && form.country.trim() && form.currency && (form.address.trim()||form.propertyUrl.trim())) : (step===2||step===3) ? true : Boolean(form.contactName.trim() && consent),[step,form,consent]);
+  const canNext = useMemo(()=>step===1 ? Boolean(form.propertyLabel.trim() && (form.address.trim()||form.propertyUrl.trim())) : (step===2||step===3) ? true : Boolean(form.contactName.trim() && consent),[step,form,consent]);
 
   const addFiles = e => setFiles(Array.from(e.target.files||[]).slice(0,8));
   const submit = async () => {
@@ -177,13 +180,13 @@ export function PropertyVerificationForm({ embedded = false }) {
       if(uploadEnabled){
         for(const file of files){
           const { blobUrl } = await api.uploadMedia(file,{prefix:'passport'});
-          documents.push({url:blobUrl,fileName:file.name,docType:'Property document'});
+          documents.push({url:blobUrl,fileName:file.name,docType:'Rental document'});
         }
       }
       const request = await api.passport.create({...form,source,documents,verificationType:vType,extras:quote.extras.map(e=>e.id)});
       setResult(request);
       setHistoryKey(k=>k+1);
-    } catch(e){ setError(e.message||'We could not submit your request. Please try again.'); }
+    } catch(e){ setError(e.message||'We could not submit your check. Please try again.'); }
     finally{ setSubmitting(false); }
   };
 
@@ -192,39 +195,35 @@ export function PropertyVerificationForm({ embedded = false }) {
 
   return <Page $embedded={embedded}>
     {embedded&&history}
-    {embedded?<EmbeddedIntro id="verify-property"><div className="crumb"><TrustIcon name="shield" size={16}/> Full Property Passport</div><h2>Ready for the full check?</h2><p>Submit the property you are considering. EasyMoveZone verifies the seller, documents, location, price and physical condition, then puts the evidence into one trackable Property Passport.</p>{signInNote}</EmbeddedIntro>:<Hero><Inner><Crumb><TrustIcon name="shield" size={17}/> Independent property verification</Crumb><H1>Verify the property before you pay.</H1><Lede>Tell us the property. We check the seller, documents, location, price and physical condition, then give you one clear Property Passport — and you track every check from your account.</Lede>{signInNote}</Inner></Hero>}
+    {embedded?<EmbeddedIntro id="check-rental"><div className="crumb"><TrustIcon name="shield" size={16}/> Check a rental</div><h2>Check a rental before you pay</h2><p>Tell us the home and who is letting it. We check the landlord or agent, their right to let it and the home itself, and you follow every check here.</p>{signInNote}</EmbeddedIntro>:<Hero><Inner><Crumb><TrustIcon name="shield" size={17}/> Check a rental</Crumb><H1>Check the landlord and the home before you pay rent.</H1><Lede>Fake landlords and homes that are not really for let are the most common rental scams. Tell us the home and who is letting it: we check the person, their right to let it and the home itself, before any money moves.</Lede>{signInNote}</Inner></Hero>}
     {!embedded&&history}
-    <Body $embedded={embedded} id="verify-form" ref={formRef}>
+    <Body $embedded={embedded} id="check-form" ref={formRef}>
       <Card>
         {result ? <Success>
           <SuccessIcon><TrustIcon name="check" size={34}/></SuccessIcon>
-          <Title>Verification request received</Title>
-          <Sub>{quote.type.name}, quoted at {naira((+result.quoted_fee)||quote.total)}. An adviser will review the scope and confirm the fee before any charge is made.</Sub>
+          <Title>Rental check requested</Title>
+          <Sub>{quote.type.name}, quoted at {naira((+result.quoted_fee)||quote.total)}. We will confirm the fee and timing before any charge. Hold off paying rent or a deposit until your report is in.</Sub>
           <Ref>{result.reference}</Ref>
-          <SuccessActions>{embedded?<Link to={MANAGE_VERIFICATIONS_URL}>Track this request <TrustIcon name="arrow" size={16}/></Link>:<Link to="#your-verifications" onClick={(e)=>{e.preventDefault();document.getElementById('your-verifications')?.scrollIntoView({behavior:'smooth'});}}>Track this request <TrustIcon name="arrow" size={16}/></Link>}<Link to={BOOK_SESSION_URL}>Speak to an adviser</Link></SuccessActions>
+          <SuccessActions>{embedded?<Link to={TENANT_CHECKS_URL}>Track this check <TrustIcon name="arrow" size={16}/></Link>:<Link to="#your-verifications" onClick={(e)=>{e.preventDefault();document.getElementById('your-verifications')?.scrollIntoView({behavior:'smooth'});}}>Track this check <TrustIcon name="arrow" size={16}/></Link>}<Link to={BOOK_SESSION_URL}>Speak to an adviser</Link></SuccessActions>
         </Success> : <>
           <Progress $active={step===1}>{[1,2,3,4].map(n=><span key={n} style={{background:n<=step?'#2f5d50':undefined}}/>)}</Progress>
           {step===1 && <>
-            <FormHead><Number>01</Number><div><Title>Tell us which property</Title><Sub>It can be a EasyMoveZone property or one you found through an agent, seller or another website.</Sub></div></FormHead>
+            <FormHead><Number>01</Number><div><Title>Which home, and who is letting it?</Title><Sub>A home you found through an agent, a landlord, social media or another website. Homes listed on EasyMoveZone are already checked.</Sub></div></FormHead>
             <Fields>
-              <Field><Label>Where did you find it?</Label><ChoiceRow><Choice type="button" $active={source==='elsewhere'} onClick={()=>setSource('elsewhere')}><TrustIcon name="search"/>Found elsewhere</Choice><Choice type="button" $active={source==='platform'} onClick={()=>setSource('platform')}><TrustIcon name="home"/>On EasyMoveZone</Choice></ChoiceRow></Field>
-              <Field><Label htmlFor="propertyLabel">Property name or short description *</Label><Input id="propertyLabel" name="propertyLabel" value={form.propertyLabel} onChange={update} placeholder="e.g. 4-bedroom home near the city centre"/></Field>
-              <Two>
-                <Field><Label htmlFor="country">Property country *</Label><Input id="country" name="country" list="property-country-options" value={form.country} onChange={update} placeholder="Start typing a country"/><datalist id="property-country-options">{COUNTRY_SUGGESTIONS.map(country=><option key={country} value={country}/>)}</datalist></Field>
-                <Field><Label htmlFor="currency">Asking-price currency</Label><Input id="currency" value={CURRENCY_LABEL} readOnly aria-readonly="true" tabIndex={-1}/></Field>
-              </Two>
+              <Field><Label>Where did you find it?</Label><ChoiceRow><Choice type="button" $active={source==='elsewhere'} onClick={()=>setSource('elsewhere')}><TrustIcon name="search"/>Agent or website</Choice><Choice type="button" $active={source==='platform'} onClick={()=>setSource('platform')}><TrustIcon name="home"/>Direct from a landlord</Choice></ChoiceRow></Field>
+              <Field><Label htmlFor="propertyLabel">The home, in a few words *</Label><Input id="propertyLabel" name="propertyLabel" value={form.propertyLabel} onChange={update} placeholder="e.g. 2-bedroom flat in Yaba"/></Field>
               <Field><Label htmlFor="address">Address or estate *</Label><Input id="address" name="address" value={form.address} onChange={update} placeholder="Street, estate, city and region"/></Field>
               <Field><Label htmlFor="propertyUrl">Listing or shared link</Label><Input id="propertyUrl" name="propertyUrl" value={form.propertyUrl} onChange={update} placeholder="https:// or WhatsApp / Drive link"/></Field>
-              <Two><Field><Label htmlFor="askingPrice">Asking price (₦)</Label><Input id="askingPrice" name="askingPrice" value={form.askingPrice} onChange={update} inputMode="decimal" placeholder="e.g. 85,000,000"/></Field><Field><Label htmlFor="sellerName">Seller or agent name</Label><Input id="sellerName" name="sellerName" value={form.sellerName} onChange={update} placeholder="If known"/></Field></Two>
+              <Two><Field><Label htmlFor="askingPrice">Rent asked (₦ a year)</Label><Input id="askingPrice" name="askingPrice" value={form.askingPrice} onChange={update} inputMode="decimal" placeholder="e.g. 2,500,000"/></Field><Field><Label htmlFor="sellerName">Landlord or agent name</Label><Input id="sellerName" name="sellerName" value={form.sellerName} onChange={update} placeholder="As they gave it to you"/></Field></Two>
             </Fields>
           </>}
           {step===2 && <>
-            <FormHead><Number>02</Number><div><Title>Choose your check</Title><Sub>Prices are in naira and fixed per verification type. Add any extra service you need.</Sub></div></FormHead>
+            <FormHead><Number>02</Number><div><Title>Choose your check</Title><Sub>Fixed prices in naira. Add anything else you want checked.</Sub></div></FormHead>
             <Fields>
-              <Field><Label>Verification type</Label>
-                <Types role="radiogroup" aria-label="Verification type">
+              <Field><Label>Check</Label>
+                <Types role="radiogroup" aria-label="Check">
                   {VERIFICATION_TYPES.map(t=><TypeCard key={t.id} type="button" role="radio" aria-checked={vType===t.id} $active={vType===t.id} onClick={()=>setVType(t.id)}>
-                    {t.featured&&<span className="tag">Most complete</span>}
+                    {t.featured&&<span className="tag">Most chosen</span>}
                     <div className="name">{t.name}</div>
                     <div className="price">{naira(t.price)}</div>
                     <div className="blurb">{t.blurb}</div>
@@ -241,32 +240,34 @@ export function PropertyVerificationForm({ embedded = false }) {
                     </Extra>);})}
                 </Extras>
               </Field>
-              <Total><span className="k">Your verification</span><span className="v">{naira(quote.total)}</span><small>{quote.type.name}{quote.extras.length?` + ${quote.extras.length} extra${quote.extras.length>1?'s':''}`:''}. Your adviser confirms the fee before you pay anything.</small></Total>
+              <Total><span className="k">Your check</span><span className="v">{naira(quote.total)}</span><small>{quote.type.name}{quote.extras.length?` + ${quote.extras.length} extra${quote.extras.length>1?'s':''}`:''}. We confirm the fee before you pay anything.</small></Total>
             </Fields>
           </>}
           {step===3 && <>
-            <FormHead><Number>03</Number><div><Title>Add what you already have</Title><Sub>Documents help us scope the verification faster. You can also submit now and provide them securely to your adviser later.</Sub></div></FormHead>
+            <FormHead><Number>03</Number><div><Title>Add what you already have</Title><Sub>Screenshots of the advert, chats with the landlord or agent, an ID they sent, a draft agreement or receipts. You can also send them later.</Sub></div></FormHead>
             <Fields>
-              <Field><Label>Property documents</Label><Upload><TrustIcon name="upload" size={25}/><div><strong>{uploadEnabled?'Choose documents':'Documents can follow after submission'}</strong><Sub>{uploadEnabled?'PDF, JPG or PNG · up to 8 files':'Your adviser will send a secure upload link.'}</Sub></div>{uploadEnabled&&<input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onChange={addFiles}/>}</Upload>{files.length>0&&<FileList>{files.map(f=><File key={f.name}>{f.name}</File>)}</FileList>}</Field>
-              <Field><Label htmlFor="concerns">What are you most concerned about?</Label><Textarea id="concerns" name="concerns" value={form.concerns} onChange={update} placeholder="Tell us what the seller has said, what documents you received, deadlines, or any red flags."/></Field>
+              <Field><Label>Screenshots and documents</Label><Upload><TrustIcon name="upload" size={25}/><div><strong>{uploadEnabled?'Choose documents':'Documents can follow after submission'}</strong><Sub>{uploadEnabled?'PDF, JPG or PNG · up to 8 files':'Your adviser will send a secure upload link.'}</Sub></div>{uploadEnabled&&<input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onChange={addFiles}/>}</Upload>{files.length>0&&<FileList>{files.map(f=><File key={f.name}>{f.name}</File>)}</FileList>}</Field>
+              <Field><Label htmlFor="concerns">What worries you about it?</Label><Textarea id="concerns" name="concerns" value={form.concerns} onChange={update} placeholder="e.g. They want an inspection fee first, will not show the inside, or are rushing you to pay."/></Field>
             </Fields>
           </>}
           {step===4 && <>
-            <FormHead><Number>04</Number><div><Title>Where should we send updates?</Title><Sub>Your adviser will confirm the scope, timeline and fixed fee before verification begins.</Sub></div></FormHead>
-            <Fields><Field><Label htmlFor="contactName">Full name *</Label><Input id="contactName" name="contactName" value={form.contactName} onChange={update} placeholder="Your full name"/></Field><Two><Field><Label>Account</Label>{user?<Account><strong>Updates go to</strong>{user.email}</Account>:<Account><strong>Not signed in</strong>You will sign in on the next tap — we keep what you typed.</Account>}</Field><Field><Label htmlFor="contactPhone">WhatsApp / phone</Label><Input id="contactPhone" name="contactPhone" value={form.contactPhone} onChange={update} placeholder="e.g. 0803 123 4567"/></Field></Two><Consent><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/> <span>I confirm EasyMoveZone may contact me about this verification request. I understand no payment is taken until the scope and fee are confirmed.</span></Consent></Fields>
+            <FormHead><Number>04</Number><div><Title>Where should we send updates?</Title><Sub>We confirm the fee and timing before the check starts.</Sub></div></FormHead>
+            <Fields><Field><Label htmlFor="contactName">Full name *</Label><Input id="contactName" name="contactName" value={form.contactName} onChange={update} placeholder="Your full name"/></Field><Two><Field><Label>Account</Label>{user?<Account><strong>Updates go to</strong>{user.email}</Account>:<Account><strong>Not signed in</strong>You will sign in on the next tap — we keep what you typed.</Account>}</Field><Field><Label htmlFor="contactPhone">WhatsApp / phone</Label><Input id="contactPhone" name="contactPhone" value={form.contactPhone} onChange={update} placeholder="e.g. 0803 123 4567"/></Field></Two><Consent><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/> <span>EasyMoveZone may contact me, the landlord or the agent about this check. No payment is taken until the fee is confirmed.</span></Consent></Fields>
           </>}
           {restored&&step===4&&<SignInNote style={{marginTop:0,marginBottom:'1rem'}}><TrustIcon name="check" size={16}/><span>Signed in. Check the details and submit.{restored==='files'?' Please re-attach your documents in step 3 — files cannot be carried across sign-in.':''}</span></SignInNote>}
           {error&&<Error>{error}</Error>}
-          <Actions>{step>1?<Button type="button" onClick={()=>setStep(s=>s-1)}>Back</Button>:<span/>}<Button type="button" $primary disabled={!canNext||submitting} onClick={()=>step<LAST?setStep(s=>s+1):submit()}>{submitting?'Submitting securely…':step<LAST?'Continue':!user?'Sign in to submit':`Request verification · ${naira(quote.total)}`} <TrustIcon name="arrow" size={16}/></Button></Actions>
+          <Actions>{step>1?<Button type="button" onClick={()=>setStep(s=>s-1)}>Back</Button>:<span/>}<Button type="button" $primary disabled={!canNext||submitting} onClick={()=>step<LAST?setStep(s=>s+1):submit()}>{submitting?'Submitting securely…':step<LAST?'Continue':!user?'Sign in to submit':`Request check · ${naira(quote.total)}`} <TrustIcon name="arrow" size={16}/></Button></Actions>
         </>}
       </Card>
       <Rail>
         <RailBlock title={`Included in ${quote.type.name}`}>{quote.type.covers.map(item=><Check key={item}><TrustIcon name="check" size={17}/><span>{item}</span></Check>)}{quote.extras.map(e=><Check key={e.id}><TrustIcon name="check" size={17}/><span>{e.name}<small>+ {naira(e.price)}</small></span></Check>)}<RailTotal><span>Total</span><b>{naira(quote.total)}</b></RailTotal></RailBlock>
-        <RailBlock title="What happens next"><Check><TrustIcon name="timeline"/><span><strong>1. Scope review</strong><small>We review what you sent and confirm the fee.</small></span></Check><Check><TrustIcon name="lock"/><span><strong>2. Protected payment</strong><small>Pay securely only when you are ready.</small></span></Check><Check><TrustIcon name="file"/><span><strong>3. Verified report</strong><small>Track every check and download your Passport.</small></span></Check></RailBlock>
-        <Advisor as={Link} to={BOOK_SESSION_URL}><TrustIcon name="support"/><span>Need help first?<small>Ask a property adviser</small></span></Advisor>
+        <RailBlock title="What happens next"><Check><TrustIcon name="timeline"/><span><strong>1. We confirm</strong><small>We read what you sent and confirm the fee.</small></span></Check><Check><TrustIcon name="lock"/><span><strong>2. Protected payment</strong><small>Pay securely only when you are ready.</small></span></Check><Check><TrustIcon name="file"/><span><strong>3. Your report</strong><small>Each check marked safe or not, usually in 3 to 5 working days.</small></span></Check></RailBlock>
+        <Advisor as={Link} to={BOOK_SESSION_URL}><TrustIcon name="support"/><span>Not sure it is worth it?<small>Ask an adviser, free</small></span></Advisor>
       </Rail>
     </Body>
   </Page>;
 }
 
-export default PropertyVerificationForm;
+export default function RentalCheckPage() {
+  return <RentalCheckForm />;
+}

@@ -14,11 +14,10 @@ import { AddPropertySection, MyPropertiesSection } from './manage-add';
 import ManageOnboarding from './manage-onboarding';
 import ManageConsult from './manage-consult';
 import JourneysSection from './manage-journeys';
-import VerificationPanel from '../components/profile/VerificationPanel';
-import { OffersSection, PlanSection, ConsultationsList } from './hub-sections';
+import { PlanSection, ConsultationsList } from './hub-sections';
 import {
   CONSOLE_NAV, MANAGE_URL, MANAGE_ADD_URL, MANAGE_ONBOARDING_URL,
-  MANAGE_JOURNEYS_URL, MANAGE_VERIFICATIONS_URL, MANAGE_OFFERS_URL, MANAGE_DOCUMENTS_URL,
+  MANAGE_JOURNEYS_URL, MANAGE_DOCUMENTS_URL,
 } from '../config/platform';
 
 /**
@@ -26,8 +25,8 @@ import {
  *
  * Signed in, the console leaves the public site's chrome behind. The sidebar
  * lists the four sections — Overview, Money, Operations, Account — and each
- * section's views are tabs in its page header: Overview (dashboard, journeys,
- * verifications, sales & offers, properties), Money (collections,
+ * section's views are tabs in its page header: Overview (dashboard,
+ * properties, journeys), Money (collections,
  * statements), Operations (tenancies, maintenance, documents) and Account
  * (payment details, plan, talk to a manager). The shell owns the sidebar, the
  * header and the property scope; the sections render content only. The
@@ -44,8 +43,6 @@ import {
 const PAGE_META = {
   dashboard: { title: 'Dashboard', sub: 'EasyMoveZone runs your property for you. Here is what we are doing, the money, and anything waiting on you.' },
   journeys: { title: 'Journeys', sub: 'Your lettings and renovations with us, and the next step on each.' },
-  verifications: { title: 'Verifications', sub: 'Every Property Passport you have ordered, check by check.' },
-  offers: { title: 'Sales & offers', sub: 'Properties you asked us to sell or buy, and any offer we have issued.' },
   properties: { title: 'Properties', sub: 'Every property under management, and any handover still being onboarded.' },
   add: { title: 'Add a property', sub: 'Hand a property over, with the plan, the details and the management authorization.' },
   money: { title: 'Collections', sub: 'Rent collected, what we paid you, and where the rest of it went.' },
@@ -193,9 +190,10 @@ function Console({ email, user }) {
           </>
         ))}
       />
-      <Route path="journeys" element={page('journeys', <><DealViews /><JourneysSection email={email} user={user} /></>)} />
-      <Route path="verifications" element={page('verifications', <><DealViews /><VerificationPanel /></>)} />
-      <Route path="offers" element={page('offers', <><DealViews /><OffersSection email={email} /></>)} />
+      <Route path="journeys" element={page('journeys', <JourneysSection email={email} user={user} />)} />
+      {/* Buying and selling are gone; their old tabs land on Journeys. */}
+      <Route path="verifications" element={<Navigate to={MANAGE_JOURNEYS_URL} replace />} />
+      <Route path="offers" element={<Navigate to={MANAGE_JOURNEYS_URL} replace />} />
       <Route path="add" element={page('add', <AddPropertySection user={user} />)} />
 
       {/* ── Money ── */}
@@ -225,21 +223,6 @@ function Console({ email, user }) {
   );
 }
 
-const DealNav = styled.nav`
-  display: flex;
-  gap: 0.4rem;
-  margin: 0 0 1rem;
-  a {
-    padding: 0.4rem 0.75rem;
-    border-radius: 999px;
-    border: 1px solid var(--color-line);
-    background: #fff;
-    font-size: 0.82rem;
-    font-weight: 650;
-    color: var(--color-ink-muted);
-  }
-  a[aria-current='page'] { background: var(--color-green-deep); color: #fff; border-color: var(--color-green-deep); }
-`;
 const DocLink = styled(Link)`
   display: inline-block;
   margin-top: 0.85rem;
@@ -247,22 +230,6 @@ const DocLink = styled(Link)`
   color: var(--color-green-deep);
 `;
 
-/** Journeys, verifications and offers share one header tab. This picks which. */
-function DealViews() {
-  const { pathname } = useLocation();
-  const items = [
-    [MANAGE_JOURNEYS_URL, 'Journeys'],
-    [MANAGE_VERIFICATIONS_URL, 'Verifications'],
-    [MANAGE_OFFERS_URL, 'Sales & offers'],
-  ];
-  return (
-    <DealNav aria-label="Deals">
-      {items.map(([to, label]) => (
-        <Link key={to} to={to} aria-current={pathname === to ? 'page' : undefined}>{label}</Link>
-      ))}
-    </DealNav>
-  );
-}
 
 /**
  * Signed out, there is no portal yet: the page stays inside the public site

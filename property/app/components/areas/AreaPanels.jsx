@@ -7,7 +7,7 @@ import {
 } from 'react-icons/fa';
 import { api } from '../../api';
 import { formatMoney } from '../../utils/format';
-import { RENT_URL, OFFER_VERIFY_URL, MOVING_URL } from '../../config/platform';
+import { RENT_URL, RENTAL_CHECK_URL, MOVING_URL } from '../../config/platform';
 import {
   Panel, PrimaryBtn, ErrorText, SignInLink,
 } from './shared';
@@ -308,8 +308,8 @@ export function AreaNextSteps({ area }) {
       <Next to={`${RENT_URL}?q=${encodeURIComponent(area.name)}`}>
         <span className="ic"><FaHome /></span><span>Homes to rent here<small>Let and managed by us</small></span><FaArrowRight size={11} />
       </Next>
-      <Next to={OFFER_VERIFY_URL}>
-        <span className="ic"><FaClipboardCheck /></span><span>Verify a property before you pay<small>Title, owner and condition checks</small></span><FaArrowRight size={11} />
+      <Next to={RENTAL_CHECK_URL}>
+        <span className="ic"><FaClipboardCheck /></span><span>Check a rental before you pay<small>The landlord or agent, and the home</small></span><FaArrowRight size={11} />
       </Next>
       {area.movingCity ? (
         <Next to={`${MOVING_URL}/book?area=${encodeURIComponent(area.movingCity)}`}>

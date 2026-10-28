@@ -46,14 +46,13 @@ const Details = styled.details`
 `;
 const Empty = styled.div`background:#fff;border:1px solid rgba(13,17,23,.08);border-radius:18px;text-align:center;padding:3rem 1.25rem;svg{color:#2f5d50;margin-bottom:1rem;}h3{font-size:1.15rem;margin-bottom:.45rem;}p{font-size:.86rem;color:#6a746e;max-width:420px;margin:0 auto 1.2rem;}`;
 
-const STATUS_LABELS = { submitted:'Submitted', scope_review:'Scope review', payment_due:'Ready for payment', in_progress:'Checks in progress', action_required:'Action needed', complete:'Passport ready', cancelled:'Cancelled' };
+const STATUS_LABELS = { submitted:'Submitted', scope_review:'Scope review', payment_due:'Ready for payment', in_progress:'Checks in progress', action_required:'Action needed', complete:'Report ready', cancelled:'Cancelled' };
 const fallbackChecks = [
   {id:'request',label:'Request received',status:'complete'},
-  {id:'seller',label:'Seller and ownership verification',status:'pending'},
-  {id:'title',label:'Title and document checks',status:'pending'},
-  {id:'valuation',label:'Independent valuation',status:'pending'},
-  {id:'inspection',label:'Physical inspection',status:'pending'},
-  {id:'passport',label:'Property Passport issued',status:'pending'},
+  {id:'identity',label:'Landlord or agent identity',status:'pending'},
+  {id:'authority',label:'Right to let the home',status:'pending'},
+    {id:'inspection',label:'Visit and condition of the home',status:'pending'},
+  {id:'passport',label:'Rental check report issued',status:'pending'},
 ];
 
 function formatDate(value){
@@ -62,13 +61,13 @@ function formatDate(value){
 }
 
 /**
- * Every verification on the signed-in account, with its checks, timeline,
- * fee, payment and the details that were sent. Used on the Verify page (above
- * the form) and in the owner portal (Overview → Verifications). Requests are
+ * Every rental check on the signed-in account, with its checks, timeline,
+ * fee, payment and the details that were sent. Used on the Check a rental
+ * page (above the form) and in the tenant portal (Overview → Checks). Requests are
  * tied to the account — you sign in to submit one — so there is nothing to
  * look up on the device.
  */
-export default function VerificationPanel({ newTo = '/verify', onNew, hideWhenEmpty = false, refreshKey = 0, id }){
+export default function VerificationPanel({ newTo = '/check', onNew, hideWhenEmpty = false, refreshKey = 0, id }){
   const { user } = useAuth();
   const [items,setItems]=useState([]);
   const [loaded,setLoaded]=useState(false);
@@ -93,21 +92,21 @@ export default function VerificationPanel({ newTo = '/verify', onNew, hideWhenEm
   };
 
   if(hideWhenEmpty && loaded && !error && ordered.length===0) return null;
-  const newProps = onNew ? { to:'#verify-form', onClick:(e)=>{ e.preventDefault(); onNew(); } } : { to:newTo };
+  const newProps = onNew ? { to:'#check-form', onClick:(e)=>{ e.preventDefault(); onNew(); } } : { to:newTo };
 
   return <Wrap id={id}>
-    <Head><div><Heading>Your property verifications</Heading><Copy>Follow every check, document request and adviser update from one place.</Copy></div><New {...newProps}>Verify another property <TrustIcon name="arrow" size={15}/></New></Head>
-    {new URLSearchParams(window.location.search).get('payment')==='success'&&<Notice>Payment received. Your verification can now move into active checks.</Notice>}
+    <Head><div><Heading>Your rental checks</Heading><Copy>Follow every check, document request and update from one place.</Copy></div><New {...newProps}>Check another rental <TrustIcon name="arrow" size={15}/></New></Head>
+    {new URLSearchParams(window.location.search).get('payment')==='success'&&<Notice>Payment received. Your rental check can now start.</Notice>}
     {error&&<Notice $error>{error}</Notice>}
-    {ordered.length===0?<Empty><TrustIcon name="shield" size={36}/><h3>{loaded?'No properties in verification yet':'Loading your verifications…'}</h3><p>Before you pay a seller, send us the property and we’ll independently verify the facts.</p><New {...newProps}>Start a verification</New></Empty>:<List>{ordered.map(item=>{
+    {ordered.length===0?<Empty><TrustIcon name="shield" size={36}/><h3>{loaded?'No rental checks yet':'Loading your rental checks…'}</h3><p>Before you pay rent or a deposit, send us the home and who is letting it, and we check them.</p><New {...newProps}>Check a rental</New></Empty>:<List>{ordered.map(item=>{
       const checklist=Array.isArray(item.checklist)&&item.checklist.length?item.checklist:fallbackChecks;
-      const timeline=Array.isArray(item.timeline)&&item.timeline.length?item.timeline:[{title:'Verification requested',detail:'Property details received by EasyMoveZone.',at:item.created_at}];
+      const timeline=Array.isArray(item.timeline)&&item.timeline.length?item.timeline:[{title:'Rental check requested',detail:'Details received by EasyMoveZone.',at:item.created_at}];
       const complete=checklist.filter(c=>c.status==='complete').length;
       const pct=Math.round((complete/checklist.length)*100);
       const done=item.status==='complete';
       const location=[item.address||item.property_url,item.country].filter(Boolean).join(', ')||'Location to be confirmed';
-      return <Card key={item.reference||item.id}><CardTop><div><Ref>{item.reference||'Property Passport'}</Ref><Property>{item.property_label}</Property><Address>{location} · {VERIFICATION_TYPES.find(t=>t.id===item.verification_type)?.name||'Property verification'}{item.quoted_fee?` · ${formatMoneyFull(item.quoted_fee,'NGN')}`:''} · Opened {formatDate(item.created_at)}</Address></div><Status $done={done}>{STATUS_LABELS[item.status]||'Submitted'}</Status></CardTop>
-        <Grid><div><SectionLabel>Verification checklist</SectionLabel><Checklist>{checklist.map(c=><CheckRow key={c.id||c.label} $done={c.status==='complete'}><Dot $done={c.status==='complete'}><TrustIcon name={c.status==='complete'?'check':'timeline'} size={12}/></Dot>{c.label}</CheckRow>)}</Checklist><Track $pct={pct}><span/></Track><TrackMeta><span>{complete} of {checklist.length} checks complete</span><strong>{pct}%</strong></TrackMeta></div>
+      return <Card key={item.reference||item.id}><CardTop><div><Ref>{item.reference||'Rental check'}</Ref><Property>{item.property_label}</Property><Address>{location} · {VERIFICATION_TYPES.find(t=>t.id===item.verification_type)?.name||'Rental check'}{item.quoted_fee?` · ${formatMoneyFull(item.quoted_fee,'NGN')}`:''} · Opened {formatDate(item.created_at)}</Address></div><Status $done={done}>{STATUS_LABELS[item.status]||'Submitted'}</Status></CardTop>
+        <Grid><div><SectionLabel>Checklist</SectionLabel><Checklist>{checklist.map(c=><CheckRow key={c.id||c.label} $done={c.status==='complete'}><Dot $done={c.status==='complete'}><TrustIcon name={c.status==='complete'?'check':'timeline'} size={12}/></Dot>{c.label}</CheckRow>)}</Checklist><Track $pct={pct}><span/></Track><TrackMeta><span>{complete} of {checklist.length} checks complete</span><strong>{pct}%</strong></TrackMeta></div>
         <div><SectionLabel>Property timeline</SectionLabel><Timeline>{timeline.map((event,index)=><Event key={event.id||index}><strong>{event.title}</strong>{event.detail}<small>{event.at?<><br/>{formatDate(event.at)}</>:null}</small></Event>)}</Timeline>{item.advisor_note&&<AdvisorNote><strong>Adviser note</strong><br/>{item.advisor_note}</AdvisorNote>}</div></Grid>
         <Details><summary>What you sent us</summary><dl>
           <div><dt>Asking price</dt><dd>{item.asking_price?`₦${item.asking_price}`:'—'}</dd></div>
@@ -119,7 +118,7 @@ export default function VerificationPanel({ newTo = '/verify', onNew, hideWhenEm
           {Array.isArray(item.extras)&&item.extras.length>0&&<div className="wide"><dt>Extra services</dt><dd>{item.extras.map(x=>x.name||x.id).join(', ')}</dd></div>}
           <div><dt>Payment</dt><dd>{item.payment_status==='paid'?'Paid':item.status==='payment_due'?'Ready to pay':'Not yet due'}</dd></div>
         </dl></Details>
-        <Buttons>{item.status==='payment_due'&&item.payment_status!=='paid'&&<ActionButton type="button" disabled={paying===item.id} onClick={()=>checkout(item)}><TrustIcon name="lock" size={14}/>{paying===item.id?'Opening checkout…':'Pay securely'}</ActionButton>}{done&&item.report_url?<Action $primary href={item.report_url} target="_blank" rel="noreferrer"><TrustIcon name="file" size={14}/>Download Property Passport</Action>:<Action as="span"><TrustIcon name="file" size={14}/>Report unlocks when complete</Action>}<Action as={Link} to={BOOK_SESSION_URL}><TrustIcon name="support" size={14}/>Speak to adviser</Action></Buttons>
+        <Buttons>{item.status==='payment_due'&&item.payment_status!=='paid'&&<ActionButton type="button" disabled={paying===item.id} onClick={()=>checkout(item)}><TrustIcon name="lock" size={14}/>{paying===item.id?'Opening checkout…':'Pay securely'}</ActionButton>}{done&&item.report_url?<Action $primary href={item.report_url} target="_blank" rel="noreferrer"><TrustIcon name="file" size={14}/>Download report</Action>:<Action as="span"><TrustIcon name="file" size={14}/>Report unlocks when complete</Action>}<Action as={Link} to={BOOK_SESSION_URL}><TrustIcon name="support" size={14}/>Speak to adviser</Action></Buttons>
       </Card>;
     })}</List>}
   </Wrap>;

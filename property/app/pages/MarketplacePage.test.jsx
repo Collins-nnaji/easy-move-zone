@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { vi, test, it, describe, expect, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import MarketplacePage from './MarketplacePage';
 
 vi.mock('../AuthContext', () => ({
@@ -62,44 +62,44 @@ function renderProperties(path) {
   );
 }
 
-test('service pages carry no second tab row under the navbar', () => {
-  renderProperties('/listings/build');
+function LocationProbe() {
+  const { pathname, search } = useLocation();
+  return <span data-testid="where">{pathname}{search}</span>;
+}
 
-  expect(screen.getByText(/manage your building process/i)).toBeInTheDocument();
-  expect(screen.queryByRole('link', { name: /^for sale$/i })).not.toBeInTheDocument();
-  expect(screen.queryByRole('link', { name: /^renovate$/i })).not.toBeInTheDocument();
-});
+function renderWithProbe(path) {
+  render(
+    <MemoryRouter initialEntries={[path]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <Routes>
+        <Route path="/listings/*" element={<><MarketplacePage /><LocationProbe /></>} />
+        <Route path="/list" element={<LocationProbe />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
 
-test('keeps the for-sale page concise and puts filters behind one control', async () => {
+test('the listings page is homes to rent, with the filters behind one control on phones', async () => {
   mockViewport(true);
   renderProperties('/listings');
 
-  expect(screen.getByRole('heading', { name: /^properties for sale\.$/i })).toBeInTheDocument();
-  await screen.findByRole('heading', { name: /no properties on the market/i });
+  expect(screen.getByRole('heading', { name: /^homes to rent\.$/i })).toBeInTheDocument();
+  expect(mockBrowse).toHaveBeenLastCalledWith(expect.objectContaining({ mode: 'rent' }));
   const filterToggle = document.querySelector('button[aria-controls="property-filters"]');
   expect(filterToggle).toHaveAttribute('aria-expanded', 'false');
   fireEvent.click(filterToggle);
   expect(filterToggle).toHaveAttribute('aria-expanded', 'true');
-  expect(screen.queryByRole('link', { name: /browse approved properties/i })).not.toBeInTheDocument();
+  expect(screen.queryByRole('navigation', { name: /buy, rent, sell or verify/i })).not.toBeInTheDocument();
   mockViewport(false);
 });
 
-test('puts both seller routes on the Sell page', () => {
-  renderProperties('/listings/sell');
-
-  expect(screen.getByText(/^sell your property\.$/i)).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /list it for sale/i })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /sell it to easymovezone/i })).toBeInTheDocument();
+test('old buy, build and rent addresses land on homes to rent, and sell on listing a home', () => {
+  renderWithProbe('/listings/rent?q=Yaba');
+  expect(screen.getByTestId('where')).toHaveTextContent('/listings?q=Yaba');
 });
 
-test('Buy, Rent, Sell and Verify are four modes of one Listings page', () => {
-  renderProperties('/listings/sell');
-
-  const modes = screen.getByRole('navigation', { name: /buy, rent, sell or verify/i });
-  expect(within(modes).getByRole('link', { name: /^sell$/i })).toHaveAttribute('aria-current', 'page');
-  expect(within(modes).getByRole('link', { name: /^buy$/i })).toHaveAttribute('href', '/listings');
-  expect(within(modes).getByRole('link', { name: /^rent$/i })).toHaveAttribute('href', '/listings/rent');
-  expect(within(modes).getByRole('link', { name: /^verify$/i })).toHaveAttribute('href', '/verify');
+test('selling is gone: /listings/sell goes to listing a home to rent', () => {
+  renderWithProbe('/listings/sell');
+  expect(screen.getByTestId('where')).toHaveTextContent('/list');
 });
 
 const RENTAL = {
@@ -112,16 +112,13 @@ const RENTAL = {
 
 test('the Rent page asks the API for rentals and prices them per year', async () => {
   mockBrowse.mockImplementationOnce(() => Promise.resolve({ listings: [RENTAL], total: 1 }));
-  renderProperties('/listings/rent');
+  renderProperties('/listings');
 
   expect(screen.getByRole('heading', { name: /^homes to rent\.$/i })).toBeInTheDocument();
   expect(await screen.findByText('3-bed flat Lekki')).toBeInTheDocument();
   expect(mockBrowse).toHaveBeenLastCalledWith(expect.objectContaining({ mode: 'rent' }));
   expect(screen.getByText(/to rent · managed by easymovezone/i)).toBeInTheDocument();
   expect(screen.getByText(/\/ year$/)).toBeInTheDocument();
-  const modes = screen.getByRole('navigation', { name: /buy, rent, sell or verify/i });
-  expect(within(modes).getByRole('link', { name: /^rent$/i })).toHaveAttribute('aria-current', 'page');
-  expect(within(modes).getByRole('link', { name: /^buy$/i })).not.toHaveAttribute('aria-current');
 });
 
 test('a rental opens with an application form, not a buyer enquiry', async () => {
@@ -146,21 +143,13 @@ test('a rental also takes a plain enquiry', async () => {
 });
 
 test('the new-listing alert form is not shown again once someone has signed up', async () => {
-  window.localStorage.setItem('bv.alerts.v1', JSON.stringify({ sale: { email: 'ada@example.com', at: 1 } }));
+  window.localStorage.setItem('bv.alerts.v1', JSON.stringify({ rent: { email: 'ada@example.com', at: 1 } }));
   renderProperties('/listings');
 
   expect(await screen.findByText(/we will email ada@example.com/i)).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: /notify me/i })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: /^change$/i }));
   expect(screen.getByRole('button', { name: /notify me/i })).toBeInTheDocument();
-  window.localStorage.removeItem('bv.alerts.v1');
-});
-
-test('signing up for Buy alerts still offers Rent alerts', async () => {
-  window.localStorage.setItem('bv.alerts.v1', JSON.stringify({ sale: { email: 'ada@example.com', at: 1 } }));
-  renderProperties('/listings/rent');
-
-  expect(await screen.findByRole('button', { name: /notify me/i })).toBeInTheDocument();
   window.localStorage.removeItem('bv.alerts.v1');
 });
 

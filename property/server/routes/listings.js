@@ -96,8 +96,13 @@ const PUBLIC_COLUMNS = `
 const RENT_FREQUENCIES = ['annual', 'biannual', 'quarterly', 'monthly'];
 const LISTING_TYPES = ['sale', 'rent'];
 
-/** `?mode=rent` is the Rent page; anything else is the Buy grid. */
+/** `?mode=rent` is the Rent page; anything else is the Buy grid (staff tools only). */
 const modeOf = (v) => (v === 'rent' ? 'rent' : 'sale');
+/*
+ * The public site is rentals only: the grid, its filters and a home's page
+ * never show a sale listing, whatever `mode` a client sends.
+ */
+const PUBLIC_MODE = 'rent';
 
 const dateOrNull = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || '')) ? String(v) : null);
 
@@ -107,14 +112,14 @@ const dateOrNull = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || '')) ? String(
 router.get('/', async (req, res) => {
   const {
     country, currency, state, type, beds, minPrice, maxPrice, route: routeFilter, q, project,
-    sort = 'newest', limit = 24, offset = 0, mode,
+    sort = 'newest', limit = 24, offset = 0,
   } = req.query;
 
   const where = [`status = 'live'`];
   const params = [];
   const add = (sql, value) => { params.push(value); where.push(sql.replace('$?', `$${params.length}`)); };
 
-  add('listing_type = $?', modeOf(mode));
+  add('listing_type = $?', PUBLIC_MODE);
   if (clean(country)) add('country = $?', clean(country));
   if (/^[A-Z]{3}$/.test(String(currency || '').toUpperCase())) add('currency = $?', String(currency).toUpperCase());
   if (clean(state)) add('state = $?', clean(state));
@@ -170,7 +175,7 @@ router.get('/facets', async (req, res) => {
     const { rows } = await pool.query(
       `SELECT country, currency, state, property_type, beds, COALESCE(list_price, guide_price) AS price
          FROM listings WHERE status = 'live' AND listing_type = $1`,
-      [modeOf(req.query.mode)]
+      [PUBLIC_MODE]
     );
     const uniq = (key) => [...new Set(rows.map((r) => r[key]).filter(Boolean))].sort();
     const prices = rows.map((r) => Number(r.price)).filter((n) => Number.isFinite(n) && n > 0);
@@ -1164,7 +1169,7 @@ router.get('/:idOrSlug', async (req, res) => {
   try {
     const { rows } = await pool.query(
       `SELECT ${PUBLIC_COLUMNS} FROM listings
-        WHERE status = 'live' AND (slug = $1 ${asId ? 'OR id = $2' : ''})
+        WHERE status = 'live' AND listing_type = '${PUBLIC_MODE}' AND (slug = $1 ${asId ? 'OR id = $2' : ''})
         LIMIT 1`,
       asId ? [key, asId] : [key]
     );

@@ -7,47 +7,46 @@
 
 const { DEFAULT_CURRENCY } = require('./markets');
 
+/*
+ * Rental checks: what a renter can ask us to check before they pay rent.
+ * Rental scams (fake landlords, homes that are not for let, agents taking
+ * money for someone else's flat) are the risk, so every type starts with
+ * the person and their right to let. Older requests keep their own stored
+ * type and checklist; only new requests are priced from this list.
+ */
 const VERIFICATION_TYPES = [
   {
-    id: 'document',
-    name: 'Document check',
-    price: 150000,
-    checks: ['seller', 'title'],
-  },
-  {
-    id: 'land',
-    name: 'Land verification',
-    price: 250000,
-    checks: ['seller', 'title', 'survey', 'inspection'],
+    id: 'landlord',
+    name: 'Landlord and agent check',
+    price: 25000,
+    checks: ['identity', 'authority'],
   },
   {
     id: 'home',
-    name: 'Home verification',
-    price: 400000,
-    checks: ['seller', 'title', 'survey', 'inspection'],
+    name: 'Home and landlord check',
+    price: 50000,
+    checks: ['identity', 'authority', 'inspection'],
   },
   {
-    id: 'passport',
-    name: 'Full Property Passport',
-    price: 650000,
-    checks: ['seller', 'title', 'survey', 'valuation', 'inspection', 'risk'],
+    id: 'full',
+    name: 'Full rental check',
+    price: 80000,
+    checks: ['identity', 'authority', 'inspection', 'agreement', 'rent', 'risk'],
   },
 ];
 
 const VERIFICATION_EXTRAS = [
-  { id: 'litigation', name: 'Court and encumbrance search', price: 100000, includedIn: ['document', 'passport'] },
-  { id: 'survey_charting', name: 'Survey charting at the Surveyor-General', price: 75000, includedIn: ['land', 'passport'] },
-  { id: 'valuation', name: 'Independent valuation report', price: 150000, includedIn: ['passport'], check: 'valuation' },
-  { id: 'neighbourhood', name: 'Flood, access and neighbourhood report', price: 80000, includedIn: ['passport'], check: 'risk' },
-  { id: 'structural', name: 'Structural engineer’s inspection', price: 200000, includedIn: [] },
-  { id: 'express', name: 'Express turnaround (5 working days)', price: 120000, includedIn: [] },
+  { id: 'agreement', name: 'Tenancy agreement review', price: 20000, includedIn: ['full'], check: 'agreement' },
+  { id: 'fair_rent', name: 'Fair-rent check', price: 10000, includedIn: ['full'], check: 'rent' },
+  { id: 'neighbourhood', name: 'Flooding, security and access report', price: 15000, includedIn: ['full'], check: 'risk' },
+  { id: 'express', name: 'Express turnaround (48 hours)', price: 15000, includedIn: [] },
 ];
 
 const TYPE_IDS = VERIFICATION_TYPES.map((t) => t.id);
 
 /** Price a type plus extras; extras the type already covers cost nothing. */
 function quoteVerification(typeId, extraIds = []) {
-  const type = VERIFICATION_TYPES.find((t) => t.id === typeId) || VERIFICATION_TYPES.find((t) => t.id === 'passport');
+  const type = VERIFICATION_TYPES.find((t) => t.id === typeId) || VERIFICATION_TYPES.find((t) => t.id === 'home');
   const wanted = Array.isArray(extraIds) ? extraIds : [];
   const extras = VERIFICATION_EXTRAS
     .filter((e) => wanted.includes(e.id) && !e.includedIn.includes(type.id))

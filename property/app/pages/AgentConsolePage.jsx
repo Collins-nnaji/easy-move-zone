@@ -22,7 +22,7 @@ const PAGE_META = {
   new: { title: 'Post a property', sub: 'Sale or rent. It stays a draft until you submit it for review.' },
   edit: { title: 'Edit listing', sub: 'Changes to a live listing stay on the public page once you save.' },
   inbox: { title: 'Inbox', sub: 'Enquiries and viewing requests on your listings.' },
-  offices: { title: 'Offices', sub: 'Branches buyers see on your public profile.' },
+  offices: { title: 'Offices', sub: 'Branches renters see on your public profile.' },
   account: { title: 'Profile & plan', sub: 'How you appear on EasyMoveZone, and how many listings you can keep live.' },
 };
 
@@ -82,7 +82,7 @@ function Overview({ me }) {
     { ok: Boolean(me.application) || verified, title: 'Apply', body: verified ? 'The agency is verified.' : (me.application ? `Application is ${me.application.status.replace('_', ' ')}.` : 'Tell us who the agency is and send the licence.'), to: AGENT_APPLY_URL, cta: 'Application' },
     { ok: plan !== 'none', title: 'Choose a plan', body: plan !== 'none' ? `${plan} · ${me.quota || 0} listings` : 'A plan is what lets a draft leave your account.', to: AGENT_ACCOUNT_URL, cta: 'Plans' },
     { ok: listings.length > 0, title: 'Post a property', body: listings.length ? `${listings.length} in this account.` : 'Sale or rent, with photos and a floorplan. We approve it before it is public.', to: AGENT_NEW_URL, cta: 'Post' },
-    { ok: leads > 0 || (inbox.enquiries || []).length > 0, title: 'Answer leads', body: 'Enquiries, applications and viewing requests arrive here. The buyer’s details are not published.', to: AGENT_INBOX_URL, cta: 'Inbox' },
+    { ok: leads > 0 || (inbox.enquiries || []).length > 0, title: 'Answer leads', body: 'Enquiries, applications and viewing requests arrive here. The renter’s details are not published.', to: AGENT_INBOX_URL, cta: 'Inbox' },
   ];
   return (
     <>
@@ -161,7 +161,8 @@ function ListingEditor({ existing }) {
   const navigate = useNavigate();
   const [form, setForm] = useState(() => ({
     title: existing?.title || '',
-    listingType: existing?.listing_type || 'sale',
+    // Homes to rent only: the site no longer lists homes for sale.
+    listingType: 'rent',
     address: existing?.address || '',
     area: existing?.area || '',
     city: existing?.city || '',
@@ -230,16 +231,7 @@ function ListingEditor({ existing }) {
 
   return (
     <Card as="form" onSubmit={save}>
-      <TwoCol>
-        <Field><Label>Title</Label><Input required value={form.title} onChange={set('title')} placeholder="4-bed duplex, Lekki Phase 1" /></Field>
-        <Field>
-          <Label>For</Label>
-          <Select value={form.listingType} onChange={set('listingType')}>
-            <option value="sale">Sale</option>
-            <option value="rent">Rent</option>
-          </Select>
-        </Field>
-      </TwoCol>
+      <Field><Label>Title</Label><Input required value={form.title} onChange={set('title')} placeholder="3-bed flat, Lekki Phase 1" /></Field>
       <Field><Label>Address</Label><Input value={form.address} onChange={set('address')} /></Field>
       <TwoCol>
         <Field><Label>Area</Label><Input value={form.area} onChange={set('area')} /></Field>
@@ -266,20 +258,16 @@ function ListingEditor({ existing }) {
         <Field><Label>Baths</Label><Input value={form.baths} onChange={set('baths')} /></Field>
       </TwoCol>
       <TwoCol>
-        <Field><Label>{form.listingType === 'rent' ? 'Rent' : 'Price'} (₦)</Label><Input required value={form.price} onChange={set('price')} /></Field>
-        {form.listingType === 'rent' ? (
-          <Field>
-            <Label>Frequency</Label>
-            <Select value={form.rentFrequency} onChange={set('rentFrequency')}>
-              <option value="annual">Annual</option>
-              <option value="biannual">Biannual</option>
-              <option value="quarterly">Quarterly</option>
-              <option value="monthly">Monthly</option>
-            </Select>
-          </Field>
-        ) : (
-          <Field><Label>Size</Label><Input value={form.size} onChange={set('size')} placeholder="450 sqm" /></Field>
-        )}
+        <Field><Label>Rent (₦)</Label><Input required value={form.price} onChange={set('price')} /></Field>
+        <Field>
+          <Label>Frequency</Label>
+          <Select value={form.rentFrequency} onChange={set('rentFrequency')}>
+            <option value="annual">Annual</option>
+            <option value="biannual">Biannual</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="monthly">Monthly</option>
+          </Select>
+        </Field>
       </TwoCol>
       {branches.length > 0 && (
         <Field>

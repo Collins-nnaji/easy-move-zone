@@ -10,10 +10,10 @@ function renderAt(path) {
 }
 
 test('publishes route-specific metadata and a canonical URL', async () => {
-  renderAt('/listings/build');
-  await waitFor(() => expect(document.title).toMatch(/manage your building process/i));
-  expect(document.querySelector('meta[name="description"]')).toHaveAttribute('content', expect.stringMatching(/contractors/i));
-  expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute('href', 'https://easymovezone.com/listings/build');
+  renderAt('/check');
+  await waitFor(() => expect(document.title).toMatch(/check a rental before you pay/i));
+  expect(document.querySelector('meta[name="description"]')).toHaveAttribute('content', expect.stringMatching(/landlord or agent/i));
+  expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute('href', 'https://easymovezone.com/check');
   expect(document.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'index, follow');
 });
 

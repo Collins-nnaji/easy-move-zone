@@ -8,15 +8,16 @@ const { requireAdmin, sessionEmail } = require('../auth');
 const { DEFAULT_CURRENCY } = require('../markets');
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/* The steps of a rental check; `passport` is kept as the id of the final report so older requests still read. */
 const DEFAULT_CHECKLIST = [
   { id: 'request', label: 'Request received', status: 'complete' },
-  { id: 'seller', label: 'Seller and ownership verification', status: 'pending' },
-  { id: 'title', label: 'Title and document checks', status: 'pending' },
-  { id: 'survey', label: 'Survey and location confirmation', status: 'pending' },
-  { id: 'valuation', label: 'Independent valuation', status: 'pending' },
-  { id: 'inspection', label: 'Physical inspection', status: 'pending' },
-  { id: 'risk', label: 'Flood, access and neighbourhood checks', status: 'pending' },
-  { id: 'passport', label: 'Property Passport issued', status: 'pending' },
+  { id: 'identity', label: 'Landlord or agent identity', status: 'pending' },
+  { id: 'authority', label: 'Right to let the home', status: 'pending' },
+  { id: 'inspection', label: 'Visit and condition of the home', status: 'pending' },
+  { id: 'agreement', label: 'Tenancy agreement review', status: 'pending' },
+  { id: 'rent', label: 'Fair-rent check', status: 'pending' },
+  { id: 'risk', label: 'Flooding, security and access', status: 'pending' },
+  { id: 'passport', label: 'Rental check report issued', status: 'pending' },
 ];
 
 
@@ -54,7 +55,7 @@ router.post('/', async (req, res) => {
   const b = req.body || {};
   const accountEmail = await sessionEmail(req);
   if (!accountEmail) {
-    return res.status(401).json({ error: 'Sign in to submit your verification, so you can track it from your account.' });
+    return res.status(401).json({ error: 'Sign in to submit your rental check, so you can track it from your account.' });
   }
   const propertyLabel = clean(b.propertyLabel || b.address || b.propertyUrl, 255);
   const country = clean(b.country, 120);
@@ -63,7 +64,7 @@ router.post('/', async (req, res) => {
   const contactEmail = accountEmail;
 
   if (!propertyLabel || !country || !currency || !contactName || !contactEmail) {
-    return res.status(400).json({ error: 'Property details, country, currency, your name, and email are required.' });
+    return res.status(400).json({ error: 'The home, your name and email are required.' });
   }
   if (!/^[A-Z]{3}$/.test(currency)) return res.status(400).json({ error: 'Please choose a valid three-letter currency.' });
   if (!EMAIL_RE.test(contactEmail)) {
@@ -79,7 +80,7 @@ router.post('/', async (req, res) => {
   const accessToken = crypto.randomBytes(24).toString('hex');
   const timeline = [{
     id: 'submitted',
-    title: 'Verification requested',
+    title: 'Rental check requested',
     detail: `${quote.type.name} requested — quoted at ₦${quote.total.toLocaleString('en-NG')}.`,
     status: 'complete',
     at: now,
@@ -118,7 +119,7 @@ router.post('/', async (req, res) => {
     res.json({ success: true, request: rows[0] });
   } catch (err) {
     console.error('POST /passport-requests error:', err);
-    res.status(500).json({ error: 'Could not start your verification. Please try again.' });
+    res.status(500).json({ error: 'Could not start your rental check. Please try again.' });
   }
 });
 

@@ -12,21 +12,20 @@ import { useAuth } from '../AuthContext';
 import {
   PageShell, Section, Inner, Panel,
 } from '../components/page';
-import { BOOK_SESSION_URL, OFFER_URL, SAVED_URL, MARKETPLACE_URL, RENT_URL, PURCHASE_DAYS, AREAS_URL, MORTGAGE_URL, LIST_URL } from '../config/platform';
+import {
+  SAVED_URL, RENT_URL, AREAS_URL, LIST_URL, RENTAL_CHECK_URL,
+} from '../config/platform';
 import ListingMap from '../components/ListingMap';
 import { perPeriod, INCOME_BANDS, ID_TYPES, VIEWING_WINDOWS } from '../config/rentals';
 import { SaveButton, ShareButtons } from '../components/ListingActions';
 import { shortlist, useSaved, useRecent } from '../utils/shortlist';
 import { formatMoney } from '../utils/format';
-import { OfferForm } from './OfferPage';
 import OfferRenovate from './offer-renovate';
-import ConfirmListingPage from './ConfirmListingPage';
 import { motion } from 'framer-motion';
 import { Heart, Bell } from 'lucide-react';
-import { Reveal, Stagger, StaggerItem, staggerItem } from '../components/motion';
-import { MilestoneFlowArt, SpotArt } from '../components/graphics';
+import { Stagger, StaggerItem, staggerItem } from '../components/motion';
+import { SpotArt } from '../components/graphics';
 import { ServiceHero, ServiceHeroInner } from '../components/ServiceHero';
-import PropertySwitch from '../components/PropertySwitch';
 import PropertyHeader from '../components/PropertyHeader';
 import { useIsMobile } from '../utils/useMediaQuery';
 import { Skeleton } from '../components/shadcn/skeleton';
@@ -610,15 +609,7 @@ function Browse({ mode = 'sale' }) {
         <span className="k">Source</span>
         <Field value={filters.route} onChange={(e) => setFilter('route', e.target.value)} aria-label="Source">
           <option value="">Anyone</option>
-          {rent
-            ? <option value="emz">Managed by EasyMoveZone</option>
-            : (
-              <>
-                <option value="company_owned">Owned by EasyMoveZone</option>
-                <option value="owner_listed">Sold via EasyMoveZone</option>
-                <option value="emz">EasyMoveZone</option>
-              </>
-            )}
+          <option value="emz">Managed by EasyMoveZone</option>
           <option value="agent_listed">Listed by an agent</option>
         </Field>
       </FilterCell>
@@ -636,22 +627,17 @@ function Browse({ mode = 'sale' }) {
 
   return (
     <>
-      <PropertyHeader kind={rent ? 'rent' : 'buy'}>
-        <StaggerItem><PropertySwitch /></StaggerItem>
-        <motion.h1 variants={staggerItem}>{rent ? 'Homes to rent.' : 'Properties for sale.'}</motion.h1>
+      <PropertyHeader kind="rent">
+        <motion.h1 variants={staggerItem}>Homes to rent.</motion.h1>
         <motion.p variants={staggerItem} className="intro">
-          {rent
-            ? 'Homes we manage, and homes listed by verified agents. Apply once, and we arrange the viewing and the paperwork for ours.'
-            : 'EasyMoveZone stock and verified agent listings, approved before they go live.'}
+          Homes we manage, and homes listed by verified agents, every one checked before it goes live. Apply once, and we arrange the viewing and the paperwork.
         </motion.p>
         <motion.div variants={staggerItem}>
-          <AreaLink to={LIST_URL}>{rent ? 'An agent with homes to let?' : 'An agent, or selling your own?'} List on the portal <FaArrowRight size={10} /></AreaLink>
+          <AreaLink to={AREAS_URL}>Not sure about an area? See what residents say about the light, water and flooding <FaArrowRight size={10} /></AreaLink>
         </motion.div>
-        {rent && (
-          <motion.div variants={staggerItem}>
-            <AreaLink to={AREAS_URL}>Not sure about an area? See what residents say about the light, water and flooding <FaArrowRight size={10} /></AreaLink>
-          </motion.div>
-        )}
+        <motion.div variants={staggerItem}>
+          <AreaLink to={RENTAL_CHECK_URL}>Found a home somewhere else? Check the landlord and the home before you pay <FaArrowRight size={10} /></AreaLink>
+        </motion.div>
         <SavedLink />
       </PropertyHeader>
 
@@ -976,8 +962,7 @@ function Saved() {
   return (
     <>
       <PropertyHeader kind="saved">
-        <StaggerItem><PropertySwitch /></StaggerItem>
-        <motion.h1 variants={staggerItem}>Saved properties.</motion.h1>
+        <motion.h1 variants={staggerItem}>Saved homes.</motion.h1>
         <motion.p variants={staggerItem} className="intro">Saved on this device, and on your account when you are signed in.</motion.p>
       </PropertyHeader>
       <Section $sm>
@@ -985,114 +970,17 @@ function Saved() {
           {saved.length === 0 ? (
             <EmptyState>
               <h3>Nothing saved yet</h3>
-              <p>Tap the heart on a property to keep it here while you decide.</p>
-              <GreenBtn to={MARKETPLACE_URL}>Browse properties <FaArrowRight size={12} /></GreenBtn>
+              <p>Tap the heart on a home to keep it here while you decide.</p>
+              <GreenBtn to={RENT_URL}>Browse homes to rent <FaArrowRight size={12} /></GreenBtn>
             </EmptyState>
           ) : (
             <>
               <ResultCount>{saved.length} saved</ResultCount>
               <Grid>
-                {saved.map((l) => <ListingCard key={l.id} listing={l} />)}
+                {saved.filter(isRental).map((l) => <ListingCard key={l.id} listing={l} />)}
               </Grid>
             </>
           )}
-        </Inner>
-      </Section>
-    </>
-  );
-}
-
-/* ── Sell / build service views ──────────────────────────────────── */
-
-const BuildGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1.05fr .95fr;
-  gap: 1rem;
-  @media (max-width: 820px) { grid-template-columns: minmax(0, 1fr); }
-`;
-
-const BuildSteps = styled.div`
-  display: grid;
-  gap: .7rem;
-  margin-top: 1.25rem;
-  div { display: flex; align-items: flex-start; gap: .65rem; font-size: .92rem; color: var(--color-ink-muted); line-height: 1.45; }
-  svg { flex: 0 0 auto; margin-top: .2rem; color: var(--color-green); }
-`;
-
-const BuildPhoto = styled.div`
-  min-height: 330px;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--color-bg-slate);
-  img { width: 100%; height: 100%; object-fit: cover; }
-  @media (max-width: 720px) { display: none; }
-`;
-
-const PrimaryAnchor = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: .55rem;
-  margin-top: 1.25rem;
-  padding: .82rem 1.15rem;
-  border-radius: 999px;
-  background: var(--color-green-deep);
-  color: #fff;
-  font-weight: 700;
-  &:hover { color: #fff; background: var(--color-green-forest); }
-`;
-
-function Sell() {
-  const mobile = useIsMobile();
-  return (
-    <>
-      <PropertyHeader kind="sell" spot={mobile ? <SpotArt className="spot" kind="sell" /> : null}>
-        <StaggerItem><PropertySwitch /></StaggerItem>
-        <motion.h1 variants={staggerItem}>Sell your property.</motion.h1>
-        <motion.p variants={staggerItem}>We inspect it, verify the title and make you a firm offer. Accept it and we complete within {PURCHASE_DAYS} days. Or list it with us.</motion.p>
-        <StaggerItem className="aside">An agent listing stock? <Link to={LIST_URL}>List on the portal <FaArrowRight size={10} /></Link> A letting we run is <Link to="/manage">Manage</Link>.</StaggerItem>
-        <StaggerItem className="aside">Want more for it? <Link to="/renovate">Renovate before you sell <FaArrowRight size={10} /></Link></StaggerItem>
-      </PropertyHeader>
-      <OfferForm />
-    </>
-  );
-}
-
-function Build() {
-  const mobile = useIsMobile();
-  const steps = [
-    'Scope, budget and timeline agreed before work begins.',
-    'Verified contractors and stage-by-stage fund release.',
-    'Geotagged evidence, independent inspections and receipts.',
-    'A permanent property timeline you can follow from anywhere.',
-  ];
-
-  return (
-    <>
-      <ServiceHero $image="/media/build-site.jpg">
-        <ServiceHeroInner>
-          <div>
-            <StaggerItem className="eyebrow">Build on land you already own</StaggerItem>
-            <motion.h1 variants={staggerItem}>Manage your building process.</motion.h1>
-            <motion.p variants={staggerItem}>Control the people, money and milestones from design to handover.</motion.p>
-          </div>
-          <StaggerItem className="art"><MilestoneFlowArt /></StaggerItem>
-        </ServiceHeroInner>
-      </ServiceHero>
-      <Section $sm>
-        <Inner>
-          <BuildGrid>
-            <Reveal>
-            <Panel>
-              <h2>Proof at every construction milestone</h2>
-              <p className="hidden md:block">Start with a project conversation. We will review your land, intended build, location and budget before proposing a delivery plan.</p>
-              <BuildSteps>
-                {steps.map((step) => <div key={step}><FaCheck /> <span>{step}</span></div>)}
-              </BuildSteps>
-              <PrimaryAnchor as={Link} to={BOOK_SESSION_URL}>Discuss my build <FaArrowRight size={12} /></PrimaryAnchor>
-            </Panel>
-            </Reveal>
-            {!mobile && <Reveal delay={0.1}><BuildPhoto><img src="/media/project-team.jpg" alt="EasyMoveZone project team supervising a property build" /></BuildPhoto></Reveal>}
-          </BuildGrid>
         </Inner>
       </Section>
     </>
@@ -1119,9 +1007,10 @@ function Renovate() {
   );
 }
 
-function LegacyForSaleRedirect() {
+/** Old buy, build and `/listings/rent` links land on the rental grid, filters kept. */
+function LegacyListingsRedirect() {
   const { search } = useLocation();
-  return <Navigate to={{ pathname: '/listings', search }} replace />;
+  return <Navigate to={{ pathname: RENT_URL, search }} replace />;
 }
 
 /* ── Detail ───────────────────────────────────────────────────────── */
@@ -1290,12 +1179,6 @@ const DarkNote = styled.div`
   p { color: var(--color-on-black-muted); font-size: 0.9rem; line-height: 1.6; margin: 0; }
 `;
 
-const SubNote = styled.p`
-  margin: 0;
-  font-size: 0.84rem;
-  color: var(--color-ink-muted);
-  a { color: var(--color-green-deep); font-weight: 600; }
-`;
 
 const Label = styled.label`
   display: block;
@@ -1732,15 +1615,15 @@ function Detail() {
     );
   }
 
-  if (error || !listing) {
+  // A sale listing from before the site was rentals-only reads as gone.
+  if (error || !listing || !isRental(listing)) {
     return (
       <Section>
         <Inner>
           <EmptyState>
-            <h3>That property is not available</h3>
-            <p>It may have sold or been let, or been withdrawn. Everything currently available is one click away.</p>
-            <GreenBtn to="/listings">Browse properties <FaArrowRight size={12} /></GreenBtn>
-            <SubNote style={{ marginTop: '0.75rem' }}>Looking to rent? <Link to={RENT_URL}>See homes to rent</Link></SubNote>
+            <h3>That home is not available</h3>
+            <p>It may have been let or withdrawn. Every home available to rent now is one click away.</p>
+            <GreenBtn to={RENT_URL}>Browse homes to rent <FaArrowRight size={12} /></GreenBtn>
           </EmptyState>
         </Inner>
       </Section>
@@ -1749,13 +1632,11 @@ function Detail() {
 
   const media = (listing.media || []).filter((m) => m.kind !== 'floorplan');
   const floorplans = (listing.media || []).filter((m) => m.kind === 'floorplan');
-  const rental = isRental(listing);
-  const owned = listing.route === 'company_owned' && !rental;
   const agentListed = listing.route === 'agent_listed';
   const where = [listing.area, listing.city, listing.state, listing.country].filter(Boolean).join(', ');
-  const ActionForm = rental ? RentalActions : EnquiryForm;
-  const actionTitle = rental ? 'Apply or ask about this home' : 'Enquire about this property';
-  const backTo = rental ? RENT_URL : MARKETPLACE_URL;
+  const ActionForm = RentalActions;
+  const actionTitle = 'Apply or ask about this home';
+  const backTo = RENT_URL;
 
   return (
     <>
@@ -1764,10 +1645,10 @@ function Detail() {
       {mobile && (
         <StickyEnquire>
           <div className="min-w-0">
-            <div className="truncate text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-on-black-muted)]">{agentListed ? (listing.agency_name || 'Listed by agent') : rental ? 'To rent' : owned ? 'Owned by EasyMoveZone' : 'Sold via EasyMoveZone'}</div>
+            <div className="truncate text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-on-black-muted)]">{agentListed ? (listing.agency_name || 'Listed by agent') : 'To rent'}</div>
             <div className="truncate font-display text-[1.05rem] font-bold text-brand-ink">{priceOf(listing)}</div>
           </div>
-          <Button variant="bright" size="lg" className="shrink-0" onClick={() => setEnquireOpen(true)}>{rental ? 'Apply' : 'Enquire'} <FaArrowRight size={12} /></Button>
+          <Button variant="bright" size="lg" className="shrink-0" onClick={() => setEnquireOpen(true)}>Apply <FaArrowRight size={12} /></Button>
           <Drawer open={enquireOpen} onOpenChange={setEnquireOpen}>
             <DrawerContent>
               <DrawerHeader>
@@ -1784,7 +1665,7 @@ function Detail() {
       <Section $sm>
         <Inner>
           <Back to={backTo} onClick={(e) => { if (location.key !== 'default') { e.preventDefault(); navigate(-1); } }}>
-            <FaChevronLeft size={11} /> {rental ? 'Back to homes to rent' : 'Back to properties'}
+            <FaChevronLeft size={11} /> Back to homes to rent
           </Back>
 
           {media.length > 0 && (
@@ -1820,12 +1701,12 @@ function Detail() {
                 {listing.baths && <Spec><FaBath /> {listing.baths} bathrooms</Spec>}
                 {listing.size_label && <Spec><FaRulerCombined /> {listing.size_label}</Spec>}
                 {listing.condition_score ? <Spec><FaShieldAlt /> Condition {listing.condition_score}/100</Spec> : null}
-                {rental && listing.furnished && <Spec>{listing.furnished}</Spec>}
-                {rental && listing.available_from && <Spec><FaCalendarAlt /> Available {availableLabel(listing.available_from)}</Spec>}
+                {listing.furnished && <Spec>{listing.furnished}</Spec>}
+                {listing.available_from && <Spec><FaCalendarAlt /> Available {availableLabel(listing.available_from)}</Spec>}
                 {listing.units_available > 0 && <Spec>{unitsLeft(listing.units_available)}</Spec>}
               </SpecRow>
 
-              {rental && (Number(listing.service_charge) > 0 || Number(listing.caution_deposit) > 0) && (
+              {(Number(listing.service_charge) > 0 || Number(listing.caution_deposit) > 0) && (
                 <RentTerms>
                   <div><span>Rent</span><b>{priceOf(listing)}</b></div>
                   {Number(listing.service_charge) > 0 && <div><span>Service charge</span><b>{money(listing.service_charge, listing.currency)} / year</b></div>}
@@ -1879,36 +1760,13 @@ function Detail() {
                 </Panel>
               ) : (
                 <DarkNote>
-                  <h3>{rental ? 'Let and managed by EasyMoveZone' : owned ? 'We own this one' : 'We are selling this for the owner'}</h3>
+                  <h3>Let and managed by EasyMoveZone</h3>
                   <p>
-                    {rental
-                      ? 'You deal with EasyMoveZone from the viewing to the keys. We manage the home for its owner, so rent, repairs and questions all come to one place.'
-                      : owned
-                        ? 'EasyMoveZone bought this property outright, so you are buying from us directly. One owner, one chain, no surprises.'
-                        : 'EasyMoveZone valued this property and is handling the sale on the owner’s behalf. Title and paperwork are checked before exchange.'}
+                    You deal with EasyMoveZone from the viewing to the keys. We manage the home for its owner, so rent, repairs and questions all come to one place.
                   </p>
                 </DarkNote>
               )}
 
-              {!rental && (
-                <SubNote>
-                  Paying over time? <Link to={MORTGAGE_URL}>Mortgages and NHF</Link>
-                  {' · '}
-                  <Link to={BOOK_SESSION_URL}>Ask about instalments</Link>
-                </SubNote>
-              )}
-
-              {!rental && (listing.valuation_low || listing.valuation_high) && (
-                <Panel $tight>
-                  <Label>Our valuation range</Label>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', fontWeight: 600 }}>
-                    {money(listing.valuation_low)} – {money(listing.valuation_high)}
-                  </div>
-                  <p style={{ fontSize: '0.82rem', marginTop: '0.4rem', lineHeight: 1.5 }}>
-                    What our own analysis says the property is worth, shown next to the asking price.
-                  </p>
-                </Panel>
-              )}
             </Aside>
           </DetailGrid>
         </Inner>
@@ -1944,10 +1802,9 @@ function ProjectSiblings({ listing }) {
 }
 
 /**
- * Buy, Sell and the Build/Renovate service pages. There is no tab row here:
- * the navbar already says where you are (Buy, Sell, or Manage for Build and
- * Renovate), and a second row of tabs under it was the busiest part of the
- * site on a phone.
+ * Homes to rent, a home's page, the saved list, and the Renovate service page
+ * (a landlord service in Manage that shares this shell). Buying and selling
+ * are gone: their old addresses land on the rental grid.
  */
 export default function MarketplacePage({ page }) {
   // `/renovate` is its own URL (it belongs to Manage) but shares this page's shell.
@@ -1955,15 +1812,14 @@ export default function MarketplacePage({ page }) {
   return (
     <PageShell>
       <Routes>
-        <Route index element={<Browse key="sale" />} />
-        <Route path="rent" element={<Browse key="rent" mode="rent" />} />
-        <Route path="for-sale" element={<LegacyForSaleRedirect />} />
-        <Route path="buy" element={<LegacyForSaleRedirect />} />
-        <Route path="sell" element={<Sell />} />
-        <Route path="list" element={<Navigate to="/list" replace />} />
+        <Route index element={<Browse mode="rent" />} />
+        <Route path="rent" element={<LegacyListingsRedirect />} />
+        <Route path="for-sale" element={<LegacyListingsRedirect />} />
+        <Route path="buy" element={<LegacyListingsRedirect />} />
+        <Route path="build" element={<LegacyListingsRedirect />} />
+        <Route path="sell" element={<Navigate to={LIST_URL} replace />} />
+        <Route path="list" element={<Navigate to={LIST_URL} replace />} />
         <Route path="saved" element={<Saved />} />
-        <Route path="build" element={<Build />} />
-        <Route path="confirm/:token" element={<ConfirmListingPage />} />
         <Route path="renovate" element={<Navigate to="/renovate" replace />} />
         <Route path=":slug" element={<Detail />} />
       </Routes>

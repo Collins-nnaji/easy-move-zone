@@ -12,7 +12,7 @@ import { WHATSAPP_NUMBER } from '../config/platform';
 
 const QUEUES = [
   { section: 'passports', title: 'Property verification', rows: [['passports_new', 'new to scope'], ['passports_unpaid', 'awaiting payment'], ['passports_active', 'in progress']] },
-  { section: 'listings', title: 'Marketplace', rows: [['listings_review', 'submissions to review'], ['enquiries_new', 'new buyer enquiries'], ['listings_awaiting_owner', 'drafts awaiting the owner'], ['listings_live', 'live listings']] },
+  { section: 'listings', title: 'Listings', rows: [['listings_review', 'submissions to review'], ['enquiries_new', 'new enquiries'], ['listings_live', 'live listings']] },
   { section: 'rentals', title: 'Rentals', rows: [['rental_applications_new', 'new rental applications'], ['rental_enquiries_new', 'new renter enquiries'], ['rentals_ready', 'consented, not yet listed'], ['rentals_live', 'homes on the Rent page']] },
   { section: 'management', title: 'Management', rows: [['management_new', 'new properties'], ['management_messages', 'unread owner messages'], ['expenses_pending', 'expenses awaiting owner']] },
   { section: 'tenants', title: 'Tenants', rows: [['tenant_requests_new', 'new tenant requests'], ['tenant_requests_urgent', 'urgent repairs open'], ['rent_overdue', 'rent charges overdue'], ['rent_paid_online_week', 'paid online this week']] },

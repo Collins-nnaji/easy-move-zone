@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
-import { AGENT_APPLY_URL } from '../config/platform';
+import { AGENT_APPLY_URL, RENTAL_CHECK_URL } from '../config/platform';
 
 /**
  * A slim, one-row footer: the logo, Contact and Privacy, and the copyright.
@@ -64,10 +64,10 @@ const Footer = () => {
       <Row>
         <Wordmark to="/" aria-label="EasyMoveZone home"><img src="/emz.svg" alt="EasyMoveZone" /></Wordmark>
         <Links aria-label="Footer">
-          <Link to="/list">List a property</Link>
+          <Link to={RENTAL_CHECK_URL}>Check a rental</Link>
+          <Link to="/list">List a home</Link>
           <Link to="/list#agents">Find an agent</Link>
           <Link to={AGENT_APPLY_URL}>For agents</Link>
-          <Link to="/mortgage">Mortgages</Link>
           <Link to="/contact">Contact us</Link>
           <Link to="/privacy">Privacy</Link>
           <Copyright>&copy; {new Date().getFullYear()} EasyMoveZone</Copyright>

@@ -18,7 +18,6 @@ const PAYSTACK_API = (process.env.PAYSTACK_API_BASE || 'https://api.paystack.co'
 const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'https://easymovezone.com').replace(/\/$/, '');
 
 const AGENT_LISTING_STATUSES = ['draft', 'pending_review', 'live', 'sold', 'let', 'withdrawn', 'rejected'];
-const LISTING_TYPES = ['sale', 'rent'];
 const RENT_FREQUENCIES = ['annual', 'biannual', 'quarterly', 'monthly'];
 
 const num = (v) => {
@@ -55,7 +54,8 @@ async function uniqueSlug(name) {
 }
 
 function listingFields(b) {
-  const listingType = LISTING_TYPES.includes(b.listingType || b.listing_type) ? (b.listingType || b.listing_type) : 'sale';
+  // Agents post homes to rent only; the site no longer lists homes for sale.
+  const listingType = 'rent';
   const title = clean(b.title) || clean(b.address) || 'Untitled property';
   const media = Array.isArray(b.media) ? b.media.filter((m) => m && m.url) : [];
   return {

@@ -91,29 +91,6 @@ test('anyone else sees the gate and is sent to sign in with an admin account', a
   expect(screen.queryByPlaceholderText(/admin key/i)).not.toBeInTheDocument();
 });
 
-test('requires an amount before an admin can issue a purchase offer', async () => {
-  await renderAsStaff();
-  fireEvent.click(screen.getByRole('button', { name: /^marketplace$/i }));
-
-  expect(await screen.findByText('Test property')).toBeInTheDocument();
-  const issueButton = screen.getByRole('button', { name: /issue firm offer/i });
-  expect(issueButton).toBeDisabled();
-
-  fireEvent.click(screen.getByRole('button', { name: /^edit$/i }));
-  fireEvent.change(screen.getByLabelText(/our offer/i), { target: { value: '425000' } });
-  expect(issueButton).toBeEnabled();
-  // Issuing a firm offer promises completion within PURCHASE_DAYS, so it asks first.
-  window.confirm = vi.fn(() => true);
-  fireEvent.click(issueButton);
-  expect(window.confirm).toHaveBeenCalledWith(expect.stringMatching(/verification are done/i));
-
-  await waitFor(() => expect(mockUpdateListing).toHaveBeenCalledWith(
-    17,
-    'session',
-    expect.objectContaining({ status: 'offer_made', offer_amount: '425000', currency: 'GBP' }),
-  ));
-});
-
 test('shows renovation operations instead of an Insights queue', async () => {
   await renderAsStaff();
   fireEvent.click(screen.getByRole('button', { name: /^renovations$/i }));

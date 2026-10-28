@@ -3,9 +3,8 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { FaArrowRight } from 'react-icons/fa';
 import { api } from '../api';
-import { MANAGE_ONBOARDING_URL, OFFER_URL, PURCHASE_DAYS } from '../config/platform';
+import { MANAGE_ONBOARDING_URL } from '../config/platform';
 import { CONSULT_TIER_BY_ID, PLAN_BY_ID } from '../config/management';
-import { formatMoneyFull } from '../utils/format';
 import { LOCALE } from '../config/markets';
 
 /**
@@ -82,15 +81,6 @@ const Pill = styled.span`
   color: ${(p) => (p.$done ? 'var(--color-green-deep)' : 'var(--color-ink-muted)')};
 `;
 
-const DealAmount = styled.div`
-  margin: 1rem 0;
-  padding: 1rem 1.1rem;
-  border-radius: 13px;
-  background: var(--color-green-soft);
-  border: 1px solid rgba(47, 93, 80, .2);
-  .k { color: var(--color-green-deep); font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-  .v { color: var(--color-ink); font-family: var(--font-display); font-size: clamp(1.55rem, 4vw, 2.2rem); font-weight: 650; margin-top: .25rem; }
-`;
 
 const Stack = styled.div` display: flex; flex-direction: column; gap: 1rem; `;
 
@@ -104,66 +94,9 @@ function useLoad(fn, email) {
   return rows;
 }
 
-const mineDeals = (email) => api.listings.mine(email).then((d) => d || []);
 const mineBookings = (email) => api.consult.myBookings(email).then((b) => b || []);
 const myPlan = (email) => api.landlord.getProfile(email);
 
-/** Sale requests and any purchase offer EasyMoveZone has issued. */
-export function OffersSection({ email }) {
-  const sellerDeals = useLoad(mineDeals, email);
-  if (sellerDeals === null) return <PanelCard><PanelNote>Loading your sale requests…</PanelNote></PanelCard>;
-  return (
-    <Stack>
-      {sellerDeals.length === 0 ? (
-          <PanelCard>
-            <PanelTitle>No sale requests yet</PanelTitle>
-            <PanelNote>Sell it to EasyMoveZone (we inspect, verify the title and complete within {PURCHASE_DAYS} days of verification) or list it for sale.</PanelNote>
-            <ActionLink as={Link} to={OFFER_URL}>Sell a property <FaArrowRight size={10} /></ActionLink>
-          </PanelCard>
-        ) : sellerDeals.map((deal) => {
-          const offerIssued = ['offer_made', 'bought'].includes(deal.status) && Number(deal.offer_amount) > 0;
-          const statusLabel = {
-            submitted: 'Submitted for review', reviewing: 'Under review', offer_made: 'Offer issued',
-            bought: 'Bought by EasyMoveZone', live: 'Live for sale', sold: 'Sold',
-            withdrawn: 'Withdrawn', rejected: 'Not proceeding',
-          }[deal.status] || deal.status;
-          return (
-            <PanelCard key={deal.id}>
-              <PanelTitle>{deal.title} <Pill $done={offerIssued || deal.status === 'live' || deal.status === 'sold'}>{statusLabel}</Pill></PanelTitle>
-              <PanelNote>
-                {deal.ref} · {[deal.city, deal.state, deal.country].filter(Boolean).join(', ') || deal.address}
-              </PanelNote>
-              {offerIssued ? (
-                <DealAmount>
-                  <div className="k">EasyMoveZone purchase offer</div>
-                  <div className="v">{formatMoneyFull(deal.offer_amount, deal.currency)}</div>
-                </DealAmount>
-              ) : deal.intent === 'buyout' && ['submitted', 'reviewing'].includes(deal.status) ? (
-                <PanelNote>
-                  <strong>Next: inspection and title check.</strong> We visit the property and verify the documents, then
-                  make you a firm offer here. Accept it and we complete the purchase within {PURCHASE_DAYS} days of verification.
-                </PanelNote>
-              ) : null}
-              {deal.status === 'offer_made' && deal.purchase_by && (
-                <PanelNote>
-                  Accept this offer and we complete the purchase by <strong>{new Date(deal.purchase_by).toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' })}</strong>.
-                  Reply to your adviser to accept, or ask us to list it for sale instead.
-                </PanelNote>
-              )}
-              {deal.customer_note && <PanelNote>{deal.customer_note}</PanelNote>}
-              {deal.offer_issued_at && <KeyRow><span className="k">Offer issued</span><span className="v">{new Date(deal.offer_issued_at).toLocaleDateString(LOCALE)}</span></KeyRow>}
-              {deal.published_at && <KeyRow><span className="k">Published</span><span className="v">{new Date(deal.published_at).toLocaleDateString(LOCALE)}</span></KeyRow>}
-              {deal.status === 'live' && deal.slug && (
-                <ActionLink as={Link} to={`/listings/${deal.slug}`}>View live listing <FaArrowRight size={10} /></ActionLink>
-              )}
-            </PanelCard>
-          );
-        })}
-    </Stack>
-  );
-}
-
-/** The management plan the matcher picked, and the way back into onboarding. */
 export function PlanSection({ email }) {
   const [profile, setProfile] = useState(undefined);
   useEffect(() => {

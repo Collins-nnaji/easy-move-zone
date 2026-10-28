@@ -18,7 +18,7 @@ import {
  * app's own forms. It posts to /api/leads and lands in Admin → Messages.
  */
 
-const TOPICS = ['Buying a property', 'Selling a property', 'Verifying a property', 'Letting and management', 'Renovation', 'My account', 'Something else'];
+const TOPICS = ['Renting a home', 'Checking a rental', 'Letting and management', 'Listing as an agent', 'Renovation', 'My account', 'Something else'];
 
 const Page = styled.div`background: var(--color-bg-panel); min-height: 70vh;`;
 const Body = styled.section`

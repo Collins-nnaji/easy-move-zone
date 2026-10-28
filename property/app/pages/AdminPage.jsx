@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
   FaLock, FaSignOutAlt, FaRegComments, FaBuilding, FaTools, FaKey,
-  FaCheck, FaTimes, FaExternalLinkAlt, FaShieldAlt, FaChartPie, FaEnvelope, FaPlus, FaHome, FaUserFriends,
+  FaCheck, FaTimes, FaExternalLinkAlt, FaShieldAlt, FaChartPie, FaEnvelope, FaHome, FaUserFriends,
   FaTruck, FaHardHat, FaUsersCog, FaStore, FaInbox, FaMapMarkedAlt,
 } from 'react-icons/fa';
 import { useSearchParams } from 'react-router-dom';
@@ -21,11 +21,9 @@ import AdminMedia, { AdminDocuments } from '../components/AdminMedia';
 import AdminOverview from '../components/AdminOverview';
 import MovingAdminSection, { MOVING_SECTIONS } from '../components/MovingAdminSections';
 import AdminAgents from './AdminAgents';
-import AdminMortgages from './AdminMortgages';
-import { IntakeForm, ProjectsAdmin, OwnerLink } from '../components/ListingIntakeAdmin';
+import { OwnerLink } from '../components/ListingIntakeAdmin';
 import { CURRENCY_OPTIONS, LOCALE } from '../config/markets';
 import { formatMoneyFull } from '../utils/format';
-import { PURCHASE_DAYS } from '../config/platform';
 
 /**
  * The one EasyMoveZone admin: property (Passports, consultations, marketplace
@@ -42,9 +40,9 @@ const ADMIN_SESSION = 'session';
 
 const SECTION_TITLES = {
   overview: 'Overview',
-  passports: 'Property Passport cases',
+  passports: 'Rental checks',
   bookings: 'Consultation pipeline',
-  listings: 'Marketplace approvals',
+  listings: 'Listing approvals',
   rentals: 'Rentals and applications',
   management: 'Managed property operations',
   renovations: 'Renovation requests',
@@ -52,7 +50,6 @@ const SECTION_TITLES = {
   community: 'Neighbourhood boards',
   tenants: 'Tenants',
   agents: 'Agents and agencies',
-  mortgages: 'Mortgage leads',
   ...Object.fromEntries(Object.entries(MOVING_SECTIONS).map(([id, v]) => [id, v.title])),
 };
 
@@ -62,7 +59,12 @@ const SECTION_TITLES = {
  * EasyMoveZone bought it or the owner consented to a public listing. A `draft` is
  * one we typed in for the owner; only their own signed confirmation moves it on.
  */
-const LISTING_STATUSES = ['draft', 'submitted', 'reviewing', 'pending_review', 'offer_made', 'bought', 'live', 'sold', 'withdrawn', 'rejected'];
+/*
+ * The site lets homes only: agent listings wait in `pending_review`, then go
+ * `live`. Older sale records keep their labels below, but only these stages
+ * are offered as filters.
+ */
+const LISTING_FILTERS = ['pending_review', 'live', 'withdrawn', 'rejected'];
 
 const LISTING_STATUS_LABEL = {
   draft: 'Awaiting owner',
@@ -342,9 +344,8 @@ export default function AdminPage() {
   const [bookingFilter, setBookingFilter] = useState('requested');
 
   const [listings, setListings] = useState([]);
-  const [listingFilter, setListingFilter] = useState('submitted');
+  const [listingFilter, setListingFilter] = useState('pending_review');
   const [projectFilter, setProjectFilter] = useState(null);
-  const [intakeOpen, setIntakeOpen] = useState(false);
   const [editing, setEditing] = useState(null);
 
   const loadBookings = useCallback(async () => {
@@ -466,7 +467,7 @@ export default function AdminPage() {
             <FaChartPie size={12} /> Overview
           </SectionTab>
           <SectionTab type="button" $active={section === 'passports'} onClick={() => setSection('passports')}>
-            <FaShieldAlt size={12} /> Passport cases
+            <FaShieldAlt size={12} /> Rental checks
           </SectionTab>
           <SectionTab type="button" $active={section === 'bookings'} onClick={() => setSection('bookings')}>
             <FaRegComments size={12} /> Consultations
@@ -494,9 +495,6 @@ export default function AdminPage() {
           </SectionTab>
           <SectionTab type="button" $active={section === 'agents'} onClick={() => setSection('agents')}>
             <FaUserFriends size={12} /> Agents
-          </SectionTab>
-          <SectionTab type="button" $active={section === 'mortgages'} onClick={() => setSection('mortgages')}>
-            <FaChartPie size={12} /> Mortgages
           </SectionTab>
         </SectionTabs>
         <TabGroupLabel>Moving</TabGroupLabel>
@@ -529,21 +527,12 @@ export default function AdminPage() {
         ) : section === 'listings' ? (
           <>
             <Tabs>
-              {[...LISTING_STATUSES, 'all', 'projects'].map((st) => (
+              {[...LISTING_FILTERS, 'all'].map((st) => (
                 <Tab key={st} type="button" $active={listingFilter === st} onClick={() => setListingFilter(st)}>
-                  {st === 'all' ? 'all' : st === 'projects' ? 'Developer projects' : LISTING_STATUS_LABEL[st]}
+                  {st === 'all' ? 'all' : LISTING_STATUS_LABEL[st]}
                 </Tab>
               ))}
-              {!intakeOpen && (
-                <ActionBtn $primary type="button" onClick={() => setIntakeOpen(true)}><FaPlus size={10} /> New draft</ActionBtn>
-              )}
             </Tabs>
-            {intakeOpen && (
-              <IntakeForm
-                adminKey={key}
-                onDone={() => { setIntakeOpen(false); setListingFilter('draft'); setProjectFilter(null); loadListings(); }}
-              />
-            )}
             {projectFilter && listingFilter !== 'projects' && (
               <Tabs>
                 <Tab type="button" $active onClick={() => setProjectFilter(null)}>
@@ -551,9 +540,7 @@ export default function AdminPage() {
                 </Tab>
               </Tabs>
             )}
-            {listingFilter === 'projects' ? (
-              <ProjectsAdmin adminKey={key} onShowUnits={(p) => { setProjectFilter({ id: p.id, name: p.name }); setListingFilter('all'); }} />
-            ) : listings.length === 0 ? (
+            {listings.length === 0 ? (
               <Empty>Nothing at this stage.</Empty>
             ) : (
               <CardList>
@@ -601,8 +588,6 @@ export default function AdminPage() {
           <RentalsAdmin adminKey={key} />
         ) : section === 'agents' ? (
           <AdminAgents adminKey={key} />
-        ) : section === 'mortgages' ? (
-          <AdminMortgages adminKey={key} />
         ) : section === 'tenants' ? (
           <TenantsAdmin adminKey={key} />
         ) : (
@@ -719,7 +704,6 @@ function ListingRow({ listing: l, editing, onEdit, onPatch, onDelete, adminKey }
     try { setLink(await api.listings.admin.newLink(adminKey, { listingId: l.id })); }
     catch (e) { setLinkError(e.message || 'Could not create a link.'); }
   };
-  const canIssueOffer = l.intent === 'buyout' && Number(draft.offer_amount) > 0 && Boolean(draft.currency);
   const set = (k, v) => setDraft((d) => ({ ...d, [k]: v }));
   const openEnquiries = async () => {
     const next = !showEnquiries;
@@ -889,27 +873,6 @@ function ListingRow({ listing: l, editing, onEdit, onPatch, onDelete, adminKey }
         )}
         {l.status === 'submitted' && (
           <ActionBtn type="button" onClick={() => onPatch({ status: 'reviewing' })}>Start review</ActionBtn>
-        )}
-        {l.intent === 'buyout' && (l.status === 'reviewing' || l.status === 'submitted') && (
-          <ActionBtn
-            $primary
-            type="button"
-            disabled={!canIssueOffer}
-            title={canIssueOffer
-              ? `Only once inspection and title verification are done: the owner is promised completion within ${PURCHASE_DAYS} days from now.`
-              : 'Edit the submission and enter an offer amount and currency first.'}
-            onClick={() => {
-              if (!window.confirm(`Inspection and title verification are done? Issuing this offer promises the owner completion within ${PURCHASE_DAYS} days.`)) return;
-              onPatch({ ...draft, status: 'offer_made' });
-            }}
-          >
-            Verified: issue firm offer
-          </ActionBtn>
-        )}
-        {l.status === 'offer_made' && (
-          <ActionBtn type="button" onClick={() => onPatch({ status: 'bought', route: 'company_owned' })}>
-            Offer accepted, we bought it
-          </ActionBtn>
         )}
         {!isDraft && l.status !== 'live' && l.status !== 'sold' && (
           <ActionBtn

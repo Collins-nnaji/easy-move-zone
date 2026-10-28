@@ -23,7 +23,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '..
 import { Tabs, TabsList, TabsTrigger } from '../components/shadcn/tabs';
 import { api } from '../api';
 import { ListingCard } from './MarketplacePage';
-import { MARKETPLACE_URL, OFFER_VERIFY_URL, PURCHASE_DAYS, AREAS_URL, MANAGE_ADD_URL } from '../config/platform';
+import { RENT_URL, RENTAL_CHECK_URL, AREAS_URL, MANAGE_ADD_URL, LIST_URL } from '../config/platform';
 import { MANAGEMENT_PLANS, estimateFees } from '../config/management';
 import { formatMoneyFull } from '../utils/format';
 import { CURRENCY } from '../config/markets';
@@ -100,22 +100,22 @@ function DesktopHero() {
       <VideoHeroGrid>
         <HeroCopy variants={enterContainer} initial="hidden" animate="show">
           <Eyebrow variants={enterItem}>
-            <FaShieldAlt /> Buy · Sell · Rent · Manage
+            <FaShieldAlt /> Rent · Check · Move in
           </Eyebrow>
           <HeroTitle variants={enterItem}>
-            <span className="line">Buy, sell, rent</span>
-            <span className="line">and manage property.</span>
-            <TitleAccent className="line">With ease.</TitleAccent>
+            <span className="line">Rent a home</span>
+            <span className="line">without the risk.</span>
+            <TitleAccent className="line">Checked before you pay.</TitleAccent>
           </HeroTitle>
           <ActionRow variants={enterItem}>
-            <PrimaryAction to={MARKETPLACE_URL}>Browse properties <FaArrowRight size={13} /></PrimaryAction>
-            <SecondaryAction to="/listings/sell">Get an offer on my property</SecondaryAction>
+            <PrimaryAction to={RENT_URL}>Find a home to rent <FaArrowRight size={13} /></PrimaryAction>
+            <SecondaryAction to={RENTAL_CHECK_URL}>Check a rental before you pay</SecondaryAction>
           </ActionRow>
           <TrustRow variants={enterItem}>
-            <span><FaCheck /> Every listing verified</span>
-            <span><FaBolt /> Sold to us within {PURCHASE_DAYS} days</span>
-            <span><FaKey /> Let and managed for you</span>
-            <span><Link to="/list" style={{ color: 'inherit', textDecoration: 'underline' }}>List a property</Link></span>
+            <span><FaCheck /> Every listing checked</span>
+            <span><FaBolt /> Landlord and home checked before you pay</span>
+            <span><FaKey /> Let and managed for landlords</span>
+            <span><Link to={LIST_URL} style={{ color: 'inherit', textDecoration: 'underline' }}>List a home</Link></span>
           </TrustRow>
         </HeroCopy>
 
@@ -186,33 +186,33 @@ const HeroPhoto = styled(ChipPhoto)`
 
 function MobileHero() {
   return (
-    <MobileHeroWrap id="hero" aria-label="Buy, sell, rent and manage property with ease">
+    <MobileHeroWrap id="hero" aria-label="Rent a home without the risk">
       <motion.div variants={enterContainer} initial="hidden" animate="show">
         <motion.div variants={enterItem}>
-          <Badge variant="dark"><ShieldCheck className="h-3 w-3" /> Buy · Sell · Rent · Manage</Badge>
+          <Badge variant="dark"><ShieldCheck className="h-3 w-3" /> Rent · Check · Move in</Badge>
         </motion.div>
         <motion.h1 variants={enterItem}>
-          <span className="line">Buy, sell, rent</span>
-          <span className="line">and manage property.</span>
-          <span className="line accent">With ease.</span>
+          <span className="line">Rent a home</span>
+          <span className="line">without the risk.</span>
+          <span className="line accent">Checked first.</span>
         </motion.h1>
         <motion.div variants={enterItem} className="flex flex-col gap-1.5">
           <Button asChild size="xl" block>
-            <Link to={MARKETPLACE_URL}>Browse properties <ArrowRight className="h-4 w-4" /></Link>
+            <Link to={RENT_URL}>Find a home to rent <ArrowRight className="h-4 w-4" /></Link>
           </Button>
           <div className="grid grid-cols-2">
-            <HeroTextLink to="/listings/sell">Get an offer</HeroTextLink>
-            <HeroTextLink to="/list">List a property</HeroTextLink>
+            <HeroTextLink to={RENTAL_CHECK_URL}>Check a rental</HeroTextLink>
+            <HeroTextLink to={LIST_URL}>List a home</HeroTextLink>
           </div>
         </motion.div>
       </motion.div>
       <HeroPhoto
         src="/media/m/home-modern.webp"
-        alt="A modern detached home"
+        alt="A home to rent"
         priority
         chips={[
-          { icon: ShieldCheck, title: 'Passport verified', sub: '8 of 8 checks' },
-          { icon: KeyRound, title: 'Rent paid out', sub: 'Every month, with a statement' },
+          { icon: ShieldCheck, title: 'Landlord checked', sub: 'Before you pay' },
+          { icon: KeyRound, title: 'Rent and repairs', sub: 'In one tenant portal' },
         ]}
       />
     </MobileHeroWrap>
@@ -229,9 +229,9 @@ export function LandingHero() {
    ═══════════════════════════════════════════════════════════════════ */
 
 const STATS = [
-  { num: 'Any', label: 'Supported market' },
-  { num: 8, label: 'Core checks' },
-  { num: 1, label: 'Clear report' },
+  { num: 'Every', label: 'Listing checked before it goes live' },
+  { num: 3, label: 'Checks on a rental before you pay' },
+  { num: 1, label: 'Portal for rent, repairs and documents' },
   { num: 'Human', label: 'Adviser throughout' },
 ];
 
@@ -258,18 +258,18 @@ export function LandingStats() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   Property Passport — what a verification produces
+   Check a rental — what we check before a renter pays
    ═══════════════════════════════════════════════════════════════════ */
 
 const INCLUDED = [
-  'Seller identity and ownership',
-  'Title and document checks',
-  'Survey and location',
-  'Independent valuation',
-  'Physical inspection evidence',
-  'Flood, access and neighbourhood',
-  'Rental yield and resale potential',
-  'One named adviser throughout',
+  'Landlord or agent identity',
+  'Proof they own the home or may let it',
+  'Agent registration, if an agent',
+  'Search for scam and fraud reports',
+  'A visit: the home matches the advert',
+  'Water, power and condition on the day',
+  'Tenancy agreement and fair-rent check',
+  'Flooding, security and access',
 ];
 
 const ServiceGrid = styled.div`
@@ -292,7 +292,7 @@ const FlowWrap = styled.div`
   @media (max-width: 720px) { margin: 0 0 1.75rem; }
 `;
 
-export function PassportSection() {
+export function RentalCheckSection() {
   const mobile = useIsMobile();
   const shown = mobile ? INCLUDED.slice(0, 3) : INCLUDED;
   const rest = INCLUDED.slice(3);
@@ -302,9 +302,9 @@ export function PassportSection() {
       <Inner>
         <Reveal>
           <SectionHead $center>
-            <Kicker>Verify a property</Kicker>
-            <SectionTitle>Verify my property before I pay.</SectionTitle>
-            <SectionSub>Send us the listing or the seller’s papers. We check it and give you a Property Passport that says what is safe.</SectionSub>
+            <Kicker>Check a rental</Kicker>
+            <SectionTitle>Found a home somewhere else? Check it before you pay.</SectionTitle>
+            <SectionSub>Fake landlords and homes that are not really for let are the most common rental scams. Send us the advert and who is letting it, and we tell you what is safe.</SectionSub>
           </SectionHead>
         </Reveal>
 
@@ -321,7 +321,7 @@ export function PassportSection() {
           <Reveal delay={0.1}>
             <SectionTitle as="h3" style={{ fontSize: 'clamp(1.25rem, 2vw, 1.6rem)' }}>What we check for you</SectionTitle>
             <SectionSub style={{ marginBottom: '1.25rem' }}>
-              The same eight checks every time, in your Property Passport. A fixed fee, agreed before any charge.
+              Pick the checks you need, from the landlord alone to the full rental. A fixed fee, agreed before any charge.
             </SectionSub>
             <CheckGrid>
               {shown.map((item) => <CheckItem key={item}><FaCheck /> {item}</CheckItem>)}
@@ -329,7 +329,7 @@ export function PassportSection() {
             {mobile && (
               <Accordion type="single" collapsible className="mt-2">
                 <AccordionItem value="more" className="border-b-0">
-                  <AccordionTrigger className="text-brand-deep">See all 8 checks</AccordionTrigger>
+                  <AccordionTrigger className="text-brand-deep">See everything we check</AccordionTrigger>
                   <AccordionContent>
                     <CheckGrid>
                       {rest.map((item) => <CheckItem key={item}><FaCheck /> {item}</CheckItem>)}
@@ -339,7 +339,7 @@ export function PassportSection() {
               </Accordion>
             )}
             <ActionRow style={{ marginTop: '1.5rem' }}>
-              <PrimaryAction to={OFFER_VERIFY_URL}>Verify my property <FaArrowRight size={13} /></PrimaryAction>
+              <PrimaryAction to={RENTAL_CHECK_URL}>Check a rental <FaArrowRight size={13} /></PrimaryAction>
             </ActionRow>
           </Reveal>
         </ServiceGrid>
@@ -349,7 +349,7 @@ export function PassportSection() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   On the market — newest listings; a carousel on phones
+   New homes to rent — the newest listings; a carousel on phones
    ═══════════════════════════════════════════════════════════════════ */
 
 const StripGrid = styled.div`
@@ -382,16 +382,16 @@ const SeeAll = styled(Link)`
 `;
 
 /**
- * The three newest properties on the market. It renders nothing at all when
- * there is no stock — an empty "featured" rail is worse than no rail.
+ * The three newest homes to rent. It renders nothing at all when there is
+ * no stock — an empty "featured" rail is worse than no rail.
  */
-export function ForSaleStrip() {
+export function NewRentalsStrip() {
   const [listings, setListings] = useState([]);
   const mobile = useIsMobile();
 
   useEffect(() => {
     let active = true;
-    api.listings.browse({ limit: 3 })
+    api.listings.browse({ mode: 'rent', limit: 3 })
       .then((d) => { if (active) setListings(d.listings || []); })
       .catch(() => {});
     return () => { active = false; };
@@ -405,11 +405,11 @@ export function ForSaleStrip() {
         <Reveal>
           <StripHead>
             <div>
-              <Kicker>Buying</Kicker>
-              <SectionTitle>On the market now</SectionTitle>
-              <SectionSub>Every one valued by us before it went up. Some we own outright.</SectionSub>
+              <Kicker>Renting</Kicker>
+              <SectionTitle>New homes to rent</SectionTitle>
+              <SectionSub>Every one checked by us before it went up.</SectionSub>
             </div>
-            <SeeAll to={MARKETPLACE_URL}>See everything for sale <FaArrowRight size={12} /></SeeAll>
+            <SeeAll to={RENT_URL}>See every home to rent <FaArrowRight size={12} /></SeeAll>
           </StripHead>
         </Reveal>
         {mobile ? (
@@ -514,9 +514,9 @@ const AmountFields = styled.div`
 `;
 
 export function RentCalculator({
-  kicker = 'Renting it out',
-  title = 'Not selling? We will run it for you.',
-  sub = 'We find the tenant, collect the rent, handle repairs and pay you the balance. See what you keep.',
+  kicker = 'For landlords',
+  title = 'Let it. We run it for you.',
+  sub = 'We find and check the tenant, collect the rent, handle repairs and inspections, and pay you the balance. See what you keep.',
   tint = true,
 }) {
   const [annualRent, setAnnualRent] = useState(3_000_000);
@@ -600,10 +600,10 @@ export function RentCalculator({
    ═══════════════════════════════════════════════════════════════════ */
 
 const FLOW = [
-  { kind: 'sell', k: 'Listings', title: 'Find a home — or sell yours', body: `Approved homes and land to buy or rent, or a firm offer on yours within ${PURCHASE_DAYS} days.` },
-  { kind: 'verify', k: 'Verify', title: 'Check it before you pay', body: 'Seller, title, survey, price and the building, in one Property Passport.' },
-  { kind: 'move', k: 'Moving', title: 'Move in without the stress', body: 'A crew, the right truck and packing help, priced up front and tracked.' },
-  { kind: 'manage', k: 'Manage', title: 'Let it, and leave the rest to us', body: 'Tenants, rent, repairs and renovation, run for you and paid out monthly.' },
+  { kind: 'sell', k: 'Find', title: 'Find a home to rent', body: 'Homes we manage and homes from verified agents, checked before they go live.' },
+  { kind: 'verify', k: 'Check', title: 'Check it before you pay', body: 'Found one elsewhere? We check the landlord, the home and the agreement first.' },
+  { kind: 'move', k: 'Move', title: 'Move in without the stress', body: 'A crew, the right truck and packing help, priced up front and tracked.' },
+  { kind: 'manage', k: 'Live', title: 'Rent and repairs in one place', body: 'Pay rent, report repairs and keep your tenancy papers in the tenant portal.' },
 ];
 
 const FlowGrid = styled(Stagger)`

@@ -5,7 +5,7 @@ import {
   Home, Tag, HardHat, Paintbrush, ShieldCheck, ScanSearch, KeyRound, PlusCircle,
   MessagesSquare, ArrowRight, LayoutDashboard, LogIn, UserRound, MapPinned,
 } from 'lucide-react';
-import { SITE_MENU, MANAGE_URL, OFFER_VERIFY_URL } from '../config/platform';
+import { SITE_MENU, MANAGE_URL, RENTAL_CHECK_URL } from '../config/platform';
 import { useAuth } from '../AuthContext';
 import { useAccountIdentity } from './AccountMenu';
 import { Button } from './shadcn/button';
@@ -43,8 +43,8 @@ export default function SiteMenu({ onNavigate, compact = false }) {
     <motion.div variants={list} initial="hidden" animate="show" className="flex flex-col gap-5">
       <motion.div variants={row}>
         <Button asChild size="lg" block>
-          <Link to={OFFER_VERIFY_URL} onClick={onNavigate}>
-            <ShieldCheck className="h-4 w-4" /> Verify a property <ArrowRight className="h-4 w-4" />
+          <Link to={RENTAL_CHECK_URL} onClick={onNavigate}>
+            <ShieldCheck className="h-4 w-4" /> Check a rental before you pay <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>
       </motion.div>

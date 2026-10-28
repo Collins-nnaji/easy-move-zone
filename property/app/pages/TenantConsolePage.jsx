@@ -11,13 +11,14 @@ import { api } from '../api';
 import { useAuth } from '../AuthContext';
 import SignInGate from '../components/SignInGate';
 import ConsoleShell from '../components/ConsoleShell';
+import VerificationPanel from '../components/profile/VerificationPanel';
 import {
   Card, CardHead, CardTitle, CardNote, Kpis, Kpi, Row, Pill, Table, Actions, Btn, Field, Label,
   Input, Select, TwoCol, Empty, Notice, ErrorMsg, PropertySelect,
 } from './manage-sections';
 import {
   TENANT_NAV, TENANT_URL, TENANT_RENT_URL, TENANT_PAID_URL, TENANT_REQUESTS_URL,
-  TENANT_NEW_REQUEST_URL, MANAGE_URL, RENT_URL,
+  TENANT_NEW_REQUEST_URL, MANAGE_URL, RENT_URL, RENTAL_CHECK_URL,
   CONTACT_URL, whatsappLink, rememberPortalRole,
 } from '../config/platform';
 import {
@@ -46,6 +47,7 @@ import { LOCALE } from '../config/markets';
 const PAGE_META = {
   overview: { title: 'Overview', sub: 'Your home, your rent and anything waiting on you.' },
   applications: { title: 'Applications', sub: 'Homes you asked to rent through EasyMoveZone, and where each one stands.' },
+  checks: { title: 'Rental checks', sub: 'Homes and landlords you asked us to check before you pay, check by check.' },
   rent: { title: 'Rent schedule', sub: 'Every rent and charge on your tenancy, and what has been received.' },
   paid: { title: 'Tell us you paid', sub: 'Paid by transfer? Send us the details so we can match it and update your schedule.' },
   requests: { title: 'My requests', sub: 'Everything you have raised with your manager, and the latest on each.' },
@@ -935,6 +937,7 @@ function Portal({ email }) {
     <Routes>
       <Route index element={page('overview', <Overview data={d} tenancy={tenancy} email={email} />)} />
       <Route path="applications" element={page('applications', <Applications data={d} />)} />
+      <Route path="checks" element={page('checks', <VerificationPanel newTo={RENTAL_CHECK_URL} />)} />
       <Route path="rent" element={page('rent', <RentSchedule data={d} tenancy={tenancy} onRefresh={load} />)} />
       <Route path="rent/paid" element={page('paid', <PaidForm data={d} tenancy={tenancy} email={email} onDone={load} />)} />
       <Route path="requests" element={page('requests', <RequestsRoute data={d} email={email} onRefresh={load} />)} />

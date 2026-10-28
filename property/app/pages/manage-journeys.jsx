@@ -6,7 +6,7 @@ import { api } from '../api';
 import { STATUS_LABEL as RENO_STATUS } from '../config/renovations';
 import { STATUS_LABEL as MGMT_STATUS } from '../config/management';
 import {
-  OFFER_RENOVATE_URL, MANAGE_ADD_URL, MANAGE_PROPERTIES_URL, MANAGE_VERIFICATIONS_URL,
+  OFFER_RENOVATE_URL, MANAGE_ADD_URL, MANAGE_PROPERTIES_URL,
 } from '../config/platform';
 import { Button } from '../components/shadcn/button';
 import { Badge } from '../components/shadcn/badge';
@@ -19,13 +19,8 @@ import { LOCALE } from '../config/markets';
  * What Manage does for an owner — renovation and letting — as one screen
  * inside the console. Each journey pulls the owner's own requests from the
  * flow that already captures them (renovation and management requests).
- * Purchases live under Verifications; Manage does not run builds.
+ * Manage does not run builds.
  */
-
-const PASSPORT_STATUS = {
-  submitted: 'Submitted', scope_review: 'Scope review', payment_due: 'Ready for payment',
-  in_progress: 'Checks in progress', action_required: 'Action needed', complete: 'Passport ready', cancelled: 'Cancelled',
-};
 
 const DONE = new Set(['complete', 'completed', 'live', 'active', 'managed']);
 const ATTENTION = new Set(['action_required', 'payment_due', 'quote_ready', 'awaiting_signature', 'awaiting_approval']);
@@ -71,25 +66,17 @@ const JOURNEYS = [
 
 export default function JourneysSection({ email }) {
   const [loading, setLoading] = useState(true);
-  const [rows, setRows] = useState({ purchase: [], build: [], renovate: [], rent: [] });
+  const [rows, setRows] = useState({ renovate: [], rent: [] });
 
   useEffect(() => {
     let active = true;
     if (!email) { setLoading(false); return undefined; }
     Promise.allSettled([
-      api.passport.mine(),
       api.renovations.mine(email),
       api.management.mine(email),
-    ]).then(([passports, renovations, management]) => {
+    ]).then(([renovations, management]) => {
       if (!active) return;
-      const p = passports.status === 'fulfilled' ? passports.value : [];
       setRows({
-        purchase: (p || []).map((r) => ({
-          id: r.id || r.reference, ref: r.reference, title: r.property_label || r.address || 'Property',
-          status: r.status || 'submitted', label: PASSPORT_STATUS[r.status] || 'Submitted', at: r.created_at,
-          to: MANAGE_VERIFICATIONS_URL,
-        })),
-        build: [],
         renovate: (renovations.status === 'fulfilled' ? renovations.value : []).map((r) => ({
           id: r.id, ref: r.ref, title: r.title || r.address || 'Renovation', status: r.status,
           label: RENO_STATUS[r.status] || r.status, at: r.created_at, to: `${OFFER_RENOVATE_URL}?ref=${r.ref}`,

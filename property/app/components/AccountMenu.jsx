@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import {
-  FaSignOutAlt, FaRegHeart, FaRegEnvelope, FaRegQuestionCircle, FaRegComments, FaCamera, FaWhatsapp,
+  FaSignOutAlt, FaRegHeart, FaRegEnvelope, FaRegQuestionCircle, FaRegComments, FaShieldAlt, FaWhatsapp,
 } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
@@ -9,7 +9,7 @@ import { useIsMobile } from '../utils/useMediaQuery';
 import { useSaved } from '../utils/shortlist';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from './shadcn/drawer';
 import {
-  SAVED_URL, CONTACT_URL, HELP_URL, BOOK_SESSION_URL, OFFER_ANALYZE_URL, whatsappLink,
+  SAVED_URL, CONTACT_URL, HELP_URL, BOOK_SESSION_URL, RENTAL_CHECK_URL, whatsappLink,
 } from '../config/platform';
 
 /* ── Avatar dropdown ─────────────────────────────────────────────── */
@@ -297,7 +297,7 @@ function AccountLinks({ onPick }) {
       )}
       <DropdownLink to={HELP_URL} onClick={onPick}><FaRegQuestionCircle /> Help and FAQs</DropdownLink>
       <DropdownLink to={BOOK_SESSION_URL} onClick={onPick}><FaRegComments /> Talk to an adviser</DropdownLink>
-      <DropdownLink to={OFFER_ANALYZE_URL} onClick={onPick}><FaCamera /> Free photo scan</DropdownLink>
+      <DropdownLink to={RENTAL_CHECK_URL} onClick={onPick}><FaShieldAlt /> Check a rental</DropdownLink>
     </>
   );
 }

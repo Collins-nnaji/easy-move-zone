@@ -10,14 +10,12 @@ type Entry = {
   >;
 };
 
-/** Public pages: the property site (app/property-app) and moving (/moving). */
+/** Public pages: the rental site (app/property-app) and moving (/moving). */
 const pages: Entry[] = [
   { path: "/", priority: 1, changeFrequency: "weekly" },
   { path: "/listings", priority: 0.9, changeFrequency: "daily" },
-  { path: "/listings/sell", priority: 0.8, changeFrequency: "monthly" },
-  { path: "/listings/rent", priority: 0.8, changeFrequency: "daily" },
-  { path: "/verify", priority: 0.8, changeFrequency: "monthly" },
-  { path: "/verify/photo-scan", priority: 0.7, changeFrequency: "monthly" },
+  { path: "/check", priority: 0.8, changeFrequency: "monthly" },
+  { path: "/list", priority: 0.6, changeFrequency: "monthly" },
   { path: "/manage", priority: 0.8, changeFrequency: "monthly" },
   { path: "/renovate", priority: 0.7, changeFrequency: "monthly" },
   { path: "/moving", priority: 0.9, changeFrequency: "weekly" },

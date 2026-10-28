@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaArrowRight, FaHome, FaInbox } from 'react-icons/fa';
 import { ArrowRight } from 'lucide-react';
-import { AGENT_APPLY_URL, AGENT_URL, OFFER_URL } from '../config/platform';
+import { AGENT_APPLY_URL, AGENT_URL } from '../config/platform';
 import { AgentFinder } from './AgentsDirectoryPage';
 import {
   PageShell, Section, Inner, SectionHead, Kicker, SectionTitle, SectionSub, Callout, CalloutAction, enterContainer, enterItem,
@@ -17,8 +17,9 @@ import { Button } from '../components/shadcn/button';
 import { Badge } from '../components/shadcn/badge';
 
 /**
- * The listing landing. Separate from Manage: here you put a home on the
- * portal yourself. Manage is the other product, where we let and run it.
+ * The listing landing. Separate from Manage: here an agent puts homes to
+ * rent on the site themselves. Manage is the other product, where we find
+ * the tenant (and, on the fuller plans, run the home) for a landlord.
  */
 
 const STEPS = [
@@ -143,8 +144,8 @@ export default function ListLandingPage() {
             </motion.div>
             <motion.h1 variants={enterItem}>Post the home. <span>The leads come to you.</span></motion.h1>
             <motion.p variants={enterItem}>
-              Agents advertise their own sale and rental stock. Owners can sell a home through us.
-              This is not the managed-lettings service — there, we find the tenant and run the home.
+              Letting agents advertise their own homes to rent, and every enquiry comes to them.
+              A landlord who would rather we find the tenant and run it uses Manage.
             </motion.p>
             <HeroActions variants={enterItem}>
               <Button asChild size="xl" variant="bright" block={mobile}>
@@ -164,7 +165,7 @@ export default function ListLandingPage() {
               alt="A home listed on EasyMoveZone"
               priority
               chips={[
-                { icon: FaHome, title: 'Listed by you', sub: 'Sale or rent' },
+                { icon: FaHome, title: 'Listed by you', sub: 'Homes to rent' },
                 { icon: FaInbox, title: 'Leads to you', sub: 'Not published' },
               ]}
             />
@@ -195,23 +196,23 @@ export default function ListLandingPage() {
           <Reveal>
             <SectionHead>
               <Kicker>Who is listing</Kicker>
-              <SectionTitle>Two ways onto the market.</SectionTitle>
-              <SectionSub>An agency posts its own stock. An owner who is selling starts a sale with us. A home we let and run lives on the Manage page.</SectionSub>
+              <SectionTitle>Two ways to let a home here.</SectionTitle>
+              <SectionSub>An agency posts its own homes and answers its own leads. A landlord can have us find the tenant, or run the whole tenancy.</SectionSub>
             </SectionHead>
           </Reveal>
           <Grid>
             <Path>
-              <div className="k">Estate agent</div>
-              <h3>Post and run your own stock</h3>
+              <div className="k">Letting agent</div>
+              <h3>Post and let your own homes</h3>
               <p>Apply once. We check the agency, you choose a plan, then the portal is yours: drafts, photos, floorplans, offices, and every enquiry.</p>
               <Go to={AGENT_APPLY_URL}>Apply to list <FaArrowRight size={11} /></Go>
               <Alt to={AGENT_URL}>Already verified? Open your portal</Alt>
             </Path>
             <Path>
-              <div className="k">Owner selling</div>
-              <h3>Sell it to us, or list it with us</h3>
-              <p>Tell us about the property. We inspect it and check the title, then either make you an offer or prepare a listing you approve before it goes public.</p>
-              <Go to={OFFER_URL}>Start a sale <FaArrowRight size={11} /></Go>
+              <div className="k">Landlord</div>
+              <h3>We find the tenant, or run it all</h3>
+              <p>Hand the home to us. We advertise it, show it, check every applicant and sign the tenancy. On the fuller plans we also collect the rent and handle repairs.</p>
+              <Go to="/manage">See how we manage <FaArrowRight size={11} /></Go>
             </Path>
           </Grid>
         </Inner>
@@ -223,7 +224,7 @@ export default function ListLandingPage() {
             <Reveal>
               <SectionHead>
                 <Kicker>Find an agent</Kicker>
-                <SectionTitle>Verified agencies on the portal.</SectionTitle>
+                <SectionTitle>Verified letting agencies.</SectionTitle>
                 <SectionSub>Search by city or name. Every agency here was reviewed before they could post.</SectionSub>
               </SectionHead>
             </Reveal>

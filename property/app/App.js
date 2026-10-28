@@ -8,7 +8,7 @@ import Layout from './components/Layout';
 import Loader from './components/Loader';
 import { AuthProvider, useAuth } from './AuthContext';
 import {
-  MARKETPLACE_URL, MANAGE_URL, MANAGE_VERIFICATIONS_URL, MANAGE_OFFERS_URL, MANAGE_PLAN_URL, MANAGE_CONSULT_URL,
+  MARKETPLACE_URL, MANAGE_URL, MANAGE_PLAN_URL, MANAGE_CONSULT_URL,
   legacyPortalPath,
 } from './config/platform';
 
@@ -17,7 +17,7 @@ const MovingRoutes = lazy(() => import('./pages/MovingRoutes'));
 const RealEstateLandingPage = lazy(() => import('./pages/RealEstateLandingPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
-const OfferPage = lazy(() => import('./pages/OfferPage'));
+const RentalCheckPage = lazy(() => import('./pages/RentalCheckPage'));
 const MarketplacePage = lazy(() => import('./pages/MarketplacePage'));
 const ManageConsolePage = lazy(() => import('./pages/ManageConsolePage'));
 const TenantConsolePage = lazy(() => import('./pages/TenantConsolePage'));
@@ -33,7 +33,6 @@ const AreasPage = lazy(() => import('./pages/AreasPage'));
 const AgentsDirectoryPage = lazy(() => import('./pages/AgentsDirectoryPage'));
 const AgentApplyPage = lazy(() => import('./pages/AgentApplyPage'));
 const AgentConsolePage = lazy(() => import('./pages/AgentConsolePage'));
-const MortgagePage = lazy(() => import('./pages/MortgagePage'));
 
 /**
  * The landing page and the Manage sales page are for visitors. Signed in,
@@ -49,8 +48,6 @@ function VisitorOnly({ children, signedIn }) {
 
 /** My Hub merged into the console; old links land on the matching tab. */
 const HUB_TABS = {
-  verifications: MANAGE_VERIFICATIONS_URL,
-  deals: MANAGE_OFFERS_URL,
   plan: MANAGE_PLAN_URL,
   bookings: MANAGE_CONSULT_URL,
 };
@@ -84,7 +81,7 @@ function App() {
                 {/* Public site: landing, EasyCheck and the property hub. */}
                 <Route path="/" element={<VisitorOnly signedIn={MARKETPLACE_URL}><RealEstateLandingPage /></VisitorOnly>} />
                 <Route path="/listings/*" element={<MarketplacePage />} />
-                <Route path="/verify/*" element={<OfferPage />} />
+                <Route path="/check" element={<RentalCheckPage />} />
                 <Route path="/renovate" element={<MarketplacePage page="renovate" />} />
 
                 {/* Manage has a public service page before the signed-in console. */}
@@ -96,7 +93,6 @@ function App() {
                 <Route path="/areas/*" element={<AreasPage />} />
                 <Route path="/agents/:slug" element={<AgentsDirectoryPage />} />
                 <Route path="/agents" element={<AgentsDirectoryPage />} />
-                <Route path="/mortgage/*" element={<MortgagePage />} />
                 <Route path="/faq" element={<Navigate to="/help" replace />} />
                 <Route path="/saved" element={<Navigate to="/listings/saved" replace />} />
                 {/* Signed in, "My portal" picks the owner console or the tenant portal. */}
@@ -122,8 +118,11 @@ function App() {
                 {/* Moving logistics: one page, checkout and its legal pages. */}
                 <Route path="/moving/*" element={<MovingRoutes />} />
 
+                {/* A rental platform now: buying, selling and mortgages are gone. */}
+                <Route path="/verify/*" element={<Navigate to="/check" replace />} />
+                <Route path="/mortgage/*" element={<Navigate to="/listings" replace />} />
                 <Route path="/buy" element={<Navigate to="/listings" replace />} />
-                <Route path="/sell" element={<Navigate to="/listings/sell" replace />} />
+                <Route path="/sell" element={<Navigate to="/list" replace />} />
 
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

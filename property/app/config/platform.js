@@ -2,12 +2,13 @@
 export const BOOK_SESSION_URL = '/consult';
 
 /**
- * EasyMoveZone is one product with four surfaces:
+ * EasyMoveZone is a rental platform (and a moving service) with these surfaces:
  *
- *   Landing (`/`)       — what the company does, and where to start.
- *   Property (`/listings`) — buy (the grid, and `/listings/:slug`) and sell.
- *   Verify (`/verify`) — Property Passport verification, and `/verify/photo-scan`.
- *   Renovate (`/renovate`) — a public service page that belongs to Manage.
+ *   Landing (`/`)          — what we do for renters, landlords and agents.
+ *   Homes to rent (`/listings`, `/listings/:slug`) — the rental grid.
+ *   Check a rental (`/check`) — checks on a landlord, agent or home before you pay.
+ *   Neighbourhoods (`/areas`) — what residents say, rents and location tools.
+ *   Renovate (`/renovate`) — a landlord service that belongs to Manage.
  *   Manage (`/manage`)  — a public service page leading into the signed-in
  *                          portal. Every signed-in page lives under `/portal`:
  *                          `/portal/landlord/*`, `/portal/tenant/*` and
@@ -22,7 +23,7 @@ export const SECTIONS = {
     id: 'real-estate',
     label: 'Real Estate',
     home: '/',
-    paths: ['/', '/listings', '/list', '/verify', '/renovate', '/consult', '/contact', '/help', '/areas', '/agents', '/mortgage'],
+    paths: ['/', '/listings', '/list', '/check', '/renovate', '/consult', '/contact', '/help', '/areas', '/agents'],
   },
   manage: {
     id: 'manage',
@@ -80,20 +81,19 @@ export const MARKETPLACE_URL = '/listings';
 export const PORTAL_URL = '/portal';
 /** The landlord portal ("Managed for me"): we let and run your property. */
 export const LANDLORD_URL = `${PORTAL_URL}/landlord`;
-/** Homes to rent: vacant properties we manage, let through the same grid. */
-export const RENT_URL = '/listings/rent';
+/** Homes to rent: the one listings grid. */
+export const RENT_URL = MARKETPLACE_URL;
+/** Check a rental before you pay: the landlord or agent, the home and the agreement. */
+export const RENTAL_CHECK_URL = '/check';
 /** Neighbourhood pages: residents' scores and board, rents and location tools. */
 export const AREAS_URL = '/areas';
 
 /**
- * The navbar follows the app's flow, one row: Listings (buy, rent, sell and
- * verify — the Property Passport is the fourth tab of the property switch, so
- * `/verify` lights Listings), Neighbourhoods (residents' area pages),
- * Mortgages (bank loans and NHF), Moving (the /moving page) and Manage.
- * Manage is only "we let and run it". Listing a home yourself, and finding
- * an agent, live on `/list`. Renovation is part of Manage. Signed in, the
- * label is "My portal". The phone tab bar stays at four: Listings, Areas,
- * Moving, Manage. Mortgages are in the site menu on a phone.
+ * The navbar follows a renter's road, one row: Homes to rent, Check a rental
+ * (before you pay), Neighbourhoods, Moving and Manage (we let and run it for
+ * landlords). Listing a home yourself, and finding an agent, live on `/list`.
+ * Renovation is part of Manage. Signed in, Manage is "My portal". The phone
+ * tab bar stays at four: Rent, Areas, Moving, Manage; Check is in the menu.
  */
 const MANAGE_PATHS = ['/manage', '/renovate', '/consult', '/portal'];
 
@@ -103,36 +103,27 @@ export const MOVING_URL = '/moving';
 export const AGENTS_URL = '/agents';
 export const AGENT_URL = `${PORTAL_URL}/agent`;
 export const AGENT_APPLY_URL = `${AGENT_URL}/apply`;
-export const MORTGAGE_URL = '/mortgage';
-/** Listing on the portal: agents post their own stock, owners can sell. Not Manage. */
+/** Listing a home to rent yourself, as an agent or a landlord. Letting that we run is Manage. */
 export const LIST_URL = '/list';
 
 export const REAL_ESTATE_NAV_ITEMS = [
-  { to: MARKETPLACE_URL, label: 'Listings', match: ['/listings', '/verify'] },
+  { to: RENT_URL, label: 'Homes to rent', match: ['/listings'] },
+  { to: RENTAL_CHECK_URL, label: 'Check a rental', match: [RENTAL_CHECK_URL] },
   { to: AREAS_URL, label: 'Neighbourhoods', match: [AREAS_URL] },
-  { to: MORTGAGE_URL, label: 'Mortgages', match: [MORTGAGE_URL] },
   { to: MOVING_URL, label: 'Moving', match: [MOVING_URL] },
   { to: '/manage', label: 'Manage', signedInLabel: 'My portal', match: MANAGE_PATHS, exclude: [AGENT_APPLY_URL] },
 ];
 
 /**
- * The phone tab bar is the navbar, nothing more: Listings, Areas, Moving, Manage.
+ * The phone tab bar is the navbar, nothing more: Rent, Areas, Moving, Manage.
  * The logo is home and Sign in sits in the top bar, so there is no Home tab
  * and no Menu tab — every sub-page is linked from the page it belongs to.
  */
 export const REAL_ESTATE_BOTTOM_NAV = [
-  { to: MARKETPLACE_URL, label: 'Listings', icon: 'buy', match: ['/listings', '/verify'] },
+  { to: RENT_URL, label: 'Rent', icon: 'buy', match: ['/listings', RENTAL_CHECK_URL] },
   { to: AREAS_URL, label: 'Areas', icon: 'area', match: [AREAS_URL] },
   { to: MOVING_URL, label: 'Moving', icon: 'truck', match: [MOVING_URL] },
   { to: '/manage', label: 'Manage', signedInLabel: 'Portal', icon: 'manage', match: MANAGE_PATHS, exclude: [AGENT_APPLY_URL] },
-];
-
-/** The Buy / Rent / Sell / Verify switch at the top of the Listings pages. */
-export const PROPERTY_MODES = [
-  { to: MARKETPLACE_URL, label: 'Buy', match: ['/listings'], exclude: ['/listings/sell', '/listings/build', RENT_URL] },
-  { to: RENT_URL, label: 'Rent', match: [RENT_URL] },
-  { to: '/listings/sell', label: 'Sell', match: ['/listings/sell'] },
-  { to: '/verify', label: 'Verify', match: ['/verify'] },
 ];
 
 /** Where a nav item goes for this visitor: signed in, Manage opens your portal. */
@@ -155,19 +146,8 @@ export function isNavItemActive(item, pathname) {
   return (item.match || []).some(within) && !(item.exclude || []).some(within);
 }
 
-/* ── Property check tools ──────────────────────────────────────────────── */
+/* ── Landlord services ─────────────────────────────────────────────── */
 
-export const PHOTO_SCAN_URL = '/verify/photo-scan';
-export const OFFER_URL = '/listings/sell';
-/**
- * The EasyMoveZone offer: we inspect the property and verify its title, then make
- * a firm offer; if the owner accepts, we complete within this many days of
- * verification. The server stamps each issued offer with its own deadline
- * (PURCHASE_DAYS in server/routes/listings.js) — change both together.
- */
-export const PURCHASE_DAYS = 14;
-export const OFFER_ANALYZE_URL = '/verify/photo-scan';
-export const OFFER_VERIFY_URL = '/verify';
 export const OFFER_RENOVATE_URL = '/renovate';
 /** Declared here so SITE_MENU (above the console block) can reference it. */
 const MANAGE_ADD_URL_PUBLIC = `${LANDLORD_URL}/add`;
@@ -180,27 +160,23 @@ const MANAGE_ADD_URL_PUBLIC = `${LANDLORD_URL}/add`;
 export const SITE_MENU = [
   {
     id: 'property',
-    label: 'Listings',
-    blurb: 'Buy, rent or sell, approved by us',
+    label: 'Renting',
+    blurb: 'Find a home and check it before you pay',
     items: [
-      { to: MARKETPLACE_URL, label: 'Properties for sale', icon: 'buy', desc: 'Valued and approved', primary: true },
-      { to: RENT_URL, label: 'Homes to rent', icon: 'manage', desc: 'Let and managed by us' },
+      { to: RENT_URL, label: 'Homes to rent', icon: 'buy', desc: 'Checked and approved by us', primary: true },
+      { to: RENTAL_CHECK_URL, label: 'Check a rental', icon: 'verify', desc: 'The landlord, agent and home, before you pay' },
       { to: AREAS_URL, label: 'Neighbourhoods', icon: 'area', desc: 'What residents say, rents and commute' },
-      { to: OFFER_URL, label: 'Sell a property', icon: 'sell', desc: 'List it or get an offer' },
-      { to: OFFER_ANALYZE_URL, label: 'Quick photo scan', icon: 'analyze', desc: 'Free first read' },
-      { to: '/mortgage', label: 'Mortgages', icon: 'analyze', desc: 'Bank loan, NHF, or a broker' },
-      { to: '/list', label: 'List a property', icon: 'add', desc: 'Post it on the portal' },
-      { to: '/list#agents', label: 'Find an agent', icon: 'buy', desc: 'Verified agencies' },
+      { to: '/list#agents', label: 'Find an agent', icon: 'consult', desc: 'Verified letting agencies' },
     ],
   },
   {
     id: 'manage',
-    label: 'Manage',
-    blurb: 'We let it and run it for you',
+    label: 'Landlords and agents',
+    blurb: 'Let a home, or have us run it for you',
     items: [
-      { to: '/manage', label: 'How we manage', icon: 'manage', desc: 'We run it, you collect' },
-      { to: OFFER_RENOVATE_URL, label: 'Renovate a property', icon: 'renovate', desc: 'Scoped and approved' },
-      { to: MANAGE_ADD_URL_PUBLIC, label: 'Add a property', icon: 'add', desc: 'Start letting' },
+      { to: '/manage', label: 'How we manage', icon: 'manage', desc: 'Tenants, rent and repairs, run for you' },
+      { to: MANAGE_ADD_URL_PUBLIC, label: 'Hand over a property', icon: 'add', desc: 'Start letting with us' },
+      { to: '/list', label: 'List a home to rent', icon: 'add', desc: 'Post it yourself, as an agent or landlord' },
       { to: BOOK_SESSION_URL, label: 'Talk to an adviser', icon: 'consult', desc: 'Free, no account needed' },
     ],
   },
@@ -221,8 +197,6 @@ export const MANAGE_PROPERTIES_URL = `${LANDLORD_URL}/properties`;
 export const MANAGE_ADD_URL = `${LANDLORD_URL}/add`;
 export const MANAGE_ONBOARDING_URL = `${LANDLORD_URL}/onboarding`;
 export const MANAGE_JOURNEYS_URL = `${LANDLORD_URL}/journeys`;
-export const MANAGE_VERIFICATIONS_URL = `${LANDLORD_URL}/verifications`;
-export const MANAGE_OFFERS_URL = `${LANDLORD_URL}/offers`;
 
 export const MANAGE_MONEY_URL = `${LANDLORD_URL}/money`;
 export const MANAGE_FINANCE_URL = `${LANDLORD_URL}/money/finance`;
@@ -257,20 +231,15 @@ export const CONSOLE_NAV = [
   {
     to: MANAGE_URL,
     label: 'Overview',
-    hint: 'Dashboard, properties, deals',
+    hint: 'Dashboard, properties, journeys',
     icon: 'overview',
-    match: [MANAGE_URL, MANAGE_PROPERTIES_URL, MANAGE_ADD_URL, MANAGE_ONBOARDING_URL, MANAGE_JOURNEYS_URL, MANAGE_VERIFICATIONS_URL, MANAGE_OFFERS_URL],
-    // What used to be My Hub lives here: verifications (buying) and sales &
-    // offers (selling) sit beside the properties we manage. Adding a property
+    match: [MANAGE_URL, MANAGE_PROPERTIES_URL, MANAGE_ADD_URL, MANAGE_ONBOARDING_URL, MANAGE_JOURNEYS_URL],
+    // Journeys are your lettings and renovations with us. Adding a property
     // and onboarding are actions reached from these pages, not tabs.
     tabs: [
       { to: MANAGE_URL, label: 'Home', end: true },
       { to: MANAGE_PROPERTIES_URL, label: 'Properties' },
-      {
-        to: MANAGE_JOURNEYS_URL,
-        label: 'Deals',
-        match: [MANAGE_JOURNEYS_URL, MANAGE_VERIFICATIONS_URL, MANAGE_OFFERS_URL],
-      },
+      { to: MANAGE_JOURNEYS_URL, label: 'Journeys' },
     ],
   },
   {
@@ -318,6 +287,8 @@ export const CONSOLE_NAV = [
  */
 export const TENANT_URL = `${PORTAL_URL}/tenant`;
 export const TENANT_APPLICATIONS_URL = `${TENANT_URL}/applications`;
+/** Rental checks you ordered before paying for a home (from /check). */
+export const TENANT_CHECKS_URL = `${TENANT_URL}/checks`;
 export const TENANT_RENT_URL = `${TENANT_URL}/rent`;
 export const TENANT_PAID_URL = `${TENANT_URL}/rent/paid`;
 export const TENANT_REQUESTS_URL = `${TENANT_URL}/requests`;
@@ -329,13 +300,14 @@ export const TENANT_NAV = [
   {
     to: TENANT_URL,
     label: 'Overview',
-    hint: 'Your home, applications',
+    hint: 'Your home, applications, checks',
     icon: 'overview',
     match: [TENANT_URL],
     exclude: [TENANT_RENT_URL, TENANT_REQUESTS_URL, TENANT_HOME_URL],
     tabs: [
       { to: TENANT_URL, label: 'Overview', end: true },
       { to: TENANT_APPLICATIONS_URL, label: 'Applications' },
+      { to: TENANT_CHECKS_URL, label: 'Checks' },
     ],
   },
   {
@@ -454,21 +426,13 @@ export function rememberedPortalRole() {
   }
 }
 
-export const PRODUCT_TAGLINE = 'Buy, build and manage property with proof at every step.';
+export const PRODUCT_TAGLINE = 'Rent a home, and let one, with proof at every step.';
 
 export const PRODUCT_MISSION =
-  'EasyMoveZone verifies property, sellers, documents, price and physical condition across supported markets, giving buyers a clear Property Passport before they pay.';
+  'EasyMoveZone checks homes, landlords and agents before a renter pays, and lets and manages homes for landlords, with rent, repairs and inspections in one place.';
 
 export const COMPANY_VALUE = 'Proof at every step, before money moves.';
 
-/** Owner guides: quick checks used while valuing a property. */
-export const BUYER_GUIDES = [
-  { id: 'affordable', label: 'Can I afford it?' },
-  { id: 'fair-value', label: 'Fair value' },
-  { id: 'good-area', label: 'Good area' },
-  { id: 'family-friendly', label: 'Family-friendly' },
-  { id: 'investment-ready', label: 'Investment potential' },
-];
 
 /** Branded product names surfaced in UI copy. */
 export const BRAND = {
