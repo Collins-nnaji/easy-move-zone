@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   FaArrowRight, FaCheck, FaFileInvoiceDollar, FaKey, FaPaintRoller, FaTools, FaUserCheck, FaUserTie,
 } from 'react-icons/fa';
 import { ArrowRight, MessagesSquare } from 'lucide-react';
 import { useAuth } from '../AuthContext';
-import { MANAGE_URL, MANAGE_ADD_URL, BOOK_SESSION_URL, LIST_URL } from '../config/platform';
+import { MANAGE_URL, MANAGE_ADD_URL, BOOK_SESSION_URL, AGENT_APPLY_URL } from '../config/platform';
+import { AgentFinder } from './AgentsDirectoryPage';
+import ListHomeDialog from '../components/ListHomeDialog';
 import {
-  PageShell, Section, Inner, SectionHead, Kicker, SectionTitle, SectionSub, CheckGrid, CheckItem, Callout, CalloutAction, enterContainer, enterItem,
+  PageShell, Section, Inner, SectionHead, Kicker, SectionTitle, SectionSub, CheckGrid, CheckItem, Callout, CalloutAction,
 } from '../components/page';
 import { useIsMobile } from '../utils/useMediaQuery';
 import { JourneyTimelineArt, VerifyFlowArt, ServiceArt } from '../components/graphics';
@@ -37,7 +39,7 @@ const Hero = styled.section`
     width: 720px;
     height: 720px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(47, 93, 80, 0.22), transparent 62%);
+    background: radial-gradient(circle, rgba(184, 90, 48, 0.22), transparent 62%);
     pointer-events: none;
   }
 `;
@@ -47,41 +49,68 @@ const HeroInner = styled.div`
   z-index: 1;
   max-width: var(--container);
   margin: 0 auto;
-  padding: 2.75rem 2.5rem;
+  padding: 3.25rem 2.5rem 3rem;
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
   gap: 3rem;
   align-items: center;
 
-  @media (max-width: 960px) { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding: 3rem 2.5rem; }
-  @media (max-width: 720px) { padding: 1.5rem 1.25rem 1.75rem; gap: 1.25rem; }
+  @media (max-width: 960px) { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding: 2.5rem 1.5rem 2.25rem; }
+  @media (max-width: 720px) { padding: 1.6rem 1.25rem 1.75rem; gap: 1.35rem; }
 `;
 
-const HeroCopy = styled(motion.div)`
+const HeroCopy = styled.div`
+  min-width: 0;
+
   h1 {
     color: var(--color-ink);
-    font-size: clamp(2.1rem, 4vw, 3.3rem);
-    font-weight: 550;
-    line-height: 1.04;
-    letter-spacing: -0.035em;
-    margin: 0.9rem 0 0.85rem;
-    max-width: 14ch;
+    font-size: clamp(2.4rem, 4.2vw, 3.6rem);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    margin: 0.85rem 0 0.9rem;
+    max-width: none;
+    word-break: normal;
+    overflow-wrap: normal;
+    hyphens: manual;
   }
-  h1 span { color: var(--color-green-deep); }
-  p { color: var(--color-on-black-muted); font-size: clamp(1rem, 1.5vw, 1.12rem); line-height: 1.55; max-width: 34rem; margin: 0 0 1.5rem; }
+  h1 .line { display: block; }
+  h1 .accent {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  p {
+    color: var(--color-ink-muted);
+    font-size: 1.05rem;
+    line-height: 1.5;
+    max-width: 40rem;
+    margin: 0 0 1.4rem;
+    word-break: normal;
+    overflow-wrap: normal;
+  }
+  p .line { display: block; }
 
   @media (max-width: 720px) {
-    h1 { font-size: 2rem; margin: 0.7rem 0 0.6rem; max-width: none; }
-    p { display: none; }
+    h1 { font-size: clamp(1.85rem, 8vw, 2.25rem); margin: 0.7rem 0 0.65rem; }
+    p { font-size: 0.95rem; margin-bottom: 1.1rem; }
   }
 `;
 
-const HeroActions = styled(motion.div)`
+const HeroActions = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 0.35rem 1.1rem;
 
-  @media (max-width: 560px) { flex-direction: column; }
+  a { white-space: nowrap; }
+
+  @media (max-width: 560px) {
+    flex-direction: column;
+    align-items: stretch;
+    a { white-space: normal; }
+  }
 `;
 
 const HeroArt = styled(motion.div)`
@@ -124,7 +153,7 @@ const Service = styled(Link)`
   color: var(--color-ink);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
-  &:hover { color: var(--color-ink); transform: translateY(-3px); box-shadow: var(--shadow-card); border-color: rgba(47, 93, 80, 0.3); }
+  &:hover { color: var(--color-ink); transform: translateY(-3px); box-shadow: var(--shadow-card); border-color: rgba(184, 90, 48, 0.3); }
 
   .shot { position: relative; height: 165px; overflow: hidden; transition: transform 0.45s ease; }
   &:hover .shot svg { transform: scale(1.04); }
@@ -199,6 +228,12 @@ const HOW = [
   { title: 'You get paid', sub: 'Balance and statement, every month' },
 ];
 
+const LIST_STEPS = [
+  { title: 'Post the home', sub: 'Address, rent, and photos if storage is on' },
+  { title: 'We check it', sub: 'Nothing goes live until then' },
+  { title: 'You reply', sub: 'Enquiries sit in your portal' },
+];
+
 /* ── Renovation ── */
 
 const BuildGrid = styled.div`
@@ -229,10 +264,50 @@ const BuildVisual = styled.div`
 
 /* ── Remote control ── */
 
-const Other = styled(motion.p)`
-  margin: 0.9rem 0 0;
-  font-size: 0.9rem;
-  color: var(--color-on-black-muted);
+const Choices = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  margin-bottom: 0.35rem;
+
+  @media (max-width: 640px) { grid-template-columns: 1fr; }
+`;
+
+const Choice = styled.button`
+  text-align: left;
+  border-radius: 16px;
+  border: 1px solid var(--color-line);
+  background: #fff;
+  padding: 0.85rem 0.95rem;
+  cursor: pointer;
+  font: inherit;
+
+  strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.98rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+  }
+  span {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--color-ink-muted);
+  }
+
+  &[aria-pressed='true'] {
+    border-color: #111;
+    background: #111;
+    strong, span { color: #fff; }
+  }
+`;
+
+const AgencyNote = styled.p`
+  margin: 1.25rem 0 0;
+  color: var(--color-ink-muted);
   a { font-weight: 700; color: var(--color-green-deep); }
 `;
 
@@ -279,34 +354,91 @@ const Story = styled.article`
 export default function ManageLandingPage() {
   const { user } = useAuth();
   const mobile = useIsMobile();
+  const [params, setParams] = useSearchParams();
+  const listing = params.get('let') === 'list';
+  const [listOpen, setListOpen] = useState(false);
   const accountTo = user ? MANAGE_URL : { pathname: '/auth', search: '?mode=signup', state: { from: { pathname: MANAGE_URL } } };
+
+  const setMode = (next) => {
+    const nextParams = new URLSearchParams(params);
+    if (next === 'list') nextParams.set('let', 'list');
+    else nextParams.delete('let');
+    setParams(nextParams, { replace: true });
+  };
 
   return (
     <PageShell>
       <Hero id="hero">
         <HeroInner>
-          <HeroCopy variants={enterContainer} initial="hidden" animate="show">
-            <motion.div variants={enterItem}>
-              <Badge variant="dark"><FaKey /> EasyMoveZone Manage</Badge>
-            </motion.div>
-            <motion.h1 variants={enterItem}>We manage your property. <span>You collect the rent.</span></motion.h1>
-            <motion.p variants={enterItem}>
-              Tenants, rent collection, repairs and renovation — handled on your behalf, with every naira accounted for.
-            </motion.p>
-            <HeroActions variants={enterItem}>
-              <Button asChild size="xl" variant="bright" block={mobile}>
-                <Link to={user ? `${MANAGE_ADD_URL}?service=rental` : { pathname: '/auth', search: '?mode=signup', state: { from: { pathname: MANAGE_ADD_URL, search: '?service=rental' } } }}>Hand over my property <ArrowRight className="h-4 w-4" /></Link>
-              </Button>
-              <Button asChild size="xl" variant="link" block={mobile}>
-                <Link to={BOOK_SESSION_URL}><MessagesSquare className="h-4 w-4" /> Talk to an adviser</Link>
-              </Button>
-            </HeroActions>
-            <Other variants={enterItem}>
-              Listing it yourself, or looking for an agent? <Link to={LIST_URL}>That is a different page.</Link>
-            </Other>
+          <HeroCopy>
+            <Choices role="group" aria-label="How the home is let">
+              <Choice type="button" aria-pressed={!listing} onClick={() => setMode('manage')}>
+                <strong>We run the property</strong>
+                <span>We find the tenant, collect the rent and handle repairs. You get paid.</span>
+              </Choice>
+              <Choice type="button" aria-pressed={listing} onClick={() => setMode('list')}>
+                <strong>List the home yourself</strong>
+                <span>It goes on EasyMoveZone. Enquiries come to you, in your portal.</span>
+              </Choice>
+            </Choices>
+            {listing ? (
+              <>
+                <h1>
+                  <span className="line">List it on EasyMoveZone.</span>
+                  <span className="line accent">Enquiries come to you.</span>
+                </h1>
+                <p>
+                  <span className="line">You post the home. We check it before it goes live.</span>
+                  <span className="line">You reply from your portal.</span>
+                </p>
+                <HeroActions>
+                  <Button type="button" size="xl" variant="bright" block={mobile} onClick={() => setListOpen(true)}>
+                    List this home <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </HeroActions>
+              </>
+            ) : (
+              <>
+                <div>
+                  <Badge variant="dark"><FaKey /> EasyMoveZone Manage</Badge>
+                </div>
+                <h1>
+                  <span className="line">Your property, looked after.</span>
+                  <span className="line accent">You collect the rent.</span>
+                </h1>
+                <p>
+                  <span className="line">Tenants, rent, repairs and renovation.</span>
+                  <span className="line">Handled for you. Every naira is accounted for.</span>
+                </p>
+                <HeroActions>
+                  <Button asChild size="xl" variant="bright" block={mobile}>
+                    <Link to={user ? `${MANAGE_ADD_URL}?service=rental` : { pathname: '/auth', search: '?mode=signup', state: { from: { pathname: MANAGE_ADD_URL, search: '?service=rental' } } }}>Hand over my property <ArrowRight className="h-4 w-4" /></Link>
+                  </Button>
+                  <Button asChild size="xl" variant="link" block={mobile}>
+                    <Link to={BOOK_SESSION_URL}><MessagesSquare className="h-4 w-4" /> Talk to an adviser</Link>
+                  </Button>
+                </HeroActions>
+              </>
+            )}
           </HeroCopy>
 
-          {mobile ? (
+          {listing ? (
+            mobile ? (
+              <ChipPhoto
+                src="/media/m/home-modern.webp"
+                alt="A home listed on EasyMoveZone"
+                priority
+                chips={[
+                  { icon: FaKey, title: 'Listed by you', sub: 'Checked before it goes live' },
+                  { icon: FaUserCheck, title: 'Replies in your portal', sub: 'Enquiries come to you' },
+                ]}
+              />
+            ) : (
+              <HeroArt initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }}>
+                <img src="/media/m/home-modern.webp" alt="A home listed on EasyMoveZone" style={{ display: 'block', width: '100%', borderRadius: 22, aspectRatio: '4 / 3', objectFit: 'cover' }} />
+              </HeroArt>
+            )
+          ) : mobile ? (
             <ChipPhoto
               src="/media/m/lounge.webp"
               alt="A furnished living room in a let home"
@@ -323,7 +455,41 @@ export default function ManageLandingPage() {
           )}
         </HeroInner>
       </Hero>
+      <ListHomeDialog open={listOpen} user={user} onClose={() => setListOpen(false)} />
 
+      {listing ? (
+        <>
+          <Section $tint $divide>
+            <Inner>
+              <Reveal>
+                <SectionHead $center>
+                  <Kicker>How listing works</Kicker>
+                  <SectionTitle>Three steps, then it lives in your portal.</SectionTitle>
+                </SectionHead>
+              </Reveal>
+              <div style={{ maxWidth: 900, margin: '0 auto' }}>
+                <VerifyFlowArt vertical={mobile} steps={LIST_STEPS} label="How listing works: post the home, we check it, you reply from your portal" />
+              </div>
+              <AgencyNote>
+                Already a letting agency with several homes? <Link to={AGENT_APPLY_URL}>Apply for an agency account.</Link>
+              </AgencyNote>
+            </Inner>
+          </Section>
+          <Section id="agents">
+            <Inner>
+              <Reveal>
+                <SectionHead>
+                  <Kicker>Find an agent</Kicker>
+                  <SectionTitle>Or pick a verified agency.</SectionTitle>
+                  <SectionSub>Every agency here was checked before it could post a home.</SectionSub>
+                </SectionHead>
+              </Reveal>
+              <AgentFinder />
+            </Inner>
+          </Section>
+        </>
+      ) : (
+      <>
       <Section id="services">
         <Inner>
           <Reveal>
@@ -445,6 +611,8 @@ export default function ManageLandingPage() {
           </Reveal>
         </Inner>
       </Section>
+      </>
+      )}
     </PageShell>
   );
 }

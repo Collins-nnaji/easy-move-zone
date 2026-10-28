@@ -40,7 +40,7 @@ const Intro = styled.p`margin: 0; color: var(--color-ink-muted); font-size: 0.9r
 const Refresh = styled.button`display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 0.8rem; border: 1px solid var(--color-line-strong); border-radius: 9px; background: #fff; cursor: pointer; font-weight: 600; color: var(--color-ink-muted);`;
 const Grid = styled.div`display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0.85rem; margin-bottom: 1.75rem;`;
 const Tile = styled.button`
-  text-align: left; cursor: pointer; background: #fff; border: 1px solid ${(p) => (p.$hot ? 'rgba(47, 93, 80,0.45)' : 'var(--color-line)')};
+  text-align: left; cursor: pointer; background: #fff; border: 1px solid ${(p) => (p.$hot ? 'rgba(184, 90, 48,0.45)' : 'var(--color-line)')};
   border-radius: 16px; padding: 1rem 1.1rem; box-shadow: var(--shadow-soft); transition: border-color 0.15s, transform 0.15s;
   &:hover { border-color: var(--color-green); transform: translateY(-2px); }
   h3 { margin: 0 0 0.6rem; font-size: 0.98rem; display: flex; justify-content: space-between; align-items: center; }

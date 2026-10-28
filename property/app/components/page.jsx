@@ -9,10 +9,8 @@ import { Link } from 'react-router-dom';
  * page, which is why the product read as a dozen different designs. Everything
  * here is presentational and token-driven: pages compose these instead.
  *
- * House style (EasyMoveZone): warm cream surfaces, Bricolage Grotesque for
- * headings, Plus Jakarta Sans for everything else, squared 6px CTAs in deep
- * green, small tracked-out eyebrows with an accent dot, and soft sage bands
- * (`Section $dark`, `Callout`, `StatBand`) between sections.
+ * House style: stone surfaces, Newsreader headings, Manrope everywhere else,
+ * indigo actions, a lime eyebrow dot, and a near-black stat band.
  */
 
 /* ── Motion presets ────────────────────────────────────────────────── */
@@ -101,10 +99,10 @@ export const AccentChip = styled.span`
 `;
 
 export const SectionTitle = styled.h2`
-  font-size: clamp(1.75rem, 3.2vw, 2.75rem);
+  font-size: clamp(2rem, 3.6vw, 3.15rem);
   font-weight: 500;
-  letter-spacing: -0.045em;
-  line-height: 1.12;
+  letter-spacing: -0.032em;
+  line-height: 1.05;
   margin: 0;
 `;
 
@@ -155,14 +153,13 @@ const actionBase = `
 
 export const PrimaryAction = styled(Link)`
   ${actionBase};
-  background: var(--color-green-deep);
+  background: var(--gradient-brand);
   color: #fff;
-  border: 1.5px solid var(--color-green-deep);
+  border: 0;
 
   &:hover {
     color: #fff;
-    background: var(--color-green-forest);
-    border-color: var(--color-green-forest);
+    background: #111111;
     transform: translateY(-2px);
   }
 `;
@@ -243,24 +240,30 @@ export const Eyebrow = styled(motion.div)`
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--color-accent);
+    background: var(--gradient-brand);
     flex-shrink: 0;
   }
   > svg { display: none; }
 `;
 
 export const HeroTitle = styled(motion.h1)`
-  font-size: clamp(2.2rem, 4.6vw, 3.9rem);
-  font-weight: 600;
-  line-height: 1.04;
-  letter-spacing: -0.055em;
-  margin: 0 0 1.4rem;
+  font-size: clamp(3rem, 5.6vw, 4.85rem);
+  font-weight: 500;
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+  margin: 0 0 1.5rem;
 
-  @media (max-width: 720px) { font-size: clamp(2rem, 9vw, 2.5rem); line-height: 1.05; }
+  @media (max-width: 720px) { font-size: clamp(2.4rem, 10vw, 3rem); line-height: 1; }
 `;
 
 export const TitleAccent = styled.span`
-  color: var(--color-green-deep);
+  display: block;
+  font-style: normal;
+  font-weight: 500;
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 `;
 
 export const HeroSub = styled(motion.p)`
@@ -300,9 +303,8 @@ export const TrustRow = styled(motion.div)`
  * uninterrupted white scroll.
  */
 export const StatBand = styled.div`
-  background: var(--color-band);
-  border-top: 1px solid var(--color-black-line);
-  border-bottom: 1px solid var(--color-black-line);
+  background: #101218;
+  color: #f4f3ef;
 `;
 
 export const StatBandInner = styled.div`
@@ -325,16 +327,16 @@ export const StatNum = styled.div`
   font-family: var(--font-display);
   font-size: clamp(1.6rem, 2.8vw, 2.3rem);
   font-weight: 600;
-  letter-spacing: -0.045em;
-  color: var(--color-green-deep);
-  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: #f4f3ef;
+  line-height: 1.1;
 `;
 
 export const StatLabel = styled.div`
-  margin-top: 0.3rem;
+  margin-top: 0.35rem;
   font-size: 0.82rem;
   font-weight: 500;
-  color: var(--color-on-black-muted);
+  color: rgba(244, 243, 239, 0.62);
 `;
 
 /* ── Feature cards ─────────────────────────────────────────────────── */
@@ -359,7 +361,7 @@ export const FeatureCard = styled(motion.div)`
   &:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-card);
-    border-color: rgba(47, 93, 80, 0.3);
+    border-color: rgba(184, 90, 48, 0.35);
   }
 
   h3 {
@@ -490,7 +492,7 @@ export const Callout = styled.div`
     width: 460px;
     height: 460px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(47, 93, 80, 0.3), transparent 65%);
+    background: radial-gradient(circle, rgba(184, 90, 48, 0.3), transparent 65%);
     pointer-events: none;
   }
 
@@ -532,7 +534,7 @@ export const Panel = styled.div`
 /** A soft-tinted panel for figures, summaries and results. */
 export const TintPanel = styled(Panel)`
   background: var(--color-green-wash);
-  border-color: rgba(47, 93, 80, 0.18);
+  border-color: rgba(184, 90, 48, 0.18);
   box-shadow: none;
 `;
 

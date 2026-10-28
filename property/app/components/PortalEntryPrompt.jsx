@@ -30,7 +30,7 @@ const Overlay = styled(Dialog.Overlay)`
 const Content = styled(Dialog.Content)`
   position: fixed; z-index: 1001; left: 50%; top: 50%; transform: translate(-50%, -50%);
   width: min(420px, calc(100vw - 32px)); padding: 1.5rem; border-radius: 20px;
-  background: #fff; box-shadow: 0 28px 56px -22px rgba(27, 35, 30, 0.35);
+  background: #fff; box-shadow: 0 28px 56px -22px rgba(16, 18, 24, 0.35);
   .ic { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; margin-bottom: 0.9rem; background: var(--color-green-soft); color: var(--color-green-deep); }
   &:focus { outline: none; }
 `;

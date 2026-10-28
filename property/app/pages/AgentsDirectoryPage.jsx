@@ -30,7 +30,7 @@ const Card = styled(Link)`
   color: inherit;
   h3 { margin: 0 0 0.3rem; font-size: 1.15rem; }
   .m { color: var(--color-ink-muted); font-size: 0.9rem; }
-  &:hover { border-color: rgba(47, 93, 80, 0.35); color: inherit; }
+  &:hover { border-color: rgba(184, 90, 48, 0.35); color: inherit; }
 `;
 const Empty = styled.p`color: var(--color-ink-muted);`;
 const Profile = styled.div`

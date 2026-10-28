@@ -47,7 +47,7 @@ import { LOCALE } from '../config/markets';
  * not swap one out without re-validating the trio.
  */
 const SERIES = {
-  net: { key: 'net', label: 'Net to you', color: '#426f62' },
+  net: { key: 'net', label: 'Net to you', color: '#d4923a' },
   fees: { key: 'fees', label: 'Fees & VAT', color: '#0369a1' },
   costs: { key: 'costs', label: 'Property costs', color: '#b45309' },
 };
@@ -140,7 +140,7 @@ export const Pill = styled.span`
     good: 'var(--color-green-deep)', info: '#0369a1', warn: '#b45309',
   }[p.$tone] || 'var(--color-ink-muted)')};
   border: 1px solid ${(p) => ({
-    good: 'rgba(47, 93, 80,0.25)', info: 'rgba(3,105,161,0.2)', warn: 'rgba(180,83,9,0.2)',
+    good: 'rgba(184, 90, 48,0.25)', info: 'rgba(3,105,161,0.2)', warn: 'rgba(180,83,9,0.2)',
   }[p.$tone] || 'var(--color-line-strong)')};
 `;
 
@@ -234,7 +234,7 @@ export const Notice = styled.div`
   display: flex; align-items: flex-start; gap: 0.7rem;
   border-radius: 14px; padding: 0.95rem 1.1rem; font-size: 0.9rem; line-height: 1.45;
   background: ${(p) => (p.$warn ? 'rgba(180,83,9,0.08)' : 'var(--color-green-soft)')};
-  border: 1px solid ${(p) => (p.$warn ? 'rgba(180,83,9,0.22)' : 'rgba(47, 93, 80,0.2)')};
+  border: 1px solid ${(p) => (p.$warn ? 'rgba(180,83,9,0.22)' : 'rgba(184, 90, 48,0.2)')};
   color: var(--color-ink);
   svg { color: ${(p) => (p.$warn ? '#b45309' : 'var(--color-green)')}; margin-top: 0.15rem; flex-shrink: 0; }
 `;

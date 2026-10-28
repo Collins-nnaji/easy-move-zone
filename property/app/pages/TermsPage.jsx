@@ -6,7 +6,7 @@ import { MARKET } from '../config/markets';
 const Page = styled.div`
   min-height: 60vh;
   background:
-    radial-gradient(900px 380px at 80% -20%, rgba(47, 93, 80, 0.12), transparent 70%),
+    radial-gradient(900px 380px at 80% -20%, rgba(184, 90, 48, 0.12), transparent 70%),
     linear-gradient(180deg, var(--color-green-wash) 0%, var(--color-bg) 45%);
   font-family: var(--font-sans);
 `;

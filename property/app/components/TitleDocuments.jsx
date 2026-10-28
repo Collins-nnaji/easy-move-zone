@@ -34,7 +34,7 @@ const Signal = styled.div`
   margin-bottom: 1rem;
   background: ${(p) => (p.$good ? 'var(--color-green-soft)' : 'var(--color-bg-sunken)')};
   color: ${(p) => (p.$good ? 'var(--color-green-deep)' : 'var(--color-ink-muted)')};
-  border: 1px solid ${(p) => (p.$good ? 'rgba(47, 93, 80,0.22)' : 'var(--color-line)')};
+  border: 1px solid ${(p) => (p.$good ? 'rgba(184, 90, 48,0.22)' : 'var(--color-line)')};
   svg { flex-shrink: 0; margin-top: 0.15rem; }
 `;
 

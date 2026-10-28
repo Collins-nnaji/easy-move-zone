@@ -389,10 +389,9 @@ export function MovingPage() {
           <p className="logistics-eyebrow">
             <span /> Moving
           </p>
-          <h1>Move home, office or heavy items.</h1>
+          <h1>Move home. Know who is carrying it.</h1>
           <p className="moving-hero-sub">
-            Trusted crews, the right truck and packing help — priced up front and tracked to your door, in Lagos, Abuja
-            and Port Harcourt.
+            A crew, the right truck and packing, priced before you book and tracked to the door — in Lagos, Abuja and Port Harcourt.
           </p>
           <div className="moving-services">
             {SERVICES.map((service, i) => {

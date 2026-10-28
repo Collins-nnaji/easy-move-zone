@@ -143,7 +143,7 @@ const Result = styled.section`
   background: linear-gradient(140deg, var(--color-green-deep) 0%, var(--color-green-forest) 100%);
   color: #fff;
   border-radius: var(--radius-xl);
-  box-shadow: 0 26px 52px -28px rgba(35, 75, 64, 0.6);
+  box-shadow: 0 26px 52px -28px rgba(17, 17, 17, 0.6);
   padding: 2.1rem 2rem 2.25rem;
   margin-bottom: 1.25rem;
   @media (max-width: 560px) { padding: 1.5rem 1.25rem 1.65rem; }

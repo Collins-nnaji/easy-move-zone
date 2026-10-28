@@ -78,7 +78,7 @@ const ACCESS_NOTE = {
   pending: 'Application in review',
 };
 
-const SIDEBAR_W = '248px';
+const SIDEBAR_W = '260px';
 
 /*
  * The sidebar and the header are position: fixed, not sticky. The site sets
@@ -102,7 +102,7 @@ const Rail = styled.aside`
   z-index: 60;
   width: ${SIDEBAR_W};
   border-right: 1px solid var(--color-line);
-  background: #fff;
+  background: #f7f6f3;
 
   @media (max-width: 960px) { display: none; }
 `;
@@ -379,9 +379,9 @@ const Head = styled.header`
   z-index: 50;
 
   @media (max-width: 960px) { left: 0; }
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(244, 243, 239, 0.9);
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
   border-bottom: 1px solid var(--color-line);
 `;
 
@@ -455,9 +455,9 @@ const CrumbSwitch = styled.button`
 `;
 
 const Title = styled.h1`
-  font-size: 1.4rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: 1.65rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
   margin: 0.12rem 0 0;
   white-space: nowrap;
   overflow: hidden;

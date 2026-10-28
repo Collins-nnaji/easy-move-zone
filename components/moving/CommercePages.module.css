@@ -2,7 +2,7 @@
   --ink: #25392e;
   --muted: #647061;
   --line: #d9dfd0;
-  background: #faf8f2;
+  background: #f7f6f3;
   color: var(--ink);
 }
 .container {
@@ -200,7 +200,7 @@
   outline: none;
 }
 .search:focus-within {
-  outline: 2px solid #2f5d50;
+  outline: 2px solid #b85a30;
   outline-offset: 2px;
 }
 .search input:focus-visible {
@@ -243,7 +243,7 @@
   background: #e9ecdf;
 }
 .filterTabs .activeFilter {
-  background: #2f5d50;
+  background: #b85a30;
   color: white;
 }
 .resultMeta {
@@ -257,7 +257,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  color: #2f5d50;
+  color: #b85a30;
   text-decoration: underline;
   text-underline-offset: 4px;
   cursor: pointer;
@@ -374,7 +374,7 @@
   font-size: 11px;
   line-height: 1.8;
   margin-top: 12px;
-  color: #2f5d50;
+  color: #b85a30;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -385,7 +385,7 @@
   gap: 10px;
   font-size: 12px;
   font-weight: 600;
-  color: #2f5d50;
+  color: #b85a30;
   margin-top: 16px;
   padding-block: 10px;
   border-top: 1px solid var(--line);
@@ -582,7 +582,7 @@
 }
 .selectedDestination {
   background: #dde6d4;
-  box-shadow: inset 3px 0 #2f5d50;
+  box-shadow: inset 3px 0 #b85a30;
 }
 .routeDetail {
   margin-top: 30px;
@@ -619,12 +619,12 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  color: #2f5d50;
+  color: #b85a30;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 .planner {
-  background: #faf8f2;
+  background: #f7f6f3;
   border: 1px solid #d7dfcd;
   padding: 32px;
   border-radius: 6px;

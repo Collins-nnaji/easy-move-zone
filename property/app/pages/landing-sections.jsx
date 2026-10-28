@@ -3,12 +3,12 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import {
-  FaArrowRight, FaCheck, FaKey, FaShieldAlt, FaBolt,
+  FaArrowRight, FaCheck, FaShieldAlt,
 } from 'react-icons/fa';
 import { ArrowRight, ShieldCheck, KeyRound } from 'lucide-react';
 import {
-  Hero, HeroGrid, HeroCopy, Eyebrow, HeroTitle, TitleAccent, HeroSub, ActionRow,
-  PrimaryAction, SecondaryAction, TrustRow, StatBand, StatBandInner, StatNum, StatLabel,
+  Hero, HeroGrid, HeroCopy, Eyebrow, HeroTitle, TitleAccent, ActionRow,
+  PrimaryAction, StatBand, StatBandInner, StatNum, StatLabel,
   Section, Inner, SectionHead, Kicker, SectionTitle, SectionSub,
   CheckGrid, CheckItem, CalloutAction, Panel,
   enterContainer, enterItem,
@@ -23,7 +23,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '..
 import { Tabs, TabsList, TabsTrigger } from '../components/shadcn/tabs';
 import { api } from '../api';
 import { ListingCard } from './MarketplacePage';
-import { RENT_URL, RENTAL_CHECK_URL, AREAS_URL, MANAGE_ADD_URL, LIST_URL } from '../config/platform';
+import { RENT_URL, RENTAL_CHECK_URL, AREAS_URL, MANAGE_ADD_URL } from '../config/platform';
 import { MANAGEMENT_PLANS, estimateFees } from '../config/management';
 import { formatMoneyFull } from '../utils/format';
 import { CURRENCY } from '../config/markets';
@@ -35,12 +35,18 @@ import ChipPhoto from '../components/ChipPhoto';
    ═══════════════════════════════════════════════════════════════════ */
 
 const VideoHero = styled(Hero)`
-  min-height: min(420px, calc(100vh - var(--nav-h)));
+  min-height: min(680px, calc(100vh - var(--nav-h)));
   display: flex;
   align-items: center;
-  background: #ffffff url('/media/hero-poster.jpg') center / cover no-repeat;
+  background: #f4f3ef url('/media/hero-poster.jpg') center / cover no-repeat;
   color: var(--color-ink);
-  padding: 1.75rem 0;
+  padding: 3.25rem 0;
+
+  /* The phone tab bar is fixed over this range, so the hero must not fill the screen. */
+  @media (max-width: 960px) {
+    min-height: 0;
+    padding: 2rem 0 0.5rem;
+  }
 `;
 
 const HeroVideo = styled.video`
@@ -58,33 +64,30 @@ const HeroShade = styled.div`
   position: absolute;
   inset: 0;
   /* A white shade: the copy sits on white, the video shows through on the right. */
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.93) 46%, rgba(255, 255, 255, 0.45) 78%, rgba(255, 255, 255, 0.2) 100%);
+  background: radial-gradient(ellipse 80% 90% at 50% 42%, rgba(244, 243, 239, 0.94) 0%, rgba(244, 243, 239, 0.72) 48%, rgba(244, 243, 239, 0.28) 100%);
 `;
 
 const VideoHeroGrid = styled(HeroGrid)`
   position: relative;
   z-index: 1;
   width: 100%;
-  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.7fr);
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
 
-  ${HeroCopy} { max-width: 46rem; }
+  ${HeroCopy} { max-width: 44rem; }
   ${Eyebrow} { box-shadow: none; }
-  ${HeroTitle} { color: var(--color-ink); font-size: clamp(2.3rem, 4.1vw, 3.7rem); font-weight: 600; line-height: 1.04; letter-spacing: -0.06em; margin-bottom: 1.4rem; }
-  ${HeroTitle} .line { display: block; white-space: nowrap; }
-  ${TitleAccent} { color: var(--color-green-deep); }
-  ${HeroSub} { color: var(--color-ink-muted); font-size: clamp(1rem, 1.6vw, 1.125rem); line-height: 1.75; max-width: 34rem; }
-  ${TrustRow} { color: var(--color-ink-muted); }
-  ${TrustRow} svg { color: var(--color-green-deep); }
-
-  @media (max-width: 960px) { grid-template-columns: minmax(0, 1fr); }
+  ${HeroTitle} { color: var(--color-ink); font-size: clamp(3.2rem, 6vw, 5.4rem); font-weight: 500; line-height: 0.96; letter-spacing: -0.035em; margin-bottom: 1.4rem; }
+  ${HeroTitle} .line { display: block; }
+  ${TitleAccent} { color: transparent; }
+  ${ActionRow} { justify-content: center; }
 `;
 
 const HeroProof = styled(motion.div)`
-  justify-self: end;
-  width: min(100%, 380px);
-  filter: drop-shadow(var(--shadow-lift));
-
-  @media (max-width: 960px) { justify-self: start; width: min(100%, 440px); }
+  justify-self: center;
+  width: min(100%, 210px);
+  margin-top: 1.75rem;
+  filter: drop-shadow(var(--shadow-soft));
 `;
 
 function DesktopHero() {
@@ -97,23 +100,15 @@ function DesktopHero() {
       <VideoHeroGrid>
         <HeroCopy variants={enterContainer} initial="hidden" animate="show">
           <Eyebrow variants={enterItem}>
-            <FaShieldAlt /> Rent · Check · Move in
+            <FaShieldAlt /> Lagos · Abuja · Port Harcourt
           </Eyebrow>
           <HeroTitle variants={enterItem}>
-            <span className="line">Rent a home</span>
-            <span className="line">without the risk.</span>
-            <TitleAccent className="line">Checked before you pay.</TitleAccent>
+            <span className="line">Find a home.</span>
+            <TitleAccent className="line">Worth the move.</TitleAccent>
           </HeroTitle>
           <ActionRow variants={enterItem}>
-            <PrimaryAction to={RENT_URL}>Find a home to rent <FaArrowRight size={13} /></PrimaryAction>
-            <SecondaryAction to={RENTAL_CHECK_URL}>Check a rental before you pay</SecondaryAction>
+            <PrimaryAction to={RENT_URL}>Browse homes <FaArrowRight size={13} /></PrimaryAction>
           </ActionRow>
-          <TrustRow variants={enterItem}>
-            <span><FaCheck /> Every listing checked</span>
-            <span><FaBolt /> Landlord and home checked before you pay</span>
-            <span><FaKey /> Let and managed for landlords</span>
-            <span><Link to={LIST_URL} style={{ color: 'inherit', textDecoration: 'underline' }}>List a home</Link></span>
-          </TrustRow>
         </HeroCopy>
 
         <HeroProof initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}>
@@ -135,6 +130,7 @@ const MobileHeroWrap = styled.section`
   background: var(--hero-bg);
   color: var(--color-on-black);
   padding: 1.75rem 1.25rem 1.5rem;
+  text-align: center;
 
   &::before {
     content: '';
@@ -144,7 +140,7 @@ const MobileHeroWrap = styled.section`
     width: 520px;
     height: 520px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(47, 93, 80, 0.26), transparent 62%);
+    background: radial-gradient(circle, rgba(184, 90, 48, 0.16), transparent 62%);
     pointer-events: none;
   }
 
@@ -152,29 +148,22 @@ const MobileHeroWrap = styled.section`
 
   h1 {
     color: var(--color-ink);
-    font-size: clamp(2.2rem, 10vw, 2.7rem);
-    line-height: 1.03;
-    letter-spacing: -0.06em;
-    font-weight: 600;
-    margin: 0.9rem 0 1.2rem;
+    font-size: clamp(2.7rem, 11vw, 3.35rem);
+    line-height: 0.98;
+    letter-spacing: -0.034em;
+    font-weight: 500;
+    margin: 0.85rem 0 0.85rem;
   }
   h1 .line { display: block; }
-  h1 .accent { color: var(--color-green-deep); }
+  h1 .accent {
+    font-style: normal;
+    font-weight: 500;
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
   p { color: var(--color-on-black-muted); font-size: 0.98rem; line-height: 1.5; margin: 0 0 1.2rem; }
-`;
-
-const HeroTextLink = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  width: 100%;
-  min-height: 44px;
-  color: var(--color-green-deep);
-  font-size: 0.92rem;
-  font-weight: 600;
-
-  &:hover { color: var(--color-green-forest); }
 `;
 
 const HeroPhoto = styled(ChipPhoto)`
@@ -183,24 +172,19 @@ const HeroPhoto = styled(ChipPhoto)`
 
 function MobileHero() {
   return (
-    <MobileHeroWrap id="hero" aria-label="Rent a home without the risk">
+    <MobileHeroWrap id="hero" aria-label="Find a home worth the move.">
       <motion.div variants={enterContainer} initial="hidden" animate="show">
         <motion.div variants={enterItem}>
-          <Badge variant="dark"><ShieldCheck className="h-3 w-3" /> Rent · Check · Move in</Badge>
+          <Badge variant="dark"><ShieldCheck className="h-3 w-3" /> Verified rentals</Badge>
         </motion.div>
         <motion.h1 variants={enterItem}>
-          <span className="line">Rent a home</span>
-          <span className="line">without the risk.</span>
-          <span className="line accent">Checked first.</span>
+          <span className="line">Find a home.</span>
+          <span className="line accent">Worth the move.</span>
         </motion.h1>
-        <motion.div variants={enterItem} className="flex flex-col gap-1.5">
+        <motion.div variants={enterItem}>
           <Button asChild size="xl" block>
-            <Link to={RENT_URL}>Find a home to rent <ArrowRight className="h-4 w-4" /></Link>
+            <Link to={RENT_URL}>Browse homes <ArrowRight className="h-4 w-4" /></Link>
           </Button>
-          <div className="grid grid-cols-2">
-            <HeroTextLink to={RENTAL_CHECK_URL}>Check a rental</HeroTextLink>
-            <HeroTextLink to={LIST_URL}>List a home</HeroTextLink>
-          </div>
         </motion.div>
       </motion.div>
       <HeroPhoto
@@ -299,9 +283,9 @@ export function RentalCheckSection() {
       <Inner>
         <Reveal>
           <SectionHead $center>
-            <Kicker>Check a rental</Kicker>
-            <SectionTitle>Found a home somewhere else? Check it before you pay.</SectionTitle>
-            <SectionSub>Fake landlords and homes that are not really for let are the most common rental scams. Send us the advert and who is letting it, and we tell you what is safe.</SectionSub>
+            <Kicker>Verify first</Kicker>
+            <SectionTitle>Already found a place? Confirm it before you pay.</SectionTitle>
+            <SectionSub>Send the advert and who is letting it. We check the person, the home and the agreement, then tell you what is safe.</SectionSub>
           </SectionHead>
         </Reveal>
 
@@ -336,7 +320,7 @@ export function RentalCheckSection() {
               </Accordion>
             )}
             <ActionRow style={{ marginTop: '1.5rem' }}>
-              <PrimaryAction to={RENTAL_CHECK_URL}>Check a rental <FaArrowRight size={13} /></PrimaryAction>
+              <PrimaryAction to={RENTAL_CHECK_URL}>Verify a rental <FaArrowRight size={13} /></PrimaryAction>
             </ActionRow>
           </Reveal>
         </ServiceGrid>
@@ -505,7 +489,7 @@ const AmountFields = styled.div`
 
   label { display: block; font-size: .7rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--color-ink-muted); margin-bottom: .45rem; }
   select, input { width: 100%; min-height: 48px; border: 1px solid var(--color-line-strong); border-radius: 11px; background: #fff; color: var(--color-ink); padding: .75rem .85rem; font: inherit; outline: none; }
-  select:focus, input:focus { border-color: var(--color-green); box-shadow: 0 0 0 3px rgba(47, 93, 80,.09); }
+  select:focus, input:focus { border-color: var(--color-green); box-shadow: 0 0 0 3px rgba(184, 90, 48,.09); }
 
   @media (max-width: 560px) { grid-template-columns: 110px minmax(0, 1fr); }
 `;
@@ -597,10 +581,10 @@ export function RentCalculator({
    ═══════════════════════════════════════════════════════════════════ */
 
 const FLOW = [
-  { kind: 'sell', k: 'Find', title: 'Find a home to rent', body: 'Homes we manage and homes from verified agents, checked before they go live.' },
-  { kind: 'verify', k: 'Check', title: 'Check it before you pay', body: 'Found one elsewhere? We check the landlord, the home and the agreement first.' },
-  { kind: 'move', k: 'Move', title: 'Move in without the stress', body: 'A crew, the right truck and packing help, priced up front and tracked.' },
-  { kind: 'manage', k: 'Live', title: 'Rent and repairs in one place', body: 'Pay rent, report repairs and keep your tenancy papers in the tenant portal.' },
+  { kind: 'sell', k: 'Find', title: 'Browse checked homes', body: 'Homes we manage, and homes from verified agents. Nothing goes live until we have approved it.' },
+  { kind: 'verify', k: 'Verify', title: 'Confirm it before you pay', body: 'Found one elsewhere? We check the landlord, the home and the agreement first.' },
+  { kind: 'move', k: 'Move', title: 'Move in, tracked', body: 'A crew, the right truck and packing, priced up front and followed to the door.' },
+  { kind: 'manage', k: 'Live', title: 'Rent and repairs, together', body: 'Pay rent, report a repair and keep the tenancy papers in one tenant portal.' },
 ];
 
 const FlowGrid = styled(Stagger)`

@@ -70,7 +70,7 @@ const PlanCard = styled.button`
   background: ${(p) => (p.$on ? 'linear-gradient(180deg,#f3f6f1 0%,#fff 70%)' : '#fff')};
   border: 1.5px solid ${(p) => (p.$on ? 'var(--color-green)' : 'var(--color-line-strong)')};
   border-radius: 18px; padding: 1.25rem 1.2rem 1.35rem;
-  box-shadow: ${(p) => (p.$on ? '0 10px 30px rgba(47, 93, 80,0.12)' : 'none')};
+  box-shadow: ${(p) => (p.$on ? '0 10px 30px rgba(184, 90, 48,0.12)' : 'none')};
   transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
   display: flex; flex-direction: column;
   &:hover { border-color: var(--color-green); transform: translateY(-2px); }
@@ -191,13 +191,13 @@ const Thumb = styled.div`
   display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.85);
   img { width: 100%; height: 100%; object-fit: cover; }
   .overlay {
-    position: absolute; inset: 0; background: rgba(27, 35, 30, 0.62);
+    position: absolute; inset: 0; background: rgba(16, 18, 24, 0.62);
     display: flex; align-items: center; justify-content: center;
     font-family: var(--font-mono); font-size: 0.72rem; color: #fff;
   }
   .act {
     position: absolute; top: 4px; right: 4px; width: 22px; height: 22px;
-    border-radius: 50%; border: none; background: rgba(27, 35, 30, 0.75); color: #fff;
+    border-radius: 50%; border: none; background: rgba(16, 18, 24, 0.75); color: #fff;
     display: flex; align-items: center; justify-content: center; font-size: 0.6rem; cursor: pointer;
     &:hover { background: var(--color-green); }
   }
@@ -335,7 +335,7 @@ const Pill = styled.span`
     good: 'var(--color-green-deep)', info: '#0369a1', warn: '#b45309',
   }[p.$tone] || 'var(--color-ink-muted)')};
   border: 1px solid ${(p) => ({
-    good: 'rgba(47, 93, 80,0.25)', info: 'rgba(3,105,161,0.2)', warn: 'rgba(180,83,9,0.2)',
+    good: 'rgba(184, 90, 48,0.25)', info: 'rgba(3,105,161,0.2)', warn: 'rgba(180,83,9,0.2)',
   }[p.$tone] || 'var(--color-line-strong)')};
 `;
 

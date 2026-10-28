@@ -16,7 +16,7 @@
     "cap:add:android": "cap add android",
     "cap:open:ios": "cap open ios",
     "cap:open:android": "cap open android",
-    "cap:assets": "npx @capacitor/assets@3 generate --iconBackgroundColor '#f6f3ec' --splashBackgroundColor '#f6f3ec'",
+    "cap:assets": "npx @capacitor/assets@3 generate --iconBackgroundColor '#f4f3ef' --splashBackgroundColor '#f4f3ef'",
     "test:property-server": "node --test property/server/tests/*.test.js"
   },
   "dependencies": {

@@ -21,7 +21,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getPlatform, isNativeApp } from "@/lib/native/platform";
 
-const BRAND_BG = "#f6f3ec";
+const BRAND_BG = "#f4f3ef";
 
 export function NativeBridge() {
   const router = useRouter();

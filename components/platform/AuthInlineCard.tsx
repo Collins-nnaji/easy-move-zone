@@ -93,25 +93,25 @@ export function AuthInlineCard({
   }
 
   const fieldClass =
-    "w-full rounded-xl border border-[#e4dfd5] bg-white py-3.5 pl-11 pr-4 text-sm text-[#1b231e] placeholder:text-[#9aa097] outline-none focus:border-[#e0511f]"
+    "w-full rounded-xl border border-[#e3e0d8] bg-white py-3.5 pl-11 pr-4 text-sm text-[#101218] placeholder:text-[#9aa097] outline-none focus:border-[#e0511f]"
 
   return (
-    <div className="rounded-3xl border border-[#e4dfd5] bg-white p-6 shadow-sm sm:p-8" id="account">
+    <div className="rounded-3xl border border-[#e3e0d8] bg-white p-6 shadow-sm sm:p-8" id="account">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 className="text-2xl font-extrabold tracking-tight text-[#1b231e]">
+          <h3 className="text-2xl font-extrabold tracking-tight text-[#101218]">
             {mode === "sign-up" ? "Create account" : "Sign in"}
           </h3>
           <p className="mt-1 text-sm text-[#5f655c]">
             {mode === "sign-up" ? "Arrange deliveries and manage your account." : "Pick up where you left off."}
           </p>
         </div>
-        <div className="inline-flex rounded-xl border border-[#e4dfd5] bg-[#f6f3ec] p-1">
+        <div className="inline-flex rounded-xl border border-[#e3e0d8] bg-[#f4f3ef] p-1">
           <button
             type="button"
             className={clsx(
               "rounded-lg px-3.5 py-1.5 text-xs font-bold transition",
-              mode === "sign-up" ? "bg-[#1b231e] text-white" : "text-[#5f655c] hover:text-[#1b231e]",
+              mode === "sign-up" ? "bg-[#101218] text-white" : "text-[#5f655c] hover:text-[#101218]",
             )}
             disabled={loading !== null}
             onClick={() => { setMode("sign-up"); setError(null); setInfo(null) }}
@@ -122,7 +122,7 @@ export function AuthInlineCard({
             type="button"
             className={clsx(
               "rounded-lg px-3.5 py-1.5 text-xs font-bold transition",
-              mode === "sign-in" ? "bg-[#1b231e] text-white" : "text-[#5f655c] hover:text-[#1b231e]",
+              mode === "sign-in" ? "bg-[#101218] text-white" : "text-[#5f655c] hover:text-[#101218]",
             )}
             disabled={loading !== null}
             onClick={() => { setMode("sign-in"); setError(null); setInfo(null) }}
@@ -136,7 +136,7 @@ export function AuthInlineCard({
         type="button"
         onClick={handleGoogle}
         disabled={loading !== null}
-        className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#e4dfd5] bg-[#faf8f3] px-4 py-3.5 text-sm font-bold text-[#1b231e] transition hover:border-[#e0511f]/40 disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#e3e0d8] bg-[#f7f6f3] px-4 py-3.5 text-sm font-bold text-[#101218] transition hover:border-[#e0511f]/40 disabled:opacity-50"
       >
         {loading === "google" ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -152,9 +152,9 @@ export function AuthInlineCard({
       </button>
 
       <div className="my-5 flex items-center gap-3">
-        <div className="h-px flex-1 bg-[#e4dfd5]" />
+        <div className="h-px flex-1 bg-[#e3e0d8]" />
         <span className="text-[10px] font-bold uppercase tracking-wider text-[#9aa097]">Or email</span>
-        <div className="h-px flex-1 bg-[#e4dfd5]" />
+        <div className="h-px flex-1 bg-[#e3e0d8]" />
       </div>
 
       <form onSubmit={handleEmail} className="space-y-3">

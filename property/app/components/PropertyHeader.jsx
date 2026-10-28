@@ -37,7 +37,7 @@ const Inner = styled(Stagger)`
   align-items: center;
   color: var(--color-ink);
 
-  h1 { color: var(--color-ink); max-width: 640px; margin: 0; font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 550; letter-spacing: -.03em; line-height: 1.08; }
+  h1 { color: var(--color-ink); max-width: none; margin: 0; font-size: clamp(2.4rem, 4vw, 3.4rem); font-weight: 500; letter-spacing: -0.034em; line-height: 0.98; }
   .intro, p { max-width: 560px; color: var(--color-ink-muted); font-size: .96rem; line-height: 1.55; margin: .6rem 0 0; }
   .aside { margin-top: .75rem; font-size: .9rem; color: var(--color-ink-muted); }
   .aside a { display: inline-flex; align-items: center; gap: .35rem; color: var(--color-green-deep); font-weight: 700; }

@@ -27,10 +27,10 @@ export function LegalPage({
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#e0511f]">
             Legal
           </p>
-          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-[#1b231e] sm:text-4xl">
+          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-[#101218] sm:text-4xl">
             {title}
           </h1>
-          <p className="mt-3 text-sm text-[#6e746b]">Last updated: {updated}</p>
+          <p className="mt-3 text-sm text-[#5c6370]">Last updated: {updated}</p>
           <div className="mt-5 text-[15px] leading-relaxed text-[#4a5047]">
             {intro}
           </div>
@@ -47,7 +47,7 @@ export function LegalPage({
                   key={link.href}
                   href={link.href}
                   aria-current={link.href === current ? "page" : undefined}
-                  className={`rounded-xl px-3 py-2 text-sm font-bold transition ${link.href === current ? "bg-[#1b231e] text-white" : "text-[#4a5047] hover:bg-white"}`}
+                  className={`rounded-xl px-3 py-2 text-sm font-bold transition ${link.href === current ? "bg-[#101218] text-white" : "text-[#4a5047] hover:bg-white"}`}
                 >
                   {link.label}
                 </Link>
@@ -55,7 +55,7 @@ export function LegalPage({
             </nav>
             <nav
               aria-label="On this page"
-              className="mt-6 hidden border-t border-[#e4dfd5] pt-5 lg:block"
+              className="mt-6 hidden border-t border-[#e3e0d8] pt-5 lg:block"
             >
               <p className="px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#8a9087]">
                 On this page
@@ -65,7 +65,7 @@ export function LegalPage({
                   <li key={section.id}>
                     <a
                       href={`#${section.id}`}
-                      className="block rounded-lg px-3 py-1.5 text-[13px] text-[#5f655c] hover:bg-white hover:text-[#1b231e]"
+                      className="block rounded-lg px-3 py-1.5 text-[13px] text-[#5f655c] hover:bg-white hover:text-[#101218]"
                     >
                       {index + 1}. {section.title}
                     </a>
@@ -82,14 +82,14 @@ export function LegalPage({
                 id={section.id}
                 className="scroll-mt-24"
               >
-                <h2 className="text-lg font-extrabold text-[#1b231e]">
+                <h2 className="text-lg font-extrabold text-[#101218]">
                   {index + 1}. {section.title}
                 </h2>
                 <div className="mt-3 space-y-3">{section.body}</div>
               </section>
             ))}
-            <section className="rounded-2xl border border-[#e4dfd5] bg-white p-5">
-              <h2 className="text-base font-extrabold text-[#1b231e]">
+            <section className="rounded-2xl border border-[#e3e0d8] bg-white p-5">
+              <h2 className="text-base font-extrabold text-[#101218]">
                 Questions?
               </h2>
               <p className="mt-1.5 text-sm">
@@ -119,7 +119,7 @@ export function LegalPage({
 
 export function Bullets({ items }: { items: ReactNode[] }) {
   return (
-    <ul className="list-disc space-y-1.5 pl-5 marker:text-[#2f5d50]">
+    <ul className="list-disc space-y-1.5 pl-5 marker:text-[#b85a30]">
       {items.map((item, index) => (
         <li key={index}>{item}</li>
       ))}

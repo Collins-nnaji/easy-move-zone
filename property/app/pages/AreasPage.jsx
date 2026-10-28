@@ -29,13 +29,13 @@ import {
 
 const Page = styled.div`background: var(--color-bg-panel); min-height: 70vh; overflow-x: clip;`;
 const Intro = styled.header`
-  max-width: 1180px; margin: 0 auto; padding: 1.35rem 1.5rem 0;
-  .k { margin: 0; font-size: 0.75rem; font-weight: 750; letter-spacing: 0.07em; text-transform: uppercase; color: var(--color-green-deep); }
-  h1 { margin: 0.3rem 0 0.45rem; max-width: 16ch; font-size: clamp(1.7rem, 2.6vw, 2.35rem); letter-spacing: -0.03em; line-height: 1.08; }
-  p { margin: 0; max-width: 62ch; color: var(--color-ink-muted); line-height: 1.55; }
+  max-width: 760px; margin: 0 auto; padding: 2.4rem 1.5rem 0; text-align: center;
+  .k { margin: 0; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-eyebrow); }
+  h1 { margin: 0.45rem auto 0.55rem; max-width: 16ch; font-size: clamp(2.3rem, 4vw, 3.35rem); font-weight: 500; letter-spacing: -0.034em; line-height: 0.98; }
+  p { margin: 0 auto; max-width: 42ch; color: var(--color-ink-muted); line-height: 1.55; }
   @media (max-width: 720px) {
-    padding: 1.05rem 1rem 0;
-    h1 { font-size: 1.55rem; max-width: none; }
+    padding: 1.4rem 1rem 0;
+    h1 { font-size: 2rem; }
     p { font-size: 0.92rem; }
   }
 `;
@@ -53,7 +53,7 @@ const Search = styled.label`
   flex: 1 1 100%; min-width: 0; display: flex; align-items: center; gap: 0.55rem; min-height: 46px; padding: 0 0.9rem;
   background: #fff; border: 1px solid var(--color-line-strong); border-radius: 12px; color: var(--color-ink-faint);
   input { flex: 1; min-width: 0; width: 100%; border: 0; outline: none; font: inherit; color: var(--color-ink); background: transparent; }
-  &:focus-within { border-color: var(--color-green); box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.1); }
+  &:focus-within { border-color: var(--color-green); box-shadow: 0 0 0 3px rgba(184, 90, 48, 0.1); }
 `;
 const Pills = styled.div`
   display: flex; gap: 0.4rem; flex-wrap: wrap; width: 100%; min-width: 0;
@@ -63,27 +63,29 @@ const Pills = styled.div`
   }
 `;
 const StateHead = styled.h2`
-  margin: 1.75rem 0 0.75rem; font-size: 1.05rem; display: flex; align-items: baseline; gap: 0.5rem;
-  &:first-of-type { margin-top: 0.5rem; }
-  span { font-size: 0.8rem; font-weight: 500; color: var(--color-ink-muted); }
+  margin: 2.25rem 0 0.9rem; font-size: clamp(1.6rem, 2vw, 2rem); font-weight: 500; letter-spacing: -0.03em;
+  display: flex; align-items: baseline; gap: 0.65rem;
+  &:first-of-type { margin-top: 0.25rem; }
+  span { font-family: var(--font-sans); font-size: 0.78rem; font-weight: 600; letter-spacing: 0; color: var(--color-ink-faint); }
 `;
 const Grid = styled.div`
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 1rem;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 0.9rem;
 `;
 const AreaCard = styled(Link)`
-  display: flex; flex-direction: column; gap: 0.6rem; min-width: 0; padding: 1.15rem; border-radius: 18px;
-  background: #fff; border: 1px solid var(--color-line); color: var(--color-ink); box-shadow: var(--shadow-soft);
-  transition: border-color 0.15s, transform 0.15s;
+  display: flex; flex-direction: column; gap: 0.7rem; min-width: 0; min-height: 196px; padding: 1.25rem 1.25rem 1.05rem;
+  border-radius: 20px; background: #fff; border: 1px solid var(--color-line); color: var(--color-ink);
+  box-shadow: var(--shadow-soft); transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
   h3, p { overflow-wrap: break-word; }
-  &:hover { border-color: rgba(47, 93, 80, 0.4); transform: translateY(-2px); }
-  @media (max-width: 720px) { &:hover { transform: none; } }
-  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
-  h3 { margin: 0; font-size: 1.15rem; }
-  .city { font-size: 0.8rem; color: var(--color-ink-muted); display: flex; align-items: center; gap: 0.3rem; margin-top: 0.15rem; }
-  .city svg { color: var(--color-green); font-size: 0.7rem; }
-  p { margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--color-ink-soft); }
-  .stats { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.8rem; color: var(--color-ink-muted); margin-top: auto; padding-top: 0.4rem; border-top: 1px solid var(--color-line); }
-  .stats b { color: var(--color-ink); }
+  &:hover { border-color: var(--color-green-bright); transform: translateY(-3px); box-shadow: var(--shadow-card); color: var(--color-ink); }
+  @media (max-width: 720px) { min-height: 0; &:hover { transform: none; } }
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; }
+  h3 { margin: 0; font-size: clamp(1.35rem, 1.6vw, 1.6rem); font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; }
+  .city { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-ink-faint); display: flex; align-items: center; gap: 0.35rem; }
+  .city svg { color: var(--color-green); font-size: 0.65rem; }
+  p { margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--color-ink-muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; margin-top: auto; padding-top: 0.75rem; border-top: 1px solid var(--color-line); }
+  .stats span { display: flex; flex-direction: column; gap: 0.1rem; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-ink-faint); }
+  .stats b { font-family: var(--font-display); font-size: 1.2rem; font-weight: 500; letter-spacing: -0.03em; text-transform: none; color: var(--color-ink); }
 `;
 const Suggest = styled.form`
   margin-top: 2rem; padding: 1.4rem; border-radius: 18px; background: #fff; border: 1px dashed var(--color-line-strong);
@@ -101,9 +103,10 @@ const Err = styled.p`color: #b91c1c; font-size: 0.88rem;`;
 /* ── Find my area ── */
 
 const Finder = styled.section`
-  margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; border-radius: 18px; background: #fff; border: 1px solid var(--color-line);
-  h2 { margin: 0 0 0.2rem; font-size: 1.1rem; }
-  .sub { margin: 0 0 0.85rem; font-size: 0.88rem; color: var(--color-ink-muted); }
+  margin-bottom: 1.75rem; padding: 1.35rem 1.4rem; border-radius: 22px; background: #fff; border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-soft);
+  h2 { margin: 0 0 0.25rem; font-size: clamp(1.35rem, 2vw, 1.7rem); font-weight: 500; letter-spacing: -0.03em; }
+  .sub { margin: 0 0 0.95rem; font-size: 0.92rem; color: var(--color-ink-muted); max-width: 58ch; }
   .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
   .filters { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.75rem; }
   select { min-height: 40px; border: 1px solid var(--color-line-strong); border-radius: 10px; padding: 0 0.7rem; font: inherit; background: #fff; }
@@ -146,7 +149,7 @@ function FindMyArea({ areas }) {
   return (
     <Finder aria-labelledby="find-area">
       <h2 id="find-area">Find the right area for you</h2>
-      <p className="sub">Pick up to {MAX_PRIORITIES} things that matter most. We rank areas on what residents say about just those.</p>
+      <p className="sub">Pick up to {MAX_PRIORITIES} things that matter. Areas are ranked on what residents have actually scored.</p>
       <div className="chips" role="group" aria-label="What matters most">
         {AREA_FACTORS.map((f) => (
           <Pill
@@ -271,11 +274,8 @@ function AreasIndex() {
     <Page>
       <Intro>
         <p className="k">Neighbourhoods</p>
-        <h1>Know the area before you pay rent</h1>
-        <p>
-          Residents across Nigeria rate the light, water, flooding, roads and security, and share what living there is really like.
-          Check the rents, the commute and what is nearby, all on one page.
-        </p>
+        <h1>See the area before you rent.</h1>
+        <p>Residents score power, water, flooding, roads and safety. Typical rents sit on the same page.</p>
       </Intro>
 
       <Body>
@@ -302,17 +302,15 @@ function AreasIndex() {
             {g.areas.map((a) => (
               <AreaCard key={a.slug} to={`/areas/${a.slug}`}>
                 <div className="top">
-                  <div>
-                    <h3>{a.name}</h3>
-                    <div className="city"><FaMapMarkerAlt /> {a.city === a.name ? stateLabel(a.state) : a.city}</div>
-                  </div>
+                  <div className="city"><FaMapMarkerAlt /> {a.city === a.name ? stateLabel(a.state) : a.city}</div>
                   <Score value={a.overall} />
                 </div>
+                <h3>{a.name}</h3>
                 <p>{a.blurb}</p>
                 <div className="stats">
                   <span><b>{a.posts}</b> {a.posts === 1 ? 'post' : 'posts'}</span>
                   <span><b>{a.ratings}</b> {a.ratings === 1 ? 'rating' : 'ratings'}</span>
-                  {a.rentals > 0 && <span><b>{a.rentals}</b> to rent</span>}
+                  <span><b>{a.rentals || '—'}</b> to rent</span>
                 </div>
               </AreaCard>
             ))}

@@ -31,7 +31,7 @@ const Composer = styled.form`
     padding: 0.7rem 0.85rem; font: inherit; color: var(--color-ink); background: #fff; outline: none;
   }
   textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
-  textarea:focus, input:focus { border-color: var(--color-green); box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.1); }
+  textarea:focus, input:focus { border-color: var(--color-green); box-shadow: 0 0 0 3px rgba(184, 90, 48, 0.1); }
   .cats { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
   .row { display: flex; gap: 0.6rem; margin-top: 0.6rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
   .check { display: flex; align-items: center; gap: 0.45rem; font-size: 0.84rem; color: var(--color-ink-muted); cursor: pointer; }
@@ -50,7 +50,7 @@ const SortRow = styled.div`
 const List = styled.div`display: flex; flex-direction: column; gap: 0.75rem;`;
 const Card = styled.article`
   background: #fff; border: 1px solid var(--color-line); border-radius: 16px; padding: 1rem 1.1rem; scroll-margin-top: 90px;
-  ${(p) => p.$focus && 'box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.35);'}
+  ${(p) => p.$focus && 'box-shadow: 0 0 0 3px rgba(184, 90, 48, 0.35);'}
   ${(p) => p.$held && 'border-style: dashed; background: #fffdf7;'}
   .meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; font-size: 0.78rem; color: var(--color-ink-faint); }
   .cat { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-green-deep); background: var(--color-green-soft); padding: 0.2rem 0.5rem; border-radius: 6px; }

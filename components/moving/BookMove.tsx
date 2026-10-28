@@ -149,7 +149,7 @@ export function BookMove({ embedded = false }: { embedded?: boolean } = {}) {
         <section
           className={`${container} ${styles.bookingConfirmation}`}
         >
-          <CheckCircle2 size={40} color="#2f5d50" />
+          <CheckCircle2 size={40} color="#b85a30" />
           <p className={shared.eyebrow}>YOUR REQUEST IS SAVED</p>
           <h1>
             Request received.

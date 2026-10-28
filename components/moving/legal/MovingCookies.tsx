@@ -19,13 +19,13 @@ const sections = [
     id: "what-we-use",
     title: "What we use",
     body: <>
-      <div className="overflow-x-auto rounded-2xl border border-[#e4dfd5] bg-white">
+      <div className="overflow-x-auto rounded-2xl border border-[#e3e0d8] bg-white">
         <table className="w-full min-w-[560px] text-left text-sm">
-          <thead className="bg-[#faf8f3] text-[12px] uppercase tracking-wide text-[#6e746b]">
+          <thead className="bg-[#f7f6f3] text-[12px] uppercase tracking-wide text-[#5c6370]">
             <tr><th className="px-4 py-3 font-bold">Name</th><th className="px-4 py-3 font-bold">Purpose</th><th className="px-4 py-3 font-bold">Type</th><th className="px-4 py-3 font-bold">Duration</th></tr>
           </thead>
           <tbody className="divide-y divide-[#efe9dd]">
-            {rows.map((row) => <tr key={row.name} className="align-top"><td className="px-4 py-3 font-semibold text-[#1b231e]">{row.name}</td><td className="px-4 py-3">{row.purpose}</td><td className="px-4 py-3 whitespace-nowrap">{row.type}</td><td className="px-4 py-3 whitespace-nowrap">{row.duration}</td></tr>)}
+            {rows.map((row) => <tr key={row.name} className="align-top"><td className="px-4 py-3 font-semibold text-[#101218]">{row.name}</td><td className="px-4 py-3">{row.purpose}</td><td className="px-4 py-3 whitespace-nowrap">{row.type}</td><td className="px-4 py-3 whitespace-nowrap">{row.duration}</td></tr>)}
           </tbody>
         </table>
       </div>

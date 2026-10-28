@@ -37,17 +37,18 @@ const Bar = styled(motion.nav)`
     display: grid;
     grid-template-columns: repeat(${(p) => p.$count}, 1fr);
     position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    left: 12px;
+    right: 12px;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
     z-index: 1150;
-    height: calc(var(--mobile-tabbar-h) + env(safe-area-inset-bottom, 0px));
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    height: 64px;
+    padding-bottom: 0;
     background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border-top: 1px solid var(--color-line-strong);
-    box-shadow: 0 -8px 28px rgba(27, 35, 30, 0.07);
+    backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    border: 1px solid rgba(16, 18, 24, 0.08);
+    border-radius: 22px;
+    box-shadow: 0 16px 40px -18px rgba(16, 18, 24, 0.45);
   }
 `;
 
@@ -63,9 +64,9 @@ const tabStyles = `
   background: transparent;
   color: var(--color-ink-faint);
   font-family: var(--font-sans);
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: color 0.15s ease;

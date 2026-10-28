@@ -82,7 +82,7 @@ test('the listings page is homes to rent, with the filters behind one control on
   mockViewport(true);
   renderProperties('/listings');
 
-  expect(screen.getByRole('heading', { name: /^homes to rent\.$/i })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: /^homes to rent$/i })).toBeInTheDocument();
   expect(mockBrowse).toHaveBeenLastCalledWith(expect.objectContaining({ mode: 'rent' }));
   const filterToggle = document.querySelector('button[aria-controls="property-filters"]');
   expect(filterToggle).toHaveAttribute('aria-expanded', 'false');
@@ -114,7 +114,7 @@ test('the Rent page asks the API for rentals and prices them per year', async ()
   mockBrowse.mockImplementationOnce(() => Promise.resolve({ listings: [RENTAL], total: 1 }));
   renderProperties('/listings');
 
-  expect(screen.getByRole('heading', { name: /^homes to rent\.$/i })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: /^homes to rent$/i })).toBeInTheDocument();
   expect(await screen.findByText('3-bed flat Lekki')).toBeInTheDocument();
   expect(mockBrowse).toHaveBeenLastCalledWith(expect.objectContaining({ mode: 'rent' }));
   expect(screen.getByText(/to rent · managed by easymovezone/i)).toBeInTheDocument();

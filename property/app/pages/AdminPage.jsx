@@ -94,7 +94,7 @@ const Page = styled.div` background: var(--color-bg); min-height: 100%; `;
 const Hero = styled.section`
   border-bottom: 1px solid rgba(25, 28, 31, 0.08);
   background:
-    radial-gradient(900px 400px at 85% -20%, rgba(47, 93, 80, 0.14), transparent 70%),
+    radial-gradient(900px 400px at 85% -20%, rgba(184, 90, 48, 0.14), transparent 70%),
     linear-gradient(180deg, var(--color-green-wash) 0%, var(--color-bg) 100%);
   border-bottom: 1px solid var(--color-line);
   padding: 1.75rem 1.5rem;
@@ -610,7 +610,7 @@ const ConsentTag = styled.span`
   padding: 0.2rem 0.55rem;
   background: ${(p) => (p.$ok ? 'var(--color-green-soft)' : 'rgba(180,83,9,0.1)')};
   color: ${(p) => (p.$ok ? 'var(--color-green-deep)' : 'var(--color-warn)')};
-  border: 1px solid ${(p) => (p.$ok ? 'rgba(47, 93, 80,0.25)' : 'rgba(180,83,9,0.22)')};
+  border: 1px solid ${(p) => (p.$ok ? 'rgba(184, 90, 48,0.25)' : 'rgba(180,83,9,0.22)')};
 `;
 
 const EditGrid = styled.div`

@@ -44,7 +44,7 @@ export default function SiteMenu({ onNavigate, compact = false }) {
       <motion.div variants={row}>
         <Button asChild size="lg" block>
           <Link to={RENTAL_CHECK_URL} onClick={onNavigate}>
-            <ShieldCheck className="h-4 w-4" /> Check a rental before you pay <ArrowRight className="h-4 w-4" />
+            <ShieldCheck className="h-4 w-4" /> Verify a rental before you pay <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>
       </motion.div>
@@ -67,7 +67,7 @@ export default function SiteMenu({ onNavigate, compact = false }) {
                     className={cn(
                       'group flex min-h-[52px] items-center gap-3 rounded-lg border px-3 py-2 transition-colors',
                       active
-                        ? 'border-[rgba(47, 93, 80,0.25)] bg-brand-soft text-brand-deep'
+                        ? 'border-[rgba(184, 90, 48,0.25)] bg-brand-soft text-brand-deep'
                         : 'border-transparent text-brand-ink hover:bg-[var(--color-bg-panel)] hover:text-brand-ink',
                     )}
                   >

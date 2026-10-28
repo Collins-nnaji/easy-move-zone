@@ -21,8 +21,9 @@ const AvatarBtn = styled.button`
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-ink) 0%, #1e3a2f 100%);
-  border: 2px solid rgba(47, 93, 80, 0.35);
+  background: linear-gradient(145deg, #b85a30 0%, #FBB03B 100%);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(16, 18, 24, 0.08);
   color: #fff;
   font-family: var(--font-sans);
   font-size: 0.8rem;
@@ -36,8 +37,8 @@ const AvatarBtn = styled.button`
   flex-shrink: 0;
 
   &:hover {
-    border-color: rgba(47, 93, 80, 0.7);
-    box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.12);
+    border-color: rgba(184, 90, 48, 0.7);
+    box-shadow: 0 0 0 3px rgba(184, 90, 48, 0.12);
   }
 `;
 
@@ -122,7 +123,7 @@ const DropdownLink = styled(RouterLink)`
   margin-bottom: 0.25rem;
 
   &:hover {
-    background: rgba(47, 93, 80, 0.08);
+    background: rgba(184, 90, 48, 0.08);
     color: var(--color-green-deep);
   }
 
@@ -157,24 +158,23 @@ const DropdownSignOut = styled.button`
 `;
 
 const SignInLink = styled(RouterLink)`
-  padding: 0.55rem 1.15rem;
-  border-radius: 10px;
+  padding: 0.55rem 1.05rem;
+  border-radius: 999px;
   font-family: var(--font-sans);
-  font-weight: 600;
+  font-weight: 650;
   font-size: 0.86rem;
   letter-spacing: -0.011em;
-  color: var(--color-ink);
-  border: 1px solid rgba(15, 23, 42, 0.14);
-  background: white;
+  color: #fff;
+  border: 0;
+  background: var(--gradient-brand);
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease;
   white-space: nowrap;
   -webkit-font-smoothing: antialiased;
 
   &:hover {
-    border-color: rgba(47, 93, 80, 0.45);
-    color: var(--color-green-deep);
-    background: rgba(47, 93, 80, 0.06);
+    color: #fff;
+    background: #111111;
   }
 
   @media (max-width: 420px) {
@@ -225,7 +225,7 @@ const InlineProfileLink = styled(RouterLink)`
   font-size: 0.9rem;
   text-decoration: none;
   margin-bottom: 0.5rem;
-  &:hover { border-color: rgba(47, 93, 80, 0.45); color: var(--color-green-deep); }
+  &:hover { border-color: rgba(184, 90, 48, 0.45); color: var(--color-green-deep); }
 `;
 
 const InlineSignOut = styled.button`

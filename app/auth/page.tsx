@@ -21,7 +21,7 @@ export default function AuthPage() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(60% 50% at 12% 0%, rgba(47,93,80,0.14) 0%, transparent 60%), radial-gradient(55% 45% at 100% 10%, rgba(143,181,168,0.18) 0%, transparent 55%)",
+              "radial-gradient(60% 50% at 12% 0%, rgba(184, 90, 48,0.14) 0%, transparent 60%), radial-gradient(55% 45% at 100% 10%, rgba(143,181,168,0.18) 0%, transparent 55%)",
           }}
         />
         <div className="relative mx-auto w-full max-w-md">
@@ -29,7 +29,7 @@ export default function AuthPage() {
             <div className="mx-auto flex items-center justify-center">
               <SiteLogo href="/" height={40} priority />
             </div>
-            <h1 className="page-title mt-6 max-w-xl text-2xl font-extrabold tracking-tight text-[#1b231e] sm:text-3xl">
+            <h1 className="page-title mt-6 max-w-xl text-2xl font-extrabold tracking-tight text-[#101218] sm:text-3xl">
               Welcome back
             </h1>
             <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-[#5f655c]">
@@ -38,7 +38,7 @@ export default function AuthPage() {
           </div>
           <Suspense
             fallback={
-              <div className="rounded-3xl border border-[#e4dfd5] bg-white p-8 text-center text-sm text-[#7c827a]">
+              <div className="rounded-3xl border border-[#e3e0d8] bg-white p-8 text-center text-sm text-[#7c827a]">
                 Loading sign-in…
               </div>
             }

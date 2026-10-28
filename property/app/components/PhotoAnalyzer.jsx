@@ -99,7 +99,7 @@ const RemoveBtn = styled.button`
   height: 18px;
   border: none;
   border-radius: 50%;
-  background: rgba(27, 35, 30, 0.68);
+  background: rgba(16, 18, 24, 0.68);
   color: #fff;
   font-size: 0.55rem;
   display: flex;

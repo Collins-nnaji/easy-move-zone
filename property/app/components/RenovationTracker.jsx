@@ -38,7 +38,7 @@ const Pill = styled.span`
   letter-spacing: 0.04em;
   color: var(--color-green-deep);
   background: var(--color-green-soft);
-  border: 1px solid rgba(47, 93, 80,0.2);
+  border: 1px solid rgba(184, 90, 48,0.2);
   padding: 0.3rem 0.7rem;
   border-radius: 999px;
 `;
@@ -74,7 +74,7 @@ const Step = styled.div`
 `;
 
 const QuoteCard = styled.div`
-  border: 1px solid rgba(47, 93, 80,0.22);
+  border: 1px solid rgba(184, 90, 48,0.22);
   background: linear-gradient(180deg, #f3f6f1 0%, #fff 70%);
   border-radius: 14px;
   padding: 1.2rem 1.3rem;
@@ -98,7 +98,7 @@ const AcceptBtn = styled.button`
 const Milestones = styled.div` display: flex; flex-direction: column; gap: 0.6rem; `;
 const MilestoneRow = styled.div`
   display: flex; align-items: center; justify-content: space-between; gap: 0.85rem;
-  border: 1px solid ${(p) => (p.$paid ? 'rgba(47, 93, 80,0.3)' : 'var(--color-line-strong)')};
+  border: 1px solid ${(p) => (p.$paid ? 'rgba(184, 90, 48,0.3)' : 'var(--color-line-strong)')};
   background: ${(p) => (p.$paid ? 'var(--color-green-soft)' : 'var(--color-bg-sunken)')};
   border-radius: 12px;
   padding: 0.75rem 0.9rem;

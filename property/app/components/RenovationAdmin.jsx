@@ -37,7 +37,7 @@ const CardHead = styled.button`
 `;
 const Pill = styled.span`
   font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.04em; white-space: nowrap;
-  color: var(--color-green-deep); background: var(--color-green-soft); border: 1px solid rgba(47, 93, 80,0.2);
+  color: var(--color-green-deep); background: var(--color-green-soft); border: 1px solid rgba(184, 90, 48,0.2);
   padding: 0.3rem 0.65rem; border-radius: 999px;
 `;
 const Unread = styled.span` margin-left: 0.5rem; background: var(--color-green); color: #fff; border-radius: 999px; font-family: var(--font-mono); font-size: 0.62rem; padding: 0.14rem 0.45rem; `;

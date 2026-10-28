@@ -50,23 +50,23 @@ const EmbeddedIntro = styled.div`margin:3rem 0 1.4rem;padding-top:2.6rem;border-
 const Card = styled.div`background:#fff; border:1px solid rgba(13,17,23,.08); border-radius:22px; box-shadow:0 22px 55px -36px rgba(13,17,23,.3); padding:clamp(1.25rem,4vw,2.4rem);@media(max-width:560px){border-radius:16px;padding:1.1rem .95rem;}`;
 const Progress = styled.div`display:flex; gap:.45rem; margin-bottom:2rem; span{height:5px; flex:1; border-radius:9px; background:${p=>p.$active?'var(--color-green)':'#e6e9e6'};}@media(max-width:560px){margin-bottom:1.25rem;}`;
 const FormHead = styled.div`display:flex; align-items:flex-start; gap:1rem; margin-bottom:1.8rem;@media(max-width:560px){gap:.7rem;margin-bottom:1.2rem;}`;
-const Number = styled.div`width:40px; height:40px; flex:none; border-radius:12px; background:#e5f5eb; color:#0f6b3d; display:grid; place-items:center; font-family:var(--font-mono); font-weight:700;`;
+const Number = styled.div`width:40px; height:40px; flex:none; border-radius:12px; background:#fdece3; color:#0f6b3d; display:grid; place-items:center; font-family:var(--font-mono); font-weight:700;`;
 const Title = styled.h2`font-size:1.6rem; margin:0 0 .35rem;`;
 const Sub = styled.p`color:var(--color-ink-muted); margin:0; line-height:1.55; font-size:.95rem;`;
 const Fields = styled.div`display:flex; flex-direction:column; gap:1.15rem;`;
 const Two = styled.div`display:grid; grid-template-columns:1fr 1fr; gap:1rem; @media(max-width:600px){grid-template-columns:minmax(0,1fr);}`;
 const Field = styled.div``;
 const Label = styled.label`display:block; font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; font-family:var(--font-mono); color:#59645e; margin-bottom:.45rem;`;
-const inputCss = `width:100%; border:1px solid #d9dedb; border-radius:12px; background:#fff; padding:.92rem 1rem; font-size:1rem; color:var(--color-ink); outline:none; transition:.15s; &:focus{background:#fff;border-color:#2f5d50;box-shadow:0 0 0 3px rgba(47, 93, 80,.09);}`;
+const inputCss = `width:100%; border:1px solid #e3e0d8; border-radius:12px; background:#fff; padding:.92rem 1rem; font-size:1rem; color:var(--color-ink); outline:none; transition:.15s; &:focus{background:#fff;border-color:#b85a30;box-shadow:0 0 0 3px rgba(184, 90, 48,.09);}`;
 const Input = styled.input`${inputCss}`;
 const Textarea = styled.textarea`${inputCss} min-height:105px; resize:vertical; line-height:1.5;`;
 const ChoiceRow = styled.div`display:grid; grid-template-columns:1fr 1fr; gap:.7rem;`;
-const Choice = styled.button`display:flex; gap:.7rem; align-items:center; text-align:left; padding:.9rem; border-radius:12px; cursor:pointer; font-weight:700; border:1px solid ${p=>p.$active?'#2f5d50':'#d9dedb'}; background:${p=>p.$active?'#e9f7ef':'#fff'}; color:${p=>p.$active?'#2f5d50':'#4a525b'};`;
-const Upload = styled.label`display:flex; align-items:center; gap:.9rem; border:1px dashed #aeb8b2; background:#f8faf8; padding:1.1rem; border-radius:14px; cursor:pointer; color:#38443d; input{display:none;} svg{color:#2f5d50; flex:none;}`;
+const Choice = styled.button`display:flex; gap:.7rem; align-items:center; text-align:left; padding:.9rem; border-radius:12px; cursor:pointer; font-weight:700; border:1px solid ${p=>p.$active?'#b85a30':'#e3e0d8'}; background:${p=>p.$active?'#fdece3':'#fff'}; color:${p=>p.$active?'#b85a30':'#4a525b'};`;
+const Upload = styled.label`display:flex; align-items:center; gap:.9rem; border:1px dashed #aeb8b2; background:#f7f6f3; padding:1.1rem; border-radius:14px; cursor:pointer; color:#38443d; input{display:none;} svg{color:#b85a30; flex:none;}`;
 const FileList = styled.div`display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.6rem;`;
 const File = styled.span`font-size:.76rem; border-radius:999px; background:#eef2ef; color:#47524c; padding:.35rem .65rem;`;
 const Actions = styled.div`display:flex; justify-content:space-between; gap:.75rem; margin-top:1.75rem;`;
-const Button = styled.button`display:inline-flex; align-items:center; justify-content:center; gap:.55rem; border:0; border-radius:12px; padding:.95rem 1.25rem; font-size:.96rem; font-weight:750; cursor:pointer; background:${p=>p.$primary?'#2f5d50':'var(--color-bg-sunken)'}; color:${p=>p.$primary?'#fff':'#152019'}; &:disabled{opacity:.55;cursor:not-allowed;} @media(max-width:480px){flex:1;}`;
+const Button = styled.button`display:inline-flex; align-items:center; justify-content:center; gap:.55rem; border:0; border-radius:12px; padding:.95rem 1.25rem; font-size:.96rem; font-weight:750; cursor:pointer; background:${p=>p.$primary?'var(--gradient-brand)':'var(--color-bg-sunken)'}; color:${p=>p.$primary?'#fff':'#152019'}; &:disabled{opacity:.55;cursor:not-allowed;} @media(max-width:480px){flex:1;}`;
 /* ── Choosing the check ── */
 const Types = styled.div`display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.7rem; @media(max-width:600px){grid-template-columns:minmax(0,1fr);}`;
 const TypeCard = styled.button`
@@ -83,7 +83,7 @@ const Extras = styled.div`display:flex; flex-direction:column; gap:.5rem;`;
 const Extra = styled.label`
   display:flex; gap:.75rem; align-items:flex-start; padding:.8rem .9rem; border-radius:12px; cursor:${p=>p.$included?'default':'pointer'};
   border:1px solid ${p=>p.$on?'var(--color-green)':'var(--color-line)'}; background:${p=>p.$on?'var(--color-green-wash)':'#fff'};
-  input{margin-top:.2rem; width:17px; height:17px; accent-color:#2f5d50; flex:none;}
+  input{margin-top:.2rem; width:17px; height:17px; accent-color:#b85a30; flex:none;}
   .txt{flex:1; min-width:0;}
   .name{font-weight:650; font-size:.92rem; color:var(--color-ink);}
   .blurb{display:block; font-size:.8rem; color:var(--color-ink-muted); line-height:1.4; margin-top:.15rem;}
@@ -110,16 +110,16 @@ function RailBlock({ title, children }) {
   return <RailCard $fold><MobileFold title={title}>{children}</MobileFold></RailCard>;
 }
 const RailTitle = styled.h3`font-size:1rem; margin:0 0 1rem;`;
-const Check = styled.div`display:flex; align-items:flex-start; gap:.7rem; padding:.65rem 0; border-bottom:1px solid #edf0ed; font-size:.86rem; color:#4c5751; &:last-child{border:0;} svg{color:#2f5d50; flex:none;} small{display:block; color:var(--color-ink-muted); margin-top:.1rem;}`;
+const Check = styled.div`display:flex; align-items:flex-start; gap:.7rem; padding:.65rem 0; border-bottom:1px solid #eceae4; font-size:.86rem; color:#4c5751; &:last-child{border:0;} svg{color:#b85a30; flex:none;} small{display:block; color:var(--color-ink-muted); margin-top:.1rem;}`;
 const Advisor = styled.a`display:flex; align-items:center; gap:.8rem; padding:1rem; border-radius:14px; background:var(--color-band); border:1px solid var(--color-line); color:var(--color-ink); font-weight:700; &:hover{color:var(--color-green-deep);background:var(--color-green-wash);} small{display:block;color:var(--color-ink-muted);font-weight:400;margin-top:.1rem;}`;
-const Consent = styled.label`display:flex; gap:.65rem; align-items:flex-start; color:#5b655f; font-size:.82rem; line-height:1.5; cursor:pointer; input{margin-top:.2rem;accent-color:#2f5d50;}`;
+const Consent = styled.label`display:flex; gap:.65rem; align-items:flex-start; color:#5b655f; font-size:.82rem; line-height:1.5; cursor:pointer; input{margin-top:.2rem;accent-color:#b85a30;}`;
 const Success = styled.div`text-align:center; padding:1.5rem 0 .5rem;`;
-const SuccessIcon = styled.div`width:70px;height:70px;border-radius:50%;background:#e5f5eb;color:#2f5d50;display:grid;place-items:center;margin:0 auto 1.25rem;`;
+const SuccessIcon = styled.div`width:70px;height:70px;border-radius:50%;background:#fdece3;color:#b85a30;display:grid;place-items:center;margin:0 auto 1.25rem;`;
 const Ref = styled.div`display:inline-flex;padding:.55rem .85rem;border-radius:8px;background:#f0f3f1;font-family:var(--font-mono);font-size:.78rem;margin:1rem 0 1.5rem;`;
 const History = styled.div`max-width:1180px;margin:0 auto ${p=>p.$embedded?'1.5rem':'0'};padding:${p=>p.$embedded?'0':'1.75rem 3.5rem 0'};@media(max-width:720px){padding:${p=>p.$embedded?'0':'1.1rem 1rem 0'};}`;
-const SignInNote = styled.div`display:flex;align-items:flex-start;gap:.6rem;margin-top:1rem;padding:.8rem .95rem;border-radius:11px;background:#e8f6ed;color:#155b38;font-size:.84rem;line-height:1.45;a{font-weight:700;color:#2f5d50;}`;
+const SignInNote = styled.div`display:flex;align-items:flex-start;gap:.6rem;margin-top:1rem;padding:.8rem .95rem;border-radius:11px;background:#fdf6f1;color:#155b38;font-size:.84rem;line-height:1.45;a{font-weight:700;color:#b85a30;}`;
 const Account = styled.div`padding:.8rem .95rem;border-radius:11px;background:#f4f7f5;border:1px solid #e3e8e5;font-size:.86rem;color:#26322a;strong{display:block;font-size:.72rem;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em;color:#758078;margin-bottom:.15rem;}`;
-const SuccessActions = styled.div`display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;a{display:inline-flex;align-items:center;gap:.45rem;padding:.85rem 1rem;border-radius:11px;background:#2f5d50;color:#fff;font-weight:700;&:last-child{background:var(--color-bg-sunken);color:#172019;}}`;
+const SuccessActions = styled.div`display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;a{display:inline-flex;align-items:center;gap:.45rem;padding:.85rem 1rem;border-radius:11px;background:#b85a30;color:#fff;font-weight:700;&:last-child{background:var(--color-bg-sunken);color:#172019;}}`;
 
 
 export function RentalCheckForm({ embedded = false }) {
@@ -205,7 +205,7 @@ export function RentalCheckForm({ embedded = false }) {
           <Ref>{result.reference}</Ref>
           <SuccessActions>{embedded?<Link to={TENANT_CHECKS_URL}>Track this check <TrustIcon name="arrow" size={16}/></Link>:<Link to="#your-verifications" onClick={(e)=>{e.preventDefault();document.getElementById('your-verifications')?.scrollIntoView({behavior:'smooth'});}}>Track this check <TrustIcon name="arrow" size={16}/></Link>}<Link to={BOOK_SESSION_URL}>Speak to an adviser</Link></SuccessActions>
         </Success> : <>
-          <Progress $active={step===1}>{[1,2,3,4].map(n=><span key={n} style={{background:n<=step?'#2f5d50':undefined}}/>)}</Progress>
+          <Progress $active={step===1}>{[1,2,3,4].map(n=><span key={n} style={{background:n<=step?'#b85a30':undefined}}/>)}</Progress>
           {step===1 && <>
             <FormHead><Number>01</Number><div><Title>Which home, and who is letting it?</Title><Sub>A home you found through an agent, a landlord, social media or another website. Homes listed on EasyMoveZone are already checked.</Sub></div></FormHead>
             <Fields>

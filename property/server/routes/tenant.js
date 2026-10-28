@@ -76,12 +76,17 @@ router.get('/roles', async (req, res) => {
   const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'Please sign in again to continue.' });
   try {
-    const [owner, tenant, applicant] = await Promise.all([
+    const [owner, listed, tenant, applicant] = await Promise.all([
       pool.query('SELECT COUNT(*)::int AS n FROM management_requests WHERE contact_email = $1', [email]),
+      pool.query(`SELECT COUNT(*)::int AS n FROM listings WHERE owner_email = $1 AND handling = 'self' AND listing_type = 'rent'`, [email]),
       pool.query(`SELECT COUNT(*)::int AS n FROM management_tenancies WHERE LOWER(tenant_email) = $1 AND status <> 'void'`, [email]),
       pool.query('SELECT COUNT(*)::int AS n FROM rental_applications WHERE LOWER(email) = $1', [email]),
     ]);
-    return res.json({ owner: owner.rows[0].n, tenant: tenant.rows[0].n, applicant: applicant.rows[0].n });
+    return res.json({
+      owner: owner.rows[0].n + listed.rows[0].n,
+      tenant: tenant.rows[0].n,
+      applicant: applicant.rows[0].n,
+    });
   } catch (err) {
     console.error('GET /tenant/roles error:', err);
     return res.status(500).json({ error: 'Could not check your account.' });

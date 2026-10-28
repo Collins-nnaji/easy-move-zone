@@ -39,7 +39,7 @@ test('every portal lives under /portal and is chrome-free, and signed in Manage 
   expect(navItemTarget(manage, true)).toBe('/portal');
   expect(navItemTarget(manage, false)).toBe('/manage');
   expect(navItemLabel(manage, true)).toBe('My portal');
-  expect(navItemLabel(manage, false)).toBe('Manage');
+  expect(navItemLabel(manage, false)).toBe('Let');
 });
 
 test('the portal switcher tells portals you use from ones you could start', async () => {

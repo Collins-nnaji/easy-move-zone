@@ -34,7 +34,7 @@ const Field = styled.label`
   span { display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-ink-muted); margin-bottom: 0.4rem; }
   input, select, textarea { width: 100%; box-sizing: border-box; min-height: 46px; border: 1px solid var(--color-line-strong); border-radius: 11px; background: #fff; color: var(--color-ink); padding: 0.7rem 0.85rem; font: inherit; outline: none; }
   textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
-  input:focus, select:focus, textarea:focus { border-color: var(--color-green); box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.1); }
+  input:focus, select:focus, textarea:focus { border-color: var(--color-green); box-shadow: 0 0 0 3px rgba(184, 90, 48, 0.1); }
 `;
 const Submit = styled.button`
   display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%;

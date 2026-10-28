@@ -341,6 +341,19 @@ export const api = {
       const { listings } = await request(`/listings/mine?email=${encodeURIComponent(email)}`);
       return listings;
     },
+    /** Homes this account listed itself, plus whether photo storage is connected. */
+    async self() {
+      return request('/listings/self');
+    },
+    async createSelf(payload) {
+      return request('/listings/self', { method: 'POST', body: JSON.stringify(payload) });
+    },
+    async withdrawSelf(id) {
+      return request(`/listings/self/${id}/withdraw`, { method: 'POST', body: '{}' });
+    },
+    async addSelfPhotos(id, media) {
+      return request(`/listings/self/${id}/photos`, { method: 'POST', body: JSON.stringify({ media }) });
+    },
     /** The owner's side of assisted intake: open the link, then sign. */
     confirm: {
       async get(token) {

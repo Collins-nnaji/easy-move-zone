@@ -12,9 +12,8 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-brand-deep border-brand-deep text-white hover:bg-brand-forest hover:border-brand-forest hover:text-white hover:-translate-y-px hover:shadow-card',
-        // Was a pale green for dark bands; on the white site it is the main action again.
-        bright: 'bg-brand-deep border-brand-deep text-white hover:bg-brand-forest hover:border-brand-forest hover:text-white hover:-translate-y-px hover:shadow-card',
+        default: 'brand-fill border-transparent text-white hover:text-white hover:-translate-y-px hover:shadow-card',
+        bright: 'brand-fill border-transparent text-white hover:text-white hover:-translate-y-px hover:shadow-card',
         dark: 'bg-brand-black border-brand-black text-white hover:bg-[var(--color-black-soft)] hover:text-white hover:-translate-y-px',
         outline: 'bg-white border-[var(--color-line-strong)] text-brand-ink hover:border-brand-deep hover:text-brand-deep hover:-translate-y-px',
         glass: 'bg-[rgba(6,24,16,0.55)] border-white/30 text-white backdrop-blur-md hover:bg-[rgba(6,24,16,0.8)] hover:text-white',

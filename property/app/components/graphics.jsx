@@ -35,7 +35,7 @@ export function InvolvementSpectrum({ activePlan = null }) {
   const segW = (w - gap * (LADDER.length - 1)) / LADDER.length;
   const activeIndex = LADDER.findIndex((p) => p.key === activePlan);
   /* Light-to-deep green ramp: the more we take on, the deeper the block. */
-  const RAMP = ['#86efac', '#4ade80', '#426f62', '#2f5d50'];
+  const RAMP = ['#f8dcc8', '#fbb03b', '#d4923a', '#b85a30'];
   const HANDS_OFF = ['You run it', 'We collect', 'We run it', 'We run all of it'];
 
   return (
@@ -108,7 +108,7 @@ export function RentFlow() {
     <FlowWrap>
       <svg viewBox="0 0 320 168" role="img" aria-label="Rent flows from the tenant through us to you. Contractors pay us nothing.">
         {/* Tenant */}
-        <rect x="4" y="16" width="96" height="46" rx="12" fill="var(--color-green-soft)" stroke="rgba(47, 93, 80,0.35)" />
+        <rect x="4" y="16" width="96" height="46" rx="12" fill="var(--color-green-soft)" stroke="rgba(184, 90, 48,0.35)" />
         <text x="52" y="38" textAnchor="middle" fontSize="14" fontWeight="700" fill="var(--color-ink)">Tenant</text>
         <text x="52" y="53" textAnchor="middle" fontSize="10" fontFamily="var(--font-mono)" fill="var(--color-green-deep)">pays rent</text>
 
@@ -120,7 +120,7 @@ export function RentFlow() {
         {/* Us */}
         <rect x="212" y="58" width="104" height="52" rx="14" fill="var(--color-green-deep)" />
         <text x="264" y="80" textAnchor="middle" fontSize="14" fontWeight="700" fill="#fff">EasyMoveZone</text>
-        <text x="264" y="96" textAnchor="middle" fontSize="10" fontFamily="var(--font-mono)" fill="#b9d3c9">your manager</text>
+        <text x="264" y="96" textAnchor="middle" fontSize="10" fontFamily="var(--font-mono)" fill="#f6d7a8">your manager</text>
 
         {/* Rent arrow */}
         <path d="M104 40 C 150 40, 168 70, 206 78" fill="none" stroke="var(--color-green)" strokeWidth="2.5" />
@@ -165,7 +165,7 @@ const Step = styled.li`
     top: 30px;
     bottom: 4px;
     width: 2px;
-    background: linear-gradient(180deg, var(--color-green) 0%, rgba(47, 93, 80, 0.18) 100%);
+    background: linear-gradient(180deg, var(--color-green) 0%, rgba(184, 90, 48, 0.18) 100%);
   }
 
   .node {
@@ -312,7 +312,7 @@ function NairaMark({ x, y, size, color = '#0a2e1c' }) {
 function Coin({ x, y, r, cls, delay = 0 }) {
   return (
     <g className={cls} style={{ animationDelay: `${delay}s` }}>
-      <circle cx={x} cy={y} r={r} fill="#2f5d50" />
+      <circle cx={x} cy={y} r={r} fill="#b85a30" />
       <circle cx={x} cy={y} r={r - 3} fill="#34d97a" />
       <circle cx={x} cy={y} r={r - 3} fill="url(#coinShine)" />
       <NairaMark x={x} y={y} size={r * 0.95} />
@@ -340,8 +340,8 @@ export function HomeAndMoneyArt() {
             <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="bvRoof" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#2f5d50" />
-            <stop offset="100%" stopColor="#234b40" />
+            <stop offset="0%" stopColor="#b85a30" />
+            <stop offset="100%" stopColor="#111111" />
           </linearGradient>
           <linearGradient id="bvWall" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#ffffff" />
@@ -352,39 +352,39 @@ export function HomeAndMoneyArt() {
             <stop offset="55%" stopColor="#ffffff" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="bvChartFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#8fb5a8" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#8fb5a8" stopOpacity="0" />
+            <stop offset="0%" stopColor="#fbb03b" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#fbb03b" stopOpacity="0" />
           </linearGradient>
         </defs>
 
         {/* Backdrop, and the arcs of money moving — behind the house, so they
             read as depth rather than as scratches across the roof. */}
         <circle cx="252" cy="176" r="158" fill="url(#bvSkyWash)" />
-        <g fill="none" stroke="#426f62" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="2 11" opacity="0.45">
+        <g fill="none" stroke="#d4923a" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="2 11" opacity="0.45">
           <path d="M96 118 Q170 54 252 62" />
           <path d="M410 128 Q346 66 276 62" />
         </g>
-        <ellipse cx="252" cy="322" rx="164" ry="18" fill="#2f5d50" opacity="0.07" />
+        <ellipse cx="252" cy="322" rx="164" ry="18" fill="#b85a30" opacity="0.07" />
 
         {/* ── The house ── */}
         <g>
           <path d="M124 168 L252 74 L380 168 L360 168 L252 89 L144 168 Z" fill="url(#bvRoof)" />
-          <rect x="316" y="100" width="24" height="42" rx="4" fill="#234b40" />
+          <rect x="316" y="100" width="24" height="42" rx="4" fill="#111111" />
 
-          <rect x="152" y="164" width="200" height="148" rx="10" fill="url(#bvWall)" stroke="rgba(27, 35, 30,0.16)" strokeWidth="2" />
+          <rect x="152" y="164" width="200" height="148" rx="10" fill="url(#bvWall)" stroke="rgba(16, 18, 24,0.16)" strokeWidth="2" />
 
           {/* Door, centred on the house */}
-          <rect x="232" y="238" width="42" height="74" rx="6" fill="#2f5d50" />
-          <circle cx="264" cy="278" r="3.5" fill="#b9d3c9" />
+          <rect x="232" y="238" width="42" height="74" rx="6" fill="#b85a30" />
+          <circle cx="264" cy="278" r="3.5" fill="#f6d7a8" />
 
           {/* Windows, symmetrical either side */}
-          <g stroke="rgba(27, 35, 30,0.18)" strokeWidth="2">
-            <rect x="176" y="190" width="48" height="44" rx="6" fill="#e5efeb" />
-            <rect x="282" y="190" width="48" height="44" rx="6" fill="#e5efeb" />
-            <rect x="176" y="252" width="48" height="44" rx="6" fill="#e5efeb" />
-            <rect x="282" y="252" width="48" height="44" rx="6" fill="#e5efeb" />
+          <g stroke="rgba(16, 18, 24,0.18)" strokeWidth="2">
+            <rect x="176" y="190" width="48" height="44" rx="6" fill="#fdece3" />
+            <rect x="282" y="190" width="48" height="44" rx="6" fill="#fdece3" />
+            <rect x="176" y="252" width="48" height="44" rx="6" fill="#fdece3" />
+            <rect x="282" y="252" width="48" height="44" rx="6" fill="#fdece3" />
           </g>
-          <g stroke="rgba(27, 35, 30,0.16)" strokeWidth="2">
+          <g stroke="rgba(16, 18, 24,0.16)" strokeWidth="2">
             <path d="M200 190 V234 M176 212 H224" />
             <path d="M306 190 V234 M282 212 H330" />
             <path d="M200 252 V296 M176 274 H224" />
@@ -395,13 +395,13 @@ export function HomeAndMoneyArt() {
         {/* ── What it is worth, rising — clear of the house ── */}
         <g transform="translate(356 210)">
           <g className="float-c">
-            <rect x="0" y="0" width="128" height="88" rx="12" fill="#1b231e" />
+            <rect x="0" y="0" width="128" height="88" rx="12" fill="#101218" />
             <text x="14" y="24" fontFamily="Inter, sans-serif" fontSize="10" fontWeight="600" letterSpacing="0.1em" fill="rgba(244,247,245,0.55)">
               VALUE
             </text>
             <path d="M14 70 L42 56 L64 62 L108 34 L108 76 L14 76 Z" fill="url(#bvChartFill)" />
-            <path d="M14 70 L42 56 L64 62 L108 34" fill="none" stroke="#b9d3c9" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx="108" cy="34" r="5" fill="#8fb5a8" stroke="#1b231e" strokeWidth="2" />
+            <path d="M14 70 L42 56 L64 62 L108 34" fill="none" stroke="#f6d7a8" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="108" cy="34" r="5" fill="#fbb03b" stroke="#101218" strokeWidth="2" />
           </g>
         </g>
 
@@ -413,9 +413,9 @@ export function HomeAndMoneyArt() {
         {/* A note of cash, mid-flight, on the opposite side to the chart */}
         <g transform="rotate(-12 106 296)">
           <g className="float-b">
-            <rect x="72" y="276" width="68" height="40" rx="7" fill="#2f5d50" />
+            <rect x="72" y="276" width="68" height="40" rx="7" fill="#b85a30" />
             <rect x="78" y="282" width="56" height="28" rx="5" fill="#34d97a" />
-            <NairaMark x={106} y={296} size={18} color="#2f5d50" />
+            <NairaMark x={106} y={296} size={18} color="#b85a30" />
           </g>
         </g>
       </svg>
@@ -457,7 +457,7 @@ export function PassportChecksArt({ dark = true, inView = false, total = 6, done
   const ink = dark ? '#f5faf7' : 'var(--color-ink)';
   const faint = dark ? 'rgba(255,255,255,0.55)' : 'var(--color-ink-faint)';
   const green = dark ? '#c2d8cf' : 'var(--color-green)';
-  const deep = dark ? '#b9d3c9' : 'var(--color-green-deep)';
+  const deep = dark ? '#f6d7a8' : 'var(--color-green-deep)';
 
   const [wrapRef, play] = useStartInView(inView);
   const anim = (a) => ({ animate: play ? a : undefined });
@@ -637,7 +637,7 @@ export function MilestoneFlowArt() {
         {xs.map((x, i) => (
           <g key={MILESTONES[i]}>
             <FadeIn delay={0.4 + i * 0.7} y={0}>
-              <circle cx={x} cy={y} r="14" fill="#2f5d50" stroke={green} strokeWidth="2.5" />
+              <circle cx={x} cy={y} r="14" fill="#b85a30" stroke={green} strokeWidth="2.5" />
               <path d={`M${x - 6} ${y} l4 4 l8 -8`} fill="none" stroke={green} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </FadeIn>
             <FadeIn delay={0.55 + i * 0.7}>
@@ -647,11 +647,11 @@ export function MilestoneFlowArt() {
         ))}
         {/* the coin */}
         {reduce ? (
-          <circle cx={xs[2]} cy={y - 30} r="9" fill="#8fb5a8" stroke="#b9d3c9" strokeWidth="2" />
+          <circle cx={xs[2]} cy={y - 30} r="9" fill="#fbb03b" stroke="#f6d7a8" strokeWidth="2" />
         ) : (
           <motion.g initial={{ x: xs[0], opacity: 0 }} animate={{ x: [xs[0], xs[0], xs[1], xs[1], xs[2]], opacity: 1 }} transition={{ duration: 2.4, delay: 0.5, times: [0, 0.2, 0.5, 0.7, 1], ease: 'easeInOut' }}>
-            <circle cy={y - 30} r="9" fill="#8fb5a8" stroke="#b9d3c9" strokeWidth="2" />
-            <text y={y - 26} textAnchor="middle" fontFamily="var(--font-sans)" fontSize="10" fontWeight="800" fill="#1b231e">₦</text>
+            <circle cy={y - 30} r="9" fill="#fbb03b" stroke="#f6d7a8" strokeWidth="2" />
+            <text y={y - 26} textAnchor="middle" fontFamily="var(--font-sans)" fontSize="10" fontWeight="800" fill="#101218">₦</text>
           </motion.g>
         )}
         <text x="24" y={h - 16} fontFamily="var(--font-sans)" fontSize="11" fontWeight="600" fill="rgba(255,255,255,0.6)">Nothing is paid before it is checked</text>
@@ -708,7 +708,7 @@ export function JourneyTimelineArt() {
               </FadeIn>
               <FadeIn delay={delay + 0.25} y={0}>
                 <g transform={`translate(${w - 28}, ${y})`}>
-                  <rect x={-(t.chip.length * 6.2 + 18)} y="-11" width={t.chip.length * 6.2 + 18} height="22" rx="11" fill="var(--color-green-soft)" stroke="rgba(47, 93, 80,0.25)" />
+                  <rect x={-(t.chip.length * 6.2 + 18)} y="-11" width={t.chip.length * 6.2 + 18} height="22" rx="11" fill="var(--color-green-soft)" stroke="rgba(184, 90, 48,0.25)" />
                   <text x={-9} y="4" textAnchor="end" fontFamily="var(--font-sans)" fontSize="10.5" fontWeight="700" fill="var(--color-green-deep)">{t.chip}</text>
                 </g>
               </FadeIn>

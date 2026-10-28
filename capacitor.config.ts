@@ -30,7 +30,7 @@ const config: CapacitorConfig = {
   // still requires a local webDir to exist; `native/www` holds a lightweight
   // offline fallback shell.
   webDir: "native/www",
-  backgroundColor: "#f6f3ec",
+  backgroundColor: "#f4f3ef",
   server: {
     // Load the live, server-rendered app. Comment this block out (and rely on
     // webDir) only if you move to a fully static export.
@@ -46,13 +46,13 @@ const config: CapacitorConfig = {
   },
   ios: {
     contentInset: "always",
-    backgroundColor: "#f6f3ec",
+    backgroundColor: "#f4f3ef",
     // Allow the WebView to hand off to SFSafariViewController / system browser
     // for payment providers and OAuth.
     limitsNavigationsToAppBoundDomains: false,
   },
   android: {
-    backgroundColor: "#f6f3ec",
+    backgroundColor: "#f4f3ef",
     allowMixedContent: false,
     captureInput: true,
   },
@@ -60,7 +60,7 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 1200,
       launchAutoHide: false,
-      backgroundColor: "#f6f3ec",
+      backgroundColor: "#f4f3ef",
       androidScaleType: "CENTER_CROP",
       showSpinner: false,
       splashFullScreen: true,
@@ -68,7 +68,7 @@ const config: CapacitorConfig = {
     },
     StatusBar: {
       style: "DARK",
-      backgroundColor: "#f6f3ec",
+      backgroundColor: "#f4f3ef",
       overlaysWebView: false,
     },
     PushNotifications: {

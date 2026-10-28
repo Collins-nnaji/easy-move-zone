@@ -37,9 +37,9 @@ function escapeHtml(s) {
 async function sendEmail(to, subject, text, link) {
   if (!emailConfigured()) return 'skipped';
   const url = link ? `${APP_URL}${link}` : APP_URL;
-  const html = `<div style="font-family:Inter,Arial,sans-serif;font-size:15px;line-height:1.55;color:#1b231e">
+  const html = `<div style="font-family:Inter,Arial,sans-serif;font-size:15px;line-height:1.55;color:#101218">
 <p>${escapeHtml(text).replace(/\n/g, '<br>')}</p>
-<p><a href="${escapeHtml(url)}" style="display:inline-block;background:#2f5d50;color:#fff;padding:10px 16px;border-radius:999px;text-decoration:none;font-weight:600">Open EasyMoveZone</a></p>
+<p><a href="${escapeHtml(url)}" style="display:inline-block;background:#b85a30;color:#fff;padding:10px 16px;border-radius:999px;text-decoration:none;font-weight:600">Open EasyMoveZone</a></p>
 <p style="color:#8a9990;font-size:12px">You are getting this because you have a property or a tenancy with EasyMoveZone.</p></div>`;
   try {
     const res = await fetch('https://api.resend.com/emails', {

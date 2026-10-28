@@ -32,7 +32,8 @@ const { areaForPlace } = require('../areaStore');
  * on the managed property, and the listing ends at `let`.
  */
 
-const { requireAdmin, sessionEmail } = require('../auth');
+const { requireAdmin, sessionEmail, sessionUser } = require('../auth');
+const { rateLimit } = require('../services/rateLimit');
 const { DEFAULT_CURRENCY } = require('../markets');
 
 /**
@@ -215,6 +216,138 @@ router.get('/mine', async (req, res) => {
   } catch (err) {
     console.error('GET /listings/mine error:', err);
     return res.status(500).json({ error: 'Could not load your submissions.' });
+  }
+});
+
+/*
+ * A home the signed-in person listed themselves (handling = 'self').
+ * It is not public until staff move it to live. The same account manages
+ * it from the portal: status, enquiries, photos and taking it down.
+ */
+router.get('/self', async (req, res) => {
+  const email = await sessionEmail(req);
+  if (!email) return res.status(401).json({ error: 'Please sign in again to continue.' });
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, ref, title, address, city, state, status, handling, photos_pending,
+              currency, COALESCE(list_price, guide_price) AS price, rent_frequency, beds, created_at,
+              (SELECT COUNT(*)::int FROM listing_enquiries e WHERE e.listing_id = listings.id) AS enquiries
+         FROM listings
+        WHERE owner_email = $1 AND handling = 'self' AND listing_type = 'rent'
+        ORDER BY created_at DESC`,
+      [email]
+    );
+    return res.json({ listings: rows, storageEnabled: storageConfigured() });
+  } catch (err) {
+    console.error('GET /listings/self error:', err);
+    return res.status(500).json({ error: 'Could not load your listings.' });
+  }
+});
+
+/* POST /api/listings/self — one form, not a multi-page application. */
+router.post('/self', async (req, res) => {
+  const user = await sessionUser(req);
+  if (!user?.email) return res.status(401).json({ error: 'Please sign in again to continue.' });
+  const b = req.body || {};
+  const address = clean(b.address, 500);
+  const city = clean(b.city, 120);
+  const state = clean(b.state, 80);
+  const rent = num(b.rent || b.price);
+  if (!address) return res.status(400).json({ error: 'A property address is required.' });
+  if (!city) return res.status(400).json({ error: 'A city is required.' });
+  if (!state) return res.status(400).json({ error: 'A state is required.' });
+  if (!rent || rent <= 0) return res.status(400).json({ error: 'An annual rent is required.' });
+
+  const media = Array.isArray(b.media) ? b.media.filter((m) => m && m.url).slice(0, 8) : [];
+  const storageOn = storageConfigured();
+  const photosPending = media.length === 0;
+  const ref = makeRef();
+  const title = clean(b.title) || address;
+  try {
+    await rateLimit('list-self', user.email, 12, 60 * 60 * 1000);
+    const { rows } = await pool.query(
+      `INSERT INTO listings (
+         ref, slug, owner_email, owner_name, owner_phone, listed_by_user_id,
+         title, address, city, state, country, property_type, beds,
+         description, media, currency, guide_price, list_price,
+         intent, route, publish_consent, owner_confirmed, consent, consent_name,
+         consent_via, consent_at, consent_ip, listing_type, rent_frequency,
+         handling, photos_pending, status
+       ) VALUES (
+         $1,$2,$3,$4,$5,$6,
+         $7,$8,$9,$10,$11,$12,$13,
+         $14,$15,$16,$17,$17,
+         'private','owner_listed', true, true, true, $4,
+         'self', NOW(), $18, 'rent', 'annual',
+         'self', $19, 'submitted'
+       ) RETURNING id, ref, title, address, city, state, status, handling, photos_pending,
+                   currency, list_price AS price, rent_frequency, beds, created_at`,
+      [
+        ref, makeSlug(title, ref), user.email, clean(b.contactName) || user.name || null, clean(b.phone, 100), user.id,
+        title, address, city, state, clean(b.country, 120) || 'Nigeria', clean(b.propertyType, 80), clean(b.beds, 20),
+        typeof b.description === 'string' ? b.description.trim().slice(0, 2000) : null,
+        JSON.stringify(media),
+        'NGN', rent,
+        clientIp(req), photosPending,
+      ]
+    );
+    return res.json({
+      success: true,
+      listing: { ...rows[0], enquiries: 0 },
+      storageEnabled: storageOn,
+      portalPath: '/portal/landlord/listings',
+    });
+  } catch (err) {
+    console.error('POST /listings/self error:', err);
+    return res.status(err.status || 500).json({ error: err.status === 429 ? err.message : 'Could not list this home. Please try again.' });
+  }
+});
+
+/* POST /api/listings/self/:id/withdraw — the owner takes their own listing down. */
+router.post('/self/:id/withdraw', async (req, res) => {
+  const email = await sessionEmail(req);
+  if (!email) return res.status(401).json({ error: 'Please sign in again to continue.' });
+  const id = Number.parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'That listing was not found.' });
+  try {
+    const { rows } = await pool.query(
+      `UPDATE listings SET status = 'withdrawn', updated_at = NOW()
+        WHERE id = $1 AND owner_email = $2 AND handling = 'self'
+          AND status IN ('submitted','reviewing','pending_review','live')
+        RETURNING id, status`,
+      [id, email]
+    );
+    if (!rows[0]) return res.status(404).json({ error: 'That listing cannot be taken down.' });
+    return res.json({ listing: rows[0] });
+  } catch (err) {
+    console.error('POST /listings/self/:id/withdraw error:', err);
+    return res.status(500).json({ error: 'Could not take this listing down.' });
+  }
+});
+
+/* POST /api/listings/self/:id/photos — attach photos once storage is available. */
+router.post('/self/:id/photos', async (req, res) => {
+  const email = await sessionEmail(req);
+  if (!email) return res.status(401).json({ error: 'Please sign in again to continue.' });
+  if (!storageConfigured()) {
+    return res.status(503).json({ error: 'Photo storage is not connected yet. The listing is saved without photos.' });
+  }
+  const id = Number.parseInt(req.params.id, 10);
+  const media = Array.isArray(req.body?.media) ? req.body.media.filter((m) => m && m.url).slice(0, 8) : [];
+  if (!id || !media.length) return res.status(400).json({ error: 'Add at least one photo.' });
+  try {
+    const { rows } = await pool.query(
+      `UPDATE listings
+          SET media = $3::jsonb, photos_pending = false, updated_at = NOW()
+        WHERE id = $1 AND owner_email = $2 AND handling = 'self'
+        RETURNING id, photos_pending`,
+      [id, email, JSON.stringify(media)]
+    );
+    if (!rows[0]) return res.status(404).json({ error: 'That listing was not found.' });
+    return res.json({ listing: rows[0], storageEnabled: true });
+  } catch (err) {
+    console.error('POST /listings/self/:id/photos error:', err);
+    return res.status(500).json({ error: 'Could not attach those photos.' });
   }
 });
 

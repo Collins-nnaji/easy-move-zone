@@ -8,8 +8,8 @@
  * their own markup.
  */
 
-const PRIMARY = "#2f5d50"
-const INK = "#1b231e"
+const PRIMARY = "#b85a30"
+const INK = "#101218"
 
 /**
  * Hero illustration: a truck on a route between two pins, with the escrow

@@ -45,8 +45,8 @@ export class ClientErrorBoundary extends Component<Props, State> {
     if (this.state.error) {
       return (
         <div className="mx-auto max-w-lg p-8 text-center">
-          <h1 className="text-xl font-bold text-[#1b231e]">Something went wrong</h1>
-          <p className="mt-2 text-sm text-[#6e746b]">Try refreshing the page. Ops has been notified if monitoring is configured.</p>
+          <h1 className="text-xl font-bold text-[#101218]">Something went wrong</h1>
+          <p className="mt-2 text-sm text-[#5c6370]">Try refreshing the page. Ops has been notified if monitoring is configured.</p>
           <button
             type="button"
             className="mt-4 rounded-xl bg-[#e0511f] px-4 py-2 text-sm font-bold text-white"

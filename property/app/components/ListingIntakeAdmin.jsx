@@ -130,7 +130,7 @@ const Unit = styled.div`
 const LinkBox = styled.div`
   border-radius: 12px;
   background: var(--color-green-wash, #f1f8f4);
-  border: 1px solid rgba(47, 93, 80, 0.2);
+  border: 1px solid rgba(184, 90, 48, 0.2);
   padding: 0.85rem 1rem;
   margin: 0.75rem 0;
   .url {

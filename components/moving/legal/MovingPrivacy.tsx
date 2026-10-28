@@ -16,13 +16,13 @@ const sections = [
     id: "what-we-collect",
     title: "Information we collect",
     body: <>
-      <p><strong className="text-[#1b231e]">Information you give us</strong></p>
+      <p><strong className="text-[#101218]">Information you give us</strong></p>
       <Bullets items={[
         "Account details: your name, email address and password, or the basic profile Google shares if you sign in with Google.",
         "Move details you submit: inventory, optional photos, move size, addresses, floor levels, access instructions, preferred date, requested extras and contact details.",
         "Messages you send through the contact form, including an optional phone number.",
       ]} />
-      <p><strong className="text-[#1b231e]">Information created when you use the service</strong></p>
+      <p><strong className="text-[#101218]">Information created when you use the service</strong></p>
       <Bullets items={[
         "Shipment references saved in this browser until you clear site data.",
         "Technical data such as IP address, browser and device type, pages requested, and the sign-in cookies described in our Cookie Policy.",
@@ -34,10 +34,10 @@ const sections = [
     title: "How we use your information",
     body: <>
       <Bullets items={[
-        <><strong className="text-[#1b231e]">To provide the service</strong>: signing you in, keeping a move reference, and showing tracking steps.</>,
-        <><strong className="text-[#1b231e]">To reply to you</strong>: answering questions about quotes, moving services and existing moves.</>,
-        <><strong className="text-[#1b231e]">To keep the service safe</strong>: preventing abuse, fixing errors and understanding which pages are used.</>,
-        <><strong className="text-[#1b231e]">To meet legal obligations</strong>: keeping records the law requires, and responding to lawful requests.</>,
+        <><strong className="text-[#101218]">To provide the service</strong>: signing you in, keeping a move reference, and showing tracking steps.</>,
+        <><strong className="text-[#101218]">To reply to you</strong>: answering questions about quotes, moving services and existing moves.</>,
+        <><strong className="text-[#101218]">To keep the service safe</strong>: preventing abuse, fixing errors and understanding which pages are used.</>,
+        <><strong className="text-[#101218]">To meet legal obligations</strong>: keeping records the law requires, and responding to lawful requests.</>,
       ]} />
       <p>We don&apos;t sell your personal information.</p>
     </>,

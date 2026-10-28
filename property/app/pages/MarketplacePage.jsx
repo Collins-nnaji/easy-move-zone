@@ -13,7 +13,7 @@ import {
   PageShell, Section, Inner, Panel,
 } from '../components/page';
 import {
-  SAVED_URL, RENT_URL, AREAS_URL, LIST_URL, RENTAL_CHECK_URL,
+  SAVED_URL, RENT_URL, AREAS_URL, LIST_URL,
 } from '../config/platform';
 import ListingMap from '../components/ListingMap';
 import { perPeriod, INCOME_BANDS, ID_TYPES, VIEWING_WINDOWS } from '../config/rentals';
@@ -26,7 +26,7 @@ import { Heart, Bell } from 'lucide-react';
 import { Stagger, StaggerItem, staggerItem } from '../components/motion';
 import { SpotArt } from '../components/graphics';
 import { ServiceHero, ServiceHeroInner } from '../components/ServiceHero';
-import PropertyHeader from '../components/PropertyHeader';
+import PropertyHeader, { StreetArt } from '../components/PropertyHeader';
 import { useIsMobile } from '../utils/useMediaQuery';
 import { Skeleton } from '../components/shadcn/skeleton';
 import { Badge } from '../components/shadcn/badge';
@@ -310,7 +310,7 @@ const Card = styled(Link)`
     color: var(--color-ink);
     transform: translateY(-3px);
     box-shadow: var(--shadow-card);
-    border-color: rgba(47, 93, 80, 0.3);
+    border-color: rgba(184, 90, 48, 0.3);
   }
 `;
 
@@ -430,6 +430,23 @@ const EmptyState = styled(Panel)`
 
   h3 { margin-bottom: 0.5rem; }
   p { max-width: 46ch; margin: 0 auto 1.25rem; }
+`;
+
+const QuietArt = styled.div`
+  width: 148px;
+  margin: 0 auto 0.35rem;
+`;
+
+const PageTitle = styled.h1`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 `;
 
 const GreenBtn = styled(Link)`
@@ -627,22 +644,11 @@ function Browse({ mode = 'sale' }) {
 
   return (
     <>
-      <PropertyHeader kind="rent">
-        <motion.h1 variants={staggerItem}>Homes to rent.</motion.h1>
-        <motion.p variants={staggerItem} className="intro">
-          Homes we manage, and homes listed by verified agents, every one checked before it goes live. Apply once, and we arrange the viewing and the paperwork.
-        </motion.p>
-        <motion.div variants={staggerItem}>
-          <AreaLink to={AREAS_URL}>Not sure about an area? See what residents say about the light, water and flooding <FaArrowRight size={10} /></AreaLink>
-        </motion.div>
-        <motion.div variants={staggerItem}>
-          <AreaLink to={RENTAL_CHECK_URL}>Found a home somewhere else? Check the landlord and the home before you pay <FaArrowRight size={10} /></AreaLink>
-        </motion.div>
-        <SavedLink />
-      </PropertyHeader>
+      <PageTitle>Homes to rent</PageTitle>
 
       <Section $sm id="properties-grid">
         <Inner>
+          <SavedLink />
           {mobile ? (
             <>
               <FilterToggle type="button" $open={filtersOpen} aria-expanded={filtersOpen} aria-controls="property-filters" onClick={() => setFiltersOpen(true)}>
@@ -690,6 +696,7 @@ function Browse({ mode = 'sale' }) {
             <EmptyState><h3>Could not load properties</h3><p>{error}</p></EmptyState>
           ) : listings.length === 0 && rent ? (
             <EmptyState>
+              {!anyFilter && <QuietArt><StreetArt kind="rent" /></QuietArt>}
               <h3>{anyFilter ? 'Nothing matches those filters' : 'No homes to rent right now'}</h3>
               <p>
                 {anyFilter
@@ -1093,7 +1100,7 @@ const Spec = styled.span`
   align-items: center;
   gap: 0.45rem;
   background: var(--color-green-wash);
-  border: 1px solid rgba(47, 93, 80, 0.18);
+  border: 1px solid rgba(184, 90, 48, 0.18);
   border-radius: var(--radius-pill);
   padding: 0.45rem 0.9rem;
   font-size: 0.85rem;

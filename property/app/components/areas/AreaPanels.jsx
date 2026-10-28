@@ -215,7 +215,7 @@ const Nearby = styled.div`
   @media (min-width: 861px) and (max-width: 1100px) { grid-template-columns: minmax(0, 1fr); }
   @media (max-width: 380px) { grid-template-columns: minmax(0, 1fr); }
   a { display: flex; align-items: center; gap: 0.45rem; padding: 0.55rem 0.65rem; border-radius: 10px; border: 1px solid var(--color-line); font-size: 0.82rem; font-weight: 600; color: var(--color-ink); }
-  a:hover { border-color: rgba(47, 93, 80, 0.4); color: var(--color-green-deep); }
+  a:hover { border-color: rgba(184, 90, 48, 0.4); color: var(--color-green-deep); }
   svg { color: var(--color-green); flex-shrink: 0; }
 `;
 const Next = styled(Link)`

@@ -107,11 +107,16 @@ export const AGENT_APPLY_URL = `${AGENT_URL}/apply`;
 export const LIST_URL = '/list';
 
 export const REAL_ESTATE_NAV_ITEMS = [
-  { to: RENT_URL, label: 'Homes to rent', match: ['/listings'] },
-  { to: RENTAL_CHECK_URL, label: 'Check a rental', match: [RENTAL_CHECK_URL] },
-  { to: AREAS_URL, label: 'Neighbourhoods', match: [AREAS_URL] },
+  { to: RENT_URL, label: 'Rent', match: ['/listings', RENTAL_CHECK_URL] },
+  { to: AREAS_URL, label: 'Areas', match: [AREAS_URL] },
   { to: MOVING_URL, label: 'Moving', match: [MOVING_URL] },
-  { to: '/manage', label: 'Manage', signedInLabel: 'My portal', match: MANAGE_PATHS, exclude: [AGENT_APPLY_URL] },
+  { to: '/manage', label: 'Let', signedInLabel: 'My portal', match: MANAGE_PATHS, exclude: [AGENT_APPLY_URL] },
+];
+
+/** Section bar under the main nav on Rent. Verify is a page of Rent, not a site section. */
+export const RENT_SECTION_NAV = [
+  { to: RENT_URL, label: 'Homes', match: ['/listings'] },
+  { to: RENTAL_CHECK_URL, label: 'Verify', match: [RENTAL_CHECK_URL] },
 ];
 
 /**
@@ -123,7 +128,7 @@ export const REAL_ESTATE_BOTTOM_NAV = [
   { to: RENT_URL, label: 'Rent', icon: 'buy', match: ['/listings', RENTAL_CHECK_URL] },
   { to: AREAS_URL, label: 'Areas', icon: 'area', match: [AREAS_URL] },
   { to: MOVING_URL, label: 'Moving', icon: 'truck', match: [MOVING_URL] },
-  { to: '/manage', label: 'Manage', signedInLabel: 'Portal', icon: 'manage', match: MANAGE_PATHS, exclude: [AGENT_APPLY_URL] },
+  { to: '/manage', label: 'Let', signedInLabel: 'Portal', icon: 'manage', match: MANAGE_PATHS, exclude: [AGENT_APPLY_URL] },
 ];
 
 /** Where a nav item goes for this visitor: signed in, Manage opens your portal. */
@@ -149,9 +154,6 @@ export function isNavItemActive(item, pathname) {
 /* ── Landlord services ─────────────────────────────────────────────── */
 
 export const OFFER_RENOVATE_URL = '/renovate';
-/** Declared here so SITE_MENU (above the console block) can reference it. */
-const MANAGE_ADD_URL_PUBLIC = `${LANDLORD_URL}/add`;
-
 
 /**
  * The whole public site as groups, for the mobile menu sheet and the
@@ -160,24 +162,23 @@ const MANAGE_ADD_URL_PUBLIC = `${LANDLORD_URL}/add`;
 export const SITE_MENU = [
   {
     id: 'property',
-    label: 'Renting',
-    blurb: 'Find a home and check it before you pay',
+    label: 'Rent',
+    blurb: 'A home you can trust, and the area around it',
     items: [
-      { to: RENT_URL, label: 'Homes to rent', icon: 'buy', desc: 'Checked and approved by us', primary: true },
-      { to: RENTAL_CHECK_URL, label: 'Check a rental', icon: 'verify', desc: 'The landlord, agent and home, before you pay' },
-      { to: AREAS_URL, label: 'Neighbourhoods', icon: 'area', desc: 'What residents say, rents and commute' },
+      { to: RENT_URL, label: 'Browse homes', icon: 'buy', desc: 'Checked before they go live', primary: true },
+      { to: RENTAL_CHECK_URL, label: 'Verify a rental', icon: 'verify', desc: 'Landlord, home and agreement' },
+      { to: AREAS_URL, label: 'Neighbourhoods', icon: 'area', desc: 'Rents, commute and what residents say' },
       { to: '/list#agents', label: 'Find an agent', icon: 'consult', desc: 'Verified letting agencies' },
     ],
   },
   {
     id: 'manage',
-    label: 'Landlords and agents',
-    blurb: 'Let a home, or have us run it for you',
+    label: 'Owners',
+    blurb: 'Let it yourself, or have us run it',
     items: [
-      { to: '/manage', label: 'How we manage', icon: 'manage', desc: 'Tenants, rent and repairs, run for you' },
-      { to: MANAGE_ADD_URL_PUBLIC, label: 'Hand over a property', icon: 'add', desc: 'Start letting with us' },
-      { to: '/list', label: 'List a home to rent', icon: 'add', desc: 'Post it yourself, as an agent or landlord' },
-      { to: BOOK_SESSION_URL, label: 'Talk to an adviser', icon: 'consult', desc: 'Free, no account needed' },
+      { to: '/manage', label: 'We run the property', icon: 'manage', desc: 'We find the tenant, collect the rent and handle repairs' },
+      { to: '/manage?let=list', label: 'List the home yourself', icon: 'add', desc: 'It goes on EasyMoveZone. Enquiries come to you' },
+      { to: BOOK_SESSION_URL, label: 'Talk to an adviser', icon: 'consult', desc: 'Free. No account needed.' },
     ],
   },
 ];
@@ -193,6 +194,7 @@ export const SITE_MENU = [
  */
 
 export const MANAGE_URL = `${LANDLORD_URL}/dashboard`;
+export const MANAGE_LISTINGS_URL = `${LANDLORD_URL}/listings`;
 export const MANAGE_PROPERTIES_URL = `${LANDLORD_URL}/properties`;
 export const MANAGE_ADD_URL = `${LANDLORD_URL}/add`;
 export const MANAGE_ONBOARDING_URL = `${LANDLORD_URL}/onboarding`;
@@ -235,11 +237,12 @@ export const CONSOLE_NAV = [
     label: 'Overview',
     hint: 'Dashboard, properties, journeys',
     icon: 'overview',
-    match: [MANAGE_URL, MANAGE_PROPERTIES_URL, MANAGE_ADD_URL, MANAGE_ONBOARDING_URL, MANAGE_JOURNEYS_URL],
+    match: [MANAGE_URL, MANAGE_LISTINGS_URL, MANAGE_PROPERTIES_URL, MANAGE_ADD_URL, MANAGE_ONBOARDING_URL, MANAGE_JOURNEYS_URL],
     // Journeys are your lettings and renovations with us. Adding a property
     // and onboarding are actions reached from these pages, not tabs.
     tabs: [
       { to: MANAGE_URL, label: 'Home', end: true },
+      { to: MANAGE_LISTINGS_URL, label: 'Listings' },
       { to: MANAGE_PROPERTIES_URL, label: 'Properties' },
       { to: MANAGE_JOURNEYS_URL, label: 'Journeys' },
     ],
@@ -432,10 +435,10 @@ export function rememberedPortalRole() {
   }
 }
 
-export const PRODUCT_TAGLINE = 'Rent a home, and let one, with proof at every step.';
+export const PRODUCT_TAGLINE = 'The modern way to rent, verify and manage a home.';
 
 export const PRODUCT_MISSION =
-  'EasyMoveZone checks homes, landlords and agents before a renter pays, and lets and manages homes for landlords, with rent, repairs and inspections in one place.';
+  'EasyMoveZone checks every home before it is listed, verifies a landlord before a renter pays, and runs the letting for owners — rent, repairs and inspections in one place.';
 
 export const COMPANY_VALUE = 'Proof at every step, before money moves.';
 

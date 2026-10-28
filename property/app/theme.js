@@ -1,39 +1,38 @@
 /**
- * Styled-components theme — mirrors the CSS custom properties defined in
- * src/styles/GlobalStyles.jsx so components can reach the same tokens from JS.
- * The CSS variables stay the source of truth for anything written in CSS.
+ * Styled-components theme — mirrors the CSS custom properties in
+ * GlobalStyles.jsx. CSS variables stay the source of truth.
  */
 const theme = {
   colors: {
-    primary: '#2f5d50',      // Deep brand green (CTAs, headings on tint)
-    secondary: '#426f62',    // Brand green
-    accent: '#8fb5a8',       // Bright green
-    forest: '#234b40',
-    text: '#626b60',         // Muted ink
-    ink: '#1b231e',          // Deep green-black
+    primary: '#b85a30',
+    secondary: '#f0b04a',
+    accent: '#f0b04a',
+    forest: '#111111',
+    text: '#5c6370',
+    ink: '#101218',
     white: '#FFFFFF',
-    background: '#ffffff',
-    tint: '#f7f8f6',
+    background: '#f4f3ef',
+    tint: '#f7f6f3',
     cardBg: '#FFFFFF',
-    border: 'rgba(27, 35, 30, 0.08)',
-    black: '#1b231e',
-    blackSoft: '#131b16',
-    onBlack: '#f4f7f5',
+    border: 'rgba(16, 18, 24, 0.08)',
+    black: '#101218',
+    blackSoft: '#1c2030',
+    onBlack: '#f4f3ef',
   },
   fonts: {
-    sans: "'Inter', system-ui, -apple-system, sans-serif",
-    display: "'Inter Tight', 'Inter', system-ui, sans-serif",
+    sans: "'Manrope', system-ui, -apple-system, sans-serif",
+    display: "'Newsreader', 'Manrope', Georgia, serif",
   },
   shadows: {
-    sm: '0 18px 40px -28px rgba(27, 35, 30, 0.28)',
-    md: '0 18px 38px -18px rgba(27, 35, 30, 0.16)',
-    lg: '0 28px 56px -22px rgba(27, 35, 30, 0.22)',
+    sm: '0 16px 36px -28px rgba(16, 18, 24, 0.28)',
+    md: '0 22px 44px -24px rgba(16, 18, 24, 0.22)',
+    lg: '0 32px 64px -28px rgba(16, 18, 24, 0.32)',
   },
   radii: {
     sm: '8px',
     md: '12px',
     lg: '16px',
-    xl: '20px',
+    xl: '22px',
     pill: '999px',
   },
   breakpoints: {

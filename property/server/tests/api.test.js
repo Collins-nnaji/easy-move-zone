@@ -56,6 +56,27 @@ test('API', { skip }, async (t) => {
     assert.equal((await h.call('/tenant/roles', { user: owner })).body.owner, 1);
   });
 
+  await t.test('listing a home yourself puts it on your portal, even without photos', async () => {
+    const lister = `lister-${id}@test.easymovezone`;
+    assert.equal((await h.call('/listings/self', { method: 'POST', body: { address: '12 Marina', city: 'Lagos', state: 'Lagos', rent: 2500000 } })).status, 401);
+    const made = await h.call('/listings/self', {
+      method: 'POST', user: lister,
+      body: { address: '12 Marina Close', city: 'Lagos', state: 'Lagos', rent: '2500000', beds: '3', phone: '08030000000' },
+    });
+    assert.equal(made.status, 200, made.text);
+    assert.equal(made.body.listing.handling, 'self');
+    assert.equal(made.body.listing.status, 'submitted');
+    assert.equal(made.body.listing.photos_pending, true);
+    const mine = await h.call('/listings/self', { user: lister });
+    assert.equal(mine.body.listings.length, 1);
+    assert.equal(mine.body.listings[0].owner_email, undefined, 'the portal list does not echo the account email');
+    assert.equal((await h.call('/listings/self', { user: stranger })).body.listings.length, 0);
+    assert.equal((await h.call('/tenant/roles', { user: lister })).body.owner, 1);
+    const down = await h.call(`/listings/self/${made.body.listing.id}/withdraw`, { method: 'POST', user: lister });
+    assert.equal(down.status, 200, down.text);
+    assert.equal(down.body.listing.status, 'withdrawn');
+  });
+
   let charges;
   await t.test('the schedule is raised from the tenancy and only once', async () => {
     const first = await h.call(`/management/tenancies/${tenancy.id}/schedule`, { method: 'POST', admin: true });

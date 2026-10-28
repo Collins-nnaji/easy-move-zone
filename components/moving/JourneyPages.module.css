@@ -72,7 +72,7 @@
 }
 .networkStrip strong {
   display: block;
-  color: #2f5d50;
+  color: #b85a30;
   font-size: 28px;
   line-height: 1.2;
   font-weight: 500;
@@ -135,7 +135,7 @@
 }
 .selectedRoute {
   background: #e6ecdc;
-  box-shadow: inset 3px 0 #2f5d50;
+  box-shadow: inset 3px 0 #b85a30;
 }
 .routeLocation strong {
   display: block;
@@ -527,14 +527,14 @@
   flex-shrink: 0;
 }
 .completedStep .timelineMarker {
-  background: #2f5d50;
+  background: #b85a30;
   color: #fff;
-  border-color: #2f5d50;
+  border-color: #b85a30;
 }
 .currentStep .timelineMarker {
   background: #e2ecd8;
   border-color: #6e8a5c;
-  color: #2f5d50;
+  color: #b85a30;
   box-shadow: 0 0 0 4px #eef3e7;
 }
 .timeline h4 {
@@ -550,7 +550,7 @@
   font-weight: 400;
 }
 .currentStep h4 > span {
-  color: #2f5d50;
+  color: #b85a30;
 }
 .timeline li p {
   color: #7e8a73;
@@ -702,9 +702,9 @@
   font-size: 12px;
 }
 .rolePicker .selectedRole {
-  background: #2f5d50;
+  background: #b85a30;
   color: white;
-  border-color: #2f5d50;
+  border-color: #b85a30;
 }
 .bookingFields {
   display: grid;
@@ -798,7 +798,7 @@
   border-radius: 50%;
   background: #e6eddd;
   margin-bottom: 28px;
-  color: #2f5d50;
+  color: #b85a30;
 }
 .confirmationSummary {
   background: #eeefe5;

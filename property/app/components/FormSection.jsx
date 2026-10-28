@@ -27,7 +27,7 @@ export function FormSection({ id, step, title, summary, required = false, done =
       value={id}
       className={cn(
         'overflow-hidden rounded-[14px] border bg-white transition-colors data-[state=open]:border-[var(--color-line-strong)]',
-        done ? 'border-[rgba(47, 93, 80,0.4)]' : 'border-[var(--color-line-strong)]',
+        done ? 'border-[rgba(184, 90, 48,0.4)]' : 'border-[var(--color-line-strong)]',
         className,
       )}
     >

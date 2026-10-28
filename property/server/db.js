@@ -1162,6 +1162,26 @@ CREATE TABLE IF NOT EXISTS mortgage_leads (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_mortgage_leads_status ON mortgage_leads(status, created_at DESC);
+
+-- How a rental got onto the site, and whether its photos could be stored.
+--   self    — the owner listed it themselves and manages it from the portal
+--   managed — EasyMoveZone lets and runs it
+-- photos_pending stays true until a photo is attached. When object storage
+-- is off, the listing is still accepted and this flag tells the portal why
+-- the photos are missing.
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS handling VARCHAR(16);
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS photos_pending BOOLEAN NOT NULL DEFAULT false;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'listings_handling_check') THEN
+    ALTER TABLE listings ADD CONSTRAINT listings_handling_check
+      CHECK (handling IS NULL OR handling IN ('self','managed'));
+  END IF;
+END $$;
+UPDATE listings SET handling = 'managed'
+ WHERE handling IS NULL AND route = 'company_owned';
+UPDATE listings SET handling = 'self'
+ WHERE handling IS NULL AND route IN ('owner_listed','agent_listed');
+CREATE INDEX IF NOT EXISTS idx_listings_handling_owner ON listings(owner_email, handling);
 `;
 
 /**

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Bricolage_Grotesque } from "next/font/google";
+import { Manrope, Newsreader } from "next/font/google";
 import { AppChrome } from "@/components/layout/AppChrome";
 import { NativeBridge } from "@/components/native/NativeBridge";
 import { AuthSessionCleanup } from "@/components/platform/AuthSessionCleanup";
@@ -24,19 +24,21 @@ export const viewport: Viewport = {
   interactiveWidget: "resizes-content",
 };
 
-// Body / UI text — clean, modern, excellent readability
-const jakarta = Plus_Jakarta_Sans({
+// UI and body — a geometric grotesque that stays crisp in nav, forms and dense consoles.
+const jakarta = Manrope({
   subsets: ["latin"],
   variable: "--font-jakarta",
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-// Display headings — geometric, bold, contemporary
-const bricolage = Bricolage_Grotesque({
+// Display — an editorial serif for headings. Variable names stay --font-jakarta
+// and --font-bricolage so existing stylesheets pick the new faces up.
+const bricolage = Newsreader({
   subsets: ["latin"],
   variable: "--font-bricolage",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 

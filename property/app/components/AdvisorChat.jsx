@@ -43,7 +43,7 @@ const Scrim = styled.div`
   position: fixed;
   inset: 0;
   z-index: 1300;
-  background: rgba(27, 35, 30, 0.3);
+  background: rgba(16, 18, 24, 0.3);
   backdrop-filter: blur(2px);
   opacity: ${(p) => (p.$open ? 1 : 0)};
   pointer-events: ${(p) => (p.$open ? 'auto' : 'none')};

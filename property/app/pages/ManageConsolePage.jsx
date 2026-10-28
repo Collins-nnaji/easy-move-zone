@@ -19,6 +19,7 @@ import {
   CONSOLE_NAV, MANAGE_URL, MANAGE_ADD_URL, MANAGE_ONBOARDING_URL,
   MANAGE_JOURNEYS_URL, MANAGE_DOCUMENTS_URL,
 } from '../config/platform';
+import MyListings from './MyListings';
 
 /**
  * EasyMoveZone Manage — a portal of its own.
@@ -44,6 +45,7 @@ const PAGE_META = {
   dashboard: { title: 'Dashboard', sub: 'EasyMoveZone runs your property for you. Here is what we are doing, the money, and anything waiting on you.' },
   journeys: { title: 'Journeys', sub: 'Your lettings and renovations with us, and the next step on each.' },
   properties: { title: 'Properties', sub: 'Every property under management, and any handover still being onboarded.' },
+  listings: { title: 'Your listings', sub: 'Homes you put on EasyMoveZone yourself. You reply to enquiries from here.' },
   add: { title: 'Add a property', sub: 'Hand a property over, with the plan, the details and the management authorization.' },
   money: { title: 'Collections', sub: 'Rent collected, what we paid you, and where the rest of it went.' },
   'money/finance': { title: 'Statements', sub: 'Rent, fees and property costs over time, exportable as a statement.' },
@@ -192,6 +194,7 @@ function Console({ email, user }) {
           </>
         ))}
       />
+      <Route path="listings" element={page('listings', <MyListings user={user} />)} />
       <Route path="journeys" element={page('journeys', <JourneysSection email={email} user={user} />)} />
       {/* Buying and selling are gone; their old tabs land on Journeys. */}
       <Route path="verifications" element={<Navigate to={MANAGE_JOURNEYS_URL} replace />} />

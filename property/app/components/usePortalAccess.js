@@ -5,7 +5,7 @@ import { api } from '../api';
  * Which of the three portals the signed-in account actually uses, so the
  * portal switcher can tell "yours" apart from "you could start this".
  *
- *   owner  — 'active' with a property handed over, else 'none'
+ *   owner  — 'active' with a property handed over, or a home they listed, else 'none'
  *   tenant — 'active' with a tenancy, 'applied' with only applications, else 'none'
  *   agent  — 'active' once verified, 'pending' while the application is in review, else 'none'
  *

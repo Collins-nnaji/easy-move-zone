@@ -24,7 +24,6 @@ const TenantConsolePage = lazy(() => import('./pages/TenantConsolePage'));
 const PortalPage = lazy(() => import('./pages/PortalPage'));
 const TenantJoinPage = lazy(() => import('./pages/TenantJoinPage'));
 const ManageLandingPage = lazy(() => import('./pages/ManageLandingPage'));
-const ListLandingPage = lazy(() => import('./pages/ListLandingPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const PublicConsultPage = lazy(() => import('./pages/PublicConsultPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
@@ -68,6 +67,11 @@ function LegacyPortalRedirect() {
   return <Navigate to={`${legacyPortalPath(pathname) || '/portal'}${search}${hash}`} replace />;
 }
 
+function ListRedirect() {
+  const { hash } = useLocation();
+  return <Navigate to={`/manage?let=list${hash || ''}`} replace />;
+}
+
 function App() {
   return (
     // reducedMotion="user": every animation in the app honours the OS setting.
@@ -86,7 +90,7 @@ function App() {
 
                 {/* Manage has a public service page before the signed-in console. */}
                 <Route path="/manage" element={<VisitorOnly signedIn={MANAGE_URL}><ManageLandingPage /></VisitorOnly>} />
-                <Route path="/list" element={<ListLandingPage />} />
+                <Route path="/list" element={<ListRedirect />} />
                 <Route path="/consult" element={<PublicConsultPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/help" element={<HelpPage />} />

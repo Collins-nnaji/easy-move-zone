@@ -51,7 +51,7 @@ const Tier = styled.button`
   box-shadow: var(--shadow-soft);
   cursor: pointer;
   transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
-  &:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); border-color: ${(p) => (p.$active ? 'var(--color-green-forest)' : 'rgba(47, 93, 80, 0.35)')}; }
+  &:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); border-color: ${(p) => (p.$active ? 'var(--color-green-forest)' : 'rgba(184, 90, 48, 0.35)')}; }
 `;
 
 const TierFlag = styled.div`
@@ -221,7 +221,7 @@ const Done = styled.div`
   padding: 1.5rem 1.4rem;
   border-radius: 16px;
   background: var(--color-green-soft);
-  border: 1px solid rgba(47, 93, 80, 0.28);
+  border: 1px solid rgba(184, 90, 48, 0.28);
 
   h3 { font-size: 1.3rem; margin: 0 0 0.5rem; }
   p { margin: 0 0 0.5rem; font-size: 1rem; line-height: 1.55; color: var(--color-ink-muted); }
@@ -279,7 +279,7 @@ const ProjectTabs = styled.div`
 `;
 
 const ProjectBrief = styled.div`
-  margin:0 0 1.4rem;padding:1rem 1.1rem;border:1px solid rgba(47, 93, 80,.18);border-radius:13px;background:var(--color-green-wash);
+  margin:0 0 1.4rem;padding:1rem 1.1rem;border:1px solid rgba(184, 90, 48,.18);border-radius:13px;background:var(--color-green-wash);
   strong{display:block;margin-bottom:.25rem;color:var(--color-green-deep)}span{font-size:.88rem;line-height:1.55;color:var(--color-ink-muted)}
 `;
 

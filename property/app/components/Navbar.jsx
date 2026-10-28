@@ -6,7 +6,7 @@ import {
 } from 'react-icons/fa';
 import { NavLink as RouterLink, useLocation } from 'react-router-dom';
 import {
-  REAL_ESTATE_NAV_ITEMS, MARKETPLACE_URL, PORTAL_URL, isNavItemActive, navItemTarget, navItemLabel,
+  REAL_ESTATE_NAV_ITEMS, RENT_SECTION_NAV, MARKETPLACE_URL, PORTAL_URL, isNavItemActive, navItemTarget, navItemLabel,
 } from '../config/platform';
 import { useAuth } from '../AuthContext';
 import AccountMenu from './AccountMenu';
@@ -19,15 +19,15 @@ const Bar = styled.header`
   height: var(--nav-h);
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid var(--color-line);
-  box-shadow: ${(p) => (p.$scrolled ? '0 8px 24px -18px rgba(27, 35, 30, 0.35)' : 'none')};
-  transition: box-shadow 0.2s ease;
+  background: ${(p) => (p.$scrolled ? 'rgba(244, 243, 239, 0.92)' : 'rgba(244, 243, 239, 0.72)')};
+  backdrop-filter: blur(22px) saturate(1.4);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  border-bottom: 1px solid ${(p) => (p.$scrolled ? 'var(--color-line)' : 'transparent')};
+  box-shadow: ${(p) => (p.$scrolled ? '0 10px 30px -24px rgba(16, 18, 24, 0.45)' : 'none')};
+  transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
   @media (max-width: 720px) {
-    height: 60px;
+    height: 64px;
   }
 `;
 
@@ -51,16 +51,16 @@ const Logo = styled(RouterLink)`
   min-width: 0;
   flex-shrink: 0;
 
-  img { height: 28px; width: auto; }
-  @media (max-width: 720px) { img { height: 24px; } }
+  img { height: 32px; width: auto; }
+  @media (max-width: 720px) { img { height: 26px; } }
 `;
 
 const Nav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.15rem;
   margin-right: auto;
-  margin-left: 1.25rem;
+  margin-left: 1.75rem;
 
   @media (max-width: 960px) { display: none; }
 `;
@@ -68,27 +68,30 @@ const Nav = styled.nav`
 const Link = styled(RouterLink)`
   position: relative;
   z-index: 0;
-  padding: 0.4rem 0.8rem;
-  border-radius: var(--radius-pill);
-  font-size: 13px;
+  padding: 0.55rem 0.85rem 0.7rem;
+  border-radius: 10px;
+  font-size: 14.5px;
   font-weight: 600;
-  color: #4a5047;
+  letter-spacing: -0.015em;
+  color: var(--color-ink-muted);
   transition: color 0.15s, background 0.15s;
 
-  &:hover { color: #1b231e; background: rgba(0, 0, 0, 0.05); }
+  &:hover { color: var(--color-ink); }
   &.active, &.active:hover {
-    color: #fff;
+    color: var(--color-ink);
     background: transparent;
   }
 `;
 
-/* The active pill slides between links via a shared layoutId. */
+/* The logo gradient slides under the active item. */
 const Underline = styled(motion.span)`
   position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: var(--radius-pill);
-  background: #1b231e;
+  left: 0.85rem;
+  right: 0.85rem;
+  bottom: 0.28rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--gradient-brand);
 `;
 
 const Badge = styled.span`
@@ -100,7 +103,7 @@ const Badge = styled.span`
   text-transform: uppercase;
   color: var(--color-green-deep);
   background: var(--color-green-soft);
-  border: 1px solid rgba(47, 93, 80, 0.2);
+  border: 1px solid rgba(184, 90, 48, 0.2);
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
   vertical-align: middle;
@@ -124,17 +127,19 @@ const Cta = styled.a`
   justify-content: center;
   gap: 0.4rem;
   border-radius: var(--radius-pill);
-  background: #fff;
-  color: #1b231e;
-  border: 1px solid #ded7cb;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 0.45rem 0.9rem;
-  transition: border-color 0.15s, color 0.15s;
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid var(--color-line-strong);
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  padding: 0.5rem 0.95rem;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 
   &:hover {
     color: var(--color-green-deep);
-    border-color: rgba(47, 93, 80, 0.5);
+    border-color: var(--color-green-deep);
+    background: #fff;
   }
 
   .cta-label { display: inline; }
@@ -162,22 +167,66 @@ const PortalBtn = styled(RouterLink)`
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  min-height: 36px;
-  padding: 0 0.95rem;
+  min-height: 38px;
+  padding: 0 1rem;
   border-radius: var(--radius-pill);
-  background: #1b231e;
+  background: var(--gradient-brand);
   color: #fff;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
   transition: background 0.15s;
 
   svg { font-size: 0.75rem; }
-  &:hover { color: #fff; background: var(--color-green-deep); }
+  &:hover { color: #fff; background: #111111; }
 
   @media (max-width: 960px) { display: none; }
 `;
 
-/* Hamburger — only where the desktop nav is hidden. */
+/* Rent's own bar. Homes and Verify live here, not in the site nav. */
+const SectionBar = styled.nav`
+  position: sticky;
+  top: var(--nav-h);
+  z-index: 990;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  background: #111111;
+`;
+
+const SectionInner = styled.div`
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+
+  @media (max-width: 720px) { padding: 0 0.75rem; }
+`;
+
+const SectionLink = styled(RouterLink)`
+  position: relative;
+  padding: 0.75rem 0.95rem 0.85rem;
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  color: rgba(255, 255, 255, 0.62);
+
+  &:hover { color: #fff; }
+  &.active, &.active:hover { color: #fff; }
+`;
+
+const SectionMark = styled(motion.span)`
+  position: absolute;
+  left: 0.95rem;
+  right: 0.95rem;
+  bottom: 0;
+  height: 2px;
+  background: var(--gradient-brand);
+`;
+
 const CTA_ICONS = { calendar: FaRegCalendarAlt, manage: FaKey, shield: FaShieldAlt };
 
 export default function Navbar() {
@@ -197,12 +246,14 @@ export default function Navbar() {
   const signedIn = Boolean(user);
   const portalItem = REAL_ESTATE_NAV_ITEMS.find((i) => navItemTarget(i, true) === PORTAL_URL);
   const navItems = signedIn ? REAL_ESTATE_NAV_ITEMS.filter((i) => i !== portalItem) : REAL_ESTATE_NAV_ITEMS;
+  const inRent = RENT_SECTION_NAV.some((item) => isNavItemActive(item, location.pathname));
   return (
+    <>
     <Bar $scrolled={scrolled}>
       <Inner>
         {/* The logo is home: the landing page for visitors, the main site (Property) once signed in. */}
         <Logo to={user ? MARKETPLACE_URL : '/'} aria-label="EasyMoveZone home">
-          <img src="/emz.svg" alt="EasyMoveZone" width="78" height="28" />
+          <img src="/emz.svg" alt="EasyMoveZone" width="92" height="33" />
         </Logo>
 
         <Nav>
@@ -242,5 +293,21 @@ export default function Navbar() {
       </Inner>
 
     </Bar>
+    {inRent && (
+      <SectionBar aria-label="Rent">
+        <SectionInner>
+          {RENT_SECTION_NAV.map((item) => {
+            const active = isNavItemActive(item, location.pathname);
+            return (
+              <SectionLink key={item.to} to={item.to} className={active ? 'active' : ''} aria-current={active ? 'page' : undefined}>
+                {item.label}
+                {active && <SectionMark layoutId="rent-section-mark" transition={springy} />}
+              </SectionLink>
+            );
+          })}
+        </SectionInner>
+      </SectionBar>
+    )}
+    </>
   );
 }

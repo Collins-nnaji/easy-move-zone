@@ -10,8 +10,8 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_APP_URL || 'https://easymovezon
 export const DEFAULT_IMAGE = `${SITE_URL}/media/hero-poster.jpg`;
 
 export const PUBLIC_META = [
-  { match: (p) => p === '/', title: 'EasyMoveZone | Rent a home with confidence', description: 'Homes to rent, checked before they go live. Check any landlord or rental before you pay, see what residents say about an area, and move in with our movers.' },
-  { match: (p) => p === '/listings', title: 'Homes to rent | EasyMoveZone', description: 'Rent a home managed by EasyMoveZone or listed by a verified agent. Apply once: we arrange the viewing, check references and handle the paperwork.' },
+  { match: (p) => p === '/', title: 'EasyMoveZone | The modern way to rent', description: 'Verified homes to rent in Nigeria. Confirm the landlord before you pay, read the neighbourhood clearly, and move in with a tracked crew.' },
+  { match: (p) => p === '/listings', title: 'Homes to rent | EasyMoveZone', description: 'Homes managed by EasyMoveZone, and homes listed by verified agents. Every one is checked before it goes live.' },
   { match: (p) => p === '/check', title: 'Check a rental before you pay | EasyMoveZone', description: 'Check that a landlord or agent is real and allowed to let the home, that the home matches the advert, and that the tenancy agreement and rent are fair, before any money moves.' },
   { match: (p) => p === '/list' || p === '/listings/list', title: 'List a home to rent | EasyMoveZone', description: 'Letting agents post their own homes to rent on EasyMoveZone. Landlords can have us find the tenant, or run the whole tenancy.' },
   { match: (p) => p === '/renovate', title: 'Renovate a rental property | EasyMoveZone', description: 'Between tenants or to let for more: request an inspection and manage renovation scope, costs, milestones and evidence through EasyMoveZone.' },

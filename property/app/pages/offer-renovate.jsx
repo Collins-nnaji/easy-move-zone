@@ -104,7 +104,7 @@ const Textarea = styled.textarea`
 `;
 
 const EstimateCard = styled.div`
-  border: 1px solid rgba(47, 93, 80,0.22); background: linear-gradient(180deg, #f3f6f1 0%, #fff 72%);
+  border: 1px solid rgba(184, 90, 48,0.22); background: linear-gradient(180deg, #f3f6f1 0%, #fff 72%);
   border-radius: 14px; padding: 1.1rem 1.2rem;
   .k { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-green-ink); margin-bottom: 0.35rem; }
   .v { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; color: var(--color-ink); }
@@ -133,12 +133,12 @@ const Thumb = styled.div`
   display: flex; align-items: center; justify-content: center; color: var(--color-ink-faint); font-size: 1.2rem;
   img { width: 100%; height: 100%; object-fit: cover; }
   .kind { position: absolute; bottom: 4px; left: 5px; font-family: var(--font-mono); font-size: 0.52rem; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
-  .overlay { position: absolute; inset: 0; background: rgba(27, 35, 30, 0.62); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.7rem; color: #fff; }
+  .overlay { position: absolute; inset: 0; background: rgba(16, 18, 24, 0.62); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.7rem; color: #fff; }
   .err { background: rgba(185,28,28,0.65); }
-  .rm { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(27, 35, 30, 0.75); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; cursor: pointer; &:hover { background: var(--color-green); } }
+  .rm { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(16, 18, 24, 0.75); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; cursor: pointer; &:hover { background: var(--color-green); } }
 `;
 const AssistPanel = styled.div`
-  border: 1px solid rgba(47, 93, 80, 0.22); background: linear-gradient(180deg, #f3f6f1 0%, #fff 72%);
+  border: 1px solid rgba(184, 90, 48, 0.22); background: linear-gradient(180deg, #f3f6f1 0%, #fff 72%);
   border-radius: 16px; padding: 1.1rem 1.2rem; margin-top: 0.9rem;
   .head { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-display); font-weight: 700; margin-bottom: 0.3rem; svg { color: var(--color-green); } }
   .sub { font-size: 0.82rem; color: var(--color-ink-muted); line-height: 1.45; margin-bottom: 0.9rem; }

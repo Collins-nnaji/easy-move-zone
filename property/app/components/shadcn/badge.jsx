@@ -8,7 +8,7 @@ export const badgeVariants = cva(
     variants: {
       variant: {
         default: 'border-transparent bg-brand-deep text-white',
-        soft: 'border-[rgba(47, 93, 80,0.2)] bg-brand-soft text-brand-deep',
+        soft: 'border-[rgba(184, 90, 48,0.2)] bg-brand-soft text-brand-deep',
         chip: 'border-transparent bg-brand-chip text-brand-forest normal-case tracking-normal text-[0.75rem] font-semibold',
         dark: 'border-[var(--color-line-strong)] bg-white text-brand-deep',
         glass: 'border-white/20 bg-[rgba(8,34,22,0.72)] text-[#d9e9df]',

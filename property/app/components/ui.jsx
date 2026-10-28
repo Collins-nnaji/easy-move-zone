@@ -37,12 +37,12 @@ export const springy = { type: 'spring', stiffness: 380, damping: 30 };
 
 export const Card = styled(motion.section)`
   position: relative;
-  background: ${(p) => (p.$dark ? 'linear-gradient(160deg, #2f5d50 0%, #234b40 100%)' : '#fff')};
+  background: ${(p) => (p.$dark ? 'linear-gradient(160deg, #b85a30 0%, #111111 100%)' : '#fff')};
   color: ${(p) => (p.$dark ? '#fff' : 'var(--color-ink)')};
   border: 1px solid ${(p) => (p.$dark ? 'rgba(255,255,255,0.14)' : 'var(--color-line)')};
   border-radius: 20px;
   padding: ${(p) => (p.$tight ? '1.15rem 1.2rem 1.25rem' : '1.6rem 1.65rem 1.75rem')};
-  box-shadow: ${(p) => (p.$dark ? '0 22px 44px -24px rgba(35, 75, 64, 0.5)' : 'var(--shadow-card)')};
+  box-shadow: ${(p) => (p.$dark ? '0 22px 44px -24px rgba(17, 17, 17, 0.5)' : 'var(--shadow-card)')};
   overflow: hidden;
 
   @media (max-width: 560px) { padding: ${(p) => (p.$tight ? '0.9rem 0.95rem 1rem' : '1rem 0.95rem 1.1rem')}; border-radius: 14px; }
@@ -52,7 +52,7 @@ export const Card = styled(motion.section)`
     &:hover {
       transform: translateY(-3px);
       box-shadow: var(--shadow-lift);
-      border-color: rgba(47, 93, 80, 0.4);
+      border-color: rgba(184, 90, 48, 0.4);
     }
   `}
 `;
@@ -96,7 +96,7 @@ export const Mono = styled.span`
 
 const BADGE_TONES = {
   default: { bg: 'var(--color-bg-panel)', fg: 'var(--color-ink-muted)', bd: 'var(--color-line-strong)' },
-  success: { bg: 'var(--color-green-chip)', fg: 'var(--color-green-deep)', bd: 'rgba(47, 93, 80,0.3)' },
+  success: { bg: 'var(--color-green-chip)', fg: 'var(--color-green-deep)', bd: 'rgba(184, 90, 48,0.3)' },
   warn: { bg: '#fef3c7', fg: '#92400e', bd: 'rgba(180,83,9,0.28)' },
   danger: { bg: '#fee2e2', fg: '#b91c1c', bd: 'rgba(185,28,28,0.25)' },
   info: { bg: '#e0f2fe', fg: '#075985', bd: 'rgba(3,105,161,0.25)' },
@@ -161,7 +161,7 @@ const TabPill = styled(motion.span)`
   inset: 0;
   border-radius: 999px;
   background: #fff;
-  box-shadow: 0 2px 10px rgba(27, 35, 30, 0.12);
+  box-shadow: 0 2px 10px rgba(16, 18, 24, 0.12);
   z-index: -1;
 `;
 
@@ -227,7 +227,7 @@ const SegPill = styled(motion.span)`
   inset: 0;
   border-radius: 999px;
   background: #fff;
-  box-shadow: 0 1px 6px rgba(27, 35, 30, 0.14);
+  box-shadow: 0 1px 6px rgba(16, 18, 24, 0.14);
   z-index: -1;
 `;
 
@@ -471,7 +471,7 @@ export const Button = styled.button`
   &:hover:not(:disabled) {
     background: var(--color-green-forest);
     transform: translateY(-1px);
-    box-shadow: 0 12px 24px -12px rgba(35, 75, 64, 0.6);
+    box-shadow: 0 12px 24px -12px rgba(17, 17, 17, 0.6);
   }
 `;
 
@@ -580,7 +580,7 @@ const SheetScrim = styled(motion.div)`
   position: fixed;
   inset: 0;
   z-index: 1300;
-  background: rgba(27, 35, 30, 0.32);
+  background: rgba(16, 18, 24, 0.32);
   backdrop-filter: blur(2px);
 `;
 
@@ -593,7 +593,7 @@ const SheetPanel = styled(motion.aside)`
   width: min(460px, 100vw);
   background: #fff;
   border-left: 1px solid var(--color-line);
-  box-shadow: -20px 0 60px rgba(27, 35, 30, 0.16);
+  box-shadow: -20px 0 60px rgba(16, 18, 24, 0.16);
   display: flex;
   flex-direction: column;
 `;
