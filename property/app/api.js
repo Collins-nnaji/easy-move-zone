@@ -139,7 +139,7 @@ export const api = {
     },
   },
 
-  /* ── Property Passport verification requests ── */
+  /* ── Rental checks (stored as passport requests) ── */
   passport: {
     async create(data) {
       const { request: passportRequest } = await request('/passport-requests', {
@@ -259,15 +259,6 @@ export const api = {
     },
     async updateLead(id, key, status) {
       return request(`/leads/admin/${id}`, {
-        method: 'PATCH', headers: { 'x-admin-key': key }, body: JSON.stringify({ status }),
-      });
-    },
-    async mortgageLeads(key) {
-      const { leads } = await request('/mortgages/admin', { headers: { 'x-admin-key': key } });
-      return leads;
-    },
-    async updateMortgageLead(id, key, status) {
-      return request(`/mortgages/admin/${id}`, {
         method: 'PATCH', headers: { 'x-admin-key': key }, body: JSON.stringify({ status }),
       });
     },
@@ -503,7 +494,7 @@ export const api = {
     }
   },
 
-  /* ── Property listings (Buy/Sell) ── */
+  /* ── Property listings (homes to rent) ── */
   async generateListingDescription(data) {
     try {
       return await request('/ai/generate-listing', {
@@ -1026,9 +1017,4 @@ export const api = {
     },
   },
 
-  mortgages: {
-    enquire(payload) {
-      return request('/mortgages/leads', { method: 'POST', body: JSON.stringify(payload) });
-    },
-  },
 };

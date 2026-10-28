@@ -150,7 +150,7 @@ export default function AgentApplyPage() {
         workspace="agent"
         nav={AGENT_APPLY_NAV}
         title="Apply to list homes"
-        sub="Apply once. We verify the agency, you pick a plan, then you post sale and rental stock yourself."
+        sub="Apply once. We verify the agency, you pick a plan, then you post homes to rent yourself."
       >
         <div style={{ width: '100%', maxWidth: 720 }}>{application}</div>
       </ConsoleShell>
@@ -162,9 +162,9 @@ export default function AgentApplyPage() {
       <ServiceHero>
         <ServiceHeroInner>
           <StaggerItem><p className="kicker">For agencies</p></StaggerItem>
-          <motion.h1 variants={staggerItem}>List properties as an agent.</motion.h1>
+          <motion.h1 variants={staggerItem}>List homes to rent as an agent.</motion.h1>
           <motion.p variants={staggerItem} className="intro">
-            Apply once. We verify the agency, you pick a plan, then you post sale and rental stock yourself.
+            Apply once. We verify the agency, you pick a plan, then you post homes to rent yourself.
           </motion.p>
         </ServiceHeroInner>
       </ServiceHero>

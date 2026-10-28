@@ -145,8 +145,9 @@ const TermsPage = () => (
 
       <H2>2. Description of service</H2>
       <P>
-        EasyMoveZone provides property verification, valuation, purchase coordination,
-        construction and renovation oversight, and ongoing property management. EasyMoveZone Manage
+        EasyMoveZone is a rental platform. It lists homes to rent, checks landlords, agents, homes
+        and tenancy agreements before a renter pays (rental checks), screens tenants, inspects managed
+        homes, oversees renovation, and provides ongoing property management. EasyMoveZone Manage
         includes tenant coordination, rent collection, maintenance and owner reporting for properties
         placed under management. The scope, price and conditions for a specific engagement are set out
         in its written proposal or signed service agreement, not this general page.
@@ -160,11 +161,11 @@ const TermsPage = () => (
 
       <H2>4. No financial advice</H2>
       <P>
-        Automated photo analysis, indicative valuations, rental-yield estimates and AI responses are
+        Indicative rent and fee estimates, fair-rent checks and AI responses are
         decision-support tools, not legal, financial or investment advice. They may be incomplete and
         do not replace title searches, physical inspections, professional surveys or advice from an
-        appropriately qualified professional. A Property Passport records the checks actually included
-        in its agreed scope; it is not a guarantee against every possible defect or dispute.
+        appropriately qualified professional. A rental check report records the checks actually included
+        in its agreed scope; it is not a guarantee against every possible defect, fraud or dispute.
       </P>
 
       <H2>5. Acceptable use</H2>

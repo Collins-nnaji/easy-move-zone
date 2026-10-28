@@ -11,7 +11,7 @@ import { WHATSAPP_NUMBER } from '../config/platform';
  */
 
 const QUEUES = [
-  { section: 'passports', title: 'Property verification', rows: [['passports_new', 'new to scope'], ['passports_unpaid', 'awaiting payment'], ['passports_active', 'in progress']] },
+  { section: 'passports', title: 'Rental checks', rows: [['passports_new', 'new to scope'], ['passports_unpaid', 'awaiting payment'], ['passports_active', 'in progress']] },
   { section: 'listings', title: 'Listings', rows: [['listings_review', 'submissions to review'], ['enquiries_new', 'new enquiries'], ['listings_live', 'live listings']] },
   { section: 'rentals', title: 'Rentals', rows: [['rental_applications_new', 'new rental applications'], ['rental_enquiries_new', 'new renter enquiries'], ['rentals_ready', 'consented, not yet listed'], ['rentals_live', 'homes on the Rent page']] },
   { section: 'management', title: 'Management', rows: [['management_new', 'new properties'], ['management_messages', 'unread owner messages'], ['expenses_pending', 'expenses awaiting owner']] },
@@ -24,7 +24,7 @@ const QUEUES = [
 
 const SERVICES = [
   ['database', 'Database', 'Neon Postgres (DATABASE_URL)'],
-  ['storage', 'File storage', 'EasyMoveZone object storage — AWS_ENDPOINT_URL_S3 and access keys. Without it, sellers and owners cannot upload photos or documents.'],
+  ['storage', 'File storage', 'EasyMoveZone object storage — AWS_ENDPOINT_URL_S3 and access keys. Without it, landlords, agents and renters cannot upload photos or documents.'],
   ['auth', 'Sign-in', 'EasyMoveZone sign-in — NEON_AUTH_BASE_URL and NEON_AUTH_COOKIE_SECRET'],
   ['payments', 'Online payments', 'Stripe — STRIPE_SECRET_KEY. Without it, advisers send payment links by hand.'],
   ['rent_payments', 'Rent paid online', 'Paystack — PAYSTACK_SECRET_KEY (shared with moving). The Paystack webhook stays /api/payments/webhook; rent payments are passed on from there. Without it, tenants pay by transfer and tell you.'],

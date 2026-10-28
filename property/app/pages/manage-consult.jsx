@@ -316,8 +316,6 @@ const PROJECT_BOOKING_STEPS = [
 ];
 
 const PROJECT_TYPES = [
-  { value: 'purchase', label: 'Property purchase' },
-  { value: 'build', label: 'New building project' },
   { value: 'renovation', label: 'Renovation project' },
   { value: 'rental', label: 'Renting and ongoing management' },
 ];

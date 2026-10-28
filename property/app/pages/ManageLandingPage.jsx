@@ -96,7 +96,7 @@ const HeroArt = styled(motion.div)`
 /* ── Services ── */
 
 /* Manage is property management on the owner's behalf: letting it, running
-   it, and renovating it. Buying and building live elsewhere on the site. */
+   it, and renovating it. */
 const SERVICES = [
   { title: 'Find and vet tenants', body: 'Viewings, referencing and a signed tenancy — we choose who moves in, with your say-so.', icon: FaUserCheck, art: 'tenants', to: `${MANAGE_ADD_URL}?service=rental`, action: 'Let my property' },
   { title: 'Collect the rent', body: 'Rent collected on time, arrears chased, and the balance paid to you with a statement.', icon: FaFileInvoiceDollar, art: 'rent', to: `${MANAGE_ADD_URL}?service=rental`, action: 'Add my property' },

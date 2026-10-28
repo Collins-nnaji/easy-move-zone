@@ -79,7 +79,7 @@ export const MARKETPLACE_URL = '/listings';
  * the sidebar dropdown switches sides.
  */
 export const PORTAL_URL = '/portal';
-/** The landlord portal ("Managed for me"): we let and run your property. */
+/** The landlord portal: we let and run your property. */
 export const LANDLORD_URL = `${PORTAL_URL}/landlord`;
 /** Homes to rent: the one listings grid. */
 export const RENT_URL = MARKETPLACE_URL;

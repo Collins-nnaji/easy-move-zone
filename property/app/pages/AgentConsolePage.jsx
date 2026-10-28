@@ -20,8 +20,8 @@ const TYPES = PROPERTY_TYPES || ['Flat / apartment', 'Duplex', 'Bungalow', 'Terr
 
 const PAGE_META = {
   overview: { title: 'Overview', sub: 'Your live stock, what is waiting on review, and new leads.' },
-  listings: { title: 'My listings', sub: 'Draft, submit for review, unpublish or mark sold.' },
-  new: { title: 'Post a property', sub: 'Sale or rent. It stays a draft until you submit it for review.' },
+  listings: { title: 'My listings', sub: 'Draft, submit for review, unpublish or mark let.' },
+  new: { title: 'Post a home to rent', sub: 'It stays a draft until you submit it for review.' },
   edit: { title: 'Edit listing', sub: 'Changes to a live listing stay on the public page once you save.' },
   inbox: { title: 'Inbox', sub: 'Applications, enquiries and viewing requests on your homes. Screen applicants here.' },
   offices: { title: 'Offices', sub: 'Branches renters see on your public profile.' },
@@ -83,7 +83,7 @@ function Overview({ me }) {
   const steps = [
     { ok: Boolean(me.application) || verified, title: 'Apply', body: verified ? 'The agency is verified.' : (me.application ? `Application is ${me.application.status.replace('_', ' ')}.` : 'Tell us who the agency is and send the licence.'), to: AGENT_APPLY_URL, cta: 'Application' },
     { ok: plan !== 'none', title: 'Choose a plan', body: plan !== 'none' ? `${plan} · ${me.quota || 0} listings` : 'A plan is what lets a draft leave your account.', to: AGENT_ACCOUNT_URL, cta: 'Plans' },
-    { ok: listings.length > 0, title: 'Post a property', body: listings.length ? `${listings.length} in this account.` : 'Sale or rent, with photos and a floorplan. We approve it before it is public.', to: AGENT_NEW_URL, cta: 'Post' },
+    { ok: listings.length > 0, title: 'Post a home', body: listings.length ? `${listings.length} in this account.` : 'A home to rent, with photos and a floorplan. We approve it before it is public.', to: AGENT_NEW_URL, cta: 'Post' },
     { ok: leads > 0 || (inbox.enquiries || []).length > 0, title: 'Answer leads', body: 'Enquiries, applications and viewing requests arrive here. The renter’s details are not published.', to: AGENT_INBOX_URL, cta: 'Inbox' },
   ];
   return (
@@ -126,7 +126,7 @@ function ListingsList() {
   return (
     <Card>
       {error && <Err>{error}</Err>}
-      {!rows.length && <Empty>No listings yet. Post a property to get started.</Empty>}
+      {!rows.length && <Empty>No listings yet. Post a home to get started.</Empty>}
       {rows.map((l) => (
         <Row key={l.id}>
           <div>
@@ -527,7 +527,7 @@ function Console() {
       title={meta.title}
       sub={meta.sub}
       badges={{ leads: 0 }}
-      primary={{ to: AGENT_NEW_URL, label: 'Post a property' }}
+      primary={{ to: AGENT_NEW_URL, label: 'Post a home' }}
     >
       <Routes>
         <Route index element={<Page title="overview"><Overview me={data} /></Page>} />

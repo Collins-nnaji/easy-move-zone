@@ -43,7 +43,7 @@ function makeReference() {
 }
 
 /*
- * A verification is tied to the signed-in account: you sign in before you
+ * A rental check is tied to the signed-in account: you sign in before you
  * submit, and every request you make is then listed on the Verify page and in
  * your portal. The contact email is the account's, never a typed one.
  */
@@ -123,7 +123,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-/* GET /api/passport-requests/mine — every verification on the signed-in account. */
+/* GET /api/passport-requests/mine — every rental check on the signed-in account. */
 router.get('/mine', async (req, res) => {
   const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'Please sign in again to continue.' });
@@ -135,7 +135,7 @@ router.get('/mine', async (req, res) => {
     res.json({ requests: rows });
   } catch (err) {
     console.error('GET /passport-requests/mine error:', err);
-    res.status(500).json({ error: 'Could not load your verification requests.' });
+    res.status(500).json({ error: 'Could not load your rental checks.' });
   }
 });
 
@@ -145,7 +145,7 @@ router.get('/admin', requireAdmin, async (_req, res) => {
     res.json({ requests: rows });
   } catch (err) {
     console.error('GET /passport-requests/admin error:', err);
-    res.status(500).json({ error: 'Could not load verification requests.' });
+    res.status(500).json({ error: 'Could not load rental checks.' });
   }
 });
 
@@ -176,8 +176,8 @@ router.patch('/:id', requireAdmin, async (req, res) => {
     if (status && status !== existing.status) {
       const statusLabels = {
         scope_review: 'Scope review started', payment_due: 'Scope and payment ready',
-        in_progress: 'Verification in progress', action_required: 'Customer action required',
-        complete: 'Property Passport issued', cancelled: 'Verification cancelled',
+        in_progress: 'Checks in progress', action_required: 'Action needed from you',
+        complete: 'Rental check report ready', cancelled: 'Rental check cancelled',
       };
       timeline.push({ id: `status-${Date.now()}`, title: statusLabels[status] || 'Case updated', detail: 'Case status updated by your EasyMoveZone adviser.', status: 'complete', at: new Date().toISOString() });
     }
@@ -207,7 +207,7 @@ router.patch('/:id', requireAdmin, async (req, res) => {
     res.json({ request: rows[0] });
   } catch (err) {
     console.error('PATCH /passport-requests/:id error:', err);
-    res.status(500).json({ error: 'Could not update the verification request.' });
+    res.status(500).json({ error: 'Could not update the rental check.' });
   }
 });
 
@@ -218,7 +218,7 @@ router.post('/:id/checkout', async (req, res) => {
   const id = Number.parseInt(req.params.id, 10);
   const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'Please sign in again to continue.' });
-  if (!id) return res.status(400).json({ error: 'Unknown verification request.' });
+  if (!id) return res.status(400).json({ error: 'Unknown rental check.' });
 
   try {
     const { rows } = await pool.query('SELECT * FROM passport_requests WHERE id = $1 AND contact_email = $2', [id, email]);
@@ -231,7 +231,7 @@ router.post('/:id/checkout', async (req, res) => {
     const priceId = process.env.STRIPE_PASSPORT_PRICE_ID_NGN;
     if (!fee && !priceId) return res.status(503).json({ error: 'Online payment is not enabled yet. Your adviser will send a secure payment link after confirming the scope.' });
     const lineItem = fee
-      ? { price_data: { currency: 'ngn', unit_amount: Math.round(fee * 100), product_data: { name: `Property verification ${item.reference}` } }, quantity: 1 }
+      ? { price_data: { currency: 'ngn', unit_amount: Math.round(fee * 100), product_data: { name: `Rental check ${item.reference}` } }, quantity: 1 }
       : { price: priceId, quantity: 1 };
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
     const origin = req.headers.origin || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -239,8 +239,8 @@ router.post('/:id/checkout', async (req, res) => {
       mode: 'payment',
       customer_email: email,
       line_items: [lineItem],
-      success_url: `${origin}/verify?payment=success#your-verifications`,
-      cancel_url: `${origin}/verify?payment=cancelled#your-verifications`,
+      success_url: `${origin}/check?payment=success#your-verifications`,
+      cancel_url: `${origin}/check?payment=cancelled#your-verifications`,
       metadata: { kind: 'property_passport', passport_request_id: String(id), reference: item.reference, currency },
     });
     await pool.query('UPDATE passport_requests SET stripe_session_id = $1, updated_at = NOW() WHERE id = $2', [session.id, id]);

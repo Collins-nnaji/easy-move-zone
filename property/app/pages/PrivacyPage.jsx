@@ -120,8 +120,8 @@ const PrivacyPage = () => (
       <FoldByHeading heading={H2}>
       <H2>1. Who we are</H2>
       <P>
-        EasyMoveZone ("EasyMoveZone", "we", "us") operates the easymovezone.com property verification,
-        acquisition, construction-control, renovation and management platform. This policy explains what data we
+        EasyMoveZone ("EasyMoveZone", "we", "us") operates the easymovezone.com rental platform: homes to rent,
+        rental checks, tenant screening, inspections, renovation and property management. This policy explains what data we
         collect, how we use it, and the choices you have.
       </P>
 
@@ -129,7 +129,7 @@ const PrivacyPage = () => (
       <UL>
         <li><strong>Account data:</strong> email address and display name when you create an account or sign in by email or Google.</li>
         <li><strong>Usage data:</strong> pages visited, features used, and session length, collected anonymously for product improvement.</li>
-        <li><strong>Property data:</strong> addresses, ownership and seller details, documents, photographs, videos, inspection evidence, verification results and service requests you submit.</li>
+        <li><strong>Property and rental data:</strong> addresses, ownership, landlord and agent details, documents, photographs, videos, inspection evidence, rental check results, rental applications and their screening, and service requests you submit.</li>
         <li><strong>Management data:</strong> your plan answers, managed properties, tenancy and rent records, expenses, approvals, payouts and consultation details.</li>
         <li><strong>Session state:</strong> advisor chat history tied to your session or account.</li>
         <li><strong>Neighbourhood posts:</strong> the posts, replies, scores, votes and reports you add on area pages. Posts, replies and the average of everyone&rsquo;s scores are public, shown with your first name and last initial (or as &ldquo;A neighbour&rdquo;, if you choose). Your email is never shown, and staff see it only to moderate the board.</li>

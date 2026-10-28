@@ -929,7 +929,7 @@ router.post('/admin/listings/:id/review', requireAdmin, async (req, res) => {
         audience: 'agent',
         kind: 'listing_live',
         title: `${current.title} is live`,
-        body: 'Buyers can see it on EasyMoveZone now.',
+        body: 'Renters can see it on EasyMoveZone now.',
         link: `/listings/${current.slug || current.id}`,
       }));
       return res.json({ listing: rows[0] });

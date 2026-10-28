@@ -110,7 +110,7 @@ export default function VerificationPanel({ newTo = '/check', onNew, hideWhenEmp
         <div><SectionLabel>Property timeline</SectionLabel><Timeline>{timeline.map((event,index)=><Event key={event.id||index}><strong>{event.title}</strong>{event.detail}<small>{event.at?<><br/>{formatDate(event.at)}</>:null}</small></Event>)}</Timeline>{item.advisor_note&&<AdvisorNote><strong>Adviser note</strong><br/>{item.advisor_note}</AdvisorNote>}</div></Grid>
         <Details><summary>What you sent us</summary><dl>
           <div><dt>Asking price</dt><dd>{item.asking_price?`₦${item.asking_price}`:'—'}</dd></div>
-          <div><dt>Seller or agent</dt><dd>{item.seller_name||'—'}</dd></div>
+          <div><dt>Landlord or agent</dt><dd>{item.seller_name||'—'}</dd></div>
           <div><dt>Contact</dt><dd>{item.contact_name}{item.contact_phone?` · ${item.contact_phone}`:''}</dd></div>
           <div><dt>Documents</dt><dd>{Array.isArray(item.documents)&&item.documents.length?item.documents.map(d=>d.fileName).join(', '):'None yet — your adviser can collect them'}</dd></div>
           {item.property_url&&<div className="wide"><dt>Listing link</dt><dd>{item.property_url}</dd></div>}

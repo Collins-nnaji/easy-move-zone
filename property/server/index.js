@@ -27,7 +27,6 @@ const areasRoutes = require('./routes/areas');
 const agentRoutes = require('./routes/agent');
 const agentsRoutes = require('./routes/agents');
 const accountRoutes = require('./routes/account');
-const mortgageRoutes = require('./routes/mortgages');
 const { logAiConfigSummary } = require('./openai-client');
 const { pool } = require('./db');
 const { startRentJobs } = require('./services/rent');
@@ -85,7 +84,6 @@ app.use('/api/areas', areasRoutes);
 app.use('/api/agent', agentRoutes);
 app.use('/api/agents', agentsRoutes);
 app.use('/api/account', accountRoutes);
-app.use('/api/mortgages', mortgageRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
