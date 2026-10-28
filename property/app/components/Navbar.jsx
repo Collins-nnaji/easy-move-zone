@@ -19,10 +19,10 @@ const Bar = styled.header`
   height: var(--nav-h);
   display: flex;
   align-items: center;
-  background: rgba(250, 248, 242, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid #e4dfd5;
+  border-bottom: 1px solid var(--color-line);
   box-shadow: ${(p) => (p.$scrolled ? '0 8px 24px -18px rgba(27, 35, 30, 0.35)' : 'none')};
   transition: box-shadow 0.2s ease;
 

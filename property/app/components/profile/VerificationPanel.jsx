@@ -17,7 +17,7 @@ const New = styled(Link)`display:inline-flex;align-items:center;gap:.45rem;paddi
 const Notice = styled.div`padding:.8rem 1rem;border-radius:11px;background:${p=>p.$error?'#fff0f0':'#e8f6ed'};color:${p=>p.$error?'#942525':'#155b38'};font-size:.84rem;margin-bottom:1rem;`;
 const List = styled.div`display:flex;flex-direction:column;gap:1rem;`;
 const Card = styled.article`background:#fff;border:1px solid rgba(13,17,23,.08);border-radius:18px;padding:1.35rem;`;
-const CardTop = styled.div`display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;padding-bottom:1rem;border-bottom:1px solid #eeefe5;`;
+const CardTop = styled.div`display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;padding-bottom:1rem;border-bottom:1px solid var(--color-bg-sunken);`;
 const Ref = styled.div`font-family:var(--font-mono);font-size:.65rem;letter-spacing:.06em;color:#758078;text-transform:uppercase;margin-bottom:.3rem;`;
 const Property = styled.h3`font-size:1.1rem;margin:0 0 .2rem;`;
 const Address = styled.div`font-size:.82rem;color:#6a746e;`;
@@ -26,17 +26,17 @@ const Grid = styled.div`display:grid;grid-template-columns:1fr 1fr;gap:1.3rem;ma
 const SectionLabel = styled.div`font-family:var(--font-mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;color:#758078;margin-bottom:.7rem;`;
 const Checklist = styled.div`display:flex;flex-direction:column;gap:.55rem;`;
 const CheckRow = styled.div`display:flex;align-items:center;gap:.6rem;font-size:.8rem;color:${p=>p.$done?'#1a3c29':'#69736d'};`;
-const Dot = styled.div`width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none;background:${p=>p.$done?'#2f5d50':'#eeefe5'};color:${p=>p.$done?'#fff':'#89928d'};`;
-const Track = styled.div`height:7px;border-radius:9px;background:#eeefe5;overflow:hidden;margin:.8rem 0 .5rem;span{display:block;height:100%;width:${p=>p.$pct}%;background:#2f5d50;border-radius:9px;}`;
+const Dot = styled.div`width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none;background:${p=>p.$done?'#2f5d50':'var(--color-bg-sunken)'};color:${p=>p.$done?'#fff':'#89928d'};`;
+const Track = styled.div`height:7px;border-radius:9px;background:var(--color-bg-sunken);overflow:hidden;margin:.8rem 0 .5rem;span{display:block;height:100%;width:${p=>p.$pct}%;background:#2f5d50;border-radius:9px;}`;
 const TrackMeta = styled.div`font-size:.76rem;color:#69736d;display:flex;justify-content:space-between;`;
 const Timeline = styled.div`display:flex;flex-direction:column;`;
 const Event = styled.div`position:relative;padding:0 0 1rem 1.35rem;font-size:.8rem;color:#5e6962;&::before{content:'';position:absolute;left:3px;top:5px;width:7px;height:7px;border-radius:50%;background:#2f5d50;box-shadow:0 0 0 4px #e4f4ea;}&::after{content:'';position:absolute;left:6px;top:14px;bottom:0;width:1px;background:#dce3de;}&:last-child::after{display:none;}strong{display:block;color:#17221b;margin-bottom:.15rem;}small{color:#8a938e;}`;
 const AdvisorNote = styled.div`margin-top:.8rem;padding:.75rem;border-radius:10px;background:#f4f7f5;font-size:.8rem;color:#58635c;line-height:1.5;`;
-const Buttons = styled.div`display:flex;gap:.55rem;flex-wrap:wrap;margin-top:1rem;padding-top:1rem;border-top:1px solid #eeefe5;`;
-const Action = styled.a`display:inline-flex;align-items:center;gap:.4rem;padding:.62rem .85rem;border-radius:9px;background:${p=>p.$primary?'#2f5d50':'#eeefe5'};color:${p=>p.$primary?'#fff':'#253129'};border:0;font-weight:700;font-size:.78rem;cursor:pointer;&:hover{color:${p=>p.$primary?'#fff':'#2f5d50'};}`;
+const Buttons = styled.div`display:flex;gap:.55rem;flex-wrap:wrap;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--color-bg-sunken);`;
+const Action = styled.a`display:inline-flex;align-items:center;gap:.4rem;padding:.62rem .85rem;border-radius:9px;background:${p=>p.$primary?'#2f5d50':'var(--color-bg-sunken)'};color:${p=>p.$primary?'#fff':'#253129'};border:0;font-weight:700;font-size:.78rem;cursor:pointer;&:hover{color:${p=>p.$primary?'#fff':'#2f5d50'};}`;
 const ActionButton = styled.button`display:inline-flex;align-items:center;gap:.4rem;padding:.62rem .85rem;border-radius:9px;background:#10291e;color:#fff;border:0;font-weight:700;font-size:.78rem;cursor:pointer;&:disabled{opacity:.55;}`;
 const Details = styled.details`
-  margin-top:1rem;border-top:1px solid #eeefe5;padding-top:.9rem;
+  margin-top:1rem;border-top:1px solid var(--color-bg-sunken);padding-top:.9rem;
   summary{cursor:pointer;font-size:.82rem;font-weight:700;color:#2f5d50;list-style:none;}
   summary::-webkit-details-marker{display:none;}
   dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem 1.4rem;margin:.9rem 0 0;}

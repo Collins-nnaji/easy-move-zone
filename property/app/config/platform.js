@@ -222,7 +222,7 @@ export const MANAGE_SETTINGS_URL = MANAGE_ACCOUNT_URL;
  * The owner portal's four sections. The sidebar (and the phone bottom bar)
  * lists only these. Each carries a `hint`, the line under its name in the sidebar, so
  * an owner can tell where something lives before clicking. Header tabs stay
- * short on a phone: Home, Properties and Deals on Overview; documents live under Tenancies; plan and the manager
+ * short on a phone: Home, Properties and Journeys on Overview; documents live under Tenancies; plan and the manager
  * conversation share one Account tab. `icon` keys map to icons in ConsoleShell.
  *
  * `match` lists every path that should light this section up. Overview's

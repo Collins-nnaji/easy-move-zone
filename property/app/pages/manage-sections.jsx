@@ -621,7 +621,7 @@ export function GetStarted({ handedOver, onStartOnboarding }) {
         })}
       </Steps>
       <Aside>
-        Buying, building or renovating instead? Those live under <Link to={MANAGE_JOURNEYS_URL}>Deals</Link>.
+        Renovating between tenants? That lives under <Link to={MANAGE_JOURNEYS_URL}>Journeys</Link>.
       </Aside>
     </Card>
   );

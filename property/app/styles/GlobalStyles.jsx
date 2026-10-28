@@ -8,10 +8,14 @@ import { createGlobalStyle } from 'styled-components';
  * --font-jakarta). Headings are set the EasyMoveZone way: medium weights,
  * tight negative tracking.
  *
- * Colour: warm cream paper (#faf8f2) with sage bands, deep green (#2f5d50)
- * for CTAs, active states and figures, and a terracotta accent (#c85a34) for
- * eyebrow dots and hovers. The `--color-green-*` names are kept so every
- * component keeps working; they now resolve to the EasyMoveZone greens.
+ * Colour: white pages, with a barely-grey panel tone only where cards need
+ * to stand off the page (portals, grids), deep green (#2f5d50) for CTAs,
+ * active states and figures, and a terracotta accent (#c85a34) for eyebrow
+ * dots and hovers. The `--color-green-*` names are kept so every component
+ * keeps working; they resolve to the EasyMoveZone greens.
+ *
+ * Spacing is compact: a 64px navbar, shorter heroes and section padding, so
+ * the first screen shows what you can do, not a banner.
  */
 const GlobalStyles = createGlobalStyle`
   :root {
@@ -20,22 +24,22 @@ const GlobalStyles = createGlobalStyle`
     /* Alias, not a monospace: labels render as tracked-out sans. */
     --font-mono: var(--font-sans);
 
-    /* Canvas — warm cream paper with sage tints */
-    --color-bg: #faf8f2;
-    --color-bg-slate: #eeefe5;
-    --color-bg-panel: #f3f0e7;
+    /* Canvas — white, with a near-white panel tone for card backdrops */
+    --color-bg: #ffffff;
+    --color-bg-slate: #f4f5f3;
+    --color-bg-panel: #f7f8f6;
     --color-bg-elevated: #ffffff;
-    --color-bg-sunken: #efece4;
-    --color-bg-tint: #f3f0e7;
-    --hero-bg: radial-gradient(ellipse at 85% 30%, #e8eddf 0%, transparent 55%), #f3f0e7;
+    --color-bg-sunken: #f2f3f0;
+    --color-bg-tint: #f7f8f6;
+    --hero-bg: #ffffff;
 
     /* Ink */
     --color-ink: #202b25;
     --color-ink-muted: #626b60;
     --color-ink-soft: #68715f;
     --color-ink-faint: #8a927f;
-    --color-line: #e0e1d5;
-    --color-line-strong: #ccd3c3;
+    --color-line: #e7e9e4;
+    --color-line-strong: #d3d8d0;
 
     /* Brand green (EasyMoveZone) */
     --color-green: #426f62;
@@ -46,7 +50,7 @@ const GlobalStyles = createGlobalStyle`
     --color-green-mint: #b9d3c9;
     --color-green-soft: #e5efeb;
     --color-green-chip: #d7e6df;
-    --color-green-wash: #f3f0e7;
+    --color-green-wash: #f1f6f3;
 
     /* Accent — the eyebrow dot and link hovers */
     --color-accent: #c85a34;
@@ -58,8 +62,8 @@ const GlobalStyles = createGlobalStyle`
        soft sage, with ordinary ink on top. */
     --color-black: #1b231e;
     --color-black-soft: #26382d;
-    --color-band: #eeefe5;
-    --color-band-strong: #e4e6da;
+    --color-band: #f7f8f6;
+    --color-band-strong: #eef0ec;
     --color-black-raised: #ffffff;
     --color-on-black: var(--color-ink);
     --color-on-black-muted: var(--color-ink-muted);
@@ -79,11 +83,11 @@ const GlobalStyles = createGlobalStyle`
     --radius-pill: 999px;
     --radius-button: 6px;
 
-    --shadow-soft: 0 18px 40px -28px rgba(27, 35, 30, 0.22);
+    --shadow-soft: 0 12px 28px -24px rgba(27, 35, 30, 0.18);
     --shadow-card: 0 18px 38px -18px rgba(27, 35, 30, 0.14);
     --shadow-lift: 0 28px 56px -22px rgba(27, 35, 30, 0.2);
 
-    --nav-h: 80px;
+    --nav-h: 64px;
     --container: 1200px;
     --mobile-tabbar-h: 62px;
     --console-rail-w: 244px;

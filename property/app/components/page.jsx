@@ -49,7 +49,7 @@ export const Section = styled.section`
     if (!p.$divide) return 'none';
     return p.$dark ? '1px solid var(--color-black-line)' : '1px solid var(--color-line)';
   }};
-  padding: ${(p) => (p.$sm ? '2.75rem 0' : '4rem 0')};
+  padding: ${(p) => (p.$sm ? '2rem 0' : '2.75rem 0')};
 
   /* On black, headings, body copy and eyebrows all invert together so a page
      can drop a dark band in without every child needing an override. */
@@ -59,7 +59,7 @@ export const Section = styled.section`
   `}
 
   @media (max-width: 720px) {
-    padding: ${(p) => (p.$sm ? '2rem 0' : '2.75rem 0')};
+    padding: ${(p) => (p.$sm ? '1.5rem 0' : '2rem 0')};
   }
 `;
 
@@ -199,7 +199,7 @@ export const Hero = styled.section`
   position: relative;
   overflow: hidden;
   background: var(--hero-bg);
-  padding: ${(p) => (p.$sm ? '2.25rem 0 2.25rem' : '3rem 0 3.25rem')};
+  padding: ${(p) => (p.$sm ? '1.6rem 0' : '2.25rem 0 2.4rem')};
 
   @media (max-width: 720px) {
     padding: ${(p) => (p.$sm ? '1.1rem 0 1.25rem' : '1.35rem 0 1.5rem')};

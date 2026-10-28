@@ -35,12 +35,12 @@ import ChipPhoto from '../components/ChipPhoto';
    ═══════════════════════════════════════════════════════════════════ */
 
 const VideoHero = styled(Hero)`
-  min-height: min(470px, calc(100vh - var(--nav-h)));
+  min-height: min(420px, calc(100vh - var(--nav-h)));
   display: flex;
   align-items: center;
-  background: #f3f0e7 url('/media/hero-poster.jpg') center / cover no-repeat;
+  background: #ffffff url('/media/hero-poster.jpg') center / cover no-repeat;
   color: var(--color-ink);
-  padding: 2.25rem 0;
+  padding: 1.75rem 0;
 `;
 
 const HeroVideo = styled.video`
@@ -57,11 +57,8 @@ const HeroVideo = styled.video`
 const HeroShade = styled.div`
   position: absolute;
   inset: 0;
-  /* EasyMoveZone cream shade: the copy sits on warm cream with the sage glow,
-     the video shows through on the right. */
-  background:
-    radial-gradient(ellipse at 85% 30%, rgba(232, 237, 223, 0.55) 0%, transparent 55%),
-    linear-gradient(90deg, rgba(243, 240, 231, 0.98) 0%, rgba(243, 240, 231, 0.92) 46%, rgba(243, 240, 231, 0.4) 78%, rgba(243, 240, 231, 0.18) 100%);
+  /* A white shade: the copy sits on white, the video shows through on the right. */
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.93) 46%, rgba(255, 255, 255, 0.45) 78%, rgba(255, 255, 255, 0.2) 100%);
 `;
 
 const VideoHeroGrid = styled(HeroGrid)`

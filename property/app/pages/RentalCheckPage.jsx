@@ -35,18 +35,17 @@ function takeDraft() {
   } catch { return null; }
 }
 
-const Page = styled.div`background:${p=>p.$embedded?'transparent':'#f4f5f2'}; min-height:${p=>p.$embedded?'0':'100%'};`;
+const Page = styled.div`background:${p=>p.$embedded?'transparent':'var(--color-bg)'}; min-height:${p=>p.$embedded?'0':'100%'};`;
 const Hero = styled.section`
-  padding: 2.25rem 3.5rem 1.9rem; background:var(--color-band); color:var(--color-ink); position:relative; overflow:hidden;
+  padding: 1.5rem 2.5rem 1.4rem; background:var(--color-bg); color:var(--color-ink); position:relative; overflow:hidden;
   border-bottom:1px solid var(--color-line);
-  &::after { content:''; position:absolute; width:520px; height:520px; right:-170px; top:-260px; border-radius:50%; border:1px solid var(--color-line); box-shadow:0 0 0 90px rgba(47, 93, 80,.035),0 0 0 180px rgba(47, 93, 80,.02); }
   @media(max-width:720px){padding:1.4rem 1.25rem 1.2rem;}
 `;
 const Inner = styled.div`max-width:1180px; margin:0 auto; position:relative; z-index:1;`;
 const Crumb = styled.div`font-family:var(--font-mono); color:var(--color-green-deep); font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; margin-bottom:1.2rem; display:flex; align-items:center; gap:.5rem;`;
-const H1 = styled.h1`font-size:clamp(1.8rem,3vw,2.45rem); font-weight:600; letter-spacing:-.018em; color:var(--color-ink); max-width:900px; line-height:1.13; margin:0 0 .75rem;`;
+const H1 = styled.h1`font-size:clamp(1.6rem,2.6vw,2.15rem); font-weight:600; letter-spacing:-.018em; color:var(--color-ink); max-width:900px; line-height:1.13; margin:0 0 .75rem;`;
 const Lede = styled.p`font-size:clamp(.98rem,1.5vw,1.1rem); color:var(--color-ink-muted); line-height:1.52; max-width:720px; margin:0;`;
-const Body = styled.section`max-width:1180px; margin:0 auto; padding:${p=>p.$embedded?'0':'2.5rem 2rem 5rem'}; display:grid; grid-template-columns:minmax(0,1.35fr) minmax(300px,.75fr); gap:1.5rem; align-items:start; @media(max-width:880px){grid-template-columns:minmax(0,1fr);} @media(max-width:720px){padding:${p=>p.$embedded?'0':'1.25rem 1rem 4rem'};}`;
+const Body = styled.section`max-width:1180px; margin:0 auto; padding:${p=>p.$embedded?'0':'1.5rem 2rem 4rem'}; display:grid; grid-template-columns:minmax(0,1.35fr) minmax(300px,.75fr); gap:1.5rem; align-items:start; @media(max-width:880px){grid-template-columns:minmax(0,1fr);} @media(max-width:720px){padding:${p=>p.$embedded?'0':'1.25rem 1rem 4rem'};}`;
 const EmbeddedIntro = styled.div`margin:3rem 0 1.4rem;padding-top:2.6rem;border-top:1px solid var(--color-line-strong);scroll-margin-top:calc(var(--nav-h) + 1rem);h2{font-size:clamp(1.7rem,3.2vw,2.45rem);font-weight:550;letter-spacing:-.025em;margin:0 0 .7rem;}p{max-width:720px;color:var(--color-ink-muted);line-height:1.62;margin:0;} .crumb{display:flex;align-items:center;gap:.45rem;color:var(--color-green-deep);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.7rem;}@media(max-width:720px){margin:1.35rem 0 1rem;padding-top:1.2rem;h2{font-size:1.35rem;margin-bottom:.4rem}p{font-size:.86rem;line-height:1.45}.crumb{font-size:.62rem;margin-bottom:.4rem}}@media(max-width:720px){p{display:none;}}`;
 const Card = styled.div`background:#fff; border:1px solid rgba(13,17,23,.08); border-radius:22px; box-shadow:0 22px 55px -36px rgba(13,17,23,.3); padding:clamp(1.25rem,4vw,2.4rem);@media(max-width:560px){border-radius:16px;padding:1.1rem .95rem;}`;
 const Progress = styled.div`display:flex; gap:.45rem; margin-bottom:2rem; span{height:5px; flex:1; border-radius:9px; background:${p=>p.$active?'var(--color-green)':'#e6e9e6'};}@media(max-width:560px){margin-bottom:1.25rem;}`;
@@ -58,7 +57,7 @@ const Fields = styled.div`display:flex; flex-direction:column; gap:1.15rem;`;
 const Two = styled.div`display:grid; grid-template-columns:1fr 1fr; gap:1rem; @media(max-width:600px){grid-template-columns:minmax(0,1fr);}`;
 const Field = styled.div``;
 const Label = styled.label`display:block; font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; font-family:var(--font-mono); color:#59645e; margin-bottom:.45rem;`;
-const inputCss = `width:100%; border:1px solid #d9dedb; border-radius:12px; background:#f8f9f7; padding:.92rem 1rem; font-size:1rem; color:var(--color-ink); outline:none; transition:.15s; &:focus{background:#fff;border-color:#2f5d50;box-shadow:0 0 0 3px rgba(47, 93, 80,.09);}`;
+const inputCss = `width:100%; border:1px solid #d9dedb; border-radius:12px; background:#fff; padding:.92rem 1rem; font-size:1rem; color:var(--color-ink); outline:none; transition:.15s; &:focus{background:#fff;border-color:#2f5d50;box-shadow:0 0 0 3px rgba(47, 93, 80,.09);}`;
 const Input = styled.input`${inputCss}`;
 const Textarea = styled.textarea`${inputCss} min-height:105px; resize:vertical; line-height:1.5;`;
 const ChoiceRow = styled.div`display:grid; grid-template-columns:1fr 1fr; gap:.7rem;`;
@@ -67,7 +66,7 @@ const Upload = styled.label`display:flex; align-items:center; gap:.9rem; border:
 const FileList = styled.div`display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.6rem;`;
 const File = styled.span`font-size:.76rem; border-radius:999px; background:#eef2ef; color:#47524c; padding:.35rem .65rem;`;
 const Actions = styled.div`display:flex; justify-content:space-between; gap:.75rem; margin-top:1.75rem;`;
-const Button = styled.button`display:inline-flex; align-items:center; justify-content:center; gap:.55rem; border:0; border-radius:12px; padding:.95rem 1.25rem; font-size:.96rem; font-weight:750; cursor:pointer; background:${p=>p.$primary?'#2f5d50':'#eeefe5'}; color:${p=>p.$primary?'#fff':'#152019'}; &:disabled{opacity:.55;cursor:not-allowed;} @media(max-width:480px){flex:1;}`;
+const Button = styled.button`display:inline-flex; align-items:center; justify-content:center; gap:.55rem; border:0; border-radius:12px; padding:.95rem 1.25rem; font-size:.96rem; font-weight:750; cursor:pointer; background:${p=>p.$primary?'#2f5d50':'var(--color-bg-sunken)'}; color:${p=>p.$primary?'#fff':'#152019'}; &:disabled{opacity:.55;cursor:not-allowed;} @media(max-width:480px){flex:1;}`;
 /* ── Choosing the check ── */
 const Types = styled.div`display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.7rem; @media(max-width:600px){grid-template-columns:minmax(0,1fr);}`;
 const TypeCard = styled.button`
@@ -120,7 +119,7 @@ const Ref = styled.div`display:inline-flex;padding:.55rem .85rem;border-radius:8
 const History = styled.div`max-width:1180px;margin:0 auto ${p=>p.$embedded?'1.5rem':'0'};padding:${p=>p.$embedded?'0':'1.75rem 3.5rem 0'};@media(max-width:720px){padding:${p=>p.$embedded?'0':'1.1rem 1rem 0'};}`;
 const SignInNote = styled.div`display:flex;align-items:flex-start;gap:.6rem;margin-top:1rem;padding:.8rem .95rem;border-radius:11px;background:#e8f6ed;color:#155b38;font-size:.84rem;line-height:1.45;a{font-weight:700;color:#2f5d50;}`;
 const Account = styled.div`padding:.8rem .95rem;border-radius:11px;background:#f4f7f5;border:1px solid #e3e8e5;font-size:.86rem;color:#26322a;strong{display:block;font-size:.72rem;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em;color:#758078;margin-bottom:.15rem;}`;
-const SuccessActions = styled.div`display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;a{display:inline-flex;align-items:center;gap:.45rem;padding:.85rem 1rem;border-radius:11px;background:#2f5d50;color:#fff;font-weight:700;&:last-child{background:#eeefe5;color:#172019;}}`;
+const SuccessActions = styled.div`display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;a{display:inline-flex;align-items:center;gap:.45rem;padding:.85rem 1rem;border-radius:11px;background:#2f5d50;color:#fff;font-weight:700;&:last-child{background:var(--color-bg-sunken);color:#172019;}}`;
 
 
 export function RentalCheckForm({ embedded = false }) {

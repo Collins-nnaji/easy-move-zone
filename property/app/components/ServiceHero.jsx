@@ -10,7 +10,7 @@ import { Stagger } from './motion';
  */
 export const ServiceHero = styled.section`
   position: relative;
-  min-height: ${(p) => (p.$image ? '330px' : '0')};
+  min-height: ${(p) => (p.$image ? '240px' : '0')};
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -23,7 +23,7 @@ export const ServiceHero = styled.section`
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, rgba(243, 240, 231, 0.97), rgba(243, 240, 231, 0.9) 52%, rgba(243, 240, 231, 0.25));
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.92) 52%, rgba(255, 255, 255, 0.3));
     display: ${(p) => (p.$image ? 'block' : 'none')};
   }
 
@@ -40,7 +40,7 @@ export const ServiceHeroInner = styled(Stagger)`
   width: 100%;
   max-width: var(--container);
   margin: 0 auto;
-  padding: 3rem 2.5rem;
+  padding: 2rem 2.5rem;
   color: var(--color-ink);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -55,7 +55,7 @@ export const ServiceHeroInner = styled(Stagger)`
   .aside { margin-top: .9rem; font-size: .9rem; color: var(--color-ink-muted); }
   .aside a { display: inline-flex; align-items: center; gap: .35rem; color: var(--color-green-deep); font-weight: 700; }
   .aside a:hover { color: var(--color-green-forest); }
-  h1 { color: var(--color-ink); max-width: 720px; margin: .65rem 0 .8rem; font-size: clamp(2rem, 4vw, 3.1rem); font-weight: 520; letter-spacing: -.035em; line-height: 1.06; }
+  h1 { color: var(--color-ink); max-width: 720px; margin: .5rem 0 .6rem; font-size: clamp(1.8rem, 3.2vw, 2.6rem); font-weight: 550; letter-spacing: -.035em; line-height: 1.08; }
   p { color: var(--color-ink-muted); max-width: 650px; font-size: 1rem; line-height: 1.6; }
 
   /* No illustration: title and intro share the row. A loose heading was

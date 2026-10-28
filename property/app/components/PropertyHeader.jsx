@@ -19,8 +19,7 @@ export const PropertyBand = styled.section`
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 1px 1px, rgba(27, 35, 30, 0.07) 1px, transparent 0) 0 0 / 22px 22px,
-    var(--color-band);
+    var(--color-bg);
   border-bottom: 1px solid var(--color-line);
 `;
 
@@ -30,8 +29,8 @@ const Inner = styled(Stagger)`
   width: 100%;
   max-width: var(--container);
   margin: 0 auto;
-  padding: 1.9rem 2.5rem 1.8rem;
-  min-height: 210px;
+  padding: 1.4rem 2.5rem 1.3rem;
+  min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
   gap: 2rem;

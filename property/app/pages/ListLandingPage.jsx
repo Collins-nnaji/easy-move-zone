@@ -38,7 +38,7 @@ const Hero = styled.section`
 const HeroInner = styled.div`
   max-width: var(--container);
   margin: 0 auto;
-  padding: 4rem 2.5rem;
+  padding: 2.5rem 2.5rem;
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.9fr);
   gap: 2.5rem;

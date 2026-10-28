@@ -25,7 +25,7 @@ import { Badge } from '../components/shadcn/badge';
 const Hero = styled.section`
   position: relative;
   overflow: hidden;
-  background: var(--color-band);
+  background: var(--color-bg);
   color: var(--color-on-black);
   border-bottom: 1px solid var(--color-black-line);
 
@@ -47,7 +47,7 @@ const HeroInner = styled.div`
   z-index: 1;
   max-width: var(--container);
   margin: 0 auto;
-  padding: 4.5rem 2.5rem;
+  padding: 2.75rem 2.5rem;
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
   gap: 3rem;

@@ -13,7 +13,7 @@ const theme = {
     ink: '#1b231e',          // Deep green-black
     white: '#FFFFFF',
     background: '#ffffff',
-    tint: '#f3f0e7',
+    tint: '#f7f8f6',
     cardBg: '#FFFFFF',
     border: 'rgba(27, 35, 30, 0.08)',
     black: '#1b231e',

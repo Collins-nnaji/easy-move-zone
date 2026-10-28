@@ -20,7 +20,7 @@ const Wrap = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 3.5rem 1rem 4rem;
+  padding: 2rem 1rem 3rem;
 `;
 
 const Card = styled.div`
