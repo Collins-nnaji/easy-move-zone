@@ -95,6 +95,44 @@ async function seedVerifiedAgency({ email = agent, quota = 5, plan = 'starter' }
     assert.ok(inbox.body.viewings.some((v) => v.email === buyer));
   });
 
+  it('agents post homes to rent only, and screen applicants on their own homes', async () => {
+    const email = `screen-${uid()}@test.easymovezone`;
+    const other = `other-${uid()}@test.easymovezone`;
+    await seedVerifiedAgency({ email, quota: 5 });
+    await seedVerifiedAgency({ email: other, quota: 5 });
+    const created = await call('/agent/listings', {
+      method: 'POST',
+      user: email,
+      body: { title: '2-bed Yaba', listingType: 'sale', city: 'Yaba', state: 'Lagos', price: 2500000 },
+    });
+    assert.equal(created.status, 200);
+    assert.equal(created.body.listing.listing_type, 'rent', 'a sale is posted as a rental');
+    await q(`UPDATE listings SET status = 'live', published_at = NOW() WHERE id = $1`, [created.body.listing.id]);
+
+    const applied = await call(`/listings/${created.body.listing.id}/apply`, {
+      method: 'POST',
+      body: { fullName: 'Kemi Renter', email: `kemi-${uid()}@test.easymovezone`, phone: '08030000001', screeningConsent: true },
+    });
+    assert.equal(applied.status, 200, applied.text);
+
+    const inbox = await call('/agent/inbox', { user: email });
+    const app = inbox.body.applications.find((a) => a.ref === applied.body.application?.ref || a.full_name === 'Kemi Renter');
+    assert.ok(app, 'the application is in the agent inbox');
+
+    const passed = await call(`/agent/inbox/applications/${app.id}`, {
+      method: 'PATCH', user: email, body: { status: 'vetting', screening: { identity: 'passed', income: 'bogus', made_up: 'passed' } },
+    });
+    assert.equal(passed.status, 200, passed.text);
+    assert.equal(passed.body.application.status, 'vetting');
+    assert.deepEqual(passed.body.application.screening, { identity: 'passed' }, 'unknown checks and results are dropped');
+
+    const again = await call(`/agent/inbox/applications/${app.id}`, { method: 'PATCH', user: email, body: { screening: { reference: 'failed' } } });
+    assert.deepEqual(again.body.application.screening, { identity: 'passed', reference: 'failed' }, 'checks merge');
+
+    assert.equal((await call(`/agent/inbox/applications/${app.id}`, { method: 'PATCH', user: other, body: { status: 'approved' } })).status, 404,
+      'another agency cannot touch it');
+  });
+
   it('lists a verified agency in the public directory', async () => {
     const email = `dir-${uid()}@test.easymovezone`;
     const agency = await seedVerifiedAgency({ email });

@@ -135,6 +135,16 @@ router.get('/portal', async (req, res) => {
       ),
     ]);
 
+    // Inspections on the tenant's own tenancies: when we are visiting, and the
+    // move-in and move-out reports the caution deposit depends on.
+    const { rows: inspections } = ids.length ? await pool.query(
+      `SELECT id, tenancy_id, kind, scheduled_for, status, condition, summary, report_url, completed_at
+         FROM management_inspections
+        WHERE tenancy_id = ANY($1) AND status <> 'cancelled'
+        ORDER BY COALESCE(scheduled_for, created_at::date) DESC`,
+      [ids]
+    ) : { rows: [] };
+
     // The conversation on each request — without the owner's notes to the desk.
     const requestIds = requests.rows.map((q) => q.id);
     const { rows: messages } = requestIds.length ? await pool.query(
@@ -166,6 +176,7 @@ router.get('/portal', async (req, res) => {
       requests: requests.rows,
       documents: documents.rows,
       applications: applications.rows,
+      inspections,
       summary: {
         liveTenancies: live.length,
         arrears: Math.round(arrears),

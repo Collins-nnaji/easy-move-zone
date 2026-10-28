@@ -5,7 +5,7 @@ import {
 } from 'react-router-dom';
 import {
   FaHome, FaMoneyBillWave, FaTools, FaFileAlt, FaCheckCircle, FaExclamationTriangle,
-  FaRegClock, FaArrowRight, FaKey, FaCamera, FaTimes, FaUserTie, FaWhatsapp, FaClipboardList, FaLock,
+  FaRegClock, FaArrowRight, FaKey, FaCamera, FaTimes, FaUserTie, FaWhatsapp, FaClipboardList, FaLock, FaClipboardCheck,
 } from 'react-icons/fa';
 import { api } from '../api';
 import { useAuth } from '../AuthContext';
@@ -30,6 +30,7 @@ import {
   RENT_STATUS_LABEL, RENT_STATUS_TONE, TENANCY_STATUS_LABEL, TENANCY_STATUS_TONE, RENT_FREQUENCY_LABEL,
 } from '../config/management';
 import { formatMoneyFull } from '../utils/format';
+import { INSPECTION_KIND_LABEL, INSPECTION_STATUS_LABEL, INSPECTION_CONDITION_LABEL } from '../config/rentals';
 import { LOCALE } from '../config/markets';
 
 /**
@@ -54,6 +55,7 @@ const PAGE_META = {
   new: { title: 'Report a repair', sub: 'Tell us what is wrong. Your manager arranges the visit; repairs that need the owner’s approval go to them for you.' },
   home: { title: 'Tenancy', sub: 'Your tenancy at a glance: rent, dates, deposit and who manages the home.' },
   documents: { title: 'Documents', sub: 'Your tenancy agreement, inventory and certificates, as your manager shares them.' },
+  inspections: { title: 'Inspections', sub: 'When we are visiting, and the move-in and move-out reports your caution deposit depends on.' },
 };
 
 const money = (v, currency = 'NGN') => formatMoneyFull(v, currency || 'NGN');
@@ -944,8 +946,51 @@ function Portal({ email }) {
       <Route path="requests/new" element={page('new', <NewRequest tenancy={tenancy} email={email} onDone={load} />)} />
       <Route path="home" element={page('home', <MyHome tenancy={tenancy} />)} />
       <Route path="home/documents" element={page('documents', <Documents data={d} tenancy={tenancy} email={email} />)} />
+      <Route path="home/inspections" element={page('inspections', <TenantInspections data={d} tenancy={tenancy} />)} />
       <Route path="*" element={<Navigate to={TENANT_URL} replace />} />
     </Routes>
+  );
+}
+
+/**
+ * Inspections on this tenancy: the next visit, and what each one found. The
+ * move-in report is the record the caution deposit is judged against.
+ */
+function TenantInspections({ data, tenancy }) {
+  if (!tenancy) return <Empty>Inspections appear once your tenancy is set up.</Empty>;
+  const rows = (data.inspections || []).filter((i) => i.tenancy_id === tenancy.id);
+  const next = rows
+    .filter((i) => i.status === 'scheduled' && i.scheduled_for)
+    .sort((a, b) => new Date(a.scheduled_for) - new Date(b.scheduled_for))[0];
+  return (
+    <>
+      {next && (
+        <Notice>
+          <FaRegClock />
+          <div><b>We are visiting on {shortDate(next.scheduled_for)}</b> for your {INSPECTION_KIND_LABEL[next.kind].toLowerCase()}. Can’t be in? Tell your manager under Requests.</div>
+        </Notice>
+      )}
+      <Card>
+        <CardHead><CardTitle><FaClipboardCheck /> Inspections</CardTitle></CardHead>
+        {rows.length ? rows.map((i) => (
+          <Row key={i.id}>
+            <div>
+              <div className="t">{INSPECTION_KIND_LABEL[i.kind]}</div>
+              <div className="s">
+                {i.status === 'completed' ? `Done ${shortDate(i.completed_at || i.scheduled_for)}` : `Booked for ${shortDate(i.scheduled_for)}`}
+                {i.condition ? ` · ${INSPECTION_CONDITION_LABEL[i.condition]}` : ''}
+              </div>
+              {i.summary && <div className="s" style={{ marginTop: '0.3rem', color: 'var(--color-ink)' }}>{i.summary}</div>}
+            </div>
+            {i.report_url
+              ? <a href={i.report_url} target="_blank" rel="noreferrer" style={{ fontWeight: 650, color: 'var(--color-green-deep)' }}>Report</a>
+              : <Pill $tone={i.status === 'completed' ? 'good' : 'info'}>{INSPECTION_STATUS_LABEL[i.status]}</Pill>}
+          </Row>
+        )) : (
+          <Empty>No inspections booked yet. We visit at move-in, every few months and at move-out, and always tell you first.</Empty>
+        )}
+      </Card>
+    </>
   );
 }
 

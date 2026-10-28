@@ -1,4 +1,5 @@
 const express = require('express');
+const { mergeScreening } = require('../screening');
 const crypto = require('crypto');
 const router = express.Router();
 const { pool } = require('../db');
@@ -382,7 +383,20 @@ router.get('/inbox', requireVerifiedAgent, async (req, res) => {
         LIMIT 100`,
       [req.agent.agency_id]
     );
-    return res.json({ enquiries, viewings });
+    // Rental applications on the agency's own homes; the agent runs the screening.
+    const { rows: applications } = await pool.query(
+      `SELECT a.id, a.ref, a.full_name, a.email, a.phone, a.occupation, a.employer, a.income_band,
+              a.household_size, a.move_in_date, a.id_type, a.reference_name, a.reference_phone,
+              a.viewing_date, a.viewing_window, a.message, a.status, a.screening, a.created_at,
+              l.title AS listing_title, l.slug AS listing_slug, l.ref AS listing_ref
+         FROM rental_applications a
+         JOIN listings l ON l.id = a.listing_id
+        WHERE l.agency_id = $1
+        ORDER BY (a.status = 'new') DESC, a.created_at DESC
+        LIMIT 100`,
+      [req.agent.agency_id]
+    );
+    return res.json({ enquiries, viewings, applications });
   } catch (err) {
     console.error('GET /agent/inbox error:', err);
     return res.status(500).json({ error: 'Could not load your inbox.' });
@@ -428,6 +442,39 @@ router.patch('/inbox/viewings/:id', requireVerifiedAgent, async (req, res) => {
   } catch (err) {
     console.error('PATCH /agent/inbox/viewings error:', err);
     return res.status(500).json({ error: 'Could not update that viewing.' });
+  }
+});
+
+/*
+ * PATCH /api/agent/inbox/applications/:id — an agent moves an applicant on
+ * one of their own homes along, and records the screening checks.
+ */
+const AGENT_APPLICATION_STATUSES = ['new', 'contacted', 'viewing_booked', 'vetting', 'approved', 'declined', 'let'];
+router.patch('/inbox/applications/:id', requireVerifiedAgent, async (req, res) => {
+  const id = Number.parseInt(req.params.id, 10);
+  const { status, screening } = req.body || {};
+  if (status && !AGENT_APPLICATION_STATUSES.includes(status)) {
+    return res.status(400).json({ error: 'Unknown application status.' });
+  }
+  try {
+    const { rows: current } = await pool.query(
+      `SELECT a.screening FROM rental_applications a
+         JOIN listings l ON l.id = a.listing_id
+        WHERE a.id = $1 AND l.agency_id = $2`,
+      [id, req.agent.agency_id]
+    );
+    if (!current.length) return res.status(404).json({ error: 'Application not found.' });
+    const { rows } = await pool.query(
+      `UPDATE rental_applications
+          SET status = COALESCE($2, status), screening = $3::jsonb, updated_at = NOW()
+        WHERE id = $1
+        RETURNING id, ref, status, screening`,
+      [id, status || null, JSON.stringify(mergeScreening(current[0].screening, screening))]
+    );
+    return res.json({ application: rows[0] });
+  } catch (err) {
+    console.error('PATCH /agent/inbox/applications error:', err);
+    return res.status(500).json({ error: 'Could not update that application.' });
   }
 });
 

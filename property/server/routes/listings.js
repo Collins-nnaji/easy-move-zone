@@ -1,4 +1,5 @@
 const express = require('express');
+const { mergeScreening } = require('../screening');
 const crypto = require('crypto');
 const router = express.Router();
 const { pool } = require('../db');
@@ -629,18 +630,25 @@ router.get('/admin/applications', requireAdmin, async (req, res) => {
   }
 });
 
-/* PATCH /api/listings/admin/applications/:id — move an application along. */
+/*
+ * PATCH /api/listings/admin/applications/:id — move an application along,
+ * and record tenant screening ({ screening: { identity: 'passed', … } }).
+ */
 router.patch('/admin/applications/:id', requireAdmin, async (req, res) => {
   const id = Number.parseInt(req.params.id, 10);
-  const { status, admin_note: note } = req.body || {};
+  const { status, admin_note: note, screening } = req.body || {};
   if (status && !APPLICATION_STATUSES.includes(status)) return res.status(400).json({ error: 'Unknown status.' });
   if (status === 'let') return res.status(400).json({ error: 'Use “Create tenancy” to let the property to this applicant.' });
   try {
+    const { rows: current } = await pool.query('SELECT screening FROM rental_applications WHERE id = $1', [id]);
+    if (!current.length) return res.status(404).json({ error: 'Application not found.' });
+    const nextScreening = mergeScreening(current[0].screening, screening);
     const { rows } = await pool.query(
       `UPDATE rental_applications
-          SET status = COALESCE($1, status), admin_note = COALESCE($2, admin_note), updated_at = NOW()
+          SET status = COALESCE($1, status), admin_note = COALESCE($2, admin_note),
+              screening = $4::jsonb, updated_at = NOW()
         WHERE id = $3 RETURNING *`,
-      [status || null, typeof note === 'string' ? note.trim() : null, id]
+      [status || null, typeof note === 'string' ? note.trim() : null, id, JSON.stringify(nextScreening)]
     );
     if (!rows.length) return res.status(404).json({ error: 'Application not found.' });
     return res.json({ application: rows[0] });

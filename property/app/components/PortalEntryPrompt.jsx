@@ -83,7 +83,7 @@ export default function PortalEntryPrompt() {
           <Title>Open your portal?</Title>
           <Desc>
             You are leaving the property pages for your portal, where you manage your properties, tenancy, rent and repairs.
-            You can come back any time with &ldquo;Back to Property hub&rdquo;.
+            You can come back any time with &ldquo;Back to homes to rent&rdquo;.
           </Desc>
           <Actions>
             <Dialog.Close asChild><button type="button" className="stay">No, stay here</button></Dialog.Close>

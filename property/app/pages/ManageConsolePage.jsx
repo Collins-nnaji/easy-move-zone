@@ -8,7 +8,7 @@ import SignInGate from '../components/SignInGate';
 import ConsoleShell from '../components/ConsoleShell';
 import {
   Overview, PortfolioSection, PaymentsOut, Finance, Tenancies, Maintenance, Documents,
-  Settings, Card, Empty, Notice, PropertySelect, LettingActivity,
+  Settings, Card, Empty, Notice, PropertySelect, LettingActivity, Applicants, Inspections,
 } from './manage-sections';
 import { AddPropertySection, MyPropertiesSection } from './manage-add';
 import ManageOnboarding from './manage-onboarding';
@@ -50,6 +50,8 @@ const PAGE_META = {
   operations: { title: 'Tenancies', sub: 'Who is in the property and the terms. Your tenants deal only with EasyMoveZone.' },
   'operations/maintenance': { title: 'Maintenance', sub: 'Repairs we are handling, and any cost above your limit that needs your approval.' },
   'operations/documents': { title: 'Documents', sub: 'Agreements, statements and inspection reports.' },
+  'operations/applicants': { title: 'Applicants', sub: 'Who has applied for your homes, and each check we have run on them.' },
+  'operations/inspections': { title: 'Inspections', sub: 'Move-in, routine and move-out visits: when we are going, and what we found.' },
   account: { title: 'Payment details', sub: 'Where your rent lands, and who to call when you need a person.' },
   'account/plan': { title: 'My plan', sub: 'The management plan matched to you, and what it costs.' },
   'account/support': { title: 'Talk to a manager', sub: 'Your EasyMoveZone manager runs your property. A call, a visit, or a full review — whichever you need.' },
@@ -61,7 +63,7 @@ const PAGE_META = {
  * dashboard is deliberately not one of them — it renders zeroed figures
  * instead of an empty page.
  */
-const NEEDS_PROPERTY = ['money', 'money/finance', 'operations', 'operations/maintenance', 'operations/documents', 'account'];
+const NEEDS_PROPERTY = ['money', 'money/finance', 'operations', 'operations/maintenance', 'operations/documents', 'operations/applicants', 'operations/inspections', 'account'];
 
 function Console({ email, user }) {
   const navigate = useNavigate();
@@ -209,6 +211,8 @@ function Console({ email, user }) {
       ), { scoped: true })} />
       <Route path="operations/maintenance" element={page('operations/maintenance', data && <Maintenance data={data} email={email} onRefresh={load} />, { scoped: true })} />
       <Route path="operations/documents" element={page('operations/documents', data && <Documents data={data} />, { scoped: true })} />
+      <Route path="operations/applicants" element={page('operations/applicants', data && <Applicants data={data} />, { scoped: true })} />
+      <Route path="operations/inspections" element={page('operations/inspections', data && <Inspections data={data} />, { scoped: true })} />
 
       {/* ── Account ── */}
       <Route path="account" element={page('account', data && <Settings data={data} email={email} propertyId={propertyId} onRefresh={load} />, { scoped: true })} />

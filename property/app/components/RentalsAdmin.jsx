@@ -5,6 +5,7 @@ import {
 } from 'react-icons/fa';
 import { api } from '../api';
 import AdminMedia from './AdminMedia';
+import ScreeningChecks from './ScreeningChecks';
 import { formatMoneyFull } from '../utils/format';
 import {
   RENT_FREQUENCIES, APPLICATION_STATUSES, APPLICATION_STATUS_LABEL, perPeriod,
@@ -513,6 +514,11 @@ function ApplicationCard({ application: a, adminKey, run }) {
         <Metric><div className="k">rent asked</div><div className="v">{money(a.list_price, a.currency)} / {perPeriod(a.rent_frequency)}</div></Metric>
         <Metric><div className="k">checks</div><div className="v">{a.screening_consent ? 'Agreed' : 'Not agreed'}</div></Metric>
       </Summary>
+      <ScreeningChecks
+        screening={a.screening}
+        disabled={closed}
+        onChange={(patch) => run(() => api.listings.admin.updateApplication(a.id, adminKey, { screening: patch }))}
+      />
       {a.message && <Text>{a.message}</Text>}
       {a.listing_status === 'let' && a.status !== 'let' && <Text><strong>This home has been let to someone else.</strong> Decline or withdraw this application.</Text>}
 

@@ -2,12 +2,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
   FaBuilding, FaChevronDown, FaFileAlt, FaMoneyBillWave, FaPaperPlane,
-  FaPlus, FaSyncAlt, FaTrashAlt, FaUserTie,
+  FaPlus, FaSyncAlt, FaTrashAlt, FaUserTie, FaClipboardCheck,
 } from 'react-icons/fa';
 import { api } from '../api';
 import AdminMedia from './AdminMedia';
 import { formatMoneyFull } from '../utils/format';
 import { LOCALE } from '../config/markets';
+import { INSPECTION_KIND_LABEL, INSPECTION_STATUS_LABEL, INSPECTION_CONDITION_LABEL } from '../config/rentals';
 
 const STATUSES = ['new', 'reviewing', 'visit_booked', 'proposal_sent', 'onboarding', 'active', 'paused', 'ended', 'cancelled'];
 const EXPENSES = ['repairs', 'maintenance', 'utilities', 'service_charge', 'insurance', 'legal', 'tax', 'cleaning', 'other'];
@@ -162,6 +163,7 @@ function ManagementDetail({ data, messages, busy, onAction, onSend, adminKey }) 
   const [expense, setExpense] = useState({ category: 'repairs', vendor: '', description: '', amount: '', incurredOn: today(), receiptUrl: '', needsApproval: true });
   const [payout, setPayout] = useState({ periodStart: firstOfMonth(), periodEnd: today(), scheduledFor: today(), adjustment: '', note: '' });
   const [document, setDocument] = useState({ kind: 'statement', name: '', url: '', shareWithTenant: false, tenancyId: '' });
+  const [inspection, setInspection] = useState({ kind: 'routine', scheduledFor: today(), tenancyId: '' });
   const setForm = (setter, key, value) => setter((prev) => ({ ...prev, [key]: value }));
   const [invite, setInvite] = useState(null);
 
@@ -273,6 +275,24 @@ function ManagementDetail({ data, messages, busy, onAction, onSend, adminKey }) 
           </Fields>
           <Button disabled={busy || !payout.periodStart || !payout.periodEnd} onClick={() => onAction(() => api.management.admin.createPayout(r.id, adminKey, payout))}>Create payout</Button>
           {!!data.payouts?.length && <Ledger><table><thead><tr><th>Reference</th><th>Period</th><th className="num">Net</th><th>Status</th><th>Action</th></tr></thead><tbody>{data.payouts.map((p) => <tr key={p.id}><td>{p.ref}</td><td>{String(p.period_start).slice(0, 10)} – {String(p.period_end).slice(0, 10)}</td><td className="num">{money(p.net_amount)}</td><td>{p.status}</td><td>{p.status !== 'paid' && <Button $ghost disabled={busy} onClick={() => { const bankRef = window.prompt('Bank reference (optional)', p.bank_ref || '') || ''; onAction(() => api.management.admin.setPayoutStatus(p.id, adminKey, { status: 'paid', bankRef, paidOn: today() })); }}>Mark paid</Button>}</td></tr>)}</tbody></table></Ledger>}
+        </OperationBox>
+
+        <OperationBox title="Inspections" icon={<FaClipboardCheck />}>
+          <Fields>
+            <Field>Kind<select value={inspection.kind} onChange={(e) => setForm(setInspection, 'kind', e.target.value)}>{Object.entries(INSPECTION_KIND_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field>
+            <Field>Date<input type="date" value={inspection.scheduledFor} onChange={(e) => setForm(setInspection, 'scheduledFor', e.target.value)} /></Field>
+            <Field>Tenancy<select value={inspection.tenancyId} onChange={(e) => setForm(setInspection, 'tenancyId', e.target.value)}><option value="">Whole property</option>{(data.tenancies || []).filter((t) => t.status !== 'void').map((t) => <option key={t.id} value={t.id}>{t.tenant_name || t.unit_label || `Tenancy ${t.id}`}</option>)}</select></Field>
+          </Fields>
+          <Button disabled={busy || !inspection.scheduledFor} onClick={() => onAction(() => api.management.admin.addInspection(r.id, adminKey, inspection))}><FaPlus /> Book inspection</Button>
+          {/* The owner sees every one; the tenant sees those on their tenancy. */}
+          {!!data.inspections?.length && <Ledger><table><thead><tr><th>Inspection</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>{data.inspections.map((i) => <tr key={i.id}><td>{INSPECTION_KIND_LABEL[i.kind]}{i.condition ? ` · ${INSPECTION_CONDITION_LABEL[i.condition]}` : ''}</td><td>{i.scheduled_for ? String(i.scheduled_for).slice(0, 10) : '—'}</td><td>{INSPECTION_STATUS_LABEL[i.status]}</td><td>{i.status === 'scheduled' && <Actions><Button $ghost disabled={busy} onClick={() => {
+            const condition = (window.prompt('Condition: good, fair or needs_work', 'good') || '').trim();
+            if (!condition) return;
+            if (!INSPECTION_CONDITION_LABEL[condition]) { window.alert('Type good, fair or needs_work.'); return; }
+            const summary = window.prompt('What you found (owner and tenant see this)', '') || '';
+            const reportUrl = window.prompt('Report link (optional, https://…)', '') || '';
+            onAction(() => api.management.admin.updateInspection(i.id, adminKey, { status: 'completed', condition, summary, reportUrl: reportUrl.trim() || undefined }));
+          }}>Record visit</Button><Button $ghost disabled={busy} onClick={() => onAction(() => api.management.admin.updateInspection(i.id, adminKey, { status: 'cancelled' }))}>Cancel</Button></Actions>}{i.report_url && <a href={i.report_url} target="_blank" rel="noreferrer">Report</a>}</td></tr>)}</tbody></table></Ledger>}
         </OperationBox>
 
         <OperationBox title="Attach document" icon={<FaFileAlt />}>

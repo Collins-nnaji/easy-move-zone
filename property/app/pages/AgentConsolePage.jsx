@@ -5,6 +5,8 @@ import { api } from '../api';
 import { useAuth } from '../AuthContext';
 import SignInGate from '../components/SignInGate';
 import ConsoleShell from '../components/ConsoleShell';
+import ScreeningChecks from '../components/ScreeningChecks';
+import { APPLICATION_STATUS_LABEL } from '../config/rentals';
 import { Card, Empty, Notice, Btn, Field, Label, Input, Select, TwoCol } from './manage-sections';
 import {
   AGENT_NAV, AGENT_URL, AGENT_APPLY_URL, AGENT_LISTINGS_URL, AGENT_NEW_URL, AGENT_INBOX_URL, AGENT_ACCOUNT_URL,
@@ -21,7 +23,7 @@ const PAGE_META = {
   listings: { title: 'My listings', sub: 'Draft, submit for review, unpublish or mark sold.' },
   new: { title: 'Post a property', sub: 'Sale or rent. It stays a draft until you submit it for review.' },
   edit: { title: 'Edit listing', sub: 'Changes to a live listing stay on the public page once you save.' },
-  inbox: { title: 'Inbox', sub: 'Enquiries and viewing requests on your listings.' },
+  inbox: { title: 'Inbox', sub: 'Applications, enquiries and viewing requests on your homes. Screen applicants here.' },
   offices: { title: 'Offices', sub: 'Branches renters see on your public profile.' },
   account: { title: 'Profile & plan', sub: 'How you appear on EasyMoveZone, and how many listings you can keep live.' },
 };
@@ -319,12 +321,47 @@ function EditListing() {
   return <ListingEditor existing={listing} />;
 }
 
+/** The stages an agent moves an applicant through; `let` once the tenancy is signed. */
+const AGENT_APPLICATION_STAGES = ['new', 'contacted', 'viewing_booked', 'vetting', 'approved', 'declined', 'let'];
+
 function Inbox() {
-  const [data, setData] = useState({ enquiries: [], viewings: [] });
+  const [data, setData] = useState({ enquiries: [], viewings: [], applications: [] });
+  const [error, setError] = useState('');
   const load = () => api.agent.inbox().then(setData).catch(() => {});
   useEffect(() => { load(); }, []);
+  const updateApplication = (id, patch) => {
+    setError('');
+    return api.agent.updateApplication(id, patch).then(load).catch((err) => setError(err?.message || 'Could not save that.'));
+  };
   return (
     <>
+      <Card>
+        <h3 style={{ margin: '0 0 0.2rem' }}>Applications</h3>
+        <p className="m" style={{ margin: '0 0 0.6rem', color: 'var(--color-ink-muted)', fontSize: '0.86rem' }}>
+          Screen each applicant before you let them the home: identity, income or work, a reference and their last landlord.
+        </p>
+        {error && <Notice>{error}</Notice>}
+        {!(data.applications || []).length && <Empty>No applications yet.</Empty>}
+        {(data.applications || []).map((a) => (
+          <Row key={`a-${a.id}`} style={{ flexWrap: 'wrap' }}>
+            <div style={{ minWidth: 0, flex: '1 1 340px' }}>
+              <div className="t">{a.full_name} · {a.listing_title}</div>
+              <div className="m">
+                {a.email}{a.phone ? ` · ${a.phone}` : ''}
+                {a.occupation || a.employer ? ` · ${[a.occupation, a.employer].filter(Boolean).join(' at ')}` : ''}
+                {a.income_band ? ` · ${a.income_band}` : ''}
+                {a.reference_name ? ` · reference ${a.reference_name}${a.reference_phone ? ` (${a.reference_phone})` : ''}` : ''}
+              </div>
+              <ScreeningChecks screening={a.screening} onChange={(patch) => updateApplication(a.id, { screening: patch })} />
+            </div>
+            <Actions style={{ alignSelf: 'center' }}>
+              <Select aria-label="Application stage" value={a.status} onChange={(ev) => updateApplication(a.id, { status: ev.target.value })}>
+                {AGENT_APPLICATION_STAGES.map((st) => <option key={st} value={st}>{APPLICATION_STATUS_LABEL[st] || st}</option>)}
+              </Select>
+            </Actions>
+          </Row>
+        ))}
+      </Card>
       <Card>
         <h3 style={{ margin: '0 0 0.6rem' }}>Enquiries</h3>
         {!(data.enquiries || []).length && <Empty>No enquiries yet.</Empty>}
@@ -336,7 +373,7 @@ function Inbox() {
             </div>
             <Actions>
               <Select value={e.status} onChange={(ev) => api.agent.updateEnquiry(e.id, ev.target.value).then(load)}>
-                {['new', 'contacted', 'viewing_booked', 'offer_made', 'closed'].map((s) => <option key={s}>{s}</option>)}
+                {['new', 'contacted', 'viewing_booked', 'closed'].map((s) => <option key={s}>{s}</option>)}
               </Select>
             </Actions>
           </Row>

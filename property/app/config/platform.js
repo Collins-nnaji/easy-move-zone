@@ -204,6 +204,8 @@ export const MANAGE_FINANCE_URL = `${LANDLORD_URL}/money/finance`;
 export const MANAGE_OPS_URL = `${LANDLORD_URL}/operations`;
 export const MANAGE_MAINTENANCE_URL = `${LANDLORD_URL}/operations/maintenance`;
 export const MANAGE_DOCUMENTS_URL = `${LANDLORD_URL}/operations/documents`;
+export const MANAGE_APPLICANTS_URL = `${LANDLORD_URL}/operations/applicants`;
+export const MANAGE_INSPECTIONS_URL = `${LANDLORD_URL}/operations/inspections`;
 
 export const MANAGE_ACCOUNT_URL = `${LANDLORD_URL}/account`;
 export const MANAGE_PLAN_URL = `${LANDLORD_URL}/account/plan`;
@@ -256,13 +258,15 @@ export const CONSOLE_NAV = [
   {
     to: MANAGE_OPS_URL,
     label: 'Operations',
-    hint: 'Tenancies, repairs',
+    hint: 'Tenancies, applicants, repairs, inspections',
     icon: 'operations',
     badge: 'maintenance',
     match: [MANAGE_OPS_URL],
     tabs: [
       { to: MANAGE_OPS_URL, label: 'Tenancies', end: true },
+      { to: MANAGE_APPLICANTS_URL, label: 'Applicants' },
       { to: MANAGE_MAINTENANCE_URL, label: 'Repairs', badge: 'maintenance' },
+      { to: MANAGE_INSPECTIONS_URL, label: 'Inspections' },
     ],
   },
   {
@@ -295,6 +299,7 @@ export const TENANT_REQUESTS_URL = `${TENANT_URL}/requests`;
 export const TENANT_NEW_REQUEST_URL = `${TENANT_URL}/requests/new`;
 export const TENANT_HOME_URL = `${TENANT_URL}/home`;
 export const TENANT_DOCUMENTS_URL = `${TENANT_URL}/home/documents`;
+export const TENANT_INSPECTIONS_URL = `${TENANT_URL}/home/inspections`;
 
 export const TENANT_NAV = [
   {
@@ -337,12 +342,13 @@ export const TENANT_NAV = [
   {
     to: TENANT_HOME_URL,
     label: 'My home',
-    hint: 'Tenancy, documents',
+    hint: 'Tenancy, documents, inspections',
     icon: 'home',
     match: [TENANT_HOME_URL],
     tabs: [
       { to: TENANT_HOME_URL, label: 'Tenancy', end: true },
       { to: TENANT_DOCUMENTS_URL, label: 'Documents' },
+      { to: TENANT_INSPECTIONS_URL, label: 'Inspections' },
     ],
   },
 ];
@@ -377,11 +383,11 @@ export const AGENT_NAV = [
   {
     to: AGENT_INBOX_URL,
     label: 'Inbox',
-    hint: 'Enquiries, viewings',
+    hint: 'Applicants, enquiries, viewings',
     icon: 'inbox',
     badge: 'leads',
     match: [AGENT_INBOX_URL],
-    tabs: [{ to: AGENT_INBOX_URL, label: 'Enquiries & viewings', end: true }],
+    tabs: [{ to: AGENT_INBOX_URL, label: 'Applications, enquiries & viewings', end: true }],
   },
   {
     to: AGENT_ACCOUNT_URL,

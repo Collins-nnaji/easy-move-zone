@@ -592,6 +592,28 @@ CREATE TABLE IF NOT EXISTS management_documents (
 );
 CREATE INDEX IF NOT EXISTS idx_management_documents_req ON management_documents(request_id);
 
+-- ── Inspections of a managed home: move-in, routine and move-out ──
+/*
+ * Staff record each visit; the owner sees every inspection in their portal,
+ * and the tenant sees the ones on their own tenancy (when the next visit is,
+ * and the move-in and move-out reports the caution deposit depends on).
+ */
+CREATE TABLE IF NOT EXISTS management_inspections (
+  id SERIAL PRIMARY KEY,
+  request_id INT NOT NULL REFERENCES management_requests(id) ON DELETE CASCADE,
+  tenancy_id INT REFERENCES management_tenancies(id) ON DELETE SET NULL,
+  kind VARCHAR(20) NOT NULL CHECK (kind IN ('move_in','routine','move_out')),
+  scheduled_for DATE,
+  status VARCHAR(20) NOT NULL DEFAULT 'scheduled' CHECK (status IN ('scheduled','completed','cancelled')),
+  condition VARCHAR(20) CHECK (condition IN ('good','fair','needs_work')),
+  summary TEXT,
+  report_url VARCHAR(1000),
+  completed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_management_inspections_req ON management_inspections(request_id);
+
 -- ── Rentals: vacant managed properties, let through the public Rent page ──
 /*
  * A rental is a row in listings with listing_type = 'rent', linked to the
@@ -666,6 +688,8 @@ CREATE TABLE IF NOT EXISTS rental_applications (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_rental_applications_listing ON rental_applications(listing_id);
+-- Tenant screening, check by check: { identity, income, reference, landlord } → pending | passed | failed | waived.
+ALTER TABLE rental_applications ADD COLUMN IF NOT EXISTS screening JSONB NOT NULL DEFAULT '{}'::jsonb;
 CREATE INDEX IF NOT EXISTS idx_rental_applications_status ON rental_applications(status);
 
 -- ── Property Passport: verify any property before the customer pays ──

@@ -1,4 +1,5 @@
 const express = require('express');
+const { INSPECTION_KINDS, INSPECTION_STATUSES, INSPECTION_CONDITIONS } = require('../screening');
 const router = express.Router();
 const { pool } = require('../db');
 const {
@@ -227,7 +228,11 @@ router.get('/requests/:id', async (req, res) => {
       return res.json({ request: row });
     }
     const ledger = await loadLedger([id]);
-    return res.json({ request: row, ...ledger });
+    const { rows: inspections } = await pool.query(
+      'SELECT * FROM management_inspections WHERE request_id = $1 ORDER BY COALESCE(scheduled_for, created_at::date) DESC, id DESC',
+      [id]
+    );
+    return res.json({ request: row, ...ledger, inspections });
   } catch (err) {
     console.error('GET /management/requests/:id error:', err);
     return res.status(500).json({ error: 'Could not load the request.' });
@@ -449,7 +454,7 @@ router.get('/portal', async (req, res) => {
     // The property switcher always lists everything; the data below can be scoped.
     const allProperties = await ownerProperties(email);
     if (!allProperties.length) {
-      return res.json({ properties: [], summary: null, tenancies: [], payouts: [], expenses: [], rentCharges: [], documents: [], lettings: [], tenantRequests: [], finance: buildFinance({ rentCharges: [], expenses: [], payouts: [] }) });
+      return res.json({ properties: [], summary: null, tenancies: [], payouts: [], expenses: [], rentCharges: [], documents: [], lettings: [], applicants: [], inspections: [], tenantRequests: [], finance: buildFinance({ rentCharges: [], expenses: [], payouts: [] }) });
     }
     const scoped = propertyId ? allProperties.filter((p) => p.id === propertyId) : allProperties;
     const ids = scoped.map((p) => p.id);
@@ -504,6 +509,31 @@ router.get('/portal', async (req, res) => {
       [ids]
     );
 
+    // Applicants for those homes and how their screening stands. Still no
+    // name or contact details: the owner sees the checks, not the person.
+    const { rows: applicants } = await pool.query(
+      `SELECT a.id, a.ref, a.status, a.screening, a.move_in_date, a.household_size, a.created_at,
+              l.title AS listing_title, l.unit_label, l.management_request_id AS property_id
+         FROM rental_applications a
+         JOIN listings l ON l.id = a.listing_id
+        WHERE l.listing_type = 'rent' AND l.management_request_id = ANY($1)
+          AND a.status NOT IN ('withdrawn')
+        ORDER BY (a.status IN ('vetting','approved')) DESC, a.created_at DESC
+        LIMIT 60`,
+      [ids]
+    );
+
+    const { rows: inspections } = await pool.query(
+      `SELECT i.id, i.request_id AS property_id, i.tenancy_id, i.kind, i.scheduled_for, i.status,
+              i.condition, i.summary, i.report_url, i.completed_at, i.created_at, t.unit_label
+         FROM management_inspections i
+         LEFT JOIN management_tenancies t ON t.id = i.tenancy_id
+        WHERE i.request_id = ANY($1)
+        ORDER BY COALESCE(i.scheduled_for, i.created_at::date) DESC
+        LIMIT 60`,
+      [ids]
+    );
+
     // What tenants reported that the owner should know about: repairs and
     // notices to leave. Never the tenant's contact details or payment notes.
     const { rows: tenantRequests } = await pool.query(
@@ -554,6 +584,8 @@ router.get('/portal', async (req, res) => {
       payouts: ledger.payouts.slice(0, 24),
       documents: ledger.documents,
       lettings,
+      applicants,
+      inspections,
       tenantRequests,
       finance,
     });
@@ -1341,6 +1373,64 @@ router.post('/requests/:id/documents', requireAdmin, async (req, res) => {
   } catch (err) {
     console.error('POST /management/requests/:id/documents error:', err);
     return res.status(500).json({ error: 'Could not attach the document.' });
+  }
+});
+
+/* ── Inspections (admin) ──────────────────────────────────────────── */
+
+/*
+ * POST /api/management/requests/:id/inspections — book a move-in, routine or
+ * move-out inspection. { kind, scheduledFor, tenancyId? }
+ */
+router.post('/requests/:id/inspections', requireAdmin, async (req, res) => {
+  const id = Number.parseInt(req.params.id, 10);
+  const kind = String(req.body?.kind || '');
+  if (!id) return res.status(400).json({ error: 'Invalid request id.' });
+  if (!INSPECTION_KINDS.includes(kind)) return res.status(400).json({ error: 'Choose move-in, routine or move-out.' });
+  const scheduledFor = /^\d{4}-\d{2}-\d{2}$/.test(String(req.body?.scheduledFor || '')) ? req.body.scheduledFor : null;
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO management_inspections (request_id, tenancy_id, kind, scheduled_for)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [id, Number.parseInt(req.body?.tenancyId, 10) || null, kind, scheduledFor]
+    );
+    return res.json({ inspection: rows[0] });
+  } catch (err) {
+    console.error('POST /management/requests/:id/inspections error:', err);
+    return res.status(500).json({ error: 'Could not book the inspection.' });
+  }
+});
+
+/*
+ * PATCH /api/management/inspections/:id — record the visit: { status,
+ * condition, summary, reportUrl, scheduledFor }. Completing it stamps the date.
+ */
+router.patch('/inspections/:id', requireAdmin, async (req, res) => {
+  const id = Number.parseInt(req.params.id, 10);
+  const b = req.body || {};
+  if (b.status && !INSPECTION_STATUSES.includes(b.status)) return res.status(400).json({ error: 'Unknown inspection status.' });
+  if (b.condition && !INSPECTION_CONDITIONS.includes(b.condition)) return res.status(400).json({ error: 'Unknown condition.' });
+  const reportUrl = str(b.reportUrl, 1000);
+  if (reportUrl && !/^https?:\/\//.test(reportUrl)) return res.status(400).json({ error: 'The report link must be http(s).' });
+  const scheduledFor = /^\d{4}-\d{2}-\d{2}$/.test(String(b.scheduledFor || '')) ? b.scheduledFor : null;
+  try {
+    const { rows } = await pool.query(
+      `UPDATE management_inspections
+          SET status = COALESCE($2, status),
+              condition = COALESCE($3, condition),
+              summary = COALESCE($4, summary),
+              report_url = COALESCE($5, report_url),
+              scheduled_for = COALESCE($6, scheduled_for),
+              completed_at = CASE WHEN $2 = 'completed' AND completed_at IS NULL THEN NOW() ELSE completed_at END,
+              updated_at = NOW()
+        WHERE id = $1 RETURNING *`,
+      [id, b.status || null, b.condition || null, typeof b.summary === 'string' ? b.summary.trim().slice(0, 4000) : null, reportUrl || null, scheduledFor]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Inspection not found.' });
+    return res.json({ inspection: rows[0] });
+  } catch (err) {
+    console.error('PATCH /management/inspections/:id error:', err);
+    return res.status(500).json({ error: 'Could not update the inspection.' });
   }
 });
 

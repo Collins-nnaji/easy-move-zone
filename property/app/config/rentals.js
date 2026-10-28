@@ -42,6 +42,31 @@ export const APPLICATION_STATUS_LABEL = {
   withdrawn: 'Withdrawn',
 };
 
+/**
+ * Tenant screening, check by check. Ids mirror server/screening.js. Staff
+ * (or the agent, on their own homes) mark each one; landlords see the result.
+ */
+export const SCREENING_CHECKS = [
+  { id: 'identity', label: 'Identity' },
+  { id: 'income', label: 'Income or work' },
+  { id: 'reference', label: 'Reference' },
+  { id: 'landlord', label: 'Previous landlord' },
+];
+export const SCREENING_RESULTS = ['pending', 'passed', 'failed', 'waived'];
+export const SCREENING_RESULT_LABEL = { pending: 'To do', passed: 'Passed', failed: 'Failed', waived: 'Not needed' };
+
+/** Checks passed or not needed, out of all of them; and whether any failed. */
+export function screeningProgress(screening) {
+  const s = screening && typeof screening === 'object' ? screening : {};
+  const done = SCREENING_CHECKS.filter((c) => s[c.id] === 'passed' || s[c.id] === 'waived').length;
+  return { done, total: SCREENING_CHECKS.length, failed: SCREENING_CHECKS.some((c) => s[c.id] === 'failed') };
+}
+
+/** Inspections of a managed home (server/screening.js has the same ids). */
+export const INSPECTION_KIND_LABEL = { move_in: 'Move-in inspection', routine: 'Routine inspection', move_out: 'Move-out inspection' };
+export const INSPECTION_STATUS_LABEL = { scheduled: 'Booked', completed: 'Done', cancelled: 'Cancelled' };
+export const INSPECTION_CONDITION_LABEL = { good: 'Good condition', fair: 'Fair condition', needs_work: 'Needs work' };
+
 /** What an owner sees about their rental, in plain words. */
 export const RENTAL_STATUS_LABEL = {
   reviewing: 'Being prepared',

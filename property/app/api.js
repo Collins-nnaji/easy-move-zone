@@ -792,6 +792,18 @@ export const api = {
           method: 'POST', headers: { 'x-admin-key': key }, body: JSON.stringify(details),
         });
       },
+      /** Book a move-in, routine or move-out inspection: { kind, scheduledFor, tenancyId }. */
+      addInspection(id, key, details) {
+        return request(`/management/requests/${id}/inspections`, {
+          method: 'POST', headers: { 'x-admin-key': key }, body: JSON.stringify(details),
+        });
+      },
+      /** Record the visit: { status, condition, summary, reportUrl, scheduledFor }. */
+      updateInspection(id, key, patch) {
+        return request(`/management/inspections/${id}`, {
+          method: 'PATCH', headers: { 'x-admin-key': key }, body: JSON.stringify(patch),
+        });
+      },
     },
   },
 
@@ -911,6 +923,10 @@ export const api = {
     },
     updateEnquiry(id, status) {
       return request(`/agent/inbox/enquiries/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) });
+    },
+    /** An applicant on one of the agency's homes: { status, screening }. */
+    updateApplication(id, patch) {
+      return request(`/agent/inbox/applications/${id}`, { method: 'PATCH', body: JSON.stringify(patch) });
     },
     updateViewing(id, patch) {
       return request(`/agent/inbox/viewings/${id}`, { method: 'PATCH', body: JSON.stringify(patch) });

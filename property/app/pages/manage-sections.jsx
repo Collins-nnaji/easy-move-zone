@@ -7,7 +7,7 @@ import {
 import {
   FaArrowRight, FaCheck, FaCheckCircle, FaTimes, FaChartPie, FaMoneyBillWave, FaKey, FaTools,
   FaFileAlt, FaCog, FaHome, FaExclamationTriangle, FaRegClock, FaUniversity, FaTable,
-  FaChevronLeft, FaDownload, FaBuilding, FaRegCompass, FaBullhorn, FaExternalLinkAlt,
+  FaChevronLeft, FaDownload, FaBuilding, FaRegCompass, FaBullhorn, FaExternalLinkAlt, FaUserCheck, FaClipboardCheck,
 } from 'react-icons/fa';
 import { api } from '../api';
 import { EmptyPropertiesArt } from '../components/graphics';
@@ -22,7 +22,11 @@ import {
   MANAGE_ADD_URL, MANAGE_ONBOARDING_URL, MANAGE_MAINTENANCE_URL, MANAGE_COLLECTIONS_URL, MANAGE_JOURNEYS_URL,
   MANAGE_PROPERTIES_URL, RENT_URL,
 } from '../config/platform';
-import { perPeriod, RENTAL_STATUS_LABEL } from '../config/rentals';
+import {
+  perPeriod, RENTAL_STATUS_LABEL, APPLICATION_STATUS_LABEL, INSPECTION_KIND_LABEL, INSPECTION_STATUS_LABEL,
+  INSPECTION_CONDITION_LABEL,
+} from '../config/rentals';
+import ScreeningChecks from '../components/ScreeningChecks';
 import {
   TENANT_CATEGORY_LABEL, TENANT_URGENCY_LABEL, TENANT_REQUEST_STATUS_LABEL, TENANT_REQUEST_STATUS_TONE,
 } from '../config/tenant';
@@ -1019,6 +1023,99 @@ export function Finance({ data, email, propertyId }) {
             ))}
           </CostBars>
         ) : <Empty>No costs recorded in this window.</Empty>}
+      </Card>
+    </>
+  );
+}
+
+/**
+ * Who has applied for the owner's homes and how each one's screening
+ * stands: identity, income, a reference and a previous landlord. The owner
+ * sees the checks and the stage, never who the applicant is — that stays
+ * with the desk until they become the tenant.
+ */
+export function Applicants({ data }) {
+  const applicants = data.applicants || [];
+  return (
+    <>
+      <Notice>
+        <FaUserCheck />
+        <div>
+          <b>Every applicant is checked before we recommend them.</b> We confirm their identity, income or work,
+          a reference and, where they have one, their last landlord. You see each result here as we go.
+        </div>
+      </Notice>
+      <Card>
+        <CardHead>
+          <CardTitle><FaUserCheck /> Applicants</CardTitle>
+          <CardNote>{applicants.length} IN PROGRESS</CardNote>
+        </CardHead>
+        {applicants.length ? applicants.map((a) => (
+          <Row key={a.id} style={{ flexWrap: 'wrap' }}>
+            <div style={{ minWidth: 0, flex: '1 1 320px' }}>
+              <div className="t">Applicant {a.ref}{a.unit_label ? ` · ${a.unit_label}` : ''}</div>
+              <div className="s">
+                For {a.listing_title}
+                {a.move_in_date ? ` · wants to move in ${shortDate(a.move_in_date)}` : ''}
+                {a.household_size ? ` · household of ${a.household_size}` : ''}
+                {' · '}applied {shortDate(a.created_at)}
+              </div>
+              <ScreeningChecks screening={a.screening} />
+            </div>
+            <Pill $tone={a.status === 'approved' || a.status === 'let' ? 'good' : a.status === 'declined' ? 'warn' : 'info'}>
+              {APPLICATION_STATUS_LABEL[a.status] || a.status}
+            </Pill>
+          </Row>
+        )) : (
+          <Empty>No applicants yet. When someone applies for one of your homes, their checks appear here.</Empty>
+        )}
+      </Card>
+    </>
+  );
+}
+
+/**
+ * Move-in, routine and move-out inspections of the owner's homes: when we
+ * are visiting, what we found, and the report.
+ */
+export function Inspections({ data }) {
+  const inspections = data.inspections || [];
+  const next = inspections
+    .filter((i) => i.status === 'scheduled' && i.scheduled_for)
+    .sort((a, b) => new Date(a.scheduled_for) - new Date(b.scheduled_for))[0];
+  return (
+    <>
+      {next && (
+        <Notice>
+          <FaRegClock />
+          <div><b>Next visit: {INSPECTION_KIND_LABEL[next.kind].toLowerCase()} on {shortDate(next.scheduled_for)}.</b> We let the tenant know beforehand.</div>
+        </Notice>
+      )}
+      <Card>
+        <CardHead>
+          <CardTitle><FaClipboardCheck /> Inspections</CardTitle>
+          <CardNote>{inspections.filter((i) => i.status === 'completed').length} DONE</CardNote>
+        </CardHead>
+        {inspections.length ? inspections.map((i) => (
+          <Row key={i.id} style={{ flexWrap: 'wrap' }}>
+            <div style={{ minWidth: 0, flex: '1 1 320px' }}>
+              <div className="t">{INSPECTION_KIND_LABEL[i.kind]}{i.unit_label ? ` · ${i.unit_label}` : ''}</div>
+              <div className="s">
+                {i.status === 'completed' ? `Done ${shortDate(i.completed_at || i.scheduled_for)}` : i.scheduled_for ? `Booked for ${shortDate(i.scheduled_for)}` : 'Date to be agreed'}
+                {i.condition ? ` · ${INSPECTION_CONDITION_LABEL[i.condition]}` : ''}
+              </div>
+              {i.summary && <div className="s" style={{ marginTop: '0.3rem', color: 'var(--color-ink)' }}>{i.summary}</div>}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+              {i.report_url && <a href={i.report_url} target="_blank" rel="noreferrer" style={{ fontWeight: 650, color: 'var(--color-green-deep)' }}>Report</a>}
+              <Pill $tone={i.status === 'completed' ? (i.condition === 'needs_work' ? 'warn' : 'good') : i.status === 'cancelled' ? undefined : 'info'}>
+                {INSPECTION_STATUS_LABEL[i.status]}
+              </Pill>
+            </div>
+          </Row>
+        )) : (
+          <Empty>No inspections yet. On Full Management we inspect at move-in, every few months, and at move-out, with photos.</Empty>
+        )}
       </Card>
     </>
   );

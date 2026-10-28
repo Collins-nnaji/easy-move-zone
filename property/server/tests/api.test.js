@@ -161,6 +161,53 @@ test('API', { skip }, async (t) => {
     assert.equal((await h.call(`/management/documents/${d.id}`)).status, 401);
   });
 
+  await t.test('inspections: staff record them, the owner sees them all, the tenant sees their own', async () => {
+    const made = await h.call(`/management/requests/${property.id}/inspections`, {
+      method: 'POST', admin: true, body: { kind: 'move_in', scheduledFor: '2026-11-02', tenancyId: tenancy.id },
+    });
+    assert.equal(made.status, 200, made.text);
+    assert.equal((await h.call(`/management/requests/${property.id}/inspections`, { method: 'POST', user: owner, body: { kind: 'routine' } })).status, 401,
+      'owners cannot book inspections themselves');
+    assert.equal((await h.call(`/management/requests/${property.id}/inspections`, { method: 'POST', admin: true, body: { kind: 'party' } })).status, 400);
+
+    const done = await h.call(`/management/inspections/${made.body.inspection.id}`, {
+      method: 'PATCH', admin: true, body: { status: 'completed', condition: 'good', summary: 'Clean, all keys handed over', reportUrl: 'https://example.com/r.pdf' },
+    });
+    assert.equal(done.status, 200, done.text);
+    assert.ok(done.body.inspection.completed_at, 'completing stamps the date');
+
+    const ownerView = (await h.call('/management/portal', { user: owner })).body.inspections;
+    assert.ok(ownerView.some((i) => i.kind === 'move_in' && i.condition === 'good'));
+    // An earlier test hands the tenancy over by invite, so ask as whoever holds it now.
+    const { rows: [holder] } = await h.q('SELECT tenant_email FROM management_tenancies WHERE id = $1', [tenancy.id]);
+    const tenantView = (await h.call('/tenant/portal', { user: holder.tenant_email })).body.inspections;
+    assert.ok(tenantView.some((i) => i.kind === 'move_in' && i.summary === 'Clean, all keys handed over'));
+    assert.equal((await h.call('/tenant/portal', { user: stranger })).body.inspections.length, 0);
+  });
+
+  await t.test('owners see applicants\' screening, never who they are', async () => {
+    const { rows: [l] } = await h.q(
+      `INSERT INTO listings (ref, slug, title, listing_type, status, route, management_request_id, list_price, currency, owner_email)
+       VALUES ($1, $2, 'Flat 2, Yaba', 'rent', 'live', 'owner_listed', $3, 900000, 'NGN', $4) RETURNING id`,
+      [`BVL-${id}`, `flat-2-yaba-${id}`, property.id, owner]
+    );
+    const { rows: [a] } = await h.q(
+      `INSERT INTO rental_applications (ref, listing_id, full_name, email, phone, screening_consent)
+       VALUES ($1, $2, 'Chidi Okafor', 'chidi@test.easymovezone', '08032222222', true) RETURNING id`,
+      [`BVR-${id}`, l.id]
+    );
+    const patched = await h.call(`/listings/admin/applications/${a.id}`, {
+      method: 'PATCH', admin: true, body: { status: 'vetting', screening: { identity: 'passed', income: 'passed', landlord: 'waived' } },
+    });
+    assert.equal(patched.status, 200, patched.text);
+    const row = (await h.call('/management/portal', { user: owner })).body.applicants.find((x) => x.id === a.id);
+    assert.ok(row, 'the owner sees the applicant');
+    assert.deepEqual(row.screening, { identity: 'passed', income: 'passed', landlord: 'waived' });
+    assert.equal(row.full_name, undefined);
+    assert.equal(row.email, undefined);
+    assert.equal(row.phone, undefined);
+  });
+
   await t.test('staff changes are audited with who made them', async () => {
     await h.call(`/tenant/admin/requests/${requestId}`, { method: 'PATCH', user: 'staff@test.easymovezone', body: { status: 'resolved' } });
     await new Promise((r) => setTimeout(r, 200));
