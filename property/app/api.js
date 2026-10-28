@@ -163,7 +163,7 @@ export const api = {
       const { areas } = await request('/areas');
       return areas;
     },
-    /** { area, factors, categories, ratings, myRating, viewer, rents, rentals, forSale } */
+    /** { area, factors, categories, ratings, myRating, viewer, rents, rentals, insights } */
     get(slug) {
       return request(`/areas/${encodeURIComponent(slug)}`);
     },

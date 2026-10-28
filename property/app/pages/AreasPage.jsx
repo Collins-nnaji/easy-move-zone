@@ -12,6 +12,9 @@ import AreaBoard from '../components/areas/AreaBoard';
 import {
   AreaScores, AreaRents, AreaTools, AreaRules, AreaNextSteps,
 } from '../components/areas/AreaPanels';
+import AreaInsights from '../components/areas/AreaInsights';
+import { AREA_FACTORS, matchAreas, matchReason } from '../config/areas';
+import { formatMoney } from '../utils/format';
 import {
   Pill, Score, stateLabel, whatsappShare,
 } from '../components/areas/shared';
@@ -94,6 +97,106 @@ const Suggest = styled.form`
 `;
 const Muted = styled.p`color: var(--color-ink-muted); text-align: center; padding: 2.5rem 1rem;`;
 const Err = styled.p`color: #b91c1c; font-size: 0.88rem;`;
+
+/* ── Find my area ── */
+
+const Finder = styled.section`
+  margin-bottom: 1.5rem; padding: 1.15rem 1.25rem; border-radius: 18px; background: #fff; border: 1px solid var(--color-line);
+  h2 { margin: 0 0 0.2rem; font-size: 1.1rem; }
+  .sub { margin: 0 0 0.85rem; font-size: 0.88rem; color: var(--color-ink-muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .filters { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.75rem; }
+  select { min-height: 40px; border: 1px solid var(--color-line-strong); border-radius: 10px; padding: 0 0.7rem; font: inherit; background: #fff; }
+  .empty { margin: 0.9rem 0 0; font-size: 0.88rem; color: var(--color-ink-muted); }
+  @media (max-width: 720px) { padding: 1rem; }
+`;
+const Matches = styled.ol`
+  list-style: none; margin: 0.9rem 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 0.6rem;
+`;
+const Match = styled(Link)`
+  display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.75rem 0.85rem; border-radius: 12px;
+  border: 1px solid var(--color-line); color: var(--color-ink);
+  &:hover { border-color: var(--color-green); }
+  .pct { flex-shrink: 0; width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center;
+    background: var(--color-green-soft); color: var(--color-green-deep); font-weight: 800; font-size: 0.9rem; }
+  .n { font-weight: 700; }
+  .w { font-size: 0.8rem; color: var(--color-ink-muted); line-height: 1.4; margin-top: 0.15rem; }
+`;
+
+const BUDGETS = [0, 1000000, 2000000, 3000000, 5000000, 10000000];
+const MAX_PRIORITIES = 3;
+
+/**
+ * Pick what matters (up to three), and a city and budget if you like: areas
+ * residents have scored are ranked on just those, with the reason. Areas
+ * nobody has scored yet are never offered as a match.
+ */
+function FindMyArea({ areas }) {
+  const [priorities, setPriorities] = useState([]);
+  const [city, setCity] = useState('');
+  const [maxRent, setMaxRent] = useState(0);
+  const cities = useMemo(() => [...new Set((areas || []).map((a) => a.city))].sort(), [areas]);
+  const matches = useMemo(() => matchAreas(areas, { priorities, city, maxRent }), [areas, priorities, city, maxRent]);
+
+  const toggle = (id) => setPriorities((list) => (list.includes(id)
+    ? list.filter((x) => x !== id)
+    : list.length < MAX_PRIORITIES ? [...list, id] : list));
+
+  return (
+    <Finder aria-labelledby="find-area">
+      <h2 id="find-area">Find the right area for you</h2>
+      <p className="sub">Pick up to {MAX_PRIORITIES} things that matter most. We rank areas on what residents say about just those.</p>
+      <div className="chips" role="group" aria-label="What matters most">
+        {AREA_FACTORS.map((f) => (
+          <Pill
+            key={f.id}
+            type="button"
+            $active={priorities.includes(f.id)}
+            aria-pressed={priorities.includes(f.id)}
+            disabled={!priorities.includes(f.id) && priorities.length >= MAX_PRIORITIES}
+            onClick={() => toggle(f.id)}
+          >
+            {f.short}
+          </Pill>
+        ))}
+      </div>
+      {priorities.length > 0 && (
+        <>
+          <div className="filters">
+            <select value={city} onChange={(e) => setCity(e.target.value)} aria-label="City">
+              <option value="">Any city</option>
+              {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <select value={maxRent} onChange={(e) => setMaxRent(Number(e.target.value))} aria-label="Budget">
+              {BUDGETS.map((b) => <option key={b} value={b}>{b ? `Typical rent up to ${formatMoney(b, 'NGN')} a year` : 'Any budget'}</option>)}
+            </select>
+          </div>
+          {matches.length ? (
+            <Matches>
+              {matches.map((m) => (
+                <li key={m.area.slug}>
+                  <Match to={`/areas/${m.area.slug}`}>
+                    <span className="pct" aria-label={`${m.match}% match`}>{m.match}%</span>
+                    <span>
+                      <span className="n">{m.area.name}, {m.area.city}</span>
+                      <span className="w" style={{ display: 'block' }}>
+                        {matchReason(m)}. {m.area.ratings} {m.area.ratings === 1 ? 'rating' : 'ratings'}
+                        {m.area.medianRent ? ` · typical rent ${formatMoney(m.area.medianRent, 'NGN')}/yr` : m.rentUnknown ? ' · no rent data yet' : ''}
+                      </span>
+                    </span>
+                  </Match>
+                </li>
+              ))}
+            </Matches>
+          ) : (
+            <p className="empty">Not enough residents have scored areas {city ? `in ${city} ` : ''}on that yet{maxRent ? ' within that budget' : ''}. Try fewer filters, or browse the areas below.</p>
+          )}
+        </>
+      )}
+    </Finder>
+  );
+}
 
 function SuggestArea() {
   const { user } = useAuth();
@@ -189,6 +292,7 @@ function AreasIndex() {
         </Toolbar>
 
         {error && <Err>{error}</Err>}
+        {areas && <FindMyArea areas={areas} />}
         {!areas && !error ? <Loader /> : groups.length === 0 ? (
           <Muted>No area matches that yet. Suggest it below.</Muted>
         ) : groups.map((g) => (
@@ -256,8 +360,10 @@ const Jump = styled.nav`
   @media (min-width: 981px) { display: none; }
 `;
 /*
- * The page reads in three bands, each using the full width:
- *   1. at a glance — residents' scores beside rent and next steps;
+ * The page opens with "at a glance" (what the numbers say, against the rest
+ * of the city, and areas that do better where this one is weak), then reads
+ * in three bands, each using the full width:
+ *   1. residents' scores beside rent and next steps;
  *   2. location tools — the map beside commute and nearby;
  *   3. the board — posts beside its rules, which stay in view while you scroll.
  * Each band stacks to one column on phones and small tablets.
@@ -335,6 +441,7 @@ function AreaDetail() {
         )}
 
         <Sections>
+          <AreaInsights data={data} />
           <Band>
             <div id="scores"><AreaScores data={data} onRated={(next) => setData((d) => ({ ...d, ...next }))} /></div>
             <Stack>

@@ -13,6 +13,7 @@ const { NIGERIAN_STATES } = require('../markets');
 const { screen } = require('../services/moderation');
 const { notify, notifyStaff } = require('../services/notify');
 const { later } = require('../background');
+const insights = require('../areaInsights');
 
 /**
  * Neighbourhoods: one page per area (/areas/:slug) with what residents rate
@@ -496,6 +497,9 @@ router.get('/', async (req, res) => {
           latestPost: postsBy[a.slug]?.latest || null,
           ratings: rated.count,
           overall: rated.overall,
+          // Per-factor scores and the middle yearly rent, for "Find my area".
+          averages: rated.averages,
+          medianRent: insights.medianYearlyRent(listings[a.slug]),
           rentals: (listings[a.slug] || []).filter((l) => l.listing_type === 'rent').length,
         };
       }),
@@ -505,6 +509,39 @@ router.get('/', async (req, res) => {
     return res.status(500).json({ error: 'Could not load neighbourhoods.' });
   }
 });
+
+/**
+ * The numbers behind an area's "what we know" summary: the city's average
+ * on each factor, the typical rent by bedrooms across the city, what the
+ * board has talked about in the last 90 days, and other areas in the city
+ * that do better where this one is weak.
+ */
+async function areaInsight(area) {
+  const [areas, { rows: ratingRows }, all, { rows: topicRows }] = await Promise.all([
+    liveAreas(),
+    pool.query(`SELECT area_slug, COUNT(*)::int AS count, ${RATING_AVERAGES} FROM area_ratings GROUP BY area_slug`),
+    listingsByArea(),
+    pool.query(
+      `SELECT category, COUNT(*)::int AS n FROM area_posts
+        WHERE area_slug = $1 AND status = 'published' AND created_at > NOW() - INTERVAL '90 days'
+        GROUP BY category`,
+      [area.slug]
+    ),
+  ]);
+  const ratingsBySlug = Object.fromEntries(ratingRows.map((r) => [r.area_slug, r]));
+  const inCity = areas.filter((a) => a.city === area.city).map((a) => a.slug);
+  const cityRows = inCity.flatMap((slug) => all[slug] || []);
+  const rentBySlug = Object.fromEntries(inCity.map((slug) => [slug, insights.medianYearlyRent(all[slug])]));
+  return {
+    city: area.city,
+    // Areas in the city residents have scored: what "compared with" means.
+    cityAreas: inCity.filter((slug) => ratingsBySlug[slug]?.count > 0).length,
+    cityAverages: insights.cityAverages(area.city, areas, ratingsBySlug),
+    cityRents: rentSnapshot(cityRows),
+    topics: insights.topics(topicRows),
+    alternatives: insights.alternatives(area, areas, ratingsBySlug, { rentBySlug }),
+  };
+}
 
 /* GET /api/areas/:slug — the area, its scores, rents and the viewer's own rating. */
 router.get('/:slug', async (req, res) => {
@@ -523,6 +560,7 @@ router.get('/:slug', async (req, res) => {
       user ? isVerifiedResident(user.email, area) : false,
     ]);
     const rows = listings[area.slug] || [];
+    const insight = await areaInsight(area);
     return res.json({
       area: { ...publicArea(area), movingCity: MOVING_CITIES.includes(area.city) ? area.city : null },
       factors: RATING_FACTORS,
@@ -532,7 +570,7 @@ router.get('/:slug', async (req, res) => {
       viewer: user ? { signedIn: true, verifiedResident: verified } : { signedIn: false, verifiedResident: false },
       rents: rentSnapshot(rows),
       rentals: rows.filter((r) => r.listing_type === 'rent').length,
-      forSale: rows.filter((r) => r.listing_type !== 'rent').length,
+      insights: insight,
     });
   } catch (err) {
     console.error('GET /areas/:slug error:', err);
