@@ -7,14 +7,11 @@ import { useNavigate, useParams, useSearchParams, useLocation } from "react-rout
 import * as Dialog from "@radix-ui/react-dialog";
 import {
   ArrowRight,
-  Building2,
   Calculator,
   ChevronDown,
   CircleHelp,
-  House,
   ListChecks,
   MapPin,
-  Package,
   Search,
   ShieldCheck,
   Truck,
@@ -30,7 +27,7 @@ import { CustomerDashboard } from "@/components/marketplace/CustomerDashboard";
 import { SupportWidget } from "@/components/platform/SupportWidget";
 import { HeroFreightArt } from "@/components/platform/FreightArt";
 import { authClient } from "@/lib/auth/client";
-import { AREAS, SERVICES } from "@/lib/moving/model";
+import { AREAS } from "@/lib/moving/model";
 import { FAQ, TIPS } from "@/lib/marketplace/content";
 
 /*
@@ -75,11 +72,8 @@ const PRICE_PARTS: Pair[] = [
 
 const PARTNERS: Pair[] = [
   ["Truck owners and moving crews", "Add your vehicles, areas, crew and documents in the crew hub below. We review them before assigning jobs."],
-  ["Furniture and appliance shops", "Bulky deliveries from your showroom or warehouse to your customer’s door."],
   ["Estate agents and office managers", "Tenant handovers, office relocations and repeat moves with one operations contact."],
 ];
-
-const SERVICE_ICONS = [House, Building2, Package];
 
 /* ── Building blocks ─────────────────────────────────────────────── */
 
@@ -390,19 +384,7 @@ export function MovingPage() {
             <span /> Moving
           </p>
           <h1>Your move, tracked to the door.</h1>
-          <p className="moving-hero-sub">Priced before you book, in Lagos, Abuja and Port Harcourt.</p>
-          <div className="moving-services">
-            {SERVICES.map((service, i) => {
-              const Icon = SERVICE_ICONS[i];
-              return (
-                <Link key={service.id} href={`/moving/book?service=${service.id}`} className="moving-service">
-                  <Icon size={18} strokeWidth={1.7} />
-                  {service.name}
-                  <ArrowRight size={14} />
-                </Link>
-              );
-            })}
-          </div>
+          <p className="moving-hero-sub">Home and office moves, priced before you book.</p>
           </div>
         </div>
       </section>

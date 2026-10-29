@@ -10,7 +10,7 @@ import {
   Hero, HeroGrid, HeroCopy, Eyebrow, HeroTitle, TitleAccent, ActionRow,
   PrimaryAction, StatBand, StatBandInner, StatNum, StatLabel,
   Section, Inner, SectionHead, Kicker, SectionTitle, SectionSub,
-  CheckGrid, CheckItem, CalloutAction, Panel,
+  CheckGrid, CheckItem, Callout, CalloutAction, Panel,
   enterContainer, enterItem,
 } from '../components/page';
 import { Segmented, useCountUp } from '../components/ui';
@@ -494,16 +494,43 @@ const AmountFields = styled.div`
   @media (max-width: 560px) { grid-template-columns: 110px minmax(0, 1fr); }
 `;
 
+/** Phones on the landing page: the landlord pitch as one callout and a button, no calculator. */
+function LandlordCallout({ tint }) {
+  return (
+    <Section $tint={tint} $divide>
+      <Inner>
+        <Reveal>
+          <Callout>
+            <div>
+              <h2>Own a home? Let us run it.</h2>
+              <p>We find the tenant, collect the rent and pay you.</p>
+            </div>
+            <CalloutAction to={MANAGE_ADD_URL}>Let us manage it <FaArrowRight size={13} /></CalloutAction>
+          </Callout>
+        </Reveal>
+      </Inner>
+    </Section>
+  );
+}
+
 export function RentCalculator({
   kicker = 'For landlords',
   title = 'Let it. We run it for you.',
   sub = 'We find and check the tenant, collect the rent, handle repairs and inspections, and pay you the balance. See what you keep.',
   tint = true,
+  calloutOnMobile = false,
+}) {
+  const mobile = useIsMobile();
+  if (mobile && calloutOnMobile) return <LandlordCallout tint={tint} />;
+  return <RentCalculatorSection kicker={kicker} title={title} sub={sub} tint={tint} mobile={mobile} />;
+}
+
+function RentCalculatorSection({
+  kicker, title, sub, tint, mobile,
 }) {
   const [annualRent, setAnnualRent] = useState(3_000_000);
   const currency = CURRENCY;
   const [plan, setPlan] = useState('full_management');
-  const mobile = useIsMobile();
   const quote = estimateFees({ plan, annualRent, vatPercent: 0, currency });
   const net = useCountUp(quote.netAnnual, { duration: 600 });
 

@@ -19,6 +19,11 @@ export const SERVICES = [
       "Sofas, fridges, beds and generators. Get bulky purchases from the seller to your door.",
   },
 ] as const;
+/**
+ * What customers can book: home and office moves. "item" stays in SERVICES
+ * so moves already booked as one still read and validate.
+ */
+export const BOOKABLE_SERVICES = SERVICES.filter((s) => s.id !== "item");
 export const AREAS = [
   "Lekki",
   "Ajah",

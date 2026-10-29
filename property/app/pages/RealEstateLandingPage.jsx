@@ -8,7 +8,8 @@ import {
  * The public pitch. Sections live in landing-sections.jsx; this file is only
  * the order they run in: the hero, how renting with us fits together (find →
  * check → move in → live), the numbers, checking a rental before you pay, the
- * newest homes to rent, then what we do for landlords.
+ * newest homes to rent, then what we do for landlords (on phones, a
+ * callout and a button rather than the fee calculator).
  */
 export default function RealEstateLandingPage() {
   return (
@@ -18,7 +19,7 @@ export default function RealEstateLandingPage() {
       <LandingStats />
       <NewRentalsStrip />
       <RentalCheckSection />
-      <RentCalculator tint={false} />
+      <RentCalculator tint={false} calloutOnMobile />
     </PageShell>
   );
 }

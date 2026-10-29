@@ -6,7 +6,7 @@ import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import { PhotoInventoryPlanner } from "./PhotoInventoryPlanner";
 import { FULL_SERVICE_EXTRAS, inventoryText, validPlan, type InventoryPlan } from "@/lib/moving/planner";
 import { formatMoney } from "@/lib/money";
-import { SERVICES, SIZES, today } from "@/lib/moving/model";
+import { BOOKABLE_SERVICES, SERVICES, SIZES, today } from "@/lib/moving/model";
 import {
   estimateMove,
   DEFAULT_PRICING,
@@ -24,7 +24,7 @@ export function BookMove({ embedded = false }: { embedded?: boolean } = {}) {
   const params = useSearchParams();
   const area = params.get("area");
   const initialService =
-    SERVICES.find((s) => s.id === params.get("service"))?.id ?? "home";
+    BOOKABLE_SERVICES.find((s) => s.id === params.get("service"))?.id ?? "home";
   const [service, setService] =
     useState<(typeof SERVICES)[number]["id"]>(initialService);
   const [size, setSize] = useState(SIZES[initialService][0]);
@@ -212,7 +212,7 @@ export function BookMove({ embedded = false }: { embedded?: boolean } = {}) {
               <span>01</span>What are we moving?
             </legend>
             <div className={styles.rolePicker}>
-              {SERVICES.map((s) => (
+              {BOOKABLE_SERVICES.map((s) => (
                 <button
                   key={s.id}
                   type="button"

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "@/components/ui/AppLink";
-import { SERVICES, SIZES } from "@/lib/moving/model";
+import { BOOKABLE_SERVICES, SIZES } from "@/lib/moving/model";
 import {
   CITIES,
   TRUCKS,
@@ -12,7 +12,7 @@ import { formatMoney } from "@/lib/money";
 import s from "./Marketplace.module.css";
 export function PricingCalculator() {
   const [rules, setRules] = useState(DEFAULT_PRICING),
-    [service, setService] = useState<"home" | "office" | "item">("home"),
+    [service, setService] = useState<"home" | "office">("home"),
     [size, setSize] = useState<string>(SIZES.home[0]),
     [city, setCity] = useState("Lagos"),
     [distance, setDistance] = useState(10),
@@ -53,7 +53,7 @@ export function PricingCalculator() {
               setSize(SIZES[v][0]);
             }}
           >
-            {SERVICES.map((x) => (
+            {BOOKABLE_SERVICES.map((x) => (
               <option value={x.id} key={x.id}>
                 {x.name}
               </option>

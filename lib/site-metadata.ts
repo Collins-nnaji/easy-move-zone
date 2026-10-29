@@ -69,8 +69,8 @@ export const siteMetadata: Metadata = {
   keywords: [
     "house movers Nigeria",
     "home and office relocation Lagos",
-    "bulky item transport",
-    "furniture delivery Nigeria",
+    "office relocation Abuja",
+    "moving company Port Harcourt",
     "packing and loading help",
     "EasyMoveZone",
   ],
