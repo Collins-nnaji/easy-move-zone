@@ -10,7 +10,7 @@ import Loader from '../components/Loader';
 import { useIsMobile } from '../utils/useMediaQuery';
 import AreaBoard from '../components/areas/AreaBoard';
 import {
-  AreaScores, AreaRents, AreaTools, AreaRules, AreaNextSteps,
+  AreaScores, AreaTools, AreaRules, AreaNextSteps,
 } from '../components/areas/AreaPanels';
 import AreaInsights from '../components/areas/AreaInsights';
 import AreaMobile from '../components/areas/AreaMobile';
@@ -293,7 +293,7 @@ function AreasIndex() {
       <Intro>
         <p className="k">Neighbourhoods</p>
         <h1>See the area before you rent.</h1>
-        <p>Residents score power, water, flooding, roads and safety. Typical rents sit on the same page.</p>
+        <p>Residents score power, water, flooding, roads and safety, and say what living there is like.</p>
       </Intro>
 
       <Body>
@@ -374,7 +374,7 @@ const Headline = styled.div`
  * The page opens with "at a glance" (what the numbers say, against the rest
  * of the city, and areas that do better where this one is weak), then reads
  * in three bands, each using the full width:
- *   1. residents' scores beside rent and next steps;
+ *   1. residents' scores beside next steps;
  *   2. location tools — the map beside commute and nearby;
  *   3. the board — posts beside its rules, which stay in view while you scroll.
  * Each band stacks to one column on phones and small tablets.
@@ -396,7 +396,7 @@ const BandTitle = styled.h2`
 
 /* A panel URL (/areas/:slug/board…) opened on a wider screen scrolls to that section. */
 const PANEL_ANCHOR = {
-  vote: 'scores', rent: 'rents', board: 'board', map: 'tools', compare: 'area-glance',
+  vote: 'scores', board: 'board', map: 'tools', compare: 'area-glance',
 };
 
 function AreaDetail() {
@@ -465,10 +465,7 @@ function AreaDetail() {
           <AreaInsights data={data} />
           <Band>
             <div id="scores"><AreaScores data={data} onRated={onRated} /></div>
-            <Stack>
-              <div id="rents"><AreaRents data={data} /></div>
-              <AreaNextSteps area={area} />
-            </Stack>
+            <AreaNextSteps area={area} />
           </Band>
 
           <div id="tools"><AreaTools area={area} /></div>

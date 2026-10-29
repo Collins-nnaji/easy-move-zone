@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
-  FaCheckCircle, FaRegThumbsUp, FaThumbsUp, FaRegComment, FaRegFlag, FaTrashAlt, FaMapPin, FaClock, FaWhatsapp,
+  FaCheckCircle, FaPen, FaRegThumbsUp, FaThumbsUp, FaRegComment, FaRegFlag, FaTrashAlt, FaMapPin, FaClock, FaWhatsapp,
 } from 'react-icons/fa';
 import { useLocation } from 'react-router-dom';
 import { api } from '../../api';
+import { useIsMobile } from '../../utils/useMediaQuery';
 import {
   Panel, Pill, PrimaryBtn, ErrorText, SignInLink, timeAgo, whatsappShare,
 } from './shared';
@@ -41,13 +42,23 @@ const Composer = styled.form`
 `;
 const Filters = styled.div`
   display: flex; gap: 0.35rem; overflow-x: auto; padding-bottom: 0.25rem; margin: 0.25rem 0 0.75rem;
+  @media (max-width: 720px) {
+    margin: 0 -14px 0.7rem; padding: 0 14px 0.2rem; scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+    button { flex-shrink: 0; padding: 0.4rem 0.8rem; font-size: 0.78rem; }
+  }
 `;
 const SortRow = styled.div`
   display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;
   h2 { margin: 0; font-size: 1.05rem; }
   select { min-height: 36px; border: 1px solid var(--color-line-strong); border-radius: 9px; padding: 0 0.6rem; font: inherit; font-size: 0.84rem; background: #fff; }
+  @media (max-width: 720px) {
+    flex-wrap: nowrap; margin-bottom: 0.6rem;
+    h2 { font-size: 0.98rem; white-space: nowrap; }
+    select { min-height: 34px; font-size: 0.8rem; padding: 0 0.4rem; }
+  }
 `;
-const List = styled.div`display: flex; flex-direction: column; gap: 0.75rem;`;
+const List = styled.div`display: flex; flex-direction: column; gap: 0.75rem; @media (max-width: 720px) { gap: 0.6rem; }`;
 const Card = styled.article`
   background: #fff; border: 1px solid var(--color-line); border-radius: 16px; padding: 1rem 1.1rem; scroll-margin-top: 90px;
   ${(p) => p.$focus && 'box-shadow: 0 0 0 3px rgba(184, 90, 48, 0.35);'}
@@ -58,6 +69,12 @@ const Card = styled.article`
   .body { margin: 0.55rem 0 0; white-space: pre-wrap; line-height: 1.55; font-size: 0.93rem; color: var(--color-ink); overflow-wrap: anywhere; }
   .by { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.6rem; font-size: 0.8rem; color: var(--color-ink-muted); flex-wrap: wrap; }
   .held { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.6rem; font-size: 0.8rem; color: #92400e; font-weight: 600; }
+  @media (max-width: 720px) {
+    padding: 0.85rem 0.9rem 0.35rem; border-radius: 14px;
+    .meta { justify-content: space-between; gap: 0.4rem; }
+    .body { margin-top: 0.45rem; font-size: 0.9rem; line-height: 1.5; }
+    .by { margin-top: 0.45rem; font-size: 0.74rem; }
+  }
 `;
 const Verified = styled.span`
   display: inline-flex; align-items: center; gap: 0.25rem; color: var(--color-green-deep); font-weight: 700; font-size: 0.75rem;
@@ -69,6 +86,12 @@ const Actions = styled.div`
   button[aria-pressed='true'] { color: var(--color-green-deep); }
   a { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.55rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: var(--color-ink-muted); }
   a:hover { background: var(--color-bg-sunken); color: var(--color-ink); }
+  @media (max-width: 720px) {
+    flex-wrap: nowrap; justify-content: space-between; gap: 0; margin: 0.55rem -0.4rem 0; padding-top: 0.2rem;
+    border-top: 1px solid var(--color-line);
+    button, a { flex: 1 1 0; justify-content: center; min-height: 40px; padding: 0 0.3rem; font-size: 0.76rem; white-space: nowrap; }
+    .lbl { display: none; }
+  }
 `;
 const Replies = styled.div`
   margin-top: 0.6rem; padding-left: 0.9rem; border-left: 2px solid var(--color-line); display: flex; flex-direction: column; gap: 0.55rem;
@@ -78,6 +101,28 @@ const Replies = styled.div`
   form input { flex: 1; min-width: 0; min-height: 40px; border: 1px solid var(--color-line-strong); border-radius: 10px; padding: 0 0.7rem; font: inherit; font-size: 0.88rem; }
   form button { min-height: 40px; border: 0; border-radius: 10px; padding: 0 0.9rem; background: var(--color-green-deep); color: #fff; font-weight: 700; font-size: 0.82rem; cursor: pointer; }
   form button:disabled { opacity: 0.55; }
+  .toggle { align-self: flex-start; border: 0; background: none; padding: 0.2rem 0; font: inherit; font-size: 0.8rem; font-weight: 700; color: var(--color-green-deep); cursor: pointer; }
+  @media (max-width: 720px) {
+    margin: 0.4rem 0 0.5rem; padding-left: 0.75rem;
+    .reply p { font-size: 0.85rem; }
+    > .reply > div:last-child { border-top: 0; margin: 0.15rem 0 0; justify-content: flex-start; }
+    > .reply > div:last-child button { flex: 0 0 auto; min-height: 32px; }
+  }
+`;
+const Cancel = styled.button`
+  min-height: 44px; padding: 0 1rem; border: 1px solid var(--color-line-strong); border-radius: 11px; background: #fff;
+  font: inherit; font-size: 0.88rem; font-weight: 700; color: var(--color-ink-muted); cursor: pointer;
+`;
+/* Phones: the post box stays folded as one line until you tap it. */
+const Prompt = styled.button`
+  display: flex; align-items: center; gap: 0.65rem; width: 100%; min-height: 50px; padding: 0 0.9rem;
+  border-radius: 14px; border: 1px solid var(--color-line); background: #fff; box-shadow: var(--shadow-soft);
+  font: inherit; font-size: 0.9rem; color: var(--color-ink-faint); text-align: left; cursor: pointer;
+  .ic { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 999px; background: var(--color-green-soft); color: var(--color-green-deep); font-size: 0.75rem; flex-shrink: 0; }
+`;
+const SignInBar = styled.p`
+  margin: 0; padding: 0.75rem 0.9rem; border-radius: 14px; background: #fff; border: 1px solid var(--color-line);
+  font-size: 0.85rem; color: var(--color-ink-muted);
 `;
 const ReportBox = styled.form`
   margin-top: 0.6rem; padding: 0.75rem; border-radius: 12px; background: var(--color-bg-sunken);
@@ -93,6 +138,7 @@ const Empty = styled.div`
   p { margin: 0; font-size: 0.88rem; }
   .invite { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--color-green-deep); font-weight: 700; }
   .invite svg { color: #25d366; }
+  @media (max-width: 720px) { padding: 1.4rem 1rem; }
 `;
 const More = styled.button`
   align-self: center; margin-top: 0.25rem; border: 1px solid var(--color-line-strong); background: #fff; border-radius: 999px;
@@ -128,7 +174,10 @@ function ReportForm({ onCancel, onSend }) {
 }
 
 function Post({ post, area, focused, categoryLabel, signedIn, onChange, onRemoved }) {
+  const mobile = useIsMobile();
   const [replying, setReplying] = useState(false);
+  // Phones show the latest reply; the rest open on request.
+  const [allReplies, setAllReplies] = useState(false);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
   const [reporting, setReporting] = useState(null); // { type, id }
@@ -170,6 +219,9 @@ function Post({ post, area, focused, categoryLabel, signedIn, onChange, onRemove
     else onChange({ ...post, replies: post.replies.filter((r) => r.id !== id) });
   });
 
+  const hidden = mobile && !allReplies && !focused ? Math.max(post.replies.length - 1, 0) : 0;
+  const shownReplies = post.replies.slice(hidden);
+
   return (
     <Card $held={held} $focus={focused} id={`post-${post.id}`}>
       <div className="meta">
@@ -184,14 +236,14 @@ function Post({ post, area, focused, categoryLabel, signedIn, onChange, onRemove
         <Actions>
           {signedIn && !post.mine && (
             <button type="button" aria-pressed={post.helpful} onClick={toggleHelpful}>
-              {post.helpful ? <FaThumbsUp /> : <FaRegThumbsUp />} Helpful{post.helpful_count ? ` · ${post.helpful_count}` : ''}
+              {post.helpful ? <FaThumbsUp /> : <FaRegThumbsUp />} <span className="lbl">Helpful</span>{post.helpful_count ? ` ${mobile ? '' : '· '}${post.helpful_count}` : ''}{mobile && !post.helpful_count ? 'Helpful' : ''}
             </button>
           )}
           {(!signedIn || post.mine) && post.helpful_count > 0 && (
-            <button type="button" disabled><FaRegThumbsUp /> {post.helpful_count} found this helpful</button>
+            <button type="button" disabled><FaRegThumbsUp /> {post.helpful_count}<span className="lbl"> found this helpful</span></button>
           )}
-          {signedIn && <button type="button" onClick={() => setReplying((v) => !v)}><FaRegComment /> Reply</button>}
-          {signedIn && !post.mine && <button type="button" onClick={() => setReporting({ type: 'post', id: post.id })}><FaRegFlag /> Report</button>}
+          {signedIn && <button type="button" onClick={() => setReplying((v) => !v)}><FaRegComment /> Reply{mobile && post.replies.length ? ` ${post.replies.length}` : ''}</button>}
+          {signedIn && !post.mine && <button type="button" aria-label="Report" onClick={() => setReporting({ type: 'post', id: post.id })}><FaRegFlag /> <span className="lbl">Report</span></button>}
           {post.mine && <button type="button" onClick={() => remove('post', post.id)}><FaTrashAlt /> Delete</button>}
           <a href={whatsappShare(`From the ${area.name} neighbourhood board on EasyMoveZone:`, `/areas/${area.slug}#post-${post.id}`)} target="_blank" rel="noopener noreferrer">
             <FaWhatsapp /> Share
@@ -206,7 +258,10 @@ function Post({ post, area, focused, categoryLabel, signedIn, onChange, onRemove
 
       {(post.replies.length > 0 || replying) && (
         <Replies>
-          {post.replies.map((r) => (
+          {hidden > 0 && (
+            <button type="button" className="toggle" onClick={() => setAllReplies(true)}>View {hidden} earlier {hidden === 1 ? 'reply' : 'replies'}</button>
+          )}
+          {shownReplies.map((r) => (
             <div key={r.id} className="reply">
               <p>{r.body}</p>
               <Author item={r} />
@@ -232,6 +287,8 @@ function Post({ post, area, focused, categoryLabel, signedIn, onChange, onRemove
 }
 
 export default function AreaBoard({ area, categories, signedIn }) {
+  const mobile = useIsMobile();
+  const [composing, setComposing] = useState(false);
   const { hash } = useLocation();
   const focusId = /^#post-\d+$/.test(hash) ? Number(hash.slice(6)) : null;
   const [category, setCategory] = useState('');
@@ -293,11 +350,21 @@ export default function AreaBoard({ area, categories, signedIn }) {
   const update = (next) => setPosts((prev) => prev.map((p) => (p.id === next.id ? next : p)));
   const removed = (id) => { setPosts((prev) => prev.filter((p) => p.id !== id)); setTotal((t) => Math.max(t - 1, 0)); };
 
+  const composer = !mobile || composing;
+
   return (
     <>
+      {mobile && !composing && (signedIn ? (
+        <Prompt type="button" onClick={() => setComposing(true)}>
+          <span className="ic"><FaPen /></span> Ask or share something about {area.name}
+        </Prompt>
+      ) : (
+        <SignInBar><SignInLink>Sign in to post or reply</SignInLink>. Reading is open to everyone.</SignInBar>
+      ))}
+      {composer && (
       <Panel>
         <h2>Share something about {area.name}</h2>
-        <p className="sub">Light, water, flooding, a building, the traffic, or a question for people who live here.</p>
+        {!mobile && <p className="sub">Light, water, flooding, a building, the traffic, or a question for people who live here.</p>}
         {signedIn ? (
           <Composer onSubmit={submit}>
             <div className="cats" role="group" aria-label="What is it about">
@@ -333,6 +400,7 @@ export default function AreaBoard({ area, categories, signedIn }) {
             </div>
             <div className="row">
               <PrimaryBtn type="submit" disabled={posting || draft.body.trim().length < 10}>{posting ? 'Posting…' : 'Post'}</PrimaryBtn>
+              {mobile && <Cancel type="button" onClick={() => { setComposing(false); setPosted(''); }}>{posted ? 'Done' : 'Cancel'}</Cancel>}
             </div>
             {posted && <div className="ok"><FaCheckCircle /> {posted}</div>}
             {postError && <ErrorText>{postError}</ErrorText>}
@@ -341,10 +409,11 @@ export default function AreaBoard({ area, categories, signedIn }) {
           <p className="sub" style={{ margin: 0 }}><SignInLink>Sign in to post or reply</SignInLink>. Reading is open to everyone.</p>
         )}
       </Panel>
+      )}
 
       <div>
         <SortRow>
-          <h2>From the neighbourhood{total ? ` · ${total}` : ''}</h2>
+          <h2>{mobile ? `${total || 'No'} ${total === 1 ? 'post' : 'posts'}` : <>From the neighbourhood{total ? ` · ${total}` : ''}</>}</h2>
           <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort posts">
             <option value="recent">Newest first</option>
             <option value="helpful">Most helpful</option>

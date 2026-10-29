@@ -86,12 +86,6 @@ function rentLine(rents, cityRents, city) {
   return <>A {bedsWord(here.beds)} is about <b>{typical}</b> a year here, {vs}.</>;
 }
 
-/** The rent most homes here go for: { beds, median, currency } of the commonest size, or null. */
-export function typicalRent(rents) {
-  const here = [...(rents || [])].sort((a, b) => b.count - a.count)[0];
-  return here ? { beds: bedsWord(here.beds), median: here.median, currency: here.currency } : null;
-}
-
 /** Up to three factors residents score highest (3.5+) and lowest (under 3). */
 export function strongAndWeak(factors, ratings) {
   const scored = factors

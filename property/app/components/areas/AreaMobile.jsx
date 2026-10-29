@@ -4,22 +4,21 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import * as Dialog from '@radix-ui/react-dialog';
 import {
   FaArrowRight, FaCheckCircle, FaChevronLeft, FaComments, FaHome, FaMapMarkedAlt, FaBalanceScale,
-  FaMoneyBillWave, FaStar, FaTimes, FaTruck, FaVoteYea, FaWhatsapp, FaClipboardCheck,
+  FaStar, FaTimes, FaTruck, FaVoteYea, FaWhatsapp,
 } from 'react-icons/fa';
-import { formatMoney } from '../../utils/format';
-import { RENT_URL, RENTAL_CHECK_URL, MOVING_URL } from '../../config/platform';
+import { RENT_URL, MOVING_URL } from '../../config/platform';
 import AreaBoard from './AreaBoard';
 import {
-  ScoreBars, RateForm, AreaRents, AreaTools, BoardRulesList,
+  ScoreBars, RateForm, AreaTools, BoardRulesList,
 } from './AreaPanels';
-import { AreaAlternatives, typicalRent } from './AreaInsights';
+import { AreaAlternatives } from './AreaInsights';
 import { SignInLink, stateLabel, whatsappShare } from './shared';
 
 /**
  * An area page on a phone. The residents' poll — the score out of 5 and the
  * result for each factor — is the page; everything else is a tile that opens
  * a full-screen panel, the way /moving does. Each panel has its own URL
- * (/areas/:slug/rent, /board, /map, /compare, /vote), so Back closes it.
+ * (/areas/:slug/board, /map, /compare, /vote), so Back closes it.
  */
 
 const Wrap = styled.div`
@@ -59,6 +58,8 @@ const VoteBtn = styled(Link)`
 
 const Tiles = styled.div`
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; margin-top: 0.85rem;
+  /* An odd tile out takes the whole last row. */
+  > :last-child:nth-child(odd) { grid-column: 1 / -1; }
 `;
 const Tile = styled(Link)`
   position: relative; display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; padding: 0.8rem;
@@ -128,10 +129,9 @@ export default function AreaMobile({ data, signedIn, onRated }) {
   const navigate = useNavigate();
   const location = useLocation();
   const {
-    area, factors, ratings, viewer, myRating, rents, rentals, insights,
+    area, factors, ratings, viewer, myRating, rentals, insights,
   } = data;
   const base = `/areas/${area.slug}`;
-  const rent = typicalRent(rents);
   const posts = (insights?.topics || []).reduce((n, t) => n + t.count, 0);
   const alternatives = insights?.alternatives || [];
   // Tiles open panels with `state.fromArea`, so closing one steps back; a
@@ -147,7 +147,6 @@ export default function AreaMobile({ data, signedIn, onRated }) {
         ? <RateForm data={data} onRated={onRated} bare />
         : <p><SignInLink>Sign in to vote</SignInLink> on the light, water, flooding and safety where you live.</p>,
     },
-    rent: { icon: FaMoneyBillWave, title: `Rent in ${area.name}`, body: <Flat><AreaRents data={data} /></Flat> },
     board: {
       icon: FaComments,
       title: 'Residents’ board',
@@ -203,12 +202,6 @@ export default function AreaMobile({ data, signedIn, onRated }) {
       </Poll>
 
       <Tiles>
-        <Tile {...open('rent')}>
-          <span className="ic"><FaMoneyBillWave /></span>
-          <strong>Rent</strong>
-          <span className="s">{rent ? `${rent.beds} ≈ ${formatMoney(rent.median, rent.currency)}/yr` : 'No rent guide yet'}</span>
-          <FaArrowRight />
-        </Tile>
         <Tile {...open('board')}>
           <span className="ic"><FaComments /></span>
           <strong>Residents&rsquo; board</strong>
@@ -221,18 +214,11 @@ export default function AreaMobile({ data, signedIn, onRated }) {
           <span className="s">Commute, hospitals, markets</span>
           <FaArrowRight />
         </Tile>
-        {alternatives.length > 0 ? (
+        {alternatives.length > 0 && (
           <Tile {...open('compare')}>
             <span className="ic"><FaBalanceScale /></span>
             <strong>Compare areas</strong>
             <span className="s">{alternatives.length} nearby {alternatives.length === 1 ? 'option' : 'options'}</span>
-            <FaArrowRight />
-          </Tile>
-        ) : (
-          <Tile to={RENTAL_CHECK_URL}>
-            <span className="ic"><FaClipboardCheck /></span>
-            <strong>Check a rental</strong>
-            <span className="s">Before you pay</span>
             <FaArrowRight />
           </Tile>
         )}

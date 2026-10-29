@@ -3,12 +3,11 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import {
   FaArrowRight, FaCheckCircle, FaHospital, FaSchool, FaShoppingBasket, FaShieldAlt, FaUniversity,
-  FaPrescriptionBottleAlt, FaGasPump, FaBus, FaRoute, FaTruck, FaHome, FaClipboardCheck, FaChevronDown,
+  FaPrescriptionBottleAlt, FaGasPump, FaBus, FaRoute, FaTruck, FaHome, FaChevronDown,
 } from 'react-icons/fa';
 import { api } from '../../api';
-import { formatMoney } from '../../utils/format';
 import { AREA_FACTORS } from '../../config/areas';
-import { RENT_URL, RENTAL_CHECK_URL, MOVING_URL } from '../../config/platform';
+import { RENT_URL, MOVING_URL } from '../../config/platform';
 import {
   Panel, PrimaryBtn, ErrorText, SignInLink,
 } from './shared';
@@ -170,53 +169,6 @@ export function AreaScores({ data, onRated }) {
   );
 }
 
-/* ── Rents ────────────────────────────────────────────────────────── */
-
-const RentTable = styled.table`
-  width: 100%; border-collapse: collapse; font-size: 0.86rem;
-  th { text-align: left; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-ink-muted); font-weight: 700; padding: 0 0 0.45rem; }
-  td { padding: 0.55rem 0; border-top: 1px solid var(--color-line); vertical-align: top; }
-  td small { display: block; color: var(--color-ink-faint); font-size: 0.75rem; }
-  td.num { text-align: right; font-weight: 700; }
-`;
-const TextLink = styled(Link)`
-  display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.85rem; font-weight: 700; font-size: 0.86rem; color: var(--color-green-deep);
-  &:hover { text-decoration: underline; }
-`;
-
-const bedsLabel = (b) => (/^\d+$/.test(b) ? `${b} bed${b === '1' ? '' : 's'}` : b);
-
-export function AreaRents({ data }) {
-  const { area, rents, rentals } = data;
-  return (
-    <Panel>
-      <h2>Rent in {area.name}</h2>
-      <p className="sub">Asking rents per year on the homes we let here now. Each listing shows any service charge and caution deposit.</p>
-      {rents.length ? (
-        <RentTable>
-          <thead><tr><th>Home</th><th style={{ textAlign: 'right' }}>Typical per year</th></tr></thead>
-          <tbody>
-            {rents.map((r) => (
-              <tr key={r.beds}>
-                <td>{bedsLabel(r.beds)}<small>{r.count} {r.count === 1 ? 'home' : 'homes'}</small></td>
-                <td className="num">
-                  {formatMoney(r.median, r.currency)}
-                  {r.count > 1 && <small>{formatMoney(r.low, r.currency)} to {formatMoney(r.high, r.currency)}</small>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </RentTable>
-      ) : (
-        <p className="sub" style={{ margin: 0 }}>We have no homes to rent here right now, so there is no rent guide yet.</p>
-      )}
-      <TextLink to={`${RENT_URL}?q=${encodeURIComponent(area.name)}`}>
-        {rentals ? `See ${rentals} ${rentals === 1 ? 'home' : 'homes'} to rent` : 'Browse homes to rent'} <FaArrowRight size={10} />
-      </TextLink>
-    </Panel>
-  );
-}
-
 /* ── Location tools ───────────────────────────────────────────────── */
 
 const MapFrame = styled.iframe`
@@ -333,9 +285,6 @@ export function AreaNextSteps({ area }) {
       <p className="sub">Where to go from here.</p>
       <Next to={`${RENT_URL}?q=${encodeURIComponent(area.name)}`}>
         <span className="ic"><FaHome /></span><span>Homes to rent here<small>Let and managed by us</small></span><FaArrowRight size={11} />
-      </Next>
-      <Next to={RENTAL_CHECK_URL}>
-        <span className="ic"><FaClipboardCheck /></span><span>Check a rental before you pay<small>The landlord or agent, and the home</small></span><FaArrowRight size={11} />
       </Next>
       {area.movingCity ? (
         <Next to={`${MOVING_URL}/book?area=${encodeURIComponent(area.movingCity)}`}>
