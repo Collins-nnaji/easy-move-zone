@@ -389,10 +389,8 @@ export function MovingPage() {
           <p className="logistics-eyebrow">
             <span /> Moving
           </p>
-          <h1>Move home. Know who is carrying it.</h1>
-          <p className="moving-hero-sub">
-            A crew, the right truck and packing, priced before you book and tracked to the door — in Lagos, Abuja and Port Harcourt.
-          </p>
+          <h1>Your move, tracked to the door.</h1>
+          <p className="moving-hero-sub">Priced before you book, in Lagos, Abuja and Port Harcourt.</p>
           <div className="moving-services">
             {SERVICES.map((service, i) => {
               const Icon = SERVICE_ICONS[i];
