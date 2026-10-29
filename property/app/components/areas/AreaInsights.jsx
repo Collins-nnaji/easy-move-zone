@@ -43,7 +43,7 @@ const Basis = styled.p`
 `;
 
 const Alts = styled.div`
-  margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--color-line);
+  ${(p) => (p.$bare ? '' : 'margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--color-line);')}
   h3 { margin: 0 0 0.6rem; font-size: 0.95rem; }
   .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 0.6rem; }
 `;
@@ -86,17 +86,57 @@ function rentLine(rents, cityRents, city) {
   return <>A {bedsWord(here.beds)} is about <b>{typical}</b> a year here, {vs}.</>;
 }
 
-export default function AreaInsights({ data }) {
-  const { area, factors, ratings, rents, categories, insights } = data;
-  if (!insights) return null;
-  const { city, cityAverages = {}, cityRents, topics = [], alternatives = [], cityAreas } = insights;
-  const label = Object.fromEntries(factors.map((f) => [f.id, f.label]));
-  const catLabel = Object.fromEntries((categories || []).map((c) => [c.id, c.label]));
+/** The rent most homes here go for: { beds, median, currency } of the commonest size, or null. */
+export function typicalRent(rents) {
+  const here = [...(rents || [])].sort((a, b) => b.count - a.count)[0];
+  return here ? { beds: bedsWord(here.beds), median: here.median, currency: here.currency } : null;
+}
+
+/** Up to three factors residents score highest (3.5+) and lowest (under 3). */
+export function strongAndWeak(factors, ratings) {
   const scored = factors
     .map((f) => ({ id: f.id, value: ratings.averages[f.id] }))
     .filter((f) => f.value != null);
-  const strengths = scored.filter((f) => f.value >= STRONG).sort((a, b) => b.value - a.value).slice(0, 3);
-  const weak = scored.filter((f) => f.value < WEAK).sort((a, b) => a.value - b.value).slice(0, 3);
+  return {
+    strengths: scored.filter((f) => f.value >= STRONG).sort((a, b) => b.value - a.value).slice(0, 3),
+    weak: scored.filter((f) => f.value < WEAK).sort((a, b) => a.value - b.value).slice(0, 3),
+  };
+}
+
+/** Areas in the same city that score better where this one is weak. */
+export function AreaAlternatives({ data, bare = false }) {
+  const { area, factors, ratings, insights } = data;
+  const alternatives = insights?.alternatives || [];
+  if (!alternatives.length) return null;
+  const label = Object.fromEntries(factors.map((f) => [f.id, f.label]));
+  const { weak } = strongAndWeak(factors, ratings);
+  return (
+    <Alts $bare={bare}>
+      {!bare && <h3>{weak.length ? `Weighing up ${area.name}? Areas in ${insights.city} that score better where it is weak` : `Other areas residents rate in ${insights.city}`}</h3>}
+      <div className="row">
+        {alternatives.map((a) => (
+          <Alt key={a.slug} to={`/areas/${a.slug}`}>
+            <span className="n">{a.name}{a.overall != null && <span><FaStar aria-hidden="true" /> {a.overall.toFixed(1)}</span>}</span>
+            <span className="w">
+              {a.better.length
+                ? <>Better for {a.better.map((b, i) => <React.Fragment key={b.id}>{i ? ' and ' : ''}<b>{label[b.id].toLowerCase()}</b> ({b.value.toFixed(1)} vs {b.here.toFixed(1)})</React.Fragment>)}</>
+                : <>{a.count} {a.count === 1 ? 'rating' : 'ratings'}</>}
+              {a.medianRent ? ` · typical rent ${formatMoney(a.medianRent, 'NGN')}/yr` : ''}
+            </span>
+          </Alt>
+        ))}
+      </div>
+    </Alts>
+  );
+}
+
+export default function AreaInsights({ data }) {
+  const { area, factors, ratings, rents, categories, insights } = data;
+  if (!insights) return null;
+  const { city, cityAverages = {}, cityRents, topics = [], cityAreas } = insights;
+  const label = Object.fromEntries(factors.map((f) => [f.id, f.label]));
+  const catLabel = Object.fromEntries((categories || []).map((c) => [c.id, c.label]));
+  const { strengths, weak } = strongAndWeak(factors, ratings);
   const compareCity = cityAreas > 1;
   const rent = rentLine(rents, compareCity ? cityRents : null, city);
 
@@ -155,24 +195,7 @@ export default function AreaInsights({ data }) {
         )}
       </Grid>
 
-      {alternatives.length > 0 && (
-        <Alts>
-          <h3>{weak.length ? `Weighing up ${area.name}? Areas in ${city} that score better where it is weak` : `Other areas residents rate in ${city}`}</h3>
-          <div className="row">
-            {alternatives.map((a) => (
-              <Alt key={a.slug} to={`/areas/${a.slug}`}>
-                <span className="n">{a.name}{a.overall != null && <span><FaStar aria-hidden="true" /> {a.overall.toFixed(1)}</span>}</span>
-                <span className="w">
-                  {a.better.length
-                    ? <>Better for {a.better.map((b, i) => <React.Fragment key={b.id}>{i ? ' and ' : ''}<b>{label[b.id].toLowerCase()}</b> ({b.value.toFixed(1)} vs {b.here.toFixed(1)})</React.Fragment>)}</>
-                    : <>{a.count} {a.count === 1 ? 'rating' : 'ratings'}</>}
-                  {a.medianRent ? ` · typical rent ${formatMoney(a.medianRent, 'NGN')}/yr` : ''}
-                </span>
-              </Alt>
-            ))}
-          </div>
-        </Alts>
-      )}
+      <AreaAlternatives data={data} />
     </Panel>
   );
 }

@@ -31,6 +31,7 @@ import {
   TENANT_CATEGORY_LABEL, TENANT_URGENCY_LABEL, TENANT_REQUEST_STATUS_LABEL, TENANT_REQUEST_STATUS_TONE,
 } from '../config/tenant';
 import { LOCALE } from '../config/markets';
+import { useIsMobile } from '../utils/useMediaQuery';
 
 /**
  * The Manage console's data sections.
@@ -77,12 +78,13 @@ export const BackBtn = styled.button`
 export const Card = styled.section`
   background: #fff; border: 1px solid var(--color-line); border-radius: var(--radius-lg);
   padding: 1.35rem 1.45rem;
-  @media (max-width: 720px) { padding: 1.1rem; }
+  @media (max-width: 720px) { padding: 0.95rem; border-radius: 16px; }
 `;
 
 export const CardHead = styled.div`
   display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
   flex-wrap: wrap; margin-bottom: 1.15rem;
+  @media (max-width: 720px) { gap: 0.5rem; margin-bottom: 0.75rem; }
 `;
 
 export const CardTitle = styled.h2`
@@ -90,6 +92,7 @@ export const CardTitle = styled.h2`
   letter-spacing: -0.02em; margin: 0;
   display: flex; align-items: center; gap: 0.5rem;
   svg { color: var(--color-green); font-size: 0.85rem; }
+  @media (max-width: 720px) { font-size: 1rem; }
 `;
 
 export const CardNote = styled.div` font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-ink-faint); `;
@@ -97,6 +100,8 @@ export const CardNote = styled.div` font-family: var(--font-mono); font-size: 0.
 /* ── KPIs ─────────────────────────────────────────── */
 export const Kpis = styled.div`
   display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 0.85rem;
+  /* Phones: figures two to a row, so a dashboard reads at a glance. */
+  @media (max-width: 720px) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
 `;
 
 export const Kpi = styled.div`
@@ -110,6 +115,12 @@ export const Kpi = styled.div`
     color: ${(p) => p.$tone || 'var(--color-ink)'}; line-height: 1.05;
   }
   .m { font-size: 0.78rem; color: var(--color-ink-muted); margin-top: 0.35rem; }
+  @media (max-width: 720px) {
+    min-width: 0; padding: 0.7rem 0.8rem; border-radius: 13px;
+    .k { font-size: 0.6rem; margin-bottom: 0.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .v { font-size: 1.15rem; overflow-wrap: anywhere; }
+    .m { font-size: 0.7rem; margin-top: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  }
 `;
 
 /* ── Lists & tables ───────────────────────────────── */
@@ -120,7 +131,10 @@ export const Row = styled.div`
   .t { font-size: 0.95rem; font-weight: 600; color: var(--color-ink); }
   .s { font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-ink-faint); margin-top: 0.25rem; }
   .amt { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; white-space: nowrap; }
-  @media (max-width: 560px) { flex-direction: column; align-items: flex-start; .amt { white-space: normal; } }
+  @media (max-width: 560px) {
+    flex-direction: column; align-items: flex-start; gap: 0.45rem; padding: 0.75rem 0;
+    .t { font-size: 0.9rem; } .amt { white-space: normal; font-size: 0.98rem; }
+  }
 `;
 
 export const ClickRow = styled(Row).attrs({ as: 'button' })`
@@ -184,7 +198,10 @@ const ToggleBtn = styled.button`
   box-shadow: ${(p) => (p.$on ? '0 1px 3px rgba(13,17,23,0.12)' : 'none')};
 `;
 
-export const Actions = styled.div` display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.9rem; `;
+export const Actions = styled.div`
+  display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.9rem;
+  @media (max-width: 720px) { gap: 0.45rem; margin-top: 0.7rem; }
+`;
 
 export const Btn = styled.button`
   display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;
@@ -228,6 +245,7 @@ export const TwoCol = styled.div`
 export const Empty = styled.div`
   border: 1px dashed var(--color-line-strong); border-radius: 14px;
   padding: 1.75rem 1.25rem; text-align: center; color: var(--color-ink-muted); font-size: 0.92rem;
+  @media (max-width: 720px) { padding: 1.1rem 0.9rem; font-size: 0.84rem; }
 `;
 
 export const Notice = styled.div`
@@ -237,6 +255,7 @@ export const Notice = styled.div`
   border: 1px solid ${(p) => (p.$warn ? 'rgba(180,83,9,0.22)' : 'rgba(184, 90, 48,0.2)')};
   color: var(--color-ink);
   svg { color: ${(p) => (p.$warn ? '#b45309' : 'var(--color-green)')}; margin-top: 0.15rem; flex-shrink: 0; }
+  @media (max-width: 720px) { gap: 0.55rem; padding: 0.75rem 0.85rem; font-size: 0.84rem; border-radius: 12px; }
 `;
 
 export const ErrorMsg = styled.p` color: #b91c1c; font-size: 0.88rem; margin: 0.6rem 0 0; `;
@@ -563,9 +582,21 @@ const Step = styled.li`
   .t { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-weight: 600; color: ${(p) => (p.$state === 'todo' ? 'var(--color-ink-muted)' : 'var(--color-ink)')}; }
   .tag { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.12rem 0.45rem; border-radius: 999px; background: var(--color-green-soft); color: var(--color-green-deep); }
   .b { margin: 0.2rem 0 0; font-size: 0.9rem; line-height: 1.5; color: var(--color-ink-muted); }
+  /* Phones: only the step you are on keeps its explanation; the rest read as a checklist. */
+  @media (max-width: 720px) {
+    padding-bottom: 0.75rem;
+    .b { display: ${(p) => (p.$state === 'now' ? 'block' : 'none')}; font-size: 0.84rem; }
+  }
+`;
+
+/* The card's opening line; phones go straight to the steps. */
+const Intro = styled.p`
+  color: var(--color-ink-muted); line-height: 1.55; margin: 0;
+  @media (max-width: 720px) { display: none; }
 `;
 
 const Aside = styled.p`
+  @media (max-width: 720px) { display: none; }
   margin: 1.1rem 0 0;
   padding-top: 0.9rem;
   border-top: 1px solid var(--color-line);
@@ -586,11 +617,11 @@ export function GetStarted({ handedOver, onStartOnboarding }) {
       <CardHead>
         <CardTitle><FaRegCompass /> {handedOver ? 'Your property is with us' : 'Get started in 5 steps'}</CardTitle>
       </CardHead>
-      <p style={{ color: 'var(--color-ink-muted)', lineHeight: 1.55, margin: 0 }}>
+      <Intro>
         {handedOver
           ? 'We have your handover. Here is what happens next. The figures below fill in once rent starts moving.'
           : 'Hand your property to EasyMoveZone and we let it, run it and pay you. Only the first step is yours.'}
-      </p>
+      </Intro>
       <Steps>
         {MANAGEMENT_STEPS.map((step, i) => {
           const state = i < current ? 'done' : i === current ? 'now' : 'todo';
@@ -636,10 +667,15 @@ export function Overview({ data, onGo, onStartOnboarding }) {
   const pending = expenses.filter((e) => e.status === 'pending');
   const series = data?.finance?.series || [];
   const currency = portalCurrency(data);
+  // Before any rent moves, every figure and list below is empty: on a phone
+  // the steps are the whole page.
+  const mobile = useIsMobile();
+  const getStarted = !live && <GetStarted handedOver={(data?.properties || []).length > 0} onStartOnboarding={onStartOnboarding} />;
+  if (mobile && !live && !series.length && !next && !s.lastPayout && !pending.length && !data?.upcomingRent?.length) return getStarted;
 
   return (
     <>
-      {!live && <GetStarted handedOver={(data?.properties || []).length > 0} onStartOnboarding={onStartOnboarding} />}
+      {getStarted}
 
       <Kpis>
         <Kpi>

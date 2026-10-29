@@ -105,7 +105,8 @@ const QuickGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
-  @media (max-width: 720px) { grid-template-columns: minmax(0, 1fr); }
+  /* Phones: three square shortcuts in a row, icon over a short name. */
+  @media (max-width: 720px) { gap: 0.5rem; }
 `;
 
 const Quick = styled(Link)`
@@ -124,6 +125,13 @@ const Quick = styled(Link)`
   .s { font-size: 0.8rem; color: var(--color-ink-muted); }
   .go { margin-left: auto; color: var(--color-ink-faint); font-size: 0.75rem; }
   &:hover { border-color: var(--color-green); color: var(--color-ink); transform: translateY(-1px); }
+
+  @media (max-width: 720px) {
+    flex-direction: column; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.8rem 0.4rem;
+    text-align: center;
+    .t { font-size: 0.78rem; line-height: 1.25; }
+    .s, .go { display: none; }
+  }
 `;
 
 const Choices = styled.div`

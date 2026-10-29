@@ -931,8 +931,8 @@ html.native-app [data-selectable] {
 
 /* Hero */
 /* The EasyMoveZone truck photo on the right, fading into the cream where the
-   words sit — the same treatment as the property hero. Phones load a 640px
-   copy (CSS backgrounds only fetch the one that matches). */
+   words sit — the same treatment as the property hero. Phones get a plain
+   cream band instead: no photo to download and nothing behind the words. */
 .moving-hero {
   position: relative;
   border-bottom: 1px solid #e3e0d8;
@@ -941,11 +941,7 @@ html.native-app [data-selectable] {
     #f7f6f3 url("/media/moving-hero.jpg") right 55% / 62% auto no-repeat;
 }
 @media (max-width: 720px) {
-  .moving-hero {
-    background:
-      linear-gradient(180deg, rgba(244, 243, 239, 0.95) 0%, rgba(244, 243, 239, 0.88) 55%, rgba(244, 243, 239, 0.7) 100%),
-      #f7f6f3 url("/media/m/moving-hero.jpg") center 55% / cover no-repeat;
-  }
+  .moving-hero { background: #f7f6f3; }
 }
 .moving-hero-inner { padding-block: 32px 28px; }
 .moving-hero-art { display: block; width: 92px; height: auto; margin-bottom: 10px; }
@@ -1029,9 +1025,22 @@ html.native-app [data-selectable] {
 
 @media (max-width: 1024px) { .moving-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 720px) {
-  .moving-hero-inner { padding-block: 24px 22px; }
-  .moving-cards-wrap { padding-block: 20px 32px; }
-  .moving-card-tile { min-height: 116px; padding: 14px; }
+  /* A short hero on phones: the headline, one line under it and the service
+     chips in a row that scrolls sideways, so the cards start above the fold. */
+  .moving-hero-inner { padding-block: 16px 14px; }
+  .moving-hero-art, .moving-hero .logistics-eyebrow { display: none; }
+  .moving-page .moving-hero h1 { margin-top: 0; font-size: 26px; line-height: 1.08; max-width: 18ch; }
+  .moving-hero-sub { margin-top: 6px; font-size: 13.5px; line-height: 1.5; }
+  .moving-services { flex-wrap: nowrap; overflow-x: auto; margin: 12px -18px 0; padding: 0 18px 2px; scrollbar-width: none; }
+  .moving-services::-webkit-scrollbar { display: none; }
+  .moving-service { flex-shrink: 0; padding: 8px 12px; }
+  .moving-cards-wrap { padding-block: 14px 28px; }
+  .moving-cards { gap: 10px; }
+  .moving-card-tile { min-height: 0; padding: 12px; gap: 2px; }
+  .moving-card-icon { width: 32px; height: 32px; margin-bottom: 6px; border-radius: 9px; }
+  .moving-card-tile strong { font-size: 14px; }
+  .moving-card-sub { font-size: 12px; line-height: 1.35; }
+  .moving-card-arrow { top: 14px; right: 12px; }
   .moving-modal { inset: 0; border-radius: 0; }
   .moving-modal-head { padding: 12px 14px; }
   .moving-modal-inner, .moving-modal-wide { width: calc(100% - 28px); padding-block: 20px 36px; }

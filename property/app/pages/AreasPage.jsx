@@ -13,6 +13,7 @@ import {
   AreaScores, AreaRents, AreaTools, AreaRules, AreaNextSteps,
 } from '../components/areas/AreaPanels';
 import AreaInsights from '../components/areas/AreaInsights';
+import AreaMobile from '../components/areas/AreaMobile';
 import { AREA_FACTORS, matchAreas, matchReason } from '../config/areas';
 import { formatMoney } from '../utils/format';
 import {
@@ -33,10 +34,12 @@ const Intro = styled.header`
   .k { margin: 0; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-eyebrow); }
   h1 { margin: 0.45rem auto 0.55rem; max-width: 16ch; font-size: clamp(2.3rem, 4vw, 3.35rem); font-weight: 500; letter-spacing: -0.034em; line-height: 0.98; }
   p { margin: 0 auto; max-width: 42ch; color: var(--color-ink-muted); line-height: 1.55; }
+  /* Phones: a two-line hero, left-aligned, so search and the areas come first. */
   @media (max-width: 720px) {
-    padding: 1.4rem 1rem 0;
-    h1 { font-size: 2rem; }
-    p { font-size: 0.92rem; }
+    padding: 0.9rem 1rem 0; text-align: left;
+    .k { display: none; }
+    h1 { margin: 0 0 0.25rem; max-width: none; font-size: 1.5rem; line-height: 1.1; }
+    p { margin: 0; font-size: 0.84rem; line-height: 1.45; }
   }
 `;
 const Body = styled.section`
@@ -66,6 +69,7 @@ const StateHead = styled.h2`
   margin: 2.25rem 0 0.9rem; font-size: clamp(1.6rem, 2vw, 2rem); font-weight: 500; letter-spacing: -0.03em;
   display: flex; align-items: baseline; gap: 0.65rem;
   &:first-of-type { margin-top: 0.25rem; }
+  @media (max-width: 720px) { margin: 1.5rem 0 0.65rem; font-size: 1.3rem; }
   span { font-family: var(--font-sans); font-size: 0.78rem; font-weight: 600; letter-spacing: 0; color: var(--color-ink-faint); }
 `;
 const Grid = styled.div`
@@ -77,7 +81,6 @@ const AreaCard = styled(Link)`
   box-shadow: var(--shadow-soft); transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
   h3, p { overflow-wrap: break-word; }
   &:hover { border-color: var(--color-green-bright); transform: translateY(-3px); box-shadow: var(--shadow-card); color: var(--color-ink); }
-  @media (max-width: 720px) { min-height: 0; &:hover { transform: none; } }
   .top { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; }
   h3 { margin: 0; font-size: clamp(1.35rem, 1.6vw, 1.6rem); font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; }
   .city { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-ink-faint); display: flex; align-items: center; gap: 0.35rem; }
@@ -86,6 +89,14 @@ const AreaCard = styled(Link)`
   .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; margin-top: auto; padding-top: 0.75rem; border-top: 1px solid var(--color-line); }
   .stats span { display: flex; flex-direction: column; gap: 0.1rem; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-ink-faint); }
   .stats b { font-family: var(--font-display); font-size: 1.2rem; font-weight: 500; letter-spacing: -0.03em; text-transform: none; color: var(--color-ink); }
+  @media (max-width: 720px) {
+    min-height: 0; gap: 0.45rem; padding: 0.9rem 1rem 0.8rem; border-radius: 16px;
+    &:hover { transform: none; }
+    h3 { font-size: 1.2rem; }
+    p { font-size: 0.82rem; -webkit-line-clamp: 2; }
+    .stats { padding-top: 0.55rem; }
+    .stats b { font-size: 1rem; }
+  }
 `;
 const Suggest = styled.form`
   margin-top: 2rem; padding: 1.4rem; border-radius: 18px; background: #fff; border: 1px dashed var(--color-line-strong);
@@ -111,7 +122,14 @@ const Finder = styled.section`
   .filters { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.75rem; }
   select { min-height: 40px; border: 1px solid var(--color-line-strong); border-radius: 10px; padding: 0 0.7rem; font: inherit; background: #fff; }
   .empty { margin: 0.9rem 0 0; font-size: 0.88rem; color: var(--color-ink-muted); }
-  @media (max-width: 720px) { padding: 1rem; }
+  @media (max-width: 720px) {
+    padding: 0.9rem; margin-bottom: 1.1rem; border-radius: 16px;
+    h2 { font-size: 1.1rem; }
+    .sub { margin-bottom: 0.65rem; font-size: 0.8rem; }
+    .chips { flex-wrap: nowrap; overflow-x: auto; margin: 0 -0.9rem; padding: 0 0.9rem 0.2rem; scrollbar-width: none; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chips button { flex-shrink: 0; }
+  }
 `;
 const Matches = styled.ol`
   list-style: none; margin: 0.9rem 0 0; padding: 0;
@@ -149,7 +167,7 @@ function FindMyArea({ areas }) {
   return (
     <Finder aria-labelledby="find-area">
       <h2 id="find-area">Find the right area for you</h2>
-      <p className="sub">Pick up to {MAX_PRIORITIES} things that matter. Areas are ranked on what residents have actually scored.</p>
+      <p className="sub">Pick up to {MAX_PRIORITIES} things that matter. We rank areas on residents&rsquo; scores.</p>
       <div className="chips" role="group" aria-label="What matters most">
         {AREA_FACTORS.map((f) => (
           <Pill
@@ -352,11 +370,6 @@ const Headline = styled.div`
   b svg { color: #d4a017; font-size: 1rem; }
   span { font-size: 0.75rem; color: var(--color-ink-muted); }
 `;
-const Jump = styled.nav`
-  display: flex; gap: 0.4rem; overflow-x: auto; margin: 0 -1rem 1rem; padding: 0 1rem 0.25rem;
-  a { flex-shrink: 0; padding: 0.4rem 0.85rem; border-radius: 999px; background: #fff; border: 1px solid var(--color-line); font-size: 0.82rem; font-weight: 600; color: var(--color-ink); }
-  @media (min-width: 981px) { display: none; }
-`;
 /*
  * The page opens with "at a glance" (what the numbers say, against the rest
  * of the city, and areas that do better where this one is weak), then reads
@@ -381,8 +394,13 @@ const BandTitle = styled.h2`
   span { display: block; margin-top: 0.2rem; font-size: 0.86rem; font-weight: 400; color: var(--color-ink-muted); }
 `;
 
+/* A panel URL (/areas/:slug/board…) opened on a wider screen scrolls to that section. */
+const PANEL_ANCHOR = {
+  vote: 'scores', rent: 'rents', board: 'board', map: 'tools', compare: 'area-glance',
+};
+
 function AreaDetail() {
-  const { slug } = useParams();
+  const { slug, '*': panel } = useParams();
   const { user, loading: authLoading } = useAuth();
   const mobile = useIsMobile();
   const [data, setData] = useState(null);
@@ -400,6 +418,12 @@ function AreaDetail() {
   // Reload once sign-in is known, so the viewer's own scores and badge show.
   useEffect(() => { if (!authLoading) load(); }, [load, authLoading, user?.email]);
 
+  const loaded = Boolean(data);
+  useEffect(() => {
+    if (mobile || !loaded || !PANEL_ANCHOR[panel]) return;
+    document.getElementById(PANEL_ANCHOR[panel])?.scrollIntoView({ block: 'start' });
+  }, [mobile, loaded, panel]);
+
   if (error) {
     return (
       <Page><Body>
@@ -409,6 +433,11 @@ function AreaDetail() {
     );
   }
   if (!data) return <Loader />;
+
+  const onRated = (next) => setData((d) => ({ ...d, ...next }));
+  if (mobile) {
+    return <Page><AreaMobile data={data} signedIn={Boolean(user)} onRated={onRated} /></Page>;
+  }
 
   const { area, ratings, viewer } = data;
 
@@ -432,16 +461,10 @@ function AreaDetail() {
           </Headline>
         </Head>
 
-        {mobile && (
-          <Jump aria-label="On this page">
-            <a href="#scores">Scores</a><a href="#rents">Rents</a><a href="#tools">Location tools</a><a href="#board">Board</a>
-          </Jump>
-        )}
-
         <Sections>
           <AreaInsights data={data} />
           <Band>
-            <div id="scores"><AreaScores data={data} onRated={(next) => setData((d) => ({ ...d, ...next }))} /></div>
+            <div id="scores"><AreaScores data={data} onRated={onRated} /></div>
             <Stack>
               <div id="rents"><AreaRents data={data} /></div>
               <AreaNextSteps area={area} />
@@ -466,11 +489,14 @@ function AreaDetail() {
 
 export default function AreasPage() {
   const location = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
+  // A new area starts at the top; opening or closing one of its panels does not move the page.
+  const areaPath = location.pathname.split('/').slice(0, 3).join('/');
+  useEffect(() => { window.scrollTo(0, 0); }, [areaPath]);
   return (
     <Routes>
       <Route index element={<AreasIndex />} />
-      <Route path=":slug" element={<AreaDetail />} />
+      {/* /areas/:slug/vote, /rent, /board, /map and /compare open a panel on phones. */}
+      <Route path=":slug/*" element={<AreaDetail />} />
     </Routes>
   );
 }

@@ -7,6 +7,7 @@ import {
 } from 'react-icons/fa';
 import { api } from '../../api';
 import { formatMoney } from '../../utils/format';
+import { AREA_FACTORS } from '../../config/areas';
 import { RENT_URL, RENTAL_CHECK_URL, MOVING_URL } from '../../config/platform';
 import {
   Panel, PrimaryBtn, ErrorText, SignInLink,
@@ -30,6 +31,13 @@ const Bars = styled.ul`
   .fill.mid { background: #d4a017; }
   .val { font-weight: 700; text-align: right; color: var(--color-ink); }
   .none { color: var(--color-ink-faint); font-weight: 500; }
+  /* Compact: label, bar and score on one line, for the phone's poll card. */
+  ${(p) => p.$compact && `
+    gap: 0.7rem;
+    li { grid-template-columns: 6.2rem minmax(0, 1fr) 1.9rem; gap: 0.6rem; font-size: 0.84rem; }
+    .label { grid-column: auto; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track { height: 10px; }
+  `}
 `;
 const RateToggle = styled.button`
   display: inline-flex; align-items: center; gap: 0.45rem; margin-top: 1.1rem; min-height: 40px; padding: 0 1rem;
@@ -39,8 +47,8 @@ const RateToggle = styled.button`
   svg { font-size: 0.65rem; transition: transform 0.15s ease; }
   &[aria-expanded='true'] svg { transform: rotate(180deg); }
 `;
-const RateForm = styled.form`
-  margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--color-line);
+const RateFormBox = styled.form`
+  ${(p) => (p.$bare ? '' : 'margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--color-line);')}
   h3 { margin: 0 0 0.2rem; font-size: 0.95rem; }
   .hint { margin: 0 0 0.8rem; font-size: 0.8rem; color: var(--color-ink-muted); }
   fieldset { border: 0; padding: 0; margin: 0 0 0.7rem; }
@@ -56,22 +64,41 @@ const Dot = styled.button`
   color: ${(p) => (p.$on ? '#fff' : 'var(--color-ink)')};
 `;
 
+const SHORT = Object.fromEntries(AREA_FACTORS.map((f) => [f.id, f.short]));
+
 const tone = (v) => (v < 2.5 ? 'low' : v < 3.5 ? 'mid' : '');
 
-export function AreaScores({ data, onRated }) {
-  const { area, factors, ratings, myRating, viewer } = data;
+/** Residents' average for each factor, as a bar out of 5. */
+export function ScoreBars({ factors, ratings, compact = false }) {
+  return (
+    <Bars $compact={compact}>
+      {factors.map((f) => {
+        const v = ratings.averages[f.id];
+        return (
+          <li key={f.id}>
+            <span className="label" title={compact ? f.label : undefined}>{compact ? SHORT[f.id] || f.label : f.label}</span>
+            <span className="track" aria-hidden><span className={`fill ${v != null ? tone(v) : ''}`} style={{ width: `${v != null ? (v / 5) * 100 : 0}%`, display: 'block' }} /></span>
+            <span className="val">{v != null ? v.toFixed(1) : <span className="none">—</span>}</span>
+          </li>
+        );
+      })}
+    </Bars>
+  );
+}
+
+/** The signed-in viewer's own scores: 1 to 5 on each factor, any left blank. */
+export function RateForm({ data, onRated, id, bare = false }) {
+  const { area, factors, myRating } = data;
   const [scores, setScores] = useState(myRating || {});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
-  // The seven-question form is long; it opens on request, not by default.
-  const [rating, setRating] = useState(false);
 
   useEffect(() => { setScores(myRating || {}); }, [myRating]);
 
-  const pick = (id, n) => {
+  const pick = (fid, n) => {
     setSaved(false);
-    setScores((s) => ({ ...s, [id]: s[id] === n ? null : n }));
+    setScores((s) => ({ ...s, [fid]: s[fid] === n ? null : n }));
   };
 
   const save = async (e) => {
@@ -91,6 +118,33 @@ export function AreaScores({ data, onRated }) {
   const any = Object.values(scores).some(Boolean);
 
   return (
+    <RateFormBox id={id} onSubmit={save} $bare={bare}>
+      {!bare && <h3>{myRating ? 'Your scores' : `Score ${area.name}`}</h3>}
+      <p className="hint">Score what you know. Leave anything else blank.</p>
+      {factors.map((f) => (
+        <fieldset key={f.id}>
+          <legend>{f.label}</legend>
+          <div className="scale">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <Dot key={n} type="button" $on={scores[f.id] === n} aria-pressed={scores[f.id] === n} aria-label={`${f.label}: ${n} of 5`} onClick={() => pick(f.id, n)}>{n}</Dot>
+            ))}
+          </div>
+          <div className="ends"><span>{f.low}</span><span>{f.high}</span></div>
+        </fieldset>
+      ))}
+      <PrimaryBtn type="submit" disabled={saving || !any}>{saving ? 'Saving…' : myRating ? 'Update my scores' : 'Save my scores'}</PrimaryBtn>
+      {saved && <div className="done"><FaCheckCircle /> Thanks, your scores are in.</div>}
+      {error && <ErrorText>{error}</ErrorText>}
+    </RateFormBox>
+  );
+}
+
+export function AreaScores({ data, onRated }) {
+  const { area, factors, ratings, myRating, viewer } = data;
+  // The seven-question form is long; it opens on request, not by default.
+  const [rating, setRating] = useState(false);
+
+  return (
     <Panel>
       <h2>What residents score {area.name}</h2>
       <p className="sub">
@@ -98,18 +152,7 @@ export function AreaScores({ data, onRated }) {
           ? `From ${ratings.count} ${ratings.count === 1 ? 'person' : 'people'}${ratings.verifiedCount ? `, ${ratings.verifiedCount} verified ${ratings.verifiedCount === 1 ? 'resident' : 'residents'}` : ''}. 5 is the good end.`
           : 'Nobody has scored this area yet. Be the first.'}
       </p>
-      <Bars>
-        {factors.map((f) => {
-          const v = ratings.averages[f.id];
-          return (
-            <li key={f.id}>
-              <span className="label">{f.label}</span>
-              <span className="track" aria-hidden><span className={`fill ${v != null ? tone(v) : ''}`} style={{ width: `${v != null ? (v / 5) * 100 : 0}%`, display: 'block' }} /></span>
-              <span className="val">{v != null ? v.toFixed(1) : <span className="none">—</span>}</span>
-            </li>
-          );
-        })}
-      </Bars>
+      <ScoreBars factors={factors} ratings={ratings} />
 
       {viewer.signedIn && (
         <RateToggle type="button" aria-expanded={rating} aria-controls="area-rate" onClick={() => setRating((v) => !v)}>
@@ -117,24 +160,7 @@ export function AreaScores({ data, onRated }) {
         </RateToggle>
       )}
       {viewer.signedIn ? rating && (
-        <RateForm id="area-rate" onSubmit={save}>
-          <h3>{myRating ? 'Your scores' : `Score ${area.name}`}</h3>
-          <p className="hint">Score what you know. Leave anything else blank.</p>
-          {factors.map((f) => (
-            <fieldset key={f.id}>
-              <legend>{f.label}</legend>
-              <div className="scale">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <Dot key={n} type="button" $on={scores[f.id] === n} aria-pressed={scores[f.id] === n} aria-label={`${f.label}: ${n} of 5`} onClick={() => pick(f.id, n)}>{n}</Dot>
-                ))}
-              </div>
-              <div className="ends"><span>{f.low}</span><span>{f.high}</span></div>
-            </fieldset>
-          ))}
-          <PrimaryBtn type="submit" disabled={saving || !any}>{saving ? 'Saving…' : myRating ? 'Update my scores' : 'Save my scores'}</PrimaryBtn>
-          {saved && <div className="done"><FaCheckCircle /> Thanks, your scores are in.</div>}
-          {error && <ErrorText>{error}</ErrorText>}
-        </RateForm>
+        <RateForm id="area-rate" data={data} onRated={onRated} />
       ) : (
         <p className="sub" style={{ marginTop: '1rem', marginBottom: 0 }}>
           Live here? <SignInLink>Sign in to add your scores</SignInLink>
@@ -165,7 +191,7 @@ export function AreaRents({ data }) {
   return (
     <Panel>
       <h2>Rent in {area.name}</h2>
-      <p className="sub">Yearly rents on the homes we let here now, as owners ask them. Each listing also shows any service charge and refundable caution deposit, and the tenancy agreement sets the final figures.</p>
+      <p className="sub">Asking rents per year on the homes we let here now. Each listing shows any service charge and caution deposit.</p>
       {rents.length ? (
         <RentTable>
           <thead><tr><th>Home</th><th style={{ textAlign: 'right' }}>Typical per year</th></tr></thead>
@@ -331,17 +357,24 @@ const Rules = styled.ul`
   li + li { margin-top: 0.3rem; }
 `;
 
+/** The board's rules as a list, for the rules panel and the phone's board view. */
+export function BoardRulesList() {
+  return (
+    <Rules>
+      <li>Talk about places: buildings, streets, utilities, flooding and safety. Not about named people.</li>
+      <li>Share what you saw yourself. Do not accuse anyone of a crime: in an emergency call 112, and report crime to the police.</li>
+      <li>No phone numbers, emails or adverts. We remove them.</li>
+      <li>Posts that may name or accuse someone wait for a person on our team to read them first.</li>
+      <li>See something wrong? Use Report. Posts with several reports are hidden until we review them.</li>
+    </Rules>
+  );
+}
+
 export function AreaRules() {
   return (
     <Panel as="section" aria-labelledby="area-rules">
       <h2 id="area-rules">Board rules</h2>
-      <Rules>
-        <li>Talk about places: buildings, streets, utilities, flooding and safety. Not about named people.</li>
-        <li>Share what you saw yourself. Do not accuse anyone of a crime: in an emergency call 112, and report crime to the police.</li>
-        <li>No phone numbers, emails or adverts. We remove them.</li>
-        <li>Posts that may name or accuse someone wait for a person on our team to read them first.</li>
-        <li>See something wrong? Use Report. Posts with several reports are hidden until we review them.</li>
-      </Rules>
+      <BoardRulesList />
     </Panel>
   );
 }
