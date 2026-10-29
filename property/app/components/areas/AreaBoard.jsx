@@ -38,7 +38,11 @@ const Composer = styled.form`
   .check { display: flex; align-items: center; gap: 0.45rem; font-size: 0.84rem; color: var(--color-ink-muted); cursor: pointer; }
   .count { font-size: 0.75rem; color: var(--color-ink-faint); }
   .place { margin-top: 0.6rem; }
-  .ok { display: flex; align-items: center; gap: 0.4rem; color: var(--color-green-deep); font-weight: 600; font-size: 0.86rem; margin-top: 0.6rem; }
+  .ok { display: flex; align-items: center; gap: 0.4rem; color: var(--color-green-deep); font-weight: 600; font-size: 0.86rem; margin-top: 0.6rem; }  @media (max-width: 720px) {
+    .cats { flex-wrap: nowrap; overflow-x: auto; margin: 0 -0.95rem 0.7rem; padding: 0 0.95rem 0.2rem; scrollbar-width: none; }
+    .cats::-webkit-scrollbar { display: none; }
+    .cats button { flex-shrink: 0; padding: 0.4rem 0.8rem; font-size: 0.78rem; }
+  }
 `;
 const Filters = styled.div`
   display: flex; gap: 0.35rem; overflow-x: auto; padding-bottom: 0.25rem; margin: 0.25rem 0 0.75rem;

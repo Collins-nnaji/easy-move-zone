@@ -979,7 +979,8 @@ html.native-app [data-selectable] {
 .moving-modal-close { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 40px; height: 40px; border-radius: 999px; border: 1px solid #e3e0d8; background: #fff; color: #12141a; cursor: pointer; transition: background .15s, border-color .15s; }
 .moving-modal-close:hover { background: #f7f6f3; border-color: #cfcabf; }
 .moving-modal-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-.moving-modal-inner { width: min(100% - 40px, 760px); margin-inline: auto; padding-block: 28px 48px; display: grid; gap: 28px; }
+/* minmax(0, 1fr): a wide row inside (a sideways-scrolling chip list) scrolls rather than widening the panel. */
+.moving-modal-inner { width: min(100% - 40px, 760px); margin-inline: auto; padding-block: 28px 48px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
 .moving-modal-wide { width: min(100% - 40px, 1160px); }
 @keyframes moving-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes moving-rise { from { opacity: 0; transform: translateY(16px) scale(0.99); } to { opacity: 1; transform: none; } }
